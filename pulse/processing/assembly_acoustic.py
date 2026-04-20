@@ -631,10 +631,12 @@ class AssemblyAcoustic:
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         
-        K = full_K[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
-        M = full_M[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+        K  = full_K[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+        Kr = full_K[self.unprescribed_indexes, :][:, self.prescribed_indexes]
+        M  = full_M[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+        Mr = full_M[self.unprescribed_indexes, :][:, self.prescribed_indexes]
 
-        return K, M
+        return K, Kr, M, Mr
 
     def get_link_global_matrices_modal(self):
         """

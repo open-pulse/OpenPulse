@@ -24,7 +24,7 @@ class AcousticAssembler(Assembler):
     model : Model
     """
 
-    def __init__(self, model: Model):
+    def __init__(self, model: Model, harmonic_method: str = "fetm"):
 
         self.model = model
 
@@ -41,6 +41,7 @@ class AcousticAssembler(Assembler):
         self._prescribed_indexes = self._assembly.get_prescribed_indexes()
         self._prescribed_values = self._assembly.get_prescribed_values()
         self._unprescribed_indexes = self._assembly.get_pipe_and_unprescribed_indexes()
+        self._harmonic_method = harmonic_method
 
         # FETM matrices (harmonic) — pre-computed
         self._K: list | None = None
@@ -55,12 +56,23 @@ class AcousticAssembler(Assembler):
 
         # Combined load vector (harmonic) — pre-computed
         self._volume_velocity: np.ndarray | None = None  # (n_unprescribed, n_freqs)
+        self._volume_velocity_fem: np.ndarray | None = None
         self._array_prescribed_values: np.ndarray | None = None
 
         # FEM matrices (modal) — pre-computed on demand
         self._K_modal: spmatrix | None = None
         self._M_modal: spmatrix | None = None
         self._C_modal: spmatrix | None = None
+
+        # FEM harmonic matrices — only populated when harmonic_method == "fem"
+        self._K_fem: spmatrix | None = None
+        self._M_fem: spmatrix | None = None
+        self._Kr_fem: spmatrix | None = None
+        self._Mr_fem: spmatrix | None = None
+        self._T_link_fem: list | None = None   # FETM transfer per freq [n_u × n_u]
+        self._Tr_link_fem: list | None = None  # prescribed coupling per freq [n_u × n_p]
+        self._C_lump_fem: list | None = None
+        self._Cr_lump_fem: list | None = None
 
         # Perforated plate nonlinearity
         self._nl_elements: list = self._detect_nl_pp_elements()
@@ -93,6 +105,9 @@ class AcousticAssembler(Assembler):
         nonlinear element.
         """
         self._build_fetm_matrices()
+        if self._harmonic_method == "fem":
+            self._build_fem_harmonic_matrices()
+            self._volume_velocity_fem = None
         self._volume_velocity = None  # Force load recomputation
 
     def check_convergence(
@@ -208,15 +223,20 @@ class AcousticAssembler(Assembler):
         return None
 
     def get_system_matrix(self, index: int, omega: float) -> spmatrix:
-        """
-        FETM admittance matrix for step `index`:
-            Kadd_lump[index] = K[index] + K_link[index] + K_lump[index] + T_link[index]
-        """
+        if self._harmonic_method == "fem":
+            self._ensure_fem_harmonic_matrices()
+            return (self._K_fem
+                    - (omega ** 2) * self._M_fem
+                    + 1j * omega * self._C_lump_fem[index]
+                    + self._T_link_fem[index])
+        # default: FETM
         self._ensure_fetm_matrices()
         return self._Kadd_lump[index]
 
     def get_load_vector(self, index: int, omega: float) -> np.ndarray:
-        """Combined volume velocity for step `index`."""
+        if self._harmonic_method == "fem":
+            return self._get_fem_load_vector(index, omega)
+        # default: FETM
         self._ensure_volume_velocity()
         return self._volume_velocity[:, index]
 
@@ -330,6 +350,63 @@ class AcousticAssembler(Assembler):
 
         self._volume_velocity = volume_velocity.T - vv_eq
 
+    # ── FEM harmonic matrix construction ─────────────────────────────────
+
+    def _ensure_fem_harmonic_matrices(self) -> None:
+        if self._K_fem is None:
+            self._build_fem_harmonic_matrices()
+
+    def _build_fem_harmonic_matrices(self) -> None:
+        """Hybrid: FEM for pipe/link elements + FETM for transfer elements."""
+        K, Kr, M, Mr = self._assembly.get_global_matrices_modal()
+        K_link, M_link = self._assembly.get_link_global_matrices_modal()
+        T_link, Tr_link = self._assembly.get_fetm_transfer_matrices()
+        C_lump, Cr_lump = self._assembly.get_lumped_matrices_for_FEM()
+
+        self._K_fem  = K + K_link
+        self._Kr_fem = Kr
+        self._M_fem  = M + M_link
+        self._Mr_fem = Mr
+        self._T_link_fem  = T_link
+        self._Tr_link_fem = [m[self._unprescribed_indexes, :] for m in Tr_link]
+        self._C_lump_fem  = C_lump
+        self._Cr_lump_fem = Cr_lump
+
+    def _get_fem_load_vector(self, index: int, omega: float) -> np.ndarray:
+        """FEM load vector: Q_ext - (Kr - ω²Mr + iωCr + Tr_link) @ p_presc"""
+        self._ensure_fem_harmonic_matrices()
+        self._ensure_volume_velocity_fem()
+
+        f = self._volume_velocity_fem[:, index].copy()
+
+        if len(self._prescribed_values) != 0:
+            p_presc = self._array_prescribed_values[:, index]
+            f -= (self._Kr_fem
+                  - (omega ** 2) * self._Mr_fem
+                  + 1j * omega * self._Cr_lump_fem[index]
+                  + self._Tr_link_fem[index]) @ p_presc
+        return f
+
+    def _ensure_volume_velocity_fem(self) -> None:
+        if self._volume_velocity_fem is None:
+            self._build_volume_velocity_fem()
+
+    def _build_volume_velocity_fem(self) -> None:
+        """External volume velocity for FEM path; prescribed-DOF correction in get_load_vector."""
+        volume_velocity = self._assembly.get_global_volume_velocity()
+
+        if len(self._prescribed_values) != 0:
+            aux_ones = np.ones(len(self.frequencies), dtype=complex)
+            pv_list = []
+            for value in self._prescribed_values:
+                if isinstance(value, complex):
+                    pv_list.append(aux_ones * value)
+                elif isinstance(value, np.ndarray):
+                    pv_list.append(value)
+            self._array_prescribed_values = np.array(pv_list)
+
+        self._volume_velocity_fem = volume_velocity.T  # (n_unprescribed, n_freqs)
+
     # ── FEM matrix construction (modal) ──────────────────────────────────
 
     def _ensure_modal_matrices(self) -> None:
@@ -337,7 +414,7 @@ class AcousticAssembler(Assembler):
             self._build_modal_matrices()
 
     def _build_modal_matrices(self) -> None:
-        K, M = self._assembly.get_global_matrices_modal()
+        K, _Kr, M, _Mr = self._assembly.get_global_matrices_modal()
         K_link, M_link = self._assembly.get_link_global_matrices_modal()
         C, _ = self._assembly.get_lumped_matrices_for_FEM()
 
