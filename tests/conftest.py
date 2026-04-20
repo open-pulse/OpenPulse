@@ -128,3 +128,33 @@ def example2_project(tmp_path):
         model.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
     return project, mesher_setup
+"""
+Global pytest configuration and fixtures.
+
+The ``no_qt_in_solver`` fixture suppresses GUI-related side effects that
+originate inside the non-linear harmonic solver during headless (CI/script)
+runs:
+
+* ``_build_convergence_plot`` – tries to create a PySide6 ``XYPlot`` widget.
+  When no display is available Qt calls ``abort()`` at the C level, which
+  cannot be caught by Python's ``except Exception``.  Returning ``None`` is
+  the expected headless behaviour and is already documented in the docstring
+  of that helper.
+
+* ``time.sleep`` inside ``process_analysis`` – a 1-second UI-update pause
+  injected after every nonlinear acoustic solve.  Skipped in tests.
+"""
+
+from unittest.mock import patch
+
+
+@pytest.fixture(autouse=True)
+def no_qt_in_solver():
+    with (
+        patch(
+            "pulse.processing.solvers.harmonic_solver._build_convergence_plot",
+            return_value=None,
+        ),
+        patch("time.sleep"),
+    ):
+        yield
