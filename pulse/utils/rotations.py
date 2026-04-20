@@ -1,7 +1,10 @@
 import numpy as np
+from scipy.spatial.transform import Rotation
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
+
+from pulse.utils.common_utils import transformation_matrix_3x3
 
 
 def align_y_rotations(vector):
@@ -34,14 +37,26 @@ def align_y_rotations(vector):
 
 def align_vtk_geometry(geometry: vtkPolyData, start: np.ndarray, vector: np.ndarray, angle: float = 0):
     x, y, z = start
-    rx, ry, rz = align_y_rotations(vector)
+
+    # compute the transformation matrix
+    transformation_matrices = transformation_matrix_3x3( 
+        vector[0],
+        vector[1],
+        vector[2],
+        gamma = angle,
+        )
+
+    # compute the rotation matrix
+    rot_matrix = Rotation.from_matrix(transformation_matrices)
+
+    # compute the rotation angles rz, rx and ry in degrees
+    rz, rx, ry = -rot_matrix.as_euler('zxy', degrees=True)
 
     transform = vtkTransform()
     transform.Translate(x, y, z)
-    transform.RotateZ(np.degrees(rz))
-    transform.RotateX(np.degrees(rx))
-    transform.RotateY(np.degrees(ry))
-    transform.RotateY(np.degrees(angle) - 90)
+    transform.RotateZ(rz)
+    transform.RotateX(rx)
+    transform.RotateY(ry)
     transform.Update()
 
     transform_filter = vtkTransformFilter()
