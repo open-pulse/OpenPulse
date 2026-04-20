@@ -78,6 +78,7 @@ class AcousticAssembler(Assembler):
         self._nl_elements: list = self._detect_nl_pp_elements()
         self.convergence_target: float = 0.10  # 10 %
         self.convergence_data_log: list | None = None
+        self.convergence_plot = None  # set by HarmonicSolver after the run
         self._max_iter: int = 100
 
     # ── Nonlinearity ──────────────────────────────────────────────────────
