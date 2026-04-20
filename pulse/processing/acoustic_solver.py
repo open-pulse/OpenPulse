@@ -383,7 +383,7 @@ class AcousticSolver:
         if self.nl_pp_elements:
 
             _criteria = 100*self.target
-            self.update_xy_plot_data()
+            self.update_plot_2d_data()
 
             while relative_difference > self.target or not converged:
                 
@@ -476,54 +476,54 @@ class AcousticSolver:
                 converged = self.check_convergence_criterias(pressure_residues, delta_residues)
 
                 if converged:
-                    self.xy_plot.show()
+                    self.plot_2d.show()
                     self.convergence_data_log = [self.iterations, pressure_residues, delta_residues, 100*self.target]
                     self.solution = previous_solution
                     return self.solution, self.convergence_data_log
 
                 else:
-                    self.update_xy_plot_data()
+                    self.update_plot_2d_data()
                     self.get_global_matrices()
                     solution = np.zeros((rows, cols), dtype=complex)
 
-    def initialize_xy_plotter(self):
+    def initialize_plot_2d(self):
 
-        from pulse.interface.user_input.plots.general.xy_plot import XYPlot
+        from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified
 
         legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
 
         plots_config = {
-                        "number_of_plots" : 3,
-                        "x_label" : "Iterations [n]",
-                        "y_label" : "Relative error [%]",
-                        "colors" : [(0,0,0), (0,0,1), (1,0,0)],
-                        "line_styles" : ["--", "-", "-"],
-                        "markers" : [None, "o", "o"],
-                        "legends" : legends,
-                        "title" : "Perforated plate convergence plot"
-                        }
+            "number_of_plots" : 3,
+            "x_label" : "Iterations [n]",
+            "y_label" : "Relative error [%]",
+            "colors" : [(0,0,0), (0,0,1), (1,0,0)],
+            "line_styles" : ["--", "-", "-"],
+            "markers" : [None, "o", "o"],
+            "legends" : legends,
+            "title" : "Perforated plate convergence plot"
+            }
 
-        self.xy_plot = XYPlot(plots_config)
-        # self.xy_plot.show()
+        self.plot_2d = Plot2DSimplified(**plots_config)
+        # self.plot_2d.show()
 
-    def update_xy_plot_data(self):
+    def update_plot_2d_data(self):
         if self.iterations:
             dy = 20
             xlim = (1, max(self.iterations))
             ylim = (0, (round(max(self.relative_error)/dy,0)+1)*dy)
             x_data = self.iterations
-            self.xy_plot.set_plot_data(x_data, self.relative_error, 1, (xlim, ylim))
+            self.plot_2d.set_plot_data(x_data, self.relative_error, 1, (xlim, ylim))
             if self.deltaP_errors:
-                self.xy_plot.set_plot_data(x_data, self.deltaP_errors, 2, (xlim, ylim))
+                self.plot_2d.set_plot_data(x_data, self.deltaP_errors, 2, (xlim, ylim))
 
         else:
             criteria = 100* self.target
-            self.initialize_xy_plotter()
+            self.initialize_plot_2d()
             xlim = (1, 100)
             ylim = (0, 120)
             x_data = [0, 100]
             y_data = [criteria, criteria]
-            self.xy_plot.set_plot_data(x_data, y_data, 0, (xlim, ylim))
+            self.plot_2d.set_plot_data(x_data, y_data, 0, (xlim, ylim))
 
     def check_convergence_criterias(self, pressure_residues, delta_residues, delta_residue_criteria=True):
 

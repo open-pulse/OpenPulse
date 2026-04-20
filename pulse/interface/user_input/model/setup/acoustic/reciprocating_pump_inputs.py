@@ -30,10 +30,8 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
-from pulse.model.reciprocating_pump_model import (
-    CylindersActingMode,
-    ReciprocatingPumpModel,
-)
+from pulse.model.reciprocating_pump_model import CylindersActingMode, ReciprocatingPumpModel
+from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified 
 
 
 class TabIndex(IntEnum):
@@ -810,61 +808,74 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
             self.process_aquisition_parameters()
 
     def plot_PV_diagram_head_end(self):
-
         if self.check_all_parameters():
             return
 
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
 
-        self.pump_model.plot_PV_diagram_head_end()
+        volume_HE, pressure_HE = self.pump_model.get_PV_diagram_head_end_data()
+        if volume_HE is None:
+            return
 
-        # TODO: check axes limits
-        # volume_HE, pressure_HE, _ = self.pump_model.process_head_end_volumes_and_pressures()
+        pressure_unit = self.comboBox_pressure_units.currentText()
 
-        # if volume_HE is None:
-        #     return
+        plot_2d = Plot2DSimplified(
+            title="P-V diagram (head end)",
+            x_label="Volume [m³]",
+            y_left_label=f"Pressure [{pressure_unit}]"
+        )
 
-        # kgf_cm2_to_Pa = 9.80665e4
-        # bar_to_Pa = 1e5
-
-        # if self.pump_model.pressure_unit == "kgf/cm²":
-        #     pressure_HE /= kgf_cm2_to_Pa
-        # else:
-        #     pressure_HE /= bar_to_Pa
-
-        # x_label = "Volume [m³]"
-        # y_label = f"Pressure [{self.pump_model.pressure_unit}]"
-        # title = "P-V diagram (head end)"
-
-        # plots_config = {
-        #                 "number_of_plots" : 1,
-        #                 "x_label" : x_label,
-        #                 "y_label" : y_label,
-        #                 "colors" : [(0,0,0), (0,0,1), (1,0,0)],
-        #                 "line_styles" : ["--", "-", "-"],
-        #                 "markers" : [None, "o", "o"],
-        #                 "legends" : ["head end"],
-        #                 "title" : title
-        #                 }
-
-        # self.xy_plot = XYPlot(plots_config, dialog=self)
-        # self.xy_plot.set_plot_data(volume_HE, pressure_HE, 0, "auto")
-        # self.xy_plot.show()
+        plot_2d.set_plot_data(volume_HE, pressure_HE, label="Head end")
+        plot_2d.show()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_PV_diagram_crank_end()
+
+        volume_CE, pressure_CE = self.pump_model.get_PV_diagram_crank_end_data()
+        if volume_CE is None:
+            return
+
+        pressure_unit = self.comboBox_pressure_units.currentText()
+
+        plot_2d = Plot2DSimplified(
+            title = "P-V diagram (crank end)",
+            x_label = "Volume [m³]",
+            y_left_label = f"Pressure [{pressure_unit}]"
+        )
+
+        plot_2d.set_plot_data(volume_CE, pressure_CE, label="Crank end")
+        plot_2d.show()
 
     def plot_PV_diagram_both_ends(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_PV_diagram_both_ends()
+
+        volume_HE, pressure_HE = self.pump_model.get_PV_diagram_head_end_data()
+        volume_CE, pressure_CE = self.pump_model.get_PV_diagram_crank_end_data()
+
+        if volume_HE is None:
+            return
+
+        pressure_unit = self.comboBox_pressure_units.currentText()
+
+        plot_2d = Plot2DSimplified(
+            title="Reciprocating Pump P-V Diagram",
+            x_label="Volume [m³]",
+            y_left_label=f"Pressure [{pressure_unit}]",
+        )
+
+        plot_2d.set_plot_data(volume_HE, pressure_HE, label="Head End",)
+        plot_2d.set_plot_data(volume_CE, pressure_CE, label="Crank End",
+                                   line_style="--", color=(0, 0, 0))
+        plot_2d.show()
 
     def plot_pressure_time(self):
         if self.check_all_parameters():
@@ -885,32 +896,86 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
     def plot_volumetric_flow_rate_at_suction_time(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_volumetric_flow_rate_at_suction_time()
-        return
+
+        time, flow_rate = self.pump_model.get_volumetric_flow_rate_at_suction_time_data()
+        if flow_rate is None:
+            return
+
+        plot_2d = Plot2DSimplified(
+            title = "Volumetric flow rate at suction",
+            x_label = "Time [s]",
+            y_left_label = "Volume [m³/s]"
+        )
+
+        plot_2d.set_plot_data(time, flow_rate)
+        plot_2d.show()
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_volumetric_flow_rate_at_discharge_time()
-        return
+
+        time, flow_rate = self.pump_model.get_volumetric_flow_rate_at_discharge_time_data()
+        if flow_rate is None:
+            return
+
+        plot_2d = Plot2DSimplified(
+            title="Volumetric flow rate at discharge",
+            x_label="Time [s]",
+            y_left_label="Volume [m³/s]"
+        )
+
+        plot_2d.set_plot_data(time, flow_rate)
+        plot_2d.show()
 
     def plot_rod_pressure_load_frequency(self):
         self.process_aquisition_parameters()
-        self.pump_model.plot_rod_pressure_load_frequency(self.N_rev)
-        return
+
+        freq, rod_pressure_load = self.pump_model.get_rod_pressure_load_frequency_data(self.N_rev)
+
+        plot_2d = Plot2DSimplified(
+            title="Rod pressure load",
+            x_label="Frequency [Hz]",
+            y_left_label="Rod pressure load [kN]"
+        )
+
+        plot_2d.set_plot_data(freq, rod_pressure_load, absolute_value=True)
+        plot_2d.show()
 
     def plot_rod_pressure_load_time(self):
         self.process_aquisition_parameters()
-        self.pump_model.plot_rod_pressure_load_time()
-        return
+
+        time, rod_pressure_load = self.pump_model.get_rod_pressure_load_time_data()
+
+        plot_2d = Plot2DSimplified(
+            title="Rod pressure load",
+            x_label="Time [s]",
+            y_left_label="Rod pressure load [kN]"
+        )
+
+        plot_2d.set_plot_data(time, rod_pressure_load, absolute_value=True)
+        plot_2d.show()
 
     def plot_piston_position_and_velocity_time(self):
         self.process_aquisition_parameters()
-        self.pump_model.plot_piston_position_and_velocity(domain="time")
+
+        x_data, x, v = self.pump_model.get_piston_position_and_velocity_data()
+
+        plot_2d = Plot2DSimplified(
+            title="Piston displacement and velocity during a complete cycle",
+            x_label="Time [s]",
+            y_left_label="Piston relative displacement [m]",
+            y_right_label="Piston velocity [m/s]",
+        )
+
+        plot_2d.set_plot_data(x_data, x, label="Piston position")
+        plot_2d.set_plot_data(x_data, v, label="Piston velocity", color=(0, 0, 0), y_label_position="right")
+        plot_2d.show()
 
     def plot_piston_position_and_velocity_angle(self):
         self.process_aquisition_parameters()
@@ -918,46 +983,110 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
 
     def plot_volumetric_flow_rate_at_suction_frequency(self):
         self.process_aquisition_parameters()
-        self.pump_model.plot_volumetric_flow_rate_at_suction_frequency(self.N_rev)
-        return
+
+        freq, flow_rate = self.pump_model.get_volumetric_flow_rate_at_suction_frequency_data(self.N_rev)
+        if flow_rate is None:
+            return
+
+        plot_2d = Plot2DSimplified(
+            title="Volumetric flow rate at suction",
+            x_label="Frequency [Hz]",
+            y_left_label="Volumetric head flow rate [m³/s]"
+        )
+
+        plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
+        plot_2d.show()
 
     def plot_volumetric_flow_rate_at_discharge_frequency(self):
         self.process_aquisition_parameters()
-        self.pump_model.plot_volumetric_flow_rate_at_discharge_frequency(self.N_rev)
-        return
+
+        freq, flow_rate = self.pump_model.get_volumetric_flow_rate_at_discharge_frequency_data(self.N_rev)
+        if flow_rate is None:
+            return
+
+        plot_2d = Plot2DSimplified(
+            title="Volumetric flow rate at discharge",
+            x_label="Frequency [Hz]",
+            y_left_label="Volumetric crank flow rate [m³/s]"
+        )
+
+        plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
+        plot_2d.show()
 
     def plot_pressure_head_end_angle(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_head_end_pressure_vs_angle()
-        return
+
+        angle, pressure_HE = self.pump_model.get_pressure_head_end_angle_data()
+        pressure_unit = self.pump_model.pressure_unit
+
+        plot_2d = Plot2DSimplified(
+            title="Head end pressure vs Angle",
+            x_label="Crank angle [degree]",
+            y_left_label=f"Pressure [{pressure_unit}]"
+        )
+
+        plot_2d.set_plot_data(angle, pressure_HE)
+        plot_2d.show()
 
     def plot_volume_head_end_angle(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_head_end_volume_vs_angle()
-        return
+
+        angle, volume_HE = self.pump_model.get_volume_head_end_angle_data()
+
+        plot_2d = Plot2DSimplified(
+            title="Head end volume vs Angle",
+            x_label = "Crank angle [degree]",
+            y_left_label="Volume [m³]"
+        )
+
+        plot_2d.set_plot_data(angle, volume_HE)
+        plot_2d.show()
 
     def plot_pressure_crank_end_angle(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_crank_end_pressure_vs_angle()
-        return
+
+        angle, pressure_CE = self.pump_model.get_pressure_crank_end_angle_data()
+        pressure_unit = self.pump_model.pressure_unit
+
+        plot_2d = Plot2DSimplified(
+            title="Crank end pressure vs Angle",
+            x_label="Crank angle [degree]",
+            y_left_label=f"Pressure [{pressure_unit}]"
+        )
+
+        plot_2d.set_plot_data(angle, pressure_CE)
+        plot_2d.show()
 
     def plot_volume_crank_end_angle(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_crank_end_volume_vs_angle()
-        return
 
+        angle, volume_CE = self.pump_model.get_volume_crank_end_angle_data()
+
+        plot_2d = Plot2DSimplified(
+            title="Crank end volume vs Angle",
+            x_label="Crank angle [degree]",
+            y_left_label="Volume [m³]"
+        )
+
+        plot_2d.set_plot_data(angle, volume_CE)
+        plot_2d.show()
+    
     def plot_integral_fluctuating_volume(self):
 
         if self.check_all_parameters():
