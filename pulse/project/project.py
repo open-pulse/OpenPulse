@@ -419,8 +419,8 @@ class Project:
         return AfterRun()
 
     def _get_acoustic_assembler(self) -> AcousticAssembler:
-        method = self.model.analysis_method
-        harmonic_method = method if method in ("fetm", "fem") else "fetm"
+        formulation = self.model.acoustic_formulation
+        harmonic_method = formulation if formulation in ("fetm", "fem") else "fetm"
         return AcousticAssembler(self.model, harmonic_method=harmonic_method)
 
     def _get_structural_assembler(

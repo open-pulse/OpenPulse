@@ -83,6 +83,10 @@ class Model:
         return self.analysis_setup.get("analysis_method", "--")
 
     @property
+    def acoustic_formulation(self):
+        return self.analysis_setup.get("acoustic_formulation", "fetm")
+
+    @property
     def number_of_modes(self):
         return self.analysis_setup.get("number_of_modes", 40)
 

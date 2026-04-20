@@ -117,7 +117,7 @@ def test_acoustic_harmonic(acoustic_model):
         "f_max": 200,
         "f_step": 1,
         "global_damping": [0., 0., 0.],
-        "analysis_method": "fetm",
+        "acoustic_formulation": "fetm",
     }
 
     model.set_analysis_setup(analysis_setup=analysis_setup)
@@ -146,7 +146,7 @@ def test_acoustic_harmonic_fem(acoustic_model):
         "f_max": 200,
         "f_step": 1,
         "global_damping": [0., 0., 0.],
-        "analysis_method": "fem",
+        "acoustic_formulation": "fem",
     }
 
     model.set_analysis_setup(analysis_setup=analysis_setup)
@@ -188,15 +188,15 @@ def test_acoustic_harmonic_fem_vs_fetm(acoustic_model):
     }
 
     # Run FETM
-    model.set_analysis_setup({**base_setup, "analysis_method": "fetm"})
-    project.file.write_analysis_setup_in_file({**base_setup, "analysis_method": "fetm"})
+    model.set_analysis_setup({**base_setup, "acoustic_formulation": "fetm"})
+    project.file.write_analysis_setup_in_file({**base_setup, "acoustic_formulation": "fetm"})
     project.build_model_and_solve(running_by_script=True)
     fetm_solution = project.acoustic_solver.solution.copy()
 
     # Run FEM (new assembler created from scratch via reset_solvers)
     project.reset_solvers()
-    model.set_analysis_setup({**base_setup, "analysis_method": "fem"})
-    project.file.write_analysis_setup_in_file({**base_setup, "analysis_method": "fem"})
+    model.set_analysis_setup({**base_setup, "acoustic_formulation": "fem"})
+    project.file.write_analysis_setup_in_file({**base_setup, "acoustic_formulation": "fem"})
     project.build_model_and_solve(running_by_script=True)
     fem_solution = project.acoustic_solver.solution.copy()
 
