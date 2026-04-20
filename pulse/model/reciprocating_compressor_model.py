@@ -178,13 +178,13 @@ class ReciprocatingCompressorModel:
             tdc = self.tdc_1
 
         r = self.radius
-        l = self.connecting_rod_length
-        x_max = l + r
+        L = self.connecting_rod_length
+        x_max = L + r
 
         theta = np.linspace(0, 2 * pi, N)
         d_theta = theta + tdc
 
-        x = (r * np.cos(d_theta) + np.sqrt(l**2 - ((r * np.sin(d_theta))**2))) - x_max
+        x = (r * np.cos(d_theta) + np.sqrt(L**2 - ((r * np.sin(d_theta))**2))) - x_max
 
         return theta, x 
 
@@ -205,12 +205,12 @@ class ReciprocatingCompressorModel:
             tdc = self.tdc_1
 
         r = self.radius
-        l = self.connecting_rod_length
+        L = self.connecting_rod_length
 
         theta = np.linspace(0, 2*pi, N)
         d_theta = theta + tdc
 
-        v = -(r * np.sin(d_theta))*(1 + ((r*np.cos(d_theta))/np.sqrt(l**2 - ((r*np.sin(d_theta))**2))))
+        v = -(r * np.sin(d_theta))*(1 + ((r*np.cos(d_theta))/np.sqrt(L**2 - ((r*np.sin(d_theta))**2))))
         v *= self.rpm * (2 * pi / 60)
 
         return v
@@ -562,7 +562,6 @@ class ReciprocatingCompressorModel:
         valves_info = dict()
         open_suc = np.zeros(N, dtype=bool)
         open_disc = np.zeros(N, dtype=bool)
-        message = ""
 
         # print(f"Capacity (crank-end): {capacity}")
         stage_log = f"Capacity (crank-end) = {capacity}\n\n"
@@ -881,7 +880,7 @@ class ReciprocatingCompressorModel:
             max_iter = 100
             i = 0
 
-            while stable == False and i != max_iter: 
+            while not stable and i != max_iter: 
                 
                 iter_flow = self.get_in_mass_flow(capacity=cap_aux[i])
                 if iter_flow is None:
@@ -1161,12 +1160,12 @@ class ReciprocatingCompressorModel:
         _, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
         _, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
         
+        if pressure_HE_Pa is None:
+            return
+
         Trev = 60 / self.rpm
         N = len(pressure_HE_Pa)
         time = np.linspace(0, Trev, N)
-
-        if pressure_HE_Pa is None:
-            return
 
         pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
         pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", self.pressure_unit)
@@ -1193,7 +1192,7 @@ class ReciprocatingCompressorModel:
         time = np.linspace(0, Trev, N)
 
         x_label = "Time [s]"
-        y_label = f"Volume [m³]"
+        y_label = "Volume [m³]"
         x_data = [time, time]
         y_data = [volume_HE, volume_CE]
         labels = ["Head End", "Crank End"]

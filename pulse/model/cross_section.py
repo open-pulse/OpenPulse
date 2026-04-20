@@ -4,6 +4,14 @@ from math import pi, sqrt, cos, sin, atan
 from numpy.linalg import inv, pinv, norm
 from scipy.sparse import coo_matrix
 
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
+from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
+
+
 rows, cols = 4, 2
 Nint_points = 4
 
@@ -876,168 +884,32 @@ class CrossSection:
         elif self.section_type_label == "generic_beam":
             return 0, 0
 
-def get_points_to_plot_section(section_label, section_parameters):   
+def get_points_to_plot_section(section_label: str, section_parameters: list):   
     
     if section_label in ["pipe", "reducer"]:
-
-        N = 60
-        d_out = section_parameters[0]
-        thickness = section_parameters[1]
-        offset_y = section_parameters[2]
-        offset_z = section_parameters[3]
-        insulation_thickness = section_parameters[5]
-
-        Yc = 0
-        Zc = 0    
-
-        Yc_offset = Yc + offset_y
-        Zc_offset = Zc + offset_z
-
-        d_theta = np.pi/N
-        theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
-        d_in = d_out - 2*thickness
-
-        Yp_out = (d_out/2)*np.cos(theta)
-        Zp_out = (d_out/2)*np.sin(theta)
-        Yp_in = (d_in/2)*np.cos(-theta)
-        Zp_in = (d_in/2)*np.sin(-theta)
-
-        Yp_list = [list(Yp_out), list(Yp_in),[0]]
-        Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
-
-        Yp_right = [value for _list in Yp_list for value in _list]
-        Zp_right = [value for _list in Zp_list for value in _list]
-
-        Yp_left = -np.flip(Yp_right)
-        Zp_left =  np.flip(Zp_right)
-        
-        Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
-        Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
-        
-        if insulation_thickness != float(0):
-
-            Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
-            Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
-            Yp_in_ins = (d_out/2)*np.cos(-theta)
-            Zp_in_ins = (d_out/2)*np.sin(-theta)
-
-            Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
-            Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
-
-            Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
-            Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
-
-            Yp_left_ins = -np.flip(Yp_right_ins)
-            Zp_left_ins =  np.flip(Zp_right_ins)
-
-            Yp_ins = np.array([Yp_right_ins, Yp_left_ins]).flatten() + offset_y
-            Zp_ins = np.array([Zp_right_ins, Zp_left_ins]).flatten() + offset_z
-
-            return Yp, Zp, Yp_ins, Zp_ins, Yc_offset, Zc_offset
-        return Yp, Zp, None, None, Yc_offset, Zc_offset
+        pipe_section = PipeCrossSection(*section_parameters)
+        return pipe_section.section_points_to_draw
 
     else:
+        if section_label == "generic_beam":
+            return None, None, None, None
 
-        section_properties = get_beam_section_properties(section_label, section_parameters)
-        Yc = section_properties["Yc"]
-        Zc = section_properties["Zc"]
+        if section_label == "rectangular_beam":
+            beam_section = RectangularBeamCrossSection(*section_parameters)
 
-    if section_label == "rectangular_beam":
+        elif section_label == "circular_beam":
+            beam_section = CircularBeamCrossSection(*section_parameters)
 
-        b, h, b_in, h_in, offset_y, offset_z = section_parameters
-            
-        Yp_right = [0, (b/2), (b/2), 0, 0, (b_in/2), (b_in/2), 0, 0]
-        Zp_right = [-(h/2), -(h/2), (h/2), (h/2), (h_in/2), (h_in/2), -(h_in/2), -(h_in/2), -(h/2)]
+        elif section_label == "c_beam":
+            beam_section = CBeamCrossSection(*section_parameters)
 
-        Yp_left = -np.flip(Yp_right)
-        Zp_left =  np.flip(Zp_right)
+        elif section_label == "i_beam":
+            beam_section = IBeamCrossSection(*section_parameters)
 
-        Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
-        Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
+        elif section_label == "t_beam":
+            beam_section = TBeamCrossSection(*section_parameters)
 
-    elif section_label == "circular_beam":
-
-        N = 60
-        d_out, thickness, offset_y, offset_z = section_parameters
-        if thickness == 0:
-            d_in = 0
-        else:
-            d_in = d_out - 2*thickness
-        
-        d_theta = np.pi/N
-        theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
-
-        Yp_out = (d_out/2)*np.cos(theta)
-        Zp_out = (d_out/2)*np.sin(theta)
-        Yp_in = (d_in/2)*np.cos(-theta)
-        Zp_in = (d_in/2)*np.sin(-theta)
-
-        Yp_list = [list(Yp_out), list(Yp_in), [0]]
-        Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
-
-        Yp_right = [value for _list in Yp_list for value in _list]
-        Zp_right = [value for _list in Zp_list for value in _list]
-
-        Yp_left = -np.flip(Yp_right)
-        Zp_left =  np.flip(Zp_right)
-
-        Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
-        Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
-
-    elif section_label == "c_beam":
-
-        h, w1, t1, w2, t2, tw, offset_y, offset_z = section_parameters
-        hw = h - t1 - t2
-
-        Yp = np.array([0, w2, w2, tw, tw, w1, w1, 0, 0]) + offset_y 
-        Zp = np.array([-(h/2), -(h/2), -(hw/2), -(hw/2), (h/2)-t1, (h/2)-t1, (h/2), (h/2), -(h/2)]) + offset_z
-
-    elif section_label == "i_beam":
-
-        h, w1, t1, w2, t2, tw, offset_y, offset_z = section_parameters
-        hw = h - t1 - t2
-
-        Yp_right = [0, w2/2, w2/2, tw/2, tw/2, w1/2, w1/2, 0]
-        Zp_right = [-(h/2), -(h/2), -((h/2)-t2), -((h/2)-t2), (h/2)-t1, (h/2)-t1, (h/2), (h/2)]
-
-        Yp_left = -np.flip(Yp_right)
-        Zp_left =  np.flip(Zp_right)
-
-        Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
-        Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
-
-    elif section_label == "t_beam":
-
-        h, w1, tw, t1, offset_y, offset_z = section_parameters
-        hw = h - t1
-
-        Yp_right = [0, tw/2, tw/2, w1/2, w1/2, 0]
-        Zp_right = [-(hw/2), -(hw/2), (hw/2), (hw/2), (hw/2)+t1, (hw/2)+t1]
-
-        Yp_left = -np.flip(Yp_right)
-        Zp_left =  np.flip(Zp_right)
-
-        Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
-        Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
-
-    elif section_label == "generic_beam":
-
-        message = "The GENERIC BEAM SECTION cannot be ploted."
-        title = "Error while graphing cross-section"
-        info_text = [title, message]
-
-        #TODO: breaks execution of code
-        # PrintMessageInput(info_text)
-
-        return 0, 0, 0, 0
-    
-    Yc = section_properties['Yc']
-    Zc = section_properties['Zc']
-
-    Yc_offset = Yc + offset_y
-    Zc_offset = Zc + offset_z    
-
-    return Yp, Zp, Yc_offset, Zc_offset
+        return beam_section.section_points_to_draw
 
 def get_beam_section_properties(section_label, data):
 
@@ -1045,105 +917,34 @@ def get_beam_section_properties(section_label, data):
 
         [area, Iyy, Izz, Iyz, shear_coefficient, Yc, Zc] = data
 
-        section_properties = {  "area" : area, 
-                                "Iyy" : Iyy, 
-                                "Izz" : Izz, 
-                                "Iyz" : Iyz, 
-                                "Yc" : Yc, 
-                                "Zc" : Zc,   
-                                "shear_coefficient": shear_coefficient    }
+        section_properties = {  
+            "area" : area, 
+            "Iyy" : Iyy, 
+            "Izz" : Izz, 
+            "Iyz" : Iyz, 
+            "Yc" : Yc, 
+            "Zc" : Zc,   
+            "shear_coefficient": shear_coefficient,
+            }
 
         return section_properties
 
     if section_label == "rectangular_beam":
-
-        [b, h, b_in, h_in, offset_y, offset_z] = data
-
-        area = b * h - b_in * h_in
-        Iyy = ((b**3)*h/12) - ((b_in**3)*h_in/12)
-        Izz = ((h**3)*b/12) - ((h_in**3)*b_in/12)
-        Iyz = 0.
-        Yc, Zc = 0, 0
+        beam_section = RectangularBeamCrossSection(*data)
 
     elif section_label == "circular_beam":
-        
-        [d_out, t, offset_y, offset_z] = data
-        
-        if t == 0:
-            d_in = 0
-        else:
-            d_in = d_out - 2 * t
-
-        area = np.pi * ((d_out**2) - (d_in**2)) / 4
-        Iyy = np.pi * ((d_out**4) - (d_in**4)) / 64
-        Izz = np.pi * ((d_out**4) - (d_in**4)) / 64
-        Iyz = 0
-        Yc, Zc = 0, 0
+        beam_section = CircularBeamCrossSection(*data)
 
     elif section_label == "c_beam":
-
-        [h, w1, t1, w2, t2, tw, offset_y, offset_z] = data
-        hw = h - t1 - t2
-        
-        A_i = np.array([w1*t1, tw*hw, w2*t2])
-        A_t = np.sum(A_i)
-
-        z_ci = np.array([w1/2, tw/2, w2/2])
-        y_ci = np.array([((t1+hw)/2), 0, -((hw+t2)/2)])
-        
-        I_zi = np.array([(w1*t1**3)/12, (tw*hw**3)/12, (w2*t2**3)/12])
-        I_yi = np.array([(t1*w1**3)/12, (hw*tw**3)/12, (t2*w2**3)/12])
-        I_yzi = np.array([0, 0, 0])
+        beam_section = CBeamCrossSection(*data)
 
     elif section_label == "i_beam":
-
-        [h, w1, t1, w2, t2, tw, offset_y, offset_z] = data
-        hw = h - t1 - t2
-        
-        A_i = np.array([w1*t1, tw*hw, w2*t2])
-        A_t = np.sum(A_i)  
-
-        z_ci = np.array([0, 0, 0])
-        y_ci = np.array([((t1+hw)/2), 0, -((hw+t2)/2)])
-
-        I_zi = np.array([(w1*t1**3)/12, (tw*hw**3)/12, (w2*t2**3)/12])
-        I_yi = np.array([(t1*w1**3)/12, (hw*tw**3)/12, (t2*w2**3)/12])
-        I_yzi = np.array([0, 0, 0])
+        beam_section = IBeamCrossSection(*data)
 
     elif section_label == "t_beam":
-
-        [h, w1, t1, tw, offset_y, offset_z] = data
-
-        hw = h - t1
-
-        A_i = np.array([w1*t1, tw*hw])
-        A_t = np.sum(A_i)
-
-        z_ci = np.array([0, 0])
-        y_ci = np.array([((t1+hw)/2), 0])
-
-        I_zi = np.array([(w1*t1**3)/12, (tw*hw**3)/12])
-        I_yi = np.array([(t1*w1**3)/12, (hw*tw**3)/12])
-        I_yzi = np.array([0, 0])  
-
-    if section_label in ["c_beam", "i_beam", "t_beam"]:
-        area = A_t
-        Yc = (y_ci@A_i)/A_t
-        Zc = (z_ci@A_i)/A_t
-        Iyy = np.sum(I_yi + ((z_ci-Zc)**2)*A_i)
-        Izz = np.sum(I_zi + ((y_ci-Yc)**2)*A_i)
-        Iyz = np.sum(I_yzi + ((y_ci-Yc)*(z_ci-Zc))*A_i)
+        beam_section = TBeamCrossSection(*data)
     
-    section_properties = [area, Iyy, Izz, Iyz, Yc, Zc]
-
-    section_properties = {  "area" : area, 
-                            "Iyy" : Iyy, 
-                            "Izz" : Izz, 
-                            "Iyz" : Iyz, 
-                            "Yc" : Yc, 
-                            "Zc" : Zc   }
-
-    return section_properties
+    return beam_section.section_properties
 
 
 # if __name__ == "__main__":

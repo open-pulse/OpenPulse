@@ -1,16 +1,15 @@
+import numpy as np
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QToolButton, QVBoxLayout
 
 from pulse import app
-from pulse.interface.ui_generated.plots.model.cross_section_plotter_ui import CrossSectionPlotter_UI
 from pulse.interface.formatters import icons
-
-
-import numpy as np
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
-
+from pulse.interface.ui_generated.plots.model.cross_section_plotter_ui import (
+    CrossSectionPlotter_UI,
+)
 
 class CrossSectionPlotter(CrossSectionPlotter_UI):
     def __init__(self, *args, **kwargs):
@@ -33,12 +32,31 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
     def _create_connections(self):
         self.close_button.clicked.connect(self.close)
 
-    def plot_cross_section(self, points, section_type_label, section_type):
-        if len(points) == 6:
-            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = points
-        elif len(points) == 4:
-            Yp, Zp, Yc, Zc = points
-            Yp_ins = Zp_ins = None
+    def paint_toolbar_icons(self, *args, **kwargs):
+        from pulse.interface.user_input.plots.general.custom_navigation_toolbar import (
+            CustomNavigationToolbar,
+        )
+
+        toolbar = self.findChild(CustomNavigationToolbar)
+        if toolbar is None:
+            return
+
+        if app().main_window.interface_theme == "dark":
+            color = QColor("#5f9af4")
+        else:
+            color = QColor("#1a73e8")
+
+        icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
+
+    def plot_cross_section(self, plot_data: list, section_type_label: str, section_type: str):
+
+        if len(plot_data) == 6:
+            Zp, Yp, Zp_ins, Yp_ins, Zc, Yc = plot_data
+
+        elif len(plot_data) == 4:
+            Zp, Yp, Zc, Yc = plot_data
+            Zp_ins = Yp_ins = None
+
         else:
             raise NotImplementedError()
 
@@ -54,18 +72,19 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
         canvas = FigureCanvasQTAgg(fig)
         layout.addWidget(canvas)
 
-        _max = np.max(np.abs(np.array([Yp, Zp])))
+        _max = np.max(np.abs(np.array([Zp, Yp])))
 
         first_plot = ax.fill(
-            Yp,
             Zp,
+            Yp,
             color=[0.2, 0.2, 0.2],
             linewidth=2,
             zorder=2,
         )
+
         second_plot = ax.scatter(
-            Yc,
             Zc,
+            Yc,
             marker="+",
             linewidth=2,
             zorder=3,
@@ -73,6 +92,7 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
             s=150,
             label=f"y: {Yc:7.5e} // z: {Zc:7.5e}",
         )
+
         third_plot = ax.scatter(
             0,
             0,
@@ -84,7 +104,7 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
         )
 
         if section_type_label in ["pipe", "reducer"] and Yp_ins is not None:
-            filled = ax.fill(Yp_ins, Zp_ins, color=[0.5, 1, 1], linewidth=2, zorder=5)[
+            filled = ax.fill(Zp_ins, Yp_ins, color=[0.5, 1, 1], linewidth=2, zorder=5)[
                 0
             ]
             filled.set_label("Insulation material")
@@ -107,11 +127,11 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
             )
 
         # ax.set_title("CROSS-SECTION PLOT", fontsize=12, fontweight="bold")
-        ax.set_xlabel("y [m]", fontsize=12, fontweight="bold")
-        ax.set_ylabel("z [m]", fontsize=12, fontweight="bold")
+        ax.set_xlabel("z [m]", fontsize=12, fontweight="bold")
+        ax.set_ylabel("y [m]", fontsize=12, fontweight="bold")
 
         f = 1.4
-        if section_type == 3:
+        if section_type_label == "c_beam":
             ax.set_xlim(-(1 / 2) * _max, (3 / 2) * _max)
         else:
             ax.set_xlim(-_max * f, _max * f)

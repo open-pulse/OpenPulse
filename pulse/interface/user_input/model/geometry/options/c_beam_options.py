@@ -40,6 +40,7 @@ class CBeamOptions(StructureOptions):
         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
         self.cross_section_widget.tabWidget_beam_section.setTabVisible(2, True)
         self.cross_section_widget.lineEdit_height_C_section.setFocus()
+        self.cross_section_dialog.load_active_sections("c_beam")
         self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:

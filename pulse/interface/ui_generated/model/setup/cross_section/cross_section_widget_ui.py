@@ -2238,6 +2238,7 @@ class Ui_Form(object):
         self.pushButton_load_section_data.setMaximumSize(QSize(140, 30))
         self.pushButton_load_section_data.setFont(font)
         self.pushButton_load_section_data.setStyleSheet(u"")
+        self.pushButton_load_section_data.setAutoDefault(False)
 
         self.gridLayout_24.addWidget(self.pushButton_load_section_data, 0, 1, 1, 1)
 
@@ -2247,6 +2248,7 @@ class Ui_Form(object):
         self.pushButton_edit_section_data.setMaximumSize(QSize(140, 30))
         self.pushButton_edit_section_data.setFont(font)
         self.pushButton_edit_section_data.setStyleSheet(u"")
+        self.pushButton_edit_section_data.setAutoDefault(False)
 
         self.gridLayout_24.addWidget(self.pushButton_edit_section_data, 0, 0, 1, 1)
 
@@ -2351,8 +2353,8 @@ class Ui_Form(object):
         self.tabWidget_beam_section.setCurrentIndex(0)
         self.pushButton_confirm_beam.setDefault(False)
         self.pushButton_exit_beam.setDefault(False)
-        self.pushButton_load_section_data.setDefault(True)
-        self.pushButton_edit_section_data.setDefault(True)
+        self.pushButton_load_section_data.setDefault(False)
+        self.pushButton_edit_section_data.setDefault(False)
 
 
         QMetaObject.connectSlotsByName(Form)
