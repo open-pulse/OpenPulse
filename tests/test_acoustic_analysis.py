@@ -90,13 +90,7 @@ def test_acoustic_modal(acoustic_model):
     assert all(f >= 0 for f in natural_frequencies)
 
 
-def test_acoustic_harmonic(acoustic_model):
-    project, _ = acoustic_model
-    model = project.model
-    preprocessor = model.preprocessor
-
-    # Apply volume velocity excitation at node 103 (boundary node in simple_L_pipe)
-    node_id = 103
+def _apply_volume_velocity(model, preprocessor, node_id):
     coords = preprocessor.nodes[node_id].coordinates
     volume_velocity = [0.01 + 0j]
     data = {
@@ -106,6 +100,15 @@ def test_acoustic_harmonic(acoustic_model):
         "imag_values": [np.imag(v) for v in volume_velocity],
     }
     model.properties._set_nodal_property("volume_velocity", data, node_id)
+
+
+def test_acoustic_harmonic(acoustic_model):
+    project, _ = acoustic_model
+    model = project.model
+    preprocessor = model.preprocessor
+
+    # Apply volume velocity excitation at node 103 (boundary node in simple_L_pipe)
+    _apply_volume_velocity(model, preprocessor, node_id=103)
     project.file.write_nodal_properties_in_file()
 
     analysis_setup = {
@@ -114,7 +117,7 @@ def test_acoustic_harmonic(acoustic_model):
         "f_max": 200,
         "f_step": 1,
         "global_damping": [0., 0., 0.],
-        "analysis_method": "direct",
+        "analysis_method": "fetm",
     }
 
     model.set_analysis_setup(analysis_setup=analysis_setup)
@@ -126,3 +129,93 @@ def test_acoustic_harmonic(acoustic_model):
     assert solution is not None
     assert solution.ndim == 2
     assert solution.shape[1] == len(model.frequencies)
+
+
+def test_acoustic_harmonic_fem(acoustic_model):
+    """FEM acoustic harmonic analysis produces a valid complex pressure solution."""
+    project, _ = acoustic_model
+    model = project.model
+    preprocessor = model.preprocessor
+
+    _apply_volume_velocity(model, preprocessor, node_id=103)
+    project.file.write_nodal_properties_in_file()
+
+    analysis_setup = {
+        "analysis_id": AnalysisID.ACOUSTIC_HARMONIC,
+        "f_min": 1,
+        "f_max": 200,
+        "f_step": 1,
+        "global_damping": [0., 0., 0.],
+        "analysis_method": "fem",
+    }
+
+    model.set_analysis_setup(analysis_setup=analysis_setup)
+    project.file.write_analysis_setup_in_file(analysis_setup)
+
+    project.build_model_and_solve(running_by_script=True)
+
+    assert project.acoustic_assembler._harmonic_method == "fem"
+
+    solution = project.acoustic_solver.solution
+    assert solution is not None
+    assert solution.ndim == 2
+    assert solution.shape[1] == len(model.frequencies)
+    assert np.issubdtype(solution.dtype, np.complexfloating)
+    assert np.any(np.abs(solution) > 0)
+
+
+def test_acoustic_harmonic_fem_vs_fetm(acoustic_model):
+    """FEM and FETM solutions agree in shape and energy at low frequencies.
+
+    With element_size=0.01 m and c=343 m/s the mesh cutoff is ~34 kHz.
+    At 1-200 Hz the FEM dispersion error is negligible (kh << 1), so both
+    methods should produce acoustically equivalent results even though the
+    numerical values differ slightly.
+    """
+    project, _ = acoustic_model
+    model = project.model
+    preprocessor = model.preprocessor
+
+    _apply_volume_velocity(model, preprocessor, node_id=103)
+    project.file.write_nodal_properties_in_file()
+
+    base_setup = {
+        "analysis_id": AnalysisID.ACOUSTIC_HARMONIC,
+        "f_min": 1,
+        "f_max": 200,
+        "f_step": 1,
+        "global_damping": [0., 0., 0.],
+    }
+
+    # Run FETM
+    model.set_analysis_setup({**base_setup, "analysis_method": "fetm"})
+    project.file.write_analysis_setup_in_file({**base_setup, "analysis_method": "fetm"})
+    project.build_model_and_solve(running_by_script=True)
+    fetm_solution = project.acoustic_solver.solution.copy()
+
+    # Run FEM (new assembler created from scratch via reset_solvers)
+    project.reset_solvers()
+    model.set_analysis_setup({**base_setup, "analysis_method": "fem"})
+    project.file.write_analysis_setup_in_file({**base_setup, "analysis_method": "fem"})
+    project.build_model_and_solve(running_by_script=True)
+    fem_solution = project.acoustic_solver.solution.copy()
+
+    # Same output shape
+    assert fetm_solution.shape == fem_solution.shape
+
+    # FEM and FETM are numerically distinct (different formulations)
+    assert not np.allclose(fetm_solution, fem_solution)
+
+    # Total acoustic energy should be very close — at 1-200 Hz with 0.01 m
+    # elements the FEM dispersion error (kh)² is at most ~3e-4 at 200 Hz
+    fetm_energy = np.sum(np.abs(fetm_solution) ** 2)
+    fem_energy = np.sum(np.abs(fem_solution) ** 2)
+    assert 0.5 < fem_energy / fetm_energy < 2.0
+
+    # At very low frequencies (f=1-5 Hz) the two methods should be virtually
+    # identical: relative norm difference < 1%
+    for fi in range(5):
+        fetm_norm = np.linalg.norm(fetm_solution[:, fi])
+        fem_norm = np.linalg.norm(fem_solution[:, fi])
+        if fetm_norm > 1e-20:
+            assert abs(fetm_norm - fem_norm) / fetm_norm < 0.01

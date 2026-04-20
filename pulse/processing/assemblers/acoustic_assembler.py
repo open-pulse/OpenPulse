@@ -374,11 +374,17 @@ class AcousticAssembler(Assembler):
         self._Cr_lump_fem = Cr_lump
 
     def _get_fem_load_vector(self, index: int, omega: float) -> np.ndarray:
-        """FEM load vector: Q_ext - (Kr - ω²Mr + iωCr + Tr_link) @ p_presc"""
+        """FEM load vector: iω·Q_ext - (Kr - ω²Mr + iωCr + Tr_link) @ p_presc
+
+        The iω factor arises from the weak form of the Helmholtz equation: a
+        volume velocity source Q [m³/s] at a boundary node contributes iω·Q
+        to the nodal load vector (boundary integral of v_n against the test
+        function, with harmonic e^{iωt} convention).
+        """
         self._ensure_fem_harmonic_matrices()
         self._ensure_volume_velocity_fem()
 
-        f = self._volume_velocity_fem[:, index].copy()
+        f = 1j * omega * self._volume_velocity_fem[:, index].copy()
 
         if len(self._prescribed_values) != 0:
             p_presc = self._array_prescribed_values[:, index]
