@@ -1,8 +1,9 @@
+from pathlib import Path
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QFont, QColor, QIcon
 from PySide6.QtCore import Qt
 
-from pulse.interface.formatters.icons import *
+from pulse import ICON_DIR
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
 from pulse.interface.menu.tooltips import get_tooltip
 
@@ -102,14 +103,13 @@ class TopTreeWidgetItem(QTreeWidgetItem):
         self.setExpanded(not self.isExpanded())
 
     def _configure_appearance(self):
-
         font = QFont()
         font.setBold(True)
         font.setWeight(QFont.Weight(60))
         font.setPointSize(10)
         self.setFont(0, font)
-        self.setTextAlignment(0, Qt.AlignHCenter | Qt.AlignVCenter)
-        self.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
+        self.setTextAlignment(0, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        self.setFlags(Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
 
         # border_role = Qt.UserRole + 1
         # border_pen = QPen(self.line_color)
@@ -129,21 +129,46 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
     def __init__(self, name):
         super().__init__([name])
         self.clicked = CustomBoundSignal()
+        self.should_paint = False
 
     def set_warning(self, cond):
         if cond:
             font = QFont()
             font.setBold(True)
             self.setFont(0, font)
-            self.setForeground(0, QColor(210, 144, 0))
-            warning_icon = get_warning_icon()
+            self.setForeground(0, QColor("#E89403"))
+            warning_icon = QIcon(str(Path(ICON_DIR / "model_setup_items/warning_yellow.png")))
             self.setIcon(0, warning_icon)
         else:
             # Resets data to default
-            self.setData(0, Qt.FontRole, None)  # reset color
-            self.setData(0, Qt.ForegroundRole, None)  # reset color
-            self.setData(0, Qt.DecorationRole, None)
+            self.setData(0, Qt.ItemDataRole.FontRole, None)  # reset color
+            self.setData(0, Qt.ItemDataRole.ForegroundRole, None)  # reset color
+            self.setData(0, Qt.ItemDataRole.DecorationRole, None)
 
+    def set_error(self, cond: bool):
+        if cond:
+            font = QFont()
+            font.setBold(True)
+            self.setFont(0, font)
+            self.setForeground(0, QColor("#E2483D"))
+            error_icon = QIcon(str(Path(ICON_DIR / "model_setup_items/error_red.png")))
+            self.setIcon(0, error_icon)
+        else:
+            # Resets data to default
+            self.setData(0, Qt.ItemDataRole.FontRole, None)  # reset color
+            self.setData(0, Qt.ItemDataRole.ForegroundRole, None)  # reset color
+            self.setData(0, Qt.ItemDataRole.DecorationRole, None)
+
+    def set_icon(self, file_name: str = "", visible: bool = True):
+        # to set an alternative icon
+        file_name = file_name if file_name != "" else self.property_name
+
+        if visible:
+            path_image = str(Path((ICON_DIR / "model_setup_items" / str(file_name + ".png"))))
+            self.setIcon(0, QIcon(path_image))
+        else:
+            self.setIcon(0, QIcon())
+ 
     def set_property_name(self, name: str):
         name = name.lower()
         name = name.strip()

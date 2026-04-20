@@ -29,6 +29,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
         self.build()
         self.configure_appearance()
+        self.UseBoundsOff()
 
     def build(self):
         nodal_properties = app().project.model.properties.nodal_properties

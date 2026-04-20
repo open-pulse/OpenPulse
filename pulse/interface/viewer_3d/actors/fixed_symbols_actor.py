@@ -26,6 +26,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
         super().__init__()
         self.build()
         self.configure_appearance()
+        self.UseBoundsOff()
 
     def build(self):
         mapper = vtkPolyDataMapper()

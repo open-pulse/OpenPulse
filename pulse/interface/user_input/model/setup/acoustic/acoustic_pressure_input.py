@@ -163,9 +163,9 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
     def constant_values_attribution_callback(self, node_ids: list[int], properties_to_remove: list[str]):
 
-        stop, specific_impedance = self.check_complex_entries(
-            self.lineEdit_real_value, 
-            self.lineEdit_imag_value, 
+        stop, acoustic_pressure = self.check_complex_entries(
+            self.lineEdit_real_value,
+            self.lineEdit_imag_value,
             "acoustic_pressure",
             )
 
@@ -174,8 +174,8 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
         self.remove_properties_from_node(node_ids, properties_to_remove)
 
-        real_values = [np.real(specific_impedance)]
-        imag_values = [np.imag(specific_impedance)]
+        real_values = [np.real(acoustic_pressure)]
+        imag_values = [np.imag(acoustic_pressure)]
 
         for node_id in node_ids:
 
@@ -188,7 +188,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
                 "imag_values": imag_values,
                 }
 
-            self.properties._set_nodal_property("specific_impedance", data, node_id)
+            self.properties._set_nodal_property("acoustic_pressure", data, node_id)
 
         self.actions_to_finalize(reset_camera=False)
 

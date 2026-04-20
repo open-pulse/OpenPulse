@@ -325,6 +325,7 @@ class MainWindow(MainWindow_UI):
 
     # public
     def update_plots(self, reset_camera=True):
+        self.model_setup_widget.model_setup_items.update_items_apperence()
         self.project.enhance_pipe_sections_appearance()
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)

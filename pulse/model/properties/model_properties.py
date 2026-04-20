@@ -1,4 +1,3 @@
-
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
 
@@ -263,6 +262,21 @@ class ModelProperties:
                 return self.line_properties[line_id][property]
 
         return None
+
+    def is_the_property_applied(self, property: str) -> bool:
+        for line_data in self.line_properties.values():
+            if property in line_data.keys():
+                return True
+
+        for key in self.element_properties:
+            if key[0] == property:
+                return True
+
+        for key in self.nodal_properties:
+            if key[0] == property:
+                return True
+
+        return False
 
     def check_if_there_are_tables_at_the_model(self):
         """This method checks if there are imported table of values in
