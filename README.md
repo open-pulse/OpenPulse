@@ -109,7 +109,9 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Gildean Almeida](https://www.linkedin.com/in/gildean-almeida-708862298/) - Validation;
    - [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation (Former Member);
    - [Gustavo C. Martins](https://www.linkedin.com/in/gustavo-martins/) - Engineer;
-   - [Vinicius H. Ribeiro](linkedin.com/in/vinícius-henrique-ribeiro-385b67218) - Computer Scientist.
+   - [Vinicius H. Ribeiro](linkedin.com/in/vinícius-henrique-ribeiro-385b67218) - Computer Scientist;
+   - [Guilherme Pierri](https://www.linkedin.com/in/guilherme-pierri-4487a4271/) - Computer Scientist;
+   - [Taiana Barbosa Farias](https://www.linkedin.com/in/taiana-barbosa-farias-82740339a/) - Front-end.
 
 <p align="center">
    <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/MOPT4.PNG?raw=true" alt="MOPT logo" width="1100"/>
