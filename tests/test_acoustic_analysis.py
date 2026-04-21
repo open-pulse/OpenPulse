@@ -219,3 +219,113 @@ def test_acoustic_harmonic_fem_vs_fetm(acoustic_model):
         fem_norm = np.linalg.norm(fem_solution[:, fi])
         if fetm_norm > 1e-20:
             assert abs(fetm_norm - fem_norm) / fetm_norm < 0.01
+
+
+def _apply_acoustic_pressure(model, preprocessor, node_id, pressure=1.0 + 0j):
+    coords = preprocessor.nodes[node_id].coordinates
+    data = {
+        "coords": list(coords),
+        "real_values": [np.real(pressure)],
+        "imag_values": [np.imag(pressure)],
+    }
+    model.properties._set_nodal_property("acoustic_pressure", data, node_id)
+
+
+def test_acoustic_harmonic_fem_prescribed_pressure(acoustic_model):
+    """FEM acoustic harmonic with prescribed unit pressure (Dirichlet BC).
+
+    Applies p=1+0j at one end of the duct, checks:
+    - prescribed node holds the specified pressure at every frequency
+    - other nodes have non-zero pressure (wave propagation)
+    - result is equivalent to FETM within 1% at low frequencies
+    """
+    project, _ = acoustic_model
+    model = project.model
+    preprocessor = model.preprocessor
+
+    node_id = 103
+    _apply_acoustic_pressure(model, preprocessor, node_id=node_id, pressure=1.0 + 0j)
+    project.file.write_nodal_properties_in_file()
+
+    analysis_setup = {
+        "analysis_id": AnalysisID.ACOUSTIC_HARMONIC,
+        "f_min": 1,
+        "f_max": 200,
+        "f_step": 1,
+        "global_damping": [0., 0., 0.],
+        "acoustic_formulation": "fem",
+    }
+
+    model.set_analysis_setup(analysis_setup=analysis_setup)
+    project.file.write_analysis_setup_in_file(analysis_setup)
+
+    project.build_model_and_solve(running_by_script=True)
+
+    solution = project.acoustic_solver.solution
+    assert solution is not None
+    assert solution.ndim == 2
+    assert solution.shape[1] == len(model.frequencies)
+
+    # Prescribed node must equal the prescribed pressure at every frequency
+    global_idx = preprocessor.nodes[node_id].global_index
+    assert np.allclose(solution[global_idx, :], 1.0 + 0j), (
+        f"Prescribed node pressure deviates: max error = "
+        f"{np.max(np.abs(solution[global_idx, :] - 1.0)):.3e}"
+    )
+
+    # Other nodes must carry non-trivial pressure (wave propagates into the duct)
+    other_rows = [i for i in range(solution.shape[0]) if i != global_idx]
+    assert np.max(np.abs(solution[other_rows, :])) > 1e-3
+
+
+def test_acoustic_harmonic_fem_prescribed_pressure_vs_fetm(acoustic_model):
+    """FEM and FETM agree at low frequencies for prescribed-pressure excitation."""
+    project, _ = acoustic_model
+    model = project.model
+    preprocessor = model.preprocessor
+
+    node_id = 103
+    _apply_acoustic_pressure(model, preprocessor, node_id=node_id, pressure=1.0 + 0j)
+    project.file.write_nodal_properties_in_file()
+
+    base_setup = {
+        "analysis_id": AnalysisID.ACOUSTIC_HARMONIC,
+        "f_min": 1,
+        "f_max": 200,
+        "f_step": 1,
+        "global_damping": [0., 0., 0.],
+    }
+
+    # FETM run
+    model.set_analysis_setup({**base_setup, "acoustic_formulation": "fetm"})
+    project.file.write_analysis_setup_in_file({**base_setup, "acoustic_formulation": "fetm"})
+    project.build_model_and_solve(running_by_script=True)
+    fetm_solution = project.acoustic_solver.solution.copy()
+
+    # FEM run
+    project.reset_solvers()
+    model.set_analysis_setup({**base_setup, "acoustic_formulation": "fem"})
+    project.file.write_analysis_setup_in_file({**base_setup, "acoustic_formulation": "fem"})
+    project.build_model_and_solve(running_by_script=True)
+    fem_solution = project.acoustic_solver.solution.copy()
+
+    assert fetm_solution.shape == fem_solution.shape
+
+    # Prescribed node must be exactly 1+0j in both solutions
+    global_idx = preprocessor.nodes[node_id].global_index
+    assert np.allclose(fetm_solution[global_idx, :], 1.0 + 0j)
+    assert np.allclose(fem_solution[global_idx, :], 1.0 + 0j)
+
+    # Total energies within 2× (same kh criterion as volume-velocity case)
+    fetm_energy = np.sum(np.abs(fetm_solution) ** 2)
+    fem_energy = np.sum(np.abs(fem_solution) ** 2)
+    assert 0.5 < fem_energy / fetm_energy < 2.0
+
+    # At f=1-5 Hz the norms should agree within 1%
+    for fi in range(5):
+        fetm_norm = np.linalg.norm(fetm_solution[:, fi])
+        fem_norm = np.linalg.norm(fem_solution[:, fi])
+        if fetm_norm > 1e-20:
+            assert abs(fetm_norm - fem_norm) / fetm_norm < 0.01, (
+                f"f={fi+1} Hz: FETM norm={fetm_norm:.4e}, FEM norm={fem_norm:.4e}"
+            )

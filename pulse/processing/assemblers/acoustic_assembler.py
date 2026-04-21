@@ -371,7 +371,7 @@ class AcousticAssembler(Assembler):
         self._T_link_fem  = T_link
         self._Tr_link_fem = [m[self._unprescribed_indexes, :] for m in Tr_link]
         self._C_lump_fem  = C_lump
-        self._Cr_lump_fem = Cr_lump
+        self._Cr_lump_fem = [m[self._unprescribed_indexes, :] for m in Cr_lump]
 
     def _get_fem_load_vector(self, index: int, omega: float) -> np.ndarray:
         """FEM load vector: iω·Q_ext - (Kr - ω²Mr + iωCr + Tr_link) @ p_presc
