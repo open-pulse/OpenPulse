@@ -464,6 +464,6 @@ def test_acoustic_harmonic_fem_pp_vs_fetm(acoustic_model):
         fetm_norm = np.linalg.norm(fetm_solution[:, fi])
         fem_norm = np.linalg.norm(fem_solution[:, fi])
         if fetm_norm > 1e-20:
-            assert abs(fetm_norm - fem_norm) / fetm_norm < 0.05, (
+            assert abs(fetm_norm - fem_norm) / fetm_norm < 0.01, (
                 f"f={fi+1} Hz PP: FETM norm={fetm_norm:.4e}, FEM norm={fem_norm:.4e}"
             )

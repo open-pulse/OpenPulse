@@ -228,11 +228,13 @@ class AcousticAssembler(Assembler):
     def get_system_matrix(self, index: int, omega: float) -> spmatrix:
         if self._harmonic_method == "fem":
             self._ensure_fem_harmonic_matrices()
+            # T_link and K_pp are FETM admittance matrices [m³/(Pa·s)].
+            # Multiplying by iω converts them to FEM stiffness units [m³/s²].
             return (self._K_fem
                     - (omega ** 2) * self._M_fem
                     + 1j * omega * self._C_lump_fem[index]
-                    + self._T_link_fem[index]
-                    + self._K_pp_fem[index])
+                    + 1j * omega * self._T_link_fem[index]
+                    + 1j * omega * self._K_pp_fem[index])
         # default: FETM
         self._ensure_fetm_matrices()
         return self._Kadd_lump[index]
@@ -397,8 +399,8 @@ class AcousticAssembler(Assembler):
             f -= (self._Kr_fem
                   - (omega ** 2) * self._Mr_fem
                   + 1j * omega * self._Cr_lump_fem[index]
-                  + self._Tr_link_fem[index]
-                  + self._Kr_pp_fem[index]) @ p_presc
+                  + 1j * omega * self._Tr_link_fem[index]
+                  + 1j * omega * self._Kr_pp_fem[index]) @ p_presc
         return f
 
     def _ensure_volume_velocity_fem(self) -> None:
