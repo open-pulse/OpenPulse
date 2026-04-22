@@ -5,6 +5,7 @@ from molde.actors import CommonSymbolsActorFixedSize
 import numpy as np
 from molde.colors import color_names
 from molde.utils import read_obj_file, transform_polydata
+from pulse.utils.rotations import align_vtk_geometry
 
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
@@ -214,8 +215,8 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
             # this makes the valve handle always point up
             angle = 0
-            if vector[0] >= 0:
-                angle = np.pi
+            if vector[0] < 0:
+                angle = -180
 
             valve_info = data["valve_info"]
             outside_diameter, thickness, *_ = valve_info["body_section_parameters"]
@@ -232,7 +233,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
             source = transform_polydata(
                 source,
-                rotation=(0, 0, -90),
+                rotation=(angle, 0, 0),
             )
 
             self.add_symbol(lambda : source, coords_a, vector, color_names.PINK_6)

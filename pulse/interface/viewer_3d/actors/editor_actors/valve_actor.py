@@ -32,8 +32,8 @@ class ValveActor(vtkActor):
         
         # this makes the valve handle always point up
         angle = 0
-        if vector[0] >= 0:
-            angle = np.pi
+        if vector[0] < 0:
+            angle = -np.pi
 
         data = align_vtk_geometry(source, a, vector, angle)
         paint_data(data, self.valve.color.to_rgb())
