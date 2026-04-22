@@ -435,7 +435,6 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
     append_polydata.Update()
 
     return apply_transform(append_polydata.GetOutput(), rx=180)
-    # return append_polydata.GetOutput()
 
 def valve_handle(outside_diameter):
     height = 1.5 * outside_diameter
