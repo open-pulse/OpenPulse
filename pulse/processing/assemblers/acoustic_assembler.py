@@ -73,6 +73,8 @@ class AcousticAssembler(Assembler):
         self._Tr_link_fem: list | None = None  # prescribed coupling per freq [n_u × n_p]
         self._C_lump_fem: list | None = None
         self._Cr_lump_fem: list | None = None
+        self._K_pp_fem: list | None = None     # FETM admittance for non-COMMON_PIPE PP [n_u × n_u]
+        self._Kr_pp_fem: list | None = None    # prescribed coupling for PP [n_u × n_p]
 
         # Perforated plate nonlinearity
         self._nl_elements: list = self._detect_nl_pp_elements()
@@ -229,7 +231,8 @@ class AcousticAssembler(Assembler):
             return (self._K_fem
                     - (omega ** 2) * self._M_fem
                     + 1j * omega * self._C_lump_fem[index]
-                    + self._T_link_fem[index])
+                    + self._T_link_fem[index]
+                    + self._K_pp_fem[index])
         # default: FETM
         self._ensure_fetm_matrices()
         return self._Kadd_lump[index]
@@ -358,11 +361,12 @@ class AcousticAssembler(Assembler):
             self._build_fem_harmonic_matrices()
 
     def _build_fem_harmonic_matrices(self) -> None:
-        """Hybrid: FEM for pipe/link elements + FETM for transfer elements."""
+        """Hybrid: FEM for pipe/link elements + FETM for transfer elements and non-COMMON_PIPE PP."""
         K, Kr, M, Mr = self._assembly.get_global_matrices_modal()
         K_link, M_link = self._assembly.get_link_global_matrices_modal()
         T_link, Tr_link = self._assembly.get_fetm_transfer_matrices()
         C_lump, Cr_lump = self._assembly.get_lumped_matrices_for_FEM()
+        K_pp, Kr_pp = self._assembly.get_fetm_pp_matrices()
 
         self._K_fem  = K + K_link
         self._Kr_fem = Kr
@@ -372,6 +376,8 @@ class AcousticAssembler(Assembler):
         self._Tr_link_fem = [m[self._unprescribed_indexes, :] for m in Tr_link]
         self._C_lump_fem  = C_lump
         self._Cr_lump_fem = [m[self._unprescribed_indexes, :] for m in Cr_lump]
+        self._K_pp_fem  = K_pp
+        self._Kr_pp_fem = Kr_pp
 
     def _get_fem_load_vector(self, index: int, omega: float) -> np.ndarray:
         """FEM load vector: iω·Q_ext - (Kr - ω²Mr + iωCr + Tr_link) @ p_presc
@@ -391,7 +397,8 @@ class AcousticAssembler(Assembler):
             f -= (self._Kr_fem
                   - (omega ** 2) * self._Mr_fem
                   + 1j * omega * self._Cr_lump_fem[index]
-                  + self._Tr_link_fem[index]) @ p_presc
+                  + self._Tr_link_fem[index]
+                  + self._Kr_pp_fem[index]) @ p_presc
         return f
 
     def _ensure_volume_velocity_fem(self) -> None:

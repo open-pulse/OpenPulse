@@ -1,4 +1,10 @@
 
+from pulse.model import AnalysisID
+from pulse.model.model import Model
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC
+from pulse.model.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+from pulse.model.perforated_plate import PerforatedPlateFormulation
+
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.special import jn_zeros, jv
@@ -621,11 +627,18 @@ class AssemblyAcoustic:
         for element in self.preprocessor.get_acoustic_elements():
 
             index = element.index - 1
+
+            # Non-COMMON_PIPE PP elements use FETM admittance (see get_fetm_pp_matrices);
+            # leave their FEM K/M entries as zero so they don't double-count.
+            if (element.perforated_plate is not None
+                    and element.perforated_plate.type != PerforatedPlateFormulation.COMMON_PIPE):
+                continue
+
             if element.acoustic_link_diameters:
                 length_correction = self.get_length_correction_for_acoustic_link(element.acoustic_link_diameters)
             else:
                 length_correction = self.get_length_corretion(element)
-            
+
             mat_Ke[index,:,:], mat_Me[index,:,:] = element.fem_1d_matrix(length_correction)
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
@@ -637,6 +650,51 @@ class AssemblyAcoustic:
         Mr = full_M[self.unprescribed_indexes, :][:, self.prescribed_indexes]
 
         return K, Kr, M, Mr
+
+    def get_fetm_pp_matrices(self):
+        """
+        Assemble FETM admittance matrices for non-COMMON_PIPE perforated plate elements.
+
+        These elements cannot be represented by frequency-independent FEM K/M matrices;
+        instead their full complex admittance (computed via element.matrix()) is added
+        to the FEM harmonic system matrix as a per-frequency correction.
+
+        Returns
+        ----------
+        K_pp : list of sparse csr_matrix [n_unprescribed × n_unprescribed]
+        Kr_pp : list of sparse csr_matrix [n_unprescribed × n_prescribed]
+        """
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+        total_entries = ENTRIES_PER_ELEMENT * len(self.preprocessor.acoustic_elements)
+
+        rows, cols = self.preprocessor.get_global_acoustic_indexes()
+        data_k = np.zeros([len(self.frequencies), total_entries], dtype=complex)
+
+        has_pp = False
+        for element in self.preprocessor.get_acoustic_elements():
+            if element.perforated_plate is None:
+                continue
+            if element.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
+                continue
+
+            has_pp = True
+            index = element.index
+            start = (index - 1) * ENTRIES_PER_ELEMENT
+            end = start + ENTRIES_PER_ELEMENT
+            data_k[:, start:end] = element.matrix(self.frequencies, length_correction=0)
+
+        if not has_pp:
+            full_K_pp = [csr_matrix((total_dof, total_dof), dtype=complex) for _ in self.frequencies]
+        else:
+            full_K_pp = [
+                csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype=complex)
+                for data in data_k
+            ]
+
+        K_pp  = [full[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for full in full_K_pp]
+        Kr_pp = [full[self.unprescribed_indexes, :][:, self.prescribed_indexes] for full in full_K_pp]
+
+        return K_pp, Kr_pp
 
     def get_link_global_matrices_modal(self):
         """

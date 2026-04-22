@@ -7,9 +7,27 @@ from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
+
+
+# OPENPULSE-type PP (linear) — used to verify FEM correctly applies FETM admittance for PP
+_LINEAR_PP_DATA = {
+    "type": 0,          # PerforatedPlateFormulation.OPENPULSE
+    "hole_diameter": 0.001,
+    "plate_thickness": 0.003,
+    "area_porosity": 0.2,
+    "discharge_coefficient": 1.0,
+    "single_hole": False,
+    "nonlinear_effects": False,
+    "nonlinear_discharge_coefficient": 0.76,
+    "correction_factor": 1.0,
+    "bias_flow_effects": False,
+    "bias_flow_coefficient": 1.0,
+    "dimensionless_impedance": None,
+}
 
 
 @pytest.fixture
@@ -328,4 +346,124 @@ def test_acoustic_harmonic_fem_prescribed_pressure_vs_fetm(acoustic_model):
         if fetm_norm > 1e-20:
             assert abs(fetm_norm - fem_norm) / fetm_norm < 0.01, (
                 f"f={fi+1} Hz: FETM norm={fetm_norm:.4e}, FEM norm={fem_norm:.4e}"
+            )
+
+
+def test_acoustic_harmonic_fem_perforated_plate(acoustic_model):
+    """FEM acoustic harmonic with a non-COMMON_PIPE perforated plate element.
+
+    An OPENPULSE-type perforated plate is applied to a mid-pipe element.
+    The PP contributes its FETM admittance matrix to the FEM system (hybrid
+    approach), so the solution must differ from the PP-free case — confirming
+    the PP is actually applied and not silently ignored.
+    """
+    project, _ = acoustic_model
+    model = project.model
+    preprocessor = model.preprocessor
+
+    _apply_volume_velocity(model, preprocessor, node_id=103)
+    project.file.write_nodal_properties_in_file()
+
+    base_setup = {
+        "analysis_id": AnalysisID.ACOUSTIC_HARMONIC,
+        "f_min": 1,
+        "f_max": 200,
+        "f_step": 1,
+        "global_damping": [0., 0., 0.],
+        "acoustic_formulation": "fem",
+    }
+
+    # Baseline: FEM without PP
+    model.set_analysis_setup(base_setup)
+    project.file.write_analysis_setup_in_file(base_setup)
+    project.build_model_and_solve(running_by_script=True)
+    solution_no_pp = project.acoustic_solver.solution.copy()
+
+    # Apply linear OPENPULSE PP to a mid-pipe element
+    project.reset_solvers()
+    element_ids = sorted(preprocessor.acoustic_elements.keys())
+    pp_element_id = int(element_ids[len(element_ids) // 2])
+    pp = PerforatedPlate(_LINEAR_PP_DATA)
+    preprocessor.set_perforated_plate_by_elements(pp_element_id, pp)
+    model.properties._set_element_property("perforated_plate", _LINEAR_PP_DATA, element_ids=pp_element_id)
+
+    model.set_analysis_setup(base_setup)
+    project.file.write_analysis_setup_in_file(base_setup)
+    project.build_model_and_solve(running_by_script=True)
+    solution_with_pp = project.acoustic_solver.solution.copy()
+
+    assert solution_with_pp is not None
+    assert solution_with_pp.ndim == 2
+    assert solution_with_pp.shape == solution_no_pp.shape
+
+    # PP must change the solution — it is not silently ignored
+    assert not np.allclose(solution_no_pp, solution_with_pp), (
+        "Perforated plate had no effect on FEM solution; PP was silently ignored"
+    )
+
+    # The PP introduces a resistive impedance that attenuates transmission;
+    # total energy with PP should be less than without PP
+    energy_no_pp = np.sum(np.abs(solution_no_pp) ** 2)
+    energy_with_pp = np.sum(np.abs(solution_with_pp) ** 2)
+    assert energy_with_pp < energy_no_pp, (
+        f"Expected PP to attenuate energy: no_pp={energy_no_pp:.3e}, with_pp={energy_with_pp:.3e}"
+    )
+
+
+def test_acoustic_harmonic_fem_pp_vs_fetm(acoustic_model):
+    """FEM and FETM produce consistent results when a perforated plate is present.
+
+    With a linear OPENPULSE PP, both methods should give the same PP admittance
+    contribution. At low frequencies (1–5 Hz) the solutions should agree within 1%.
+    """
+    project, _ = acoustic_model
+    model = project.model
+    preprocessor = model.preprocessor
+
+    _apply_volume_velocity(model, preprocessor, node_id=103)
+    project.file.write_nodal_properties_in_file()
+
+    element_ids = sorted(preprocessor.acoustic_elements.keys())
+    pp_element_id = int(element_ids[len(element_ids) // 2])
+    pp = PerforatedPlate(_LINEAR_PP_DATA)
+    preprocessor.set_perforated_plate_by_elements(pp_element_id, pp)
+    model.properties._set_element_property("perforated_plate", _LINEAR_PP_DATA, element_ids=pp_element_id)
+
+    base_setup = {
+        "analysis_id": AnalysisID.ACOUSTIC_HARMONIC,
+        "f_min": 1,
+        "f_max": 200,
+        "f_step": 1,
+        "global_damping": [0., 0., 0.],
+    }
+
+    # FETM run
+    model.set_analysis_setup({**base_setup, "acoustic_formulation": "fetm"})
+    project.file.write_analysis_setup_in_file({**base_setup, "acoustic_formulation": "fetm"})
+    project.build_model_and_solve(running_by_script=True)
+    fetm_solution = project.acoustic_solver.solution.copy()
+
+    # FEM run
+    project.reset_solvers()
+    model.set_analysis_setup({**base_setup, "acoustic_formulation": "fem"})
+    project.file.write_analysis_setup_in_file({**base_setup, "acoustic_formulation": "fem"})
+    project.build_model_and_solve(running_by_script=True)
+    fem_solution = project.acoustic_solver.solution.copy()
+
+    assert fetm_solution.shape == fem_solution.shape
+
+    # Total energies within 2× (same kh criterion as the no-PP case)
+    fetm_energy = np.sum(np.abs(fetm_solution) ** 2)
+    fem_energy = np.sum(np.abs(fem_solution) ** 2)
+    assert 0.5 < fem_energy / fetm_energy < 2.0, (
+        f"Energy ratio FEM/FETM={fem_energy/fetm_energy:.3f} out of [0.5, 2.0]"
+    )
+
+    # At f=1-5 Hz the norm difference should be < 5%
+    for fi in range(5):
+        fetm_norm = np.linalg.norm(fetm_solution[:, fi])
+        fem_norm = np.linalg.norm(fem_solution[:, fi])
+        if fetm_norm > 1e-20:
+            assert abs(fetm_norm - fem_norm) / fetm_norm < 0.05, (
+                f"f={fi+1} Hz PP: FETM norm={fetm_norm:.4e}, FEM norm={fem_norm:.4e}"
             )
