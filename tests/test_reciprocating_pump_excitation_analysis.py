@@ -203,51 +203,6 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
             model.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
-    ## Apply the nodal loads
-
-    points_coords = np.array([[ 0.500,  0.000,  0.000],
-                              [ 1.200, -0.250,  1.250]], dtype=float)
-
-    for coords in points_coords:
-        continue
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        nodal_loads = [None, None, 1 + 0j, None, None, None]
-        real_values = [value if value is None else np.real(value) for value in nodal_loads]
-        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
-
-        data = {
-                "coords" : list(coords),
-                "values" : nodal_loads,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
-        model.properties._set_nodal_property("nodal_loads", data, node_id)
-
-    ## Apply the volume velocity excitation
-
-    points_coords = np.array([[ 0.000,  0.000,  0.000]], dtype=float)
-
-    for coords in points_coords:
-        continue
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        volume_velocity = [0.01 + 0j]
-        real_values = [np.real(value) for value in volume_velocity]
-        imag_values = [np.imag(value) for value in volume_velocity]
-
-        data = {
-                "coords" : list(coords),
-                "values" : volume_velocity,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
-        model.properties._set_nodal_property("volume_velocity", data, node_id)
-
     ## Apply reciprocating pump excitation
 
     connection_type = "discharge"
@@ -320,8 +275,12 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
     ## Build the mathematical model and solve it (it also saves the model results in the temp_pulse folder)
     project.build_model_and_solve(running_by_script=True)
 
-    # natural_frequencies = project.acoustic_solver.natural_frequencies
-    # print(f"Natural frequencies: \n {natural_frequencies.reshape(-1, 1)}")
+    acoustic_solution = project.acoustic_solution
+
+    assert acoustic_solution is not None, "No acoustic solution returned"
+    assert acoustic_solution.ndim == 2, "Acoustic solution must be 2D"
+    assert np.any(np.abs(acoustic_solution) > 0), "Acoustic solution is all zeros"
+    assert np.all(np.isfinite(acoustic_solution)), "Non-finite values in acoustic solution"
 
     ## Uncomment the following function to remove the created files from the temp_pulse folder
     # remove_files_from_temporary_folder()

@@ -1,4 +1,7 @@
 
+import matplotlib
+matplotlib.use('Agg')
+
 import pytest
 
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
@@ -107,85 +110,39 @@ def load_default_reciprocating_pump_setup(crank_angle = 0):
 #             np.savetxt(f"teste_crank_end_{angle}.dat", data_CE, delimiter=",")       
 
 
-@pytest.mark.skip
 def test_suction_flow_rate(smooth_data: bool=False):
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
     reciprocating_pump.number_points = 1024
 
     flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('in_flow', smooth_data=smooth_data)
-    if flow_rate is None:
-        return
 
+    assert flow_rate is not None, "Suction flow rate computation returned None"
     N = len(flow_rate)
-    angles = np.linspace(0, 2*pi, N)
+    assert N > 0, "Suction flow rate array is empty"
+    assert np.all(np.isfinite(flow_rate)), "Non-finite values in suction flow rate"
 
-    # fs = N * (reciprocating_pump.rpm / 60)
-
-    # flow_rate_ext = np.append(flow_rate[:-1], flow_rate)
-    # flow_rate_ext = np.append(flow_rate_ext, flow_rate[1:])
-
-    # b, a = signal.butter(1, fs/15, btype='low', fs=fs,  output='ba')
-    # flow_rate = signal.filtfilt(b, a, flow_rate_ext)[N-1 : 2*N-1]
-
-    x_label = "Angle [rad]"
-    y_label = "Volume [m³/s]"
-    title = "Volumetric flow rate at suction"
-    
-    path = Path(f"tests/data/reciprocating_pump/flow/bp_reciprocating_pump_flow_at_suction_crank_angle_{crank_angle}.txt")
-    data_HE = np.loadtxt(path, skiprows=4, max_rows=115)
-    data_CE = np.loadtxt(path, skiprows=119)
-
-    volumes = [angles, data_HE[:,0], data_CE[:,0]]
-    flow_rates = [flow_rate, -data_HE[:,1], -data_CE[:,1]]
-    labels = ["OpenPulse", "Reference (HE)", "Reference (CE)"]
-    colors = [(0,0,0), (1,0,0), (0,0,1)]
-    linestyles = ["-", "-", "-"]
-
-    plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
-
-@pytest.mark.skip
 def test_discharge_flow_rate(smooth_data: bool=False):
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
     reciprocating_pump.number_points = 3600
 
     flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=smooth_data)
-    if flow_rate is None:
-        return
 
-    f_rot = reciprocating_pump.rpm / 60
+    assert flow_rate is not None, "Discharge flow rate computation returned None"
     N = reciprocating_pump.number_points
+    assert len(flow_rate) > 0, "Discharge flow rate array is empty"
+    assert np.all(np.isfinite(flow_rate)), "Non-finite values in discharge flow rate"
 
+    # Verify the computed stroke volume is physically positive
+    f_rot = reciprocating_pump.rpm / 60
     V_pos = flow_rate - np.average(flow_rate)
     mask = V_pos <= 0
     V_pos[mask] = np.zeros(sum(mask), dtype=float)
-    dt = 1/ (f_rot * (N - 1))
-
+    dt = 1 / (f_rot * (N - 1))
     dVt = np.trapezoid(V_pos, dx=dt)
-
     dV = dVt / reciprocating_pump.number_of_cylinders
-
-    print(dV)
-
-    N = len(flow_rate)  
-    angles = np.linspace(0, 2*pi, N)
-
-    x_label = "Angle [rad]"
-    y_label = "Volume [m³/s]"
-    title = "Volumetric flow rate at discharge"
-
-    path = Path(f"tests/data/reciprocating_pump/flow/bp_reciprocating_pump_flow_at_discharge_crank_angle_{crank_angle}.txt")
-    data_HE = np.loadtxt(path, skiprows=4, max_rows=102)
-    data_CE = np.loadtxt(path, skiprows=111)#, max_rows=110)
-
-    volumes = [angles, data_HE[:,0], data_CE[:,0]]
-    flow_rates = [flow_rate, data_HE[:,1], data_CE[:,1]]
-    labels = ["OpenPulse", "Reference (HE)", "Reference (CE)"]
-    colors = [(0,0,0), (1,0,0), (0,0,1)]
-    linestyles = ["-", "-", "-"]
-
-    plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
+    assert dV > 0, "Computed stroke volume should be positive"
 
 
 def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):

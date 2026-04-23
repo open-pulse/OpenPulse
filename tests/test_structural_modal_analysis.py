@@ -203,8 +203,12 @@ def test_structural_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
     project.build_model_and_solve(running_by_script=True)
 
     natural_frequencies = project.structural_solver.natural_frequencies
-    # natural_frequencies = project.acoustic_solver.natural_frequencies
-    print(f"Natural frequencies: \n {natural_frequencies.reshape(-1, 1)}")
+
+    assert natural_frequencies is not None, "No natural frequencies returned"
+    assert len(natural_frequencies) == 40, f"Expected 40 modes, got {len(natural_frequencies)}"
+    assert np.all(natural_frequencies >= 0), "Negative natural frequencies"
+    assert np.all(np.isfinite(natural_frequencies)), "Non-finite natural frequencies"
+    assert np.all(np.diff(natural_frequencies) >= 0), "Natural frequencies not in ascending order"
 
     ## Uncomment the following function to remove the created files from the temp_pulse folder
     # remove_files_from_temporary_folder()

@@ -1,7 +1,8 @@
 import pytest
-import numpy as np 
+import numpy as np
 from pathlib import Path
 from scipy.sparse import save_npz, load_npz
+from scipy.sparse.linalg import norm as sparse_norm
 
 from examples.example_file_helper import get_example_file_path
 from pulse.utils.common_utils import sparse_is_equal
@@ -55,15 +56,17 @@ def model():
     return dict(zip(names, answer))
 
 
-# we need a better way to test similarity 
-# sparse matrix operands are ridiculous
+def test_global_matrices(model):
+    for name, matrix in model.items():
+        assert matrix is not None, f"Matrix {name} is None"
+        assert matrix.shape[0] == matrix.shape[1], f"Matrix {name} is not square"
+        assert matrix.nnz > 0, f"Matrix {name} has no non-zero entries"
 
-# # start testing 
-# def test_matrices(model):
-#     names = ['Kadd_lump', 'Madd_lump', 'K', 'M', 'Kr', 'Mr', 'K_lump', 'M_lump', 'C_lump', 'Kr_lump', 'Mr_lump', 'Cr_lump']
-#     for name in names:
-#         correct_matrix = load_npz(f'matrices\\assembly\\{name}.npz')
-#         testing_matrix = model[name]
-#         assert sparse_is_equal(correct_matrix, testing_matrix)
+    # Structural stiffness and mass matrices must be symmetric
+    K, M = model["K"], model["M"]
+    diff_K = K - K.T
+    diff_M = M - M.T
+    assert sparse_norm(diff_K) / sparse_norm(K) < 1e-10, "K matrix is not symmetric"
+    assert sparse_norm(diff_M) / sparse_norm(M) < 1e-10, "M matrix is not symmetric"
 
 
