@@ -37,7 +37,8 @@ def load_default_reciprocating_pump_setup(crank_angle = 0):
                   'bulk_modulus' : 2541031616.236133
                   }
 
-    pump_model = ReciprocatingPumpModel(parameters)
+    pump_model = ReciprocatingPumpModel(**parameters)
+    pump_model.process_remaining_fluid_properties()
     pump_model.number_points = 3600
 
     return pump_model
