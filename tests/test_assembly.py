@@ -65,6 +65,7 @@ def model(tmp_path):
 
     for coords in points_coords:
         node_id = preprocessor.get_node_id_by_coordinates(coords)
+        assert node_id is not None, f"Node not found at coordinates {coords}"
         prescribed_dofs = [0j, 0j, 0j, 0j, 0j, 0j]
         real_values = [np.real(v) for v in prescribed_dofs]
         imag_values = [np.imag(v) for v in prescribed_dofs]
