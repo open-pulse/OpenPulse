@@ -1,4 +1,3 @@
-from uuid import main
 from PySide6.QtGui import QColor, QPen
 from PySide6.QtCore import Qt
 
