@@ -197,10 +197,10 @@ class CrossSection:
         self.poisson_ratio = kwargs.get('poisson_ratio', 0)
 
         # Input cluster data for pipe and beam sections 
-        self.pipe_section_info = kwargs.get('pipe_section_info', None)
-        self.beam_section_info = kwargs.get('beam_section_info', None)
-        self.expansion_joint_info = kwargs.get('expansion_joint_info', None)
-        self.valve_section_info = kwargs.get('valve_section_info', None)
+        self.pipe_section_info: dict = kwargs.get('pipe_section_info', None)
+        self.beam_section_info: dict = kwargs.get('beam_section_info', None)
+        self.expansion_joint_info: dict = kwargs.get('expansion_joint_info', None)
+        self.valve_section_info: dict = kwargs.get('valve_section_info', None)
 
         self.section_type_label = kwargs.get('section_label', None)
         self.section_parameters = kwargs.get('section_parameters', None)
@@ -215,17 +215,16 @@ class CrossSection:
         self.thickness = 0
         self.offset_y = 0
         self.offset_z = 0
-        self.offset = [self.offset_y, self.offset_z]
         self.insulation_thickness = 0
         self.insulation_density = 0
 
-        if self.pipe_section_info:
+        if isinstance(self.pipe_section_info, dict):
             self.load_pipe_section_data()            
 
-        if self.beam_section_info:
+        if isinstance(self.beam_section_info, dict):
             self.load_beam_section_data()
 
-        if self.valve_section_info:
+        if isinstance(self.valve_section_info, dict):
             self.load_valve_section_data()
 
         if self.expansion_joint_info is not None:
@@ -242,7 +241,7 @@ class CrossSection:
         self.offset_z = self.section_parameters[3]
         self.insulation_thickness = self.section_parameters[4]
         self.insulation_density = self.section_parameters[5]
-        self.offset = [self.offset_y, self.offset_z]
+
         self.section_info = self.pipe_section_info
 
     def load_beam_section_data(self):
@@ -250,14 +249,13 @@ class CrossSection:
         self.section_type_label = self.beam_section_info["section_type_label"]
         self.section_parameters = self.beam_section_info["section_parameters"]
         self.section_properties = self.beam_section_info["section_properties"]
+        self.offset_y = self.section_parameters[-2]
+        self.offset_z = self.section_parameters[-1]
 
         self.area = self.section_properties['area']
         self.second_moment_area_y = self.section_properties['Iyy']
         self.second_moment_area_z = self.section_properties['Izz']
         self.second_moment_area_yz = self.section_properties['Iyz']
-        self.offset_y = self.section_properties['Yc']
-        self.offset_z = self.section_properties['Zc']
-        self.offset = [self.offset_y, self.offset_z]
         
         if self.section_type_label == "generic_beam":
             self.shear_coefficient = self.section_properties['shear_coefficient']
@@ -275,15 +273,16 @@ class CrossSection:
         self.offset_z = self.section_parameters[3]
         self.insulation_thickness = self.section_parameters[4]
         self.insulation_density = self.section_parameters[5]
-        self.offset = [self.offset_y, self.offset_z]
 
         self.section_info = self.valve_section_info
 
     def load_expansion_joint_data(self):
         self.section_type_label = self.expansion_joint_info[0]
         self.outer_diameter = self.expansion_joint_info[2]
-        self.section_parameters = [ self.expansion_joint_info[1], 
-                                    self.expansion_joint_info[2] ]
+        self.section_parameters = [ 
+            self.expansion_joint_info[1], 
+            self.expansion_joint_info[2],
+            ]
 
     def set_section_parameters(self, parameters):
         self.outer_diameter, self.thickness = parameters
@@ -318,6 +317,10 @@ class CrossSection:
         self.principal_axis = None
         self.principal_axis_translation = None
         self.offset_virtual = None
+
+    @property
+    def offsets(self):
+        return [self.offset_y, self.offset_z]
 
     @property
     def outer_radius(self):
@@ -394,7 +397,7 @@ class CrossSection:
         r_i = self.inner_diameter / 2
 
         if self.offset_virtual is None:
-            offset = self.offset
+            offset = self.offsets
         else:
             offset = self.offset_virtual # used in element_type = 'pipe_1'
 
@@ -452,7 +455,7 @@ class CrossSection:
 
         if el_type == 'pipe_1':
             # for the pipe_1 element, offset and its dependence need to be updated as below
-            self.offset_virtual = self.offset + np.array([self.y_centroid, self.z_centroid]) 
+            self.offset_virtual = self.offsets + np.array([self.y_centroid, self.z_centroid]) 
             coordinate = self.mesh_coordinate()
         else:
             coordinate = self.mesh_coordinate()
@@ -656,8 +659,10 @@ class CrossSection:
             z_c = self.z_centroid + self.offset_z
             y_s = self.y_shear + self.offset_y
             z_s = self.z_shear + self.offset_z
+
         else:
-            if avg_data != []:
+
+            if avg_data:
                 self.y_centroid, self.z_centroid, self.y_shear, self.z_shear = avg_data
             
             y_c = self.y_centroid
@@ -665,40 +670,62 @@ class CrossSection:
             y_s = self.y_shear
             z_s = self.z_shear
 
-        if norm(self.offset) > 0:
+        # initialize the translation matrix
+        T = np.eye(12, dtype=float)
+
+        if norm(self.offsets) > 0:
+
             Iy = self.second_moment_area_y 
             Iz = self.second_moment_area_z
             Iyz = self.second_moment_area_yz
+
             if Iz==Iy:
-                if Iyz>0:
+                if Iyz > 0:
                     angle = pi/2
-                elif Iyz<0:
+                elif Iyz < 0:
                     angle = -pi/2
             else:
                 angle = atan(2*Iyz/(Iz-Iy))/2
-            # Rotational part of transformation matrix
-            rotation = np.array([[ 1. ,       0.   ,     0.    ],
-                                 [ 0. , cos(angle) , sin(angle)],
-                                 [ 0. , -sin(angle), cos(angle)]])
-            # Translational part of transformation matrix
-            translation = np.array([[ 0. , z_c, -y_c],
-                                    [-z_s,  0.,  0. ],
-                                    [y_s ,  0.,  0. ]])
-            T = np.eye(12)
+
+            # rotational part of transformation matrix
+            rotation = np.array([
+                [ 1. ,       0.   ,     0.    ],
+                [ 0. , cos(angle) , sin(angle)],
+                [ 0. , -sin(angle), cos(angle)]
+                ], dtype=float)
+
+            # translational part of transformation matrix
+            translation = np.array([
+                [ 0. , z_c, -y_c],
+                [-z_s,  0.,  0. ],
+                [y_s ,  0.,  0. ]
+                ], dtype=float)
+
+            # fill in the translation matrix data
             T[0:3,3:6]   = translation
             T[6:9,9:12]  = translation
-            #
-            R = np.zeros([12, 12])
+
+            # initialize the rotation matrix
+            R = np.zeros([12, 12], dtype=float)
+
+            # fill in the rotation matrix data
             R[0:3, 0:3]  = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = rotation
+
             self.principal_axis_translation = T
             self.principal_axis = R @ T
+
         else:
-            translation = np.array([[ 0  , z_c,-y_c],
-                                    [-z_s,  0 , 0  ],
-                                    [y_s ,  0 , 0  ]])
-            T = self.principal_axis_rotation = np.eye(12)
+
+            translation = np.array([
+                [ 0  , z_c,-y_c],
+                [-z_s,  0 , 0  ],
+                [y_s ,  0 , 0  ]
+                ], dtype=float)
+
+            # fill in the translation matrix data
             T[0:3,3:6]   = translation
             T[6:9,9:12]  = translation
+
             self.principal_axis_translation = T
             self.principal_axis = T
 
@@ -1029,7 +1056,7 @@ def get_beam_section_properties(section_label, data):
 #     def __init__(self, outer_diameter, thickness, offset_y = 0, offset_z = 0, division_number = 64):
 #         self.outer_diameter = outer_diameter
 #         self.thickness = thickness
-#         self.offset = np.array([offset_y, offset_z])
+#         self.offsets = np.array([offset_y, offset_z])
 #         self.offset_virtual = None
 #         self.division_number = division_number
 
@@ -1092,7 +1119,7 @@ def get_beam_section_properties(section_label, data):
 #         r_i = self.inner_diameter / 2
 
 #         if self.offset_virtual is None:
-#             offset = self.offset
+#             offset = self.offsets
 #         else:
 #             offset = self.offset_virtual # used in element_type = 'pipe_1'
 
@@ -1154,7 +1181,7 @@ def get_beam_section_properties(section_label, data):
 
 #         if element_type == 'pipe_1':
 #             # for the pipe_1 element, offset and its dependence need to be updated as below
-#             self.offset_virtual = self.offset + np.array([self.y_centroid, self.z_centroid]) 
+#             self.offset_virtual = self.offsets + np.array([self.y_centroid, self.z_centroid]) 
 #             coordinate = self.mesh_coordinate()
 #             self.area_properties()
 
@@ -1261,7 +1288,7 @@ def get_beam_section_properties(section_label, data):
 #             z_c = self.z_centroid
 #             y_s = self.y_shear
 #             z_s = self.z_shear
-#             if norm(self.offset) > 0:
+#             if norm(self.offsets) > 0:
 #                 Iy = self.second_moment_area_y 
 #                 Iz = self.second_moment_area_z
 #                 Iyz = self.second_moment_area_yz
