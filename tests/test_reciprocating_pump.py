@@ -2,16 +2,9 @@
 import matplotlib
 matplotlib.use('Agg')
 
-import pytest
-
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
-import os
 import numpy as np
-import matplotlib.pyplot as plt
-
-from pathlib import Path
-from scipy import signal
 
 pi = 3.141592653589
 
@@ -146,32 +139,8 @@ def test_discharge_flow_rate(smooth_data: bool=False):
     assert dV > 0, "Computed stroke volume should be positive"
 
 
-def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
-
-    fig = plt.figure(figsize=[8,6])
-    ax_ = fig.add_subplot(1,1,1)
-
-    for i, label in enumerate(labels): 
-        ax_.plot(x[i], y[i], color=colors[i], linewidth=2, linestyle=linestyles[i], label=label)
-    
-    ax_.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_title(title, fontsize = 12, fontweight = 'bold')
-
-    plt.legend()
-    plt.grid()
-    plt.show()
-
-
 def check_angles():
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
     reciprocating_pump.number_points = 1023
     reciprocating_pump.get_cycles_boundary_data(acting_label="HE")
-
-
-if __name__ == "__main__":
-    # test_PV_diagram(print_log=True, export_data=True)
-    test_suction_flow_rate(smooth_data=True)
-    test_discharge_flow_rate(smooth_data=True)
-    # check_angles()

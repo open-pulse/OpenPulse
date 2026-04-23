@@ -1,7 +1,5 @@
 import pytest
 import numpy as np
-from pathlib import Path
-from scipy.sparse import save_npz, load_npz
 from scipy.sparse.linalg import norm as sparse_norm
 
 from examples.example_file_helper import get_example_file_path

@@ -1,5 +1,3 @@
-
-from pulse import TEMP_PROJECT_DIR
 from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
@@ -7,13 +5,12 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
-import pytest
 import numpy as np
 
 from pathlib import Path
 
 
-def test_acoustic_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
+def test_acoustic_modal_analysis(datadir: Path):
 
     ## Initialize a project
     project = Project()
@@ -182,9 +179,6 @@ def test_acoustic_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
     assert np.all(np.isfinite(natural_frequencies)), "Non-finite acoustic natural frequencies"
     assert np.all(np.diff(natural_frequencies) >= 0), "Acoustic natural frequencies not in ascending order"
 
-    ## Uncomment the following function to remove the created files from the temp_pulse folder
-    # remove_files_from_temporary_folder()
-
 
 def create_fluids():
 
@@ -265,22 +259,3 @@ def create_temporary_material_library(project: Project, materials: dict):
 
     project.file.write_material_library_in_file(material_data)
 
-
-def remove_files_from_temporary_folder():
-
-    from pulse import TEMP_PROJECT_DIR
-    from shutil import rmtree
-    from os import path, remove, listdir
-
-    if TEMP_PROJECT_DIR.exists():
-        for filename in listdir(TEMP_PROJECT_DIR):
-            file_path = TEMP_PROJECT_DIR / filename
-            if path.exists(file_path):
-                if file_path.is_file():
-                    remove(file_path)
-                else:
-                    rmtree(file_path)
-
-
-if __name__ == "__main__":
-    test_acoustic_modal_analysis()
