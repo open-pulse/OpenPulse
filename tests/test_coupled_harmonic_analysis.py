@@ -1,235 +1,60 @@
-from examples.example_file_helper import get_example_file_path
-from pulse.model import AnalysisID
-from pulse.model.cross_section import CrossSection, get_beam_section_properties
-from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
-from pulse.project.project import Project
-
 import numpy as np
 
-from pathlib import Path
+from pulse.model import AnalysisID
 
-def test_coupled_harmonic_analysis(datadir: Path):
 
-    ## Initialize a project
-    project = Project()
-    project.initialize_pulse_file_and_loader(dir_path=datadir)
-    
-    ## Define usefull objects
+def test_coupled_harmonic_analysis(example2_project):
+    project, mesher_setup = example2_project
     model = project.model
-    mesh = model.mesh
     preprocessor = model.preprocessor
 
-    # Load geometry file (only the *.iges and *.step formats are supported)
-    geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
+    ## Apply nodal loads
+    load_coords = np.array([
+        [0.500,  0.000,  0.000],
+        [1.200, -0.250,  1.250],
+    ], dtype=float)
 
-    ## Configure the mesher setup
-    mesher_setup = {
-                    "element_size" : 0.01,
-                    "geometry_tolerance" : 1e-6,
-                    "length_unit" : "meter",
-                    "import_type" : 0,
-                    "geometry_path" : str(geometry_path)
-                    }
-
-    project.reset(reset_all=True)
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
-
-    ## Process the geometry and mesh
-    preprocessor.generate()
-
-    mesher_setup["import_type"] = 1
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
-
-    all_lines = project.model.mesh.lines_from_model
-
-    beam_lines = [20, 23, 24]
-    branch_lines = [31, 32, 33]
-    main_lines = [line_id for line_id in all_lines if line_id not in beam_lines + branch_lines]
-
-    ## Define the fluid
-    fluids = create_fluids()
-    create_temporary_fluid_library(project, fluids)
-
-    preprocessor.set_fluid_by_lines(all_lines, fluids[1])
-    model.properties._set_line_property("fluid_id", fluids[1].identifier, all_lines)
-    model.properties._set_line_property("fluid", fluids[1], all_lines)
-
-    ## Define the material
-    materials = create_materials()
-    create_temporary_material_library(project, materials)
-
-    preprocessor.set_material_by_lines(all_lines, materials[1])
-    model.properties._set_line_property("material_id", materials[1].identifier, all_lines)
-    model.properties._set_line_property("material", materials[1], all_lines)
-
-    ## Create the model cross-sections
-
-    main_section_info = {"section_type_label" : "pipe" ,
-                        "section_parameters" : [0.100, 0.008, 0, 0, 0, 0]}
-
-    branch_section_info = {"section_type_label" : "pipe" ,
-                           "section_parameters" : [0.050, 0.008, 0, 0, 0, 0]}
-
-    beam_section_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
-    beam_section_info = {"section_type_label" : "i_beam" ,
-                         "section_parameters" : beam_section_parameters,
-                         "section_properties" : get_beam_section_properties("i_beam", beam_section_parameters)}
-
-    cross_section_main = CrossSection(pipe_section_info = main_section_info)
-    cross_section_branch = CrossSection(pipe_section_info = branch_section_info)
-    cross_section_beam = CrossSection(beam_section_info = beam_section_info)
-
-    ## Assign the cross-sections to main lines
-
-    for line_id in main_lines:
-        center_coords = model.properties._get_property("center_coords", line_id=line_id)
-        corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
-
-        if (center_coords, corner_coords).count(None) == 2:
-            section_label = main_section_info["section_type_label"]
-            model.properties._set_line_property("structure_name", section_label, line_id)
-        else:
-            model.properties._set_line_property("structure_name", "bend", line_id)
-
-    model.properties._set_multiple_line_properties(main_section_info, main_lines)
-    model.properties._set_line_property("cross_section", cross_section_main, main_lines)
-    model.properties._set_line_property("structural_element_type", "pipe_1", main_lines)
-    preprocessor.set_cross_section_by_lines(main_lines, cross_section_main)
-    preprocessor.set_structural_element_type_by_lines(main_lines, "pipe_1")
-
-    ## Assign the cross-sections to branch lines
-
-    for line_id in branch_lines:
-        center_coords = model.properties._get_property("center_coords", line_id=line_id)
-        corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
-
-        if (center_coords, corner_coords).count(None) == 2:
-            section_label = branch_section_info["section_type_label"]
-            model.properties._set_line_property("structure_name", section_label, line_id)
-        else:
-            model.properties._set_line_property("structure_name", "bend", line_id)
-
-    model.properties._set_multiple_line_properties(branch_section_info, branch_lines)
-    model.properties._set_line_property("cross_section", cross_section_branch, branch_lines)
-    model.properties._set_line_property("structural_element_type", "pipe_1", branch_lines)
-    preprocessor.set_cross_section_by_lines(branch_lines, cross_section_branch)
-    preprocessor.set_structural_element_type_by_lines(branch_lines, "pipe_1")
-
-    ## Assign the cross-sections to beam lines
-
-    model.properties._set_line_property("structure_name", beam_section_info["section_type_label"], beam_lines)
-    model.properties._set_multiple_line_properties(beam_section_info, beam_lines)
-    model.properties._set_line_property("cross_section", cross_section_beam, beam_lines)
-    model.properties._set_line_property("structural_element_type", "beam_1", beam_lines)
-    preprocessor.set_cross_section_by_lines(beam_lines, cross_section_beam)
-    preprocessor.set_structural_element_type_by_lines(beam_lines, "beam_1")
-
-    ## Apply the dofs prescriptions
-
-    points_coords = np.array([[ 0.000,  0.000,  0.000],
-                              [ 2.000, -0.250,  1.250],
-                              [ 0.850,  1.000, -0.750],
-                              [ 1.350,  1.250,  0.500],
-                              [ 0.850,  0.000,  0.500]], dtype=float)
-
-    for coords in points_coords:
-
+    for coords in load_coords:
         node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        prescribed_dofs = [0j, 0j, 0j, 0j, 0j, 0j]
-        real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
-        imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
-
-        data = {
-                "coords" : list(coords),
-                "values" : prescribed_dofs,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
-        model.properties._set_nodal_property("prescribed_dofs", data, node_id)
-
-    ## Apply the nodal loads
-
-    points_coords = np.array([[ 0.500,  0.000,  0.000],
-                              [ 1.200, -0.250,  1.250]], dtype=float)
-
-    for coords in points_coords:
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
         nodal_loads = [None, None, 1 + 0j, None, None, None]
-        real_values = [value if value is None else np.real(value) for value in nodal_loads]
-        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
-
         data = {
-                "coords" : list(coords),
-                "values" : nodal_loads,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
+            "coords": list(coords),
+            "values": nodal_loads,
+            "real_values": [v if v is None else np.real(v) for v in nodal_loads],
+            "imag_values": [v if v is None else np.imag(v) for v in nodal_loads],
+        }
         model.properties._set_nodal_property("nodal_loads", data, node_id)
 
-    ## Apply the volume velocity excitation
+    ## Apply volume velocity excitation
+    coords = np.array([0.000, 0.000, 0.000])
+    node_id = preprocessor.get_node_id_by_coordinates(coords)
+    volume_velocity = [0.01 + 0j]
+    data = {
+        "coords": list(coords),
+        "values": volume_velocity,
+        "real_values": [np.real(v) for v in volume_velocity],
+        "imag_values": [np.imag(v) for v in volume_velocity],
+    }
+    model.properties._set_nodal_property("volume_velocity", data, node_id)
 
-    points_coords = np.array([[ 0.000,  0.000,  0.000]], dtype=float)
+    ## Apply radiation impedance
+    coords = np.array([2.000, -0.250, 1.250])
+    node_id = preprocessor.get_node_id_by_coordinates(coords)
+    model.properties._set_nodal_property(
+        "radiation_impedance",
+        {"coords": list(coords), "impedance_type": "flanged"},
+        node_id,
+    )
 
-    for coords in points_coords:
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        volume_velocity = [0.01 + 0j]
-        real_values = [value if value is None else np.real(value) for value in volume_velocity]
-        imag_values = [value if value is None else np.imag(value) for value in volume_velocity]
-
-        data = {
-                "coords" : list(coords),
-                "values" : volume_velocity,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
-        model.properties._set_nodal_property("volume_velocity", data, node_id)
-
-    ## Apply the radiation impedance
-
-    points_coords = np.array([[ 2.000,  -0.250,  1.250]], dtype=float)
-
-    for coords in points_coords:
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        data = {
-                "coords" : list(coords),
-                "impedance_type" : "flanged",
-                }
-
-        model.properties._set_nodal_property("radiation_impedance", data, node_id)
-
-    ## Analysis setup for acoustic harmonic analysis
-
-    ## Analysis setup for structural modal analysis
-
-    # analysis_setup = {
-    #                   "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
-    #                   "number_of_modes" : 40,
-    #                   "sigma_factor" : 1e-2
-    #                   }
-
-    ## Analysis setup for coupled harmonic analysis
     analysis_setup = {
-                      "analysis_id" : AnalysisID.COUPLED_HARMONIC,
-                      "f_min" : 1,
-                      "f_max" : 300,
-                      "f_step" : 1,
-                      "global_damping" : [1e-3, 1e-5, 0.],
-                      }
+        "analysis_id": AnalysisID.COUPLED_HARMONIC,
+        "f_min": 1,
+        "f_max": 300,
+        "f_step": 1,
+        "global_damping": [1e-3, 1e-5, 0.],
+    }
+    model.set_analysis_setup(analysis_setup=analysis_setup)
 
-    model.set_analysis_setup(analysis_setup = analysis_setup)
-
-    # write data in file
     project.file.write_line_properties_in_file()
     project.file.write_nodal_properties_in_file()
     project.file.write_project_setup_in_file(mesher_setup)
@@ -250,83 +75,3 @@ def test_coupled_harmonic_analysis(datadir: Path):
     assert np.any(np.abs(acoustic_solution) > 0), "Acoustic solution is all zeros"
     assert np.all(np.isfinite(structural_solution)), "Non-finite values in structural solution"
     assert np.all(np.isfinite(acoustic_solution)), "Non-finite values in acoustic solution"
-
-
-def create_fluids():
-
-    fluids = dict()
-    fluids[1] = Fluid(  
-        name = 'air',
-        identifier = 1,
-        temperature = 293.15,
-        pressure = 101325,
-        density = 1.204263,
-        speed_of_sound = 343.395034,
-        isentropic_exponent = 1.401985,
-        thermal_conductivity = 0.025503,
-        specific_heat_Cp = 1006.400178,
-        dynamic_viscosity = float(1.8247e-5),
-        molar_mass  = 28.958601,
-        color = [0, 170, 255]
-        )
-    
-    return fluids
-
-
-def create_materials():
-
-    materials = dict()
-    materials[1] = Material(
-        name = 'stainless_steel', 
-        identifier = 1, 
-        density = 7860, 
-        elasticity_modulus = 210e9, 
-        poisson_ratio = 0.3,
-        thermal_expansion_coefficient = 1.2e-5,
-        color = [253, 152, 145]
-        )
-
-    return materials
-
-
-def create_temporary_fluid_library(project: Project, fluids: dict):
-
-    fluid_data = dict()
-
-    for fluid_id, fluid in fluids.items():
-        fluid: Fluid
-
-        fluid_data[f"{fluid_id}"] = {
-            "name": fluid.name,
-            "identifier": fluid.identifier,
-            "pressure": fluid.pressure,
-            "temperature": fluid.temperature,
-            "density": fluid.density,
-            "speed_of_sound": fluid.speed_of_sound,
-            "isentropic_exponent": fluid.isentropic_exponent,
-            "thermal_conductivity": fluid.thermal_conductivity,
-            "dynamic_viscosity": fluid.dynamic_viscosity,
-            "molar_mass": fluid.molar_mass,
-            "color": fluid.color,
-            }
-
-    project.file.write_fluid_library_in_file(fluid_data)
-
-
-def create_temporary_material_library(project: Project, materials: dict):
-
-    material_data = dict()
-
-    for mat_id, material in materials.items():
-        material: Material
-        material_data[f"{mat_id}"] = {
-            "name": material.name,
-            "identifier": material.identifier,
-            "color": material.color,
-            "density": material.density,
-            "elasticity_modulus": material.elasticity_modulus / 1e9,
-            "poisson_ratio": material.poisson_ratio,
-            "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
-            }
-
-    project.file.write_material_library_in_file(material_data)
