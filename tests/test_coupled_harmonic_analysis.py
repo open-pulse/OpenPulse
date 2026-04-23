@@ -1,9 +1,11 @@
 import numpy as np
 
 from pulse.model import AnalysisID
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
+from pulse.postprocessing.plot_structural_data import get_structural_frf
 
 
-def test_coupled_harmonic_analysis(example2_project):
+def test_coupled_harmonic_analysis(example2_project, num_regression):
     project, mesher_setup = example2_project
     model = project.model
     preprocessor = model.preprocessor
@@ -75,3 +77,27 @@ def test_coupled_harmonic_analysis(example2_project):
     assert np.any(np.abs(acoustic_solution) > 0), "Acoustic solution is all zeros"
     assert np.all(np.isfinite(structural_solution)), "Non-finite values in structural solution"
     assert np.all(np.isfinite(acoustic_solution)), "Non-finite values in acoustic solution"
+
+    # Extract FRFs at the loaded and excited nodes for regression comparison
+    structural_node_id = preprocessor.get_node_id_by_coordinates(
+        np.array([0.500, 0.000, 0.000])
+    )
+    acoustic_node_id = preprocessor.get_node_id_by_coordinates(
+        np.array([2.000, -0.250, 1.250])
+    )
+
+    structural_response = get_structural_frf(
+        preprocessor, structural_solution, structural_node_id, 2, absolute=True
+    )
+    acoustic_response = get_acoustic_frf(
+        preprocessor, acoustic_solution, acoustic_node_id, absolute=True
+    )
+
+    num_regression.check(
+        {
+            "frequencies": model.frequencies,
+            "structural_response": structural_response,
+            "acoustic_response": acoustic_response,
+        },
+        default_tolerance=dict(atol=1e-6, rtol=1e-6),
+    )
