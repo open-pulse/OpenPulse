@@ -36,7 +36,6 @@ def test_acoustic_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
                     "geometry_path" : str(geometry_path)
                     }
 
-    project.reset(reset_all=True)
     mesh.set_mesher_setup(mesher_setup=mesher_setup)
 
     ## Process the geometry and mesh
@@ -49,7 +48,8 @@ def test_acoustic_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
     beam_lines = [20, 23, 24]
     branch_lines = [31, 32, 33]
-    main_lines = [line_id for line_id in all_lines if line_id not in beam_lines + branch_lines]
+    excluded_lines = set(beam_lines + branch_lines)
+    main_lines = [line_id for line_id in all_lines if line_id not in excluded_lines]
 
     ## Define the fluid
     fluids = create_fluids()
@@ -140,6 +140,7 @@ def test_acoustic_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
     for coords in points_coords:
 
         node_id = preprocessor.get_node_id_by_coordinates(coords)
+        assert node_id is not None, f"Node not found at coordinates {coords}"
 
         prescribed_dofs = [0j, 0j, 0j, 0j, 0j, 0j]
         real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
@@ -272,10 +273,10 @@ def remove_files_from_temporary_folder():
     from os import path, remove, listdir
 
     if TEMP_PROJECT_DIR.exists():
-        for filename in listdir(TEMP_PROJECT_DIR).copy():
+        for filename in listdir(TEMP_PROJECT_DIR):
             file_path = TEMP_PROJECT_DIR / filename
             if path.exists(file_path):
-                if "." in filename:
+                if file_path.is_file():
                     remove(file_path)
                 else:
                     rmtree(file_path)
