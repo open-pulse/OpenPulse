@@ -3,7 +3,7 @@ import numpy as np
 from pulse.model import AnalysisID
 
 
-def test_acoustic_modal_analysis(example2_project):
+def test_acoustic_modal_analysis(example2_project, num_regression):
     project, mesher_setup = example2_project
     model = project.model
 
@@ -28,3 +28,8 @@ def test_acoustic_modal_analysis(example2_project):
     assert np.all(natural_frequencies >= 0), "Negative acoustic natural frequencies"
     assert np.all(np.isfinite(natural_frequencies)), "Non-finite acoustic natural frequencies"
     assert np.all(np.diff(natural_frequencies) >= 0), "Acoustic natural frequencies not in ascending order"
+
+    num_regression.check(
+        {"natural_frequencies": natural_frequencies},
+        default_tolerance=dict(atol=1e-4, rtol=1e-4),
+    )
