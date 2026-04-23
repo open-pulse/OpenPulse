@@ -48,11 +48,13 @@ class ValveOptions(StructureOptions):
         self.update_permissions()
 
     def load_data_from_pipe_section(self):
-        outside_diameter = self.cross_section_widget.lineEdit_outside_diameter.text()
-        wall_thickness = self.cross_section_widget.lineEdit_wall_thickness.text()
 
         try:
-            section_parameters = self.cross_section_widget.pipe_section_info["section_parameters"]
+
+            section_parameters = self.cross_section_widget.pipe_section_info.get("section_parameters")
+            if section_parameters is None:
+                return
+
             outside_diameter = section_parameters[0]
             wall_thickness = section_parameters[1]
             effective_diameter = outside_diameter - 2 * wall_thickness
