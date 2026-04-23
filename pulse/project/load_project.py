@@ -129,18 +129,27 @@ class LoadProject:
                 section_type_label = self.fix_data_for_backwards_compatibility(data)
 
                 if data.get("structure_name") in ["pipe", "bend", "arc_bend", "flange"]:
-                    pipe_section_info = {   "section_type_label" : section_type_label,
-                                            "section_parameters" : data["section_parameters"]   }
+                    pipe_section_info = {   
+                        "section_type_label" : section_type_label,
+                        "section_parameters" : data["section_parameters"],
+                        }
 
-                    self.cross_sections[line_id] = CrossSection(pipe_section_info=pipe_section_info) 
+                    self.cross_sections[line_id] = CrossSection(
+                        element_type = "pipe_1",
+                        pipe_section_info = pipe_section_info,
+                    )
 
                 elif "section_properties" in data.keys():
-                    beam_section_info = {   "section_type_label" : section_type_label,
-                                            "section_parameters" : data["section_parameters"],
-                                            "section_properties" : data["section_properties"]   }
+                    beam_section_info = {   
+                        "section_type_label" : section_type_label,
+                        "section_parameters" : data["section_parameters"],
+                        "section_properties" : data["section_properties"],
+                        }
 
-                    self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
-
+                    self.cross_sections[line_id] = CrossSection(
+                        element_type = "beam_1",
+                        beam_section_info = beam_section_info,
+                    )
 
     def fix_data_for_backwards_compatibility(self, data: dict):
 
