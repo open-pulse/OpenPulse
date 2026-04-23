@@ -431,9 +431,8 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
     append_polydata.AddInputData(start_flange)
     append_polydata.AddInputData(end_flange)
     append_polydata.AddInputData(handle)
-
     append_polydata.Update()
-
+    
     return append_polydata.GetOutput()
 
 def valve_handle(outside_diameter):
@@ -452,7 +451,7 @@ def valve_handle(outside_diameter):
     flange = apply_transform(flange, dx=height)
     wheel = apply_transform(
         VALVE_WHEEL,
-        rz=90,
+        rz=-90,
         dx=height,
         sx=wheel_diameter,
         sy=wheel_diameter,
