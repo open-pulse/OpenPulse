@@ -1,7 +1,9 @@
-from math import sqrt
 import numpy as np
 
-from pulse.model.node import distance, DOF_PER_NODE_STRUCTURAL
+from pulse.model.cross_section import CrossSection
+from pulse.model.properties.fluid import Fluid
+from pulse.model.properties.material import Material
+from pulse.model.node import distance, DOF_PER_NODE_STRUCTURAL, Node
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
@@ -36,10 +38,10 @@ def gauss_quadrature(integration_points):
         points = [0]
         weigths = [2]
     elif integration_points == 2:
-        points = [-1/sqrt(3), 1/sqrt(3)]
+        points = [-1/np.sqrt(3), 1/np.sqrt(3)]
         weigths = [1, 1]
     elif integration_points == 3:
-        points = [-sqrt(3/5), 0, sqrt(3/5)]
+        points = [-np.sqrt(3/5), 0, np.sqrt(3/5)]
         weigths = [5/9, 8/9, 5/9]
     else:
         raise TypeError('You must provide 1, 2, or 3 integration points')
@@ -115,28 +117,28 @@ class StructuralElement:
         Structural forces and moments on the nodes.
         Default is zeros(12).
     """
-    def __init__(self, first_node, last_node, index, **kwargs):
+    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
 
         self.first_node = first_node
         self.last_node = last_node
         self.index = index
 
-        self.element_type = kwargs.get('element_type', 'pipe_1')
-        self.wall_formulation = kwargs.get('wall_formulation', 'thin_wall')
+        self.element_type: str = kwargs.get('element_type', 'pipe_1')
+        self.wall_formulation: str = kwargs.get('wall_formulation', 'thin_wall')
 
-        self.material = kwargs.get('material', None)
-        self.cross_section = kwargs.get('cross_section', None)
+        self.material: Material = kwargs.get('material', None)
+        self.cross_section: CrossSection = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
-        self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
+        self.loaded_forces: np.ndarray = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
 
-        self.fluid = kwargs.get('fluid', None)
-        self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
-        self.decoupling_matrix = kwargs.get('decoupling_matrix', decoupling_matrix)
-        self.decoupling_info = kwargs.get('decoupling_info', None)
+        self.fluid: Fluid = kwargs.get('fluid', None)
+        self.adding_mass_effect: bool = kwargs.get('adding_mass_effect', False)
+        self.decoupling_matrix: np.ndarray = kwargs.get('decoupling_matrix', decoupling_matrix)
+        self.decoupling_info: list = kwargs.get('decoupling_info', None)
 
-        self.capped_end = kwargs.get('capped_end', True)
-        self.stress_intensification = kwargs.get('stress_intensification', True)
-        self.turned_off = kwargs.get("turned_off", False)
+        self.capped_end: bool = kwargs.get('capped_end', True)
+        self.stress_intensification: bool = kwargs.get('stress_intensification', True)
+        self.turned_off: bool = kwargs.get("turned_off", False)
 
         self._initialize()
 
@@ -641,7 +643,7 @@ class StructuralElement:
 
         ## Numerical integration by Gauss quadrature
         integrations_points = 1
-        points, weigths = gauss_quadrature( integrations_points )
+        points, weigths = gauss_quadrature(integrations_points)
 
         Kabe = 0.
         Ktse = 0.
@@ -747,7 +749,7 @@ class StructuralElement:
 
         # Numerical integration by Gauss quadrature
         integrations_points = 2
-        points, weigths = gauss_quadrature( integrations_points )
+        points, weigths = gauss_quadrature(integrations_points)
 
         Me = 0
         N = np.zeros((DOF_PER_NODE_STRUCTURAL, 2 * DOF_PER_NODE_STRUCTURAL))
@@ -828,7 +830,7 @@ class StructuralElement:
                             
         ## Numerical integration by Gauss quadrature
         integrations_points = 1
-        points, weigths = gauss_quadrature( integrations_points )
+        points, weigths = gauss_quadrature(integrations_points)
 
         # Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -959,7 +961,7 @@ class StructuralElement:
 
         # Numerical integration by Gauss quadrature
         integrations_points = 2
-        points, weigths = gauss_quadrature( integrations_points )
+        points, weigths = gauss_quadrature(integrations_points)
         
         sections = [self.first_node.cross_section, self.last_node.cross_section]
         prop_1 = [sections[0].outer_diameter, sections[1].outer_diameter]
@@ -1093,8 +1095,8 @@ class StructuralElement:
                         [-delta_zo/L_N,            0,                        L_B/L_N] ])
         
         # delta_x = sqrt(Le**2 - delta_yo**2 - delta_zo**2)
-        # L_ = sqrt(delta_x**2 + delta_yo**2)
-        # L = sqrt(delta_x**2 + delta_yo**2 + delta_zo**2)
+        # L_ = np.sqrt(delta_x**2 + delta_yo**2)
+        # L = np.sqrt(delta_x**2 + delta_yo**2 + delta_zo**2)
 
         # sin_delta = delta_yo / L_
         # cos_delta = delta_x / L_
