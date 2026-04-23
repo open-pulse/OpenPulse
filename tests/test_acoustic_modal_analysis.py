@@ -12,12 +12,13 @@ import numpy as np
 
 from pathlib import Path
 
-def test_coupled_harmonic_analysis(datadir: Path=TEMP_PROJECT_DIR):
+
+def test_acoustic_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
     ## Initialize a project
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=datadir)
-    
+
     ## Define usefull objects
     model = project.model
     mesh = model.mesh
@@ -153,114 +154,41 @@ def test_coupled_harmonic_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
         model.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
-    ## Apply the nodal loads
+    ## Analysis setup for acoustic modal analysis
 
-    points_coords = np.array([[ 0.500,  0.000,  0.000],
-                              [ 1.200, -0.250,  1.250]], dtype=float)
-
-    for coords in points_coords:
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        nodal_loads = [None, None, 1 + 0j, None, None, None]
-        real_values = [value if value is None else np.real(value) for value in nodal_loads]
-        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
-
-        data = {
-                "coords" : list(coords),
-                "values" : nodal_loads,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
-        model.properties._set_nodal_property("nodal_loads", data, node_id)
-
-    ## Apply the volume velocity excitation
-
-    points_coords = np.array([[ 0.000,  0.000,  0.000]], dtype=float)
-
-    for coords in points_coords:
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        volume_velocity = [0.01 + 0j]
-        real_values = [value if value is None else np.real(value) for value in volume_velocity]
-        imag_values = [value if value is None else np.imag(value) for value in volume_velocity]
-
-        data = {
-                "coords" : list(coords),
-                "values" : volume_velocity,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
-        model.properties._set_nodal_property("volume_velocity", data, node_id)
-
-    ## Apply the radiation impedance
-
-    points_coords = np.array([[ 2.000,  -0.250,  1.250]], dtype=float)
-
-    for coords in points_coords:
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        data = {
-                "coords" : list(coords),
-                "impedance_type" : "flanged",
-                }
-
-        model.properties._set_nodal_property("radiation_impedance", data, node_id)
-
-    ## Analysis setup for acoustic harmonic analysis
-
-    ## Analysis setup for structural modal analysis
-
-    # analysis_setup = {
-    #                   "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
-    #                   "number_of_modes" : 40,
-    #                   "sigma_factor" : 1e-2
-    #                   }
-
-    ## Analysis setup for coupled harmonic analysis
     analysis_setup = {
-                      "analysis_id" : AnalysisID.COUPLED_HARMONIC,
-                      "f_min" : 1,
-                      "f_max" : 300,
-                      "f_step" : 1,
-                      "global_damping" : [1e-3, 1e-5, 0.],
+                      "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
+                      "number_of_modes" : 20,
+                      "sigma_factor" : 1e-2
                       }
 
     model.set_analysis_setup(analysis_setup = analysis_setup)
 
-    # write data in file
+    ## Write project data in the temp_pulse folder
     project.file.write_line_properties_in_file()
     project.file.write_nodal_properties_in_file()
     project.file.write_project_setup_in_file(mesher_setup)
     project.file.write_analysis_setup_in_file(analysis_setup)
 
+    ## Build the mathematical model and solve it (it also saves the model results in the temp_pulse folder)
     project.build_model_and_solve(running_by_script=True)
 
-    structural_solution = project.structural_solution
-    acoustic_solution = project.acoustic_solution
+    natural_frequencies = project.acoustic_solver.natural_frequencies
 
-    assert structural_solution is not None, "No structural solution returned"
-    assert acoustic_solution is not None, "No acoustic solution returned"
-    assert structural_solution.ndim == 2, "Structural solution must be 2D"
-    assert acoustic_solution.ndim == 2, "Acoustic solution must be 2D"
-    assert structural_solution.shape[1] == 300, f"Expected 300 freq points, got {structural_solution.shape[1]}"
-    assert acoustic_solution.shape[1] == 300, f"Expected 300 freq points, got {acoustic_solution.shape[1]}"
-    assert np.any(np.abs(structural_solution) > 0), "Structural solution is all zeros"
-    assert np.any(np.abs(acoustic_solution) > 0), "Acoustic solution is all zeros"
-    assert np.all(np.isfinite(structural_solution)), "Non-finite values in structural solution"
-    assert np.all(np.isfinite(acoustic_solution)), "Non-finite values in acoustic solution"
+    assert natural_frequencies is not None, "No acoustic natural frequencies returned"
+    assert len(natural_frequencies) == 20, f"Expected 20 modes, got {len(natural_frequencies)}"
+    assert np.all(natural_frequencies >= 0), "Negative acoustic natural frequencies"
+    assert np.all(np.isfinite(natural_frequencies)), "Non-finite acoustic natural frequencies"
+    assert np.all(np.diff(natural_frequencies) >= 0), "Acoustic natural frequencies not in ascending order"
 
+    ## Uncomment the following function to remove the created files from the temp_pulse folder
     # remove_files_from_temporary_folder()
 
 
 def create_fluids():
 
     fluids = dict()
-    fluids[1] = Fluid(  
+    fluids[1] = Fluid(
         name = 'air',
         identifier = 1,
         temperature = 293.15,
@@ -274,7 +202,7 @@ def create_fluids():
         molar_mass  = 28.958601,
         color = [0, 170, 255]
         )
-    
+
     return fluids
 
 
@@ -282,10 +210,10 @@ def create_materials():
 
     materials = dict()
     materials[1] = Material(
-        name = 'stainless_steel', 
-        identifier = 1, 
-        density = 7860, 
-        elasticity_modulus = 210e9, 
+        name = 'stainless_steel',
+        identifier = 1,
+        density = 7860,
+        elasticity_modulus = 210e9,
         poisson_ratio = 0.3,
         thermal_expansion_coefficient = 1.2e-5,
         color = [253, 152, 145]
@@ -352,5 +280,6 @@ def remove_files_from_temporary_folder():
                 else:
                     rmtree(file_path)
 
+
 if __name__ == "__main__":
-    test_coupled_harmonic_analysis()
+    test_acoustic_modal_analysis()
