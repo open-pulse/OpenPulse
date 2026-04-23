@@ -34,9 +34,9 @@ def load_default_compressor_setup(crank_angle=0):
                     'isentropic_exponent' : 1.400,
                     'molar_mass' : 2.01568  }
 
-    compressor = ReciprocatingCompressorModel(parameters)
-    compressor.set_fluid_properties_and_update_state(   parameters['isentropic_exponent'],
-                                                        parameters['molar_mass']   )
+    compressor = ReciprocatingCompressorModel(**parameters)
+    compressor.update_fluid_properties(parameters['isentropic_exponent'],
+                                       parameters['molar_mass'])
 
     compressor.number_of_cylinders = 1
 
