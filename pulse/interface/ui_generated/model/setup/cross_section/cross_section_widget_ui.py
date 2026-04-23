@@ -38,9 +38,9 @@ class Ui_Form(object):
         font.setBold(False)
         font.setItalic(False)
         self.tabWidget_general.setFont(font)
-        self.tabWidget_general.setFocusPolicy(Qt.StrongFocus)
-        self.tabWidget_general.setTabPosition(QTabWidget.North)
-        self.tabWidget_general.setTabShape(QTabWidget.Rounded)
+        self.tabWidget_general.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.tabWidget_general.setTabPosition(QTabWidget.TabPosition.North)
+        self.tabWidget_general.setTabShape(QTabWidget.TabShape.Rounded)
         self.tabWidget_general.setDocumentMode(False)
         self.tabWidget_general.setTabsClosable(False)
         self.tabWidget_general.setMovable(False)
@@ -55,12 +55,32 @@ class Ui_Form(object):
         self.bottom_frame_buttons.setObjectName(u"bottom_frame_buttons")
         self.bottom_frame_buttons.setMinimumSize(QSize(0, 52))
         self.bottom_frame_buttons.setMaximumSize(QSize(16777215, 52))
-        self.bottom_frame_buttons.setFrameShape(QFrame.NoFrame)
-        self.bottom_frame_buttons.setFrameShadow(QFrame.Raised)
+        self.bottom_frame_buttons.setFrameShape(QFrame.Shape.NoFrame)
+        self.bottom_frame_buttons.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_5 = QGridLayout(self.bottom_frame_buttons)
         self.gridLayout_5.setSpacing(4)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setContentsMargins(4, 4, 4, 4)
+        self.pushButton_confirm_pipe = QPushButton(self.bottom_frame_buttons)
+        self.pushButton_confirm_pipe.setObjectName(u"pushButton_confirm_pipe")
+        self.pushButton_confirm_pipe.setMinimumSize(QSize(140, 32))
+        self.pushButton_confirm_pipe.setMaximumSize(QSize(140, 32))
+        self.pushButton_confirm_pipe.setFont(font)
+        self.pushButton_confirm_pipe.setStyleSheet(u"")
+        self.pushButton_confirm_pipe.setAutoDefault(False)
+
+        self.gridLayout_5.addWidget(self.pushButton_confirm_pipe, 0, 3, 1, 1)
+
+        self.pushButton_exit_pipe = QPushButton(self.bottom_frame_buttons)
+        self.pushButton_exit_pipe.setObjectName(u"pushButton_exit_pipe")
+        self.pushButton_exit_pipe.setMinimumSize(QSize(140, 32))
+        self.pushButton_exit_pipe.setMaximumSize(QSize(140, 32))
+        self.pushButton_exit_pipe.setFont(font)
+        self.pushButton_exit_pipe.setStyleSheet(u"")
+        self.pushButton_exit_pipe.setAutoDefault(False)
+
+        self.gridLayout_5.addWidget(self.pushButton_exit_pipe, 0, 0, 1, 1)
+
         self.pushButton_plot_pipe_cross_section = QPushButton(self.bottom_frame_buttons)
         self.pushButton_plot_pipe_cross_section.setObjectName(u"pushButton_plot_pipe_cross_section")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
@@ -72,26 +92,9 @@ class Ui_Form(object):
         self.pushButton_plot_pipe_cross_section.setMaximumSize(QSize(140, 32))
         self.pushButton_plot_pipe_cross_section.setFont(font)
         self.pushButton_plot_pipe_cross_section.setStyleSheet(u"")
+        self.pushButton_plot_pipe_cross_section.setAutoDefault(False)
 
         self.gridLayout_5.addWidget(self.pushButton_plot_pipe_cross_section, 0, 1, 1, 1)
-
-        self.pushButton_confirm_pipe = QPushButton(self.bottom_frame_buttons)
-        self.pushButton_confirm_pipe.setObjectName(u"pushButton_confirm_pipe")
-        self.pushButton_confirm_pipe.setMinimumSize(QSize(140, 32))
-        self.pushButton_confirm_pipe.setMaximumSize(QSize(140, 32))
-        self.pushButton_confirm_pipe.setFont(font)
-        self.pushButton_confirm_pipe.setStyleSheet(u"")
-
-        self.gridLayout_5.addWidget(self.pushButton_confirm_pipe, 0, 3, 1, 1)
-
-        self.pushButton_exit_pipe = QPushButton(self.bottom_frame_buttons)
-        self.pushButton_exit_pipe.setObjectName(u"pushButton_exit_pipe")
-        self.pushButton_exit_pipe.setMinimumSize(QSize(140, 32))
-        self.pushButton_exit_pipe.setMaximumSize(QSize(140, 32))
-        self.pushButton_exit_pipe.setFont(font)
-        self.pushButton_exit_pipe.setStyleSheet(u"")
-
-        self.gridLayout_5.addWidget(self.pushButton_exit_pipe, 0, 0, 1, 1)
 
 
         self.gridLayout_4.addWidget(self.bottom_frame_buttons, 1, 0, 1, 2)
@@ -111,8 +114,8 @@ class Ui_Form(object):
         self.frame_31.setObjectName(u"frame_31")
         self.frame_31.setMinimumSize(QSize(0, 52))
         self.frame_31.setMaximumSize(QSize(16777215, 52))
-        self.frame_31.setFrameShape(QFrame.NoFrame)
-        self.frame_31.setFrameShadow(QFrame.Raised)
+        self.frame_31.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_31.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_31 = QGridLayout(self.frame_31)
         self.gridLayout_31.setSpacing(4)
         self.gridLayout_31.setObjectName(u"gridLayout_31")
@@ -142,11 +145,9 @@ class Ui_Form(object):
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setMinimumSize(QSize(320, 200))
         self.frame_2.setMaximumSize(QSize(360, 280))
-        font1 = QFont()
-        font1.setPointSize(10)
-        self.frame_2.setFont(font1)
-        self.frame_2.setFrameShape(QFrame.NoFrame)
-        self.frame_2.setFrameShadow(QFrame.Plain)
+        self.frame_2.setFont(font)
+        self.frame_2.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Plain)
         self.gridLayout_2 = QGridLayout(self.frame_2)
         self.gridLayout_2.setSpacing(6)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
@@ -160,7 +161,7 @@ class Ui_Form(object):
         self.label_17.setMinimumSize(QSize(50, 26))
         self.label_17.setMaximumSize(QSize(60, 26))
         self.label_17.setFont(font)
-        self.label_17.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_17.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_2.addWidget(self.label_17, 0, 3, 1, 1)
 
@@ -169,7 +170,7 @@ class Ui_Form(object):
         self.label_20.setMinimumSize(QSize(150, 26))
         self.label_20.setMaximumSize(QSize(174, 26))
         self.label_20.setFont(font)
-        self.label_20.setAlignment(Qt.AlignCenter)
+        self.label_20.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label_20, 0, 1, 1, 1)
 
@@ -178,9 +179,9 @@ class Ui_Form(object):
         self.lineEdit_offset_y.setMinimumSize(QSize(120, 26))
         self.lineEdit_offset_y.setMaximumSize(QSize(120, 26))
         self.lineEdit_offset_y.setFont(font)
-        self.lineEdit_offset_y.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offset_y.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offset_y.setStyleSheet(u"")
-        self.lineEdit_offset_y.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offset_y.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offset_y.setClearButtonEnabled(True)
 
         self.gridLayout_2.addWidget(self.lineEdit_offset_y, 2, 2, 1, 1)
@@ -190,7 +191,7 @@ class Ui_Form(object):
         self.label_22.setMinimumSize(QSize(150, 26))
         self.label_22.setMaximumSize(QSize(174, 26))
         self.label_22.setFont(font)
-        self.label_22.setAlignment(Qt.AlignCenter)
+        self.label_22.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label_22, 2, 1, 1, 1)
 
@@ -199,9 +200,9 @@ class Ui_Form(object):
         self.lineEdit_insulation_thickness.setMinimumSize(QSize(120, 26))
         self.lineEdit_insulation_thickness.setMaximumSize(QSize(120, 26))
         self.lineEdit_insulation_thickness.setFont(font)
-        self.lineEdit_insulation_thickness.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_insulation_thickness.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_insulation_thickness.setStyleSheet(u"")
-        self.lineEdit_insulation_thickness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_insulation_thickness.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_insulation_thickness.setClearButtonEnabled(True)
 
         self.gridLayout_2.addWidget(self.lineEdit_insulation_thickness, 4, 2, 1, 1)
@@ -211,7 +212,7 @@ class Ui_Form(object):
         self.label_42.setMinimumSize(QSize(50, 26))
         self.label_42.setMaximumSize(QSize(60, 26))
         self.label_42.setFont(font)
-        self.label_42.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_42.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_2.addWidget(self.label_42, 4, 3, 1, 1)
 
@@ -220,9 +221,9 @@ class Ui_Form(object):
         self.lineEdit_offset_z.setMinimumSize(QSize(120, 26))
         self.lineEdit_offset_z.setMaximumSize(QSize(120, 26))
         self.lineEdit_offset_z.setFont(font)
-        self.lineEdit_offset_z.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offset_z.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offset_z.setStyleSheet(u"")
-        self.lineEdit_offset_z.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offset_z.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offset_z.setClearButtonEnabled(True)
 
         self.gridLayout_2.addWidget(self.lineEdit_offset_z, 3, 2, 1, 1)
@@ -232,7 +233,7 @@ class Ui_Form(object):
         self.label_41.setMinimumSize(QSize(50, 26))
         self.label_41.setMaximumSize(QSize(60, 26))
         self.label_41.setFont(font)
-        self.label_41.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_41.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_2.addWidget(self.label_41, 5, 3, 1, 1)
 
@@ -242,7 +243,7 @@ class Ui_Form(object):
         self.lineEdit_insulation_density.setMaximumSize(QSize(120, 26))
         self.lineEdit_insulation_density.setFont(font)
         self.lineEdit_insulation_density.setStyleSheet(u"")
-        self.lineEdit_insulation_density.setAlignment(Qt.AlignCenter)
+        self.lineEdit_insulation_density.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_insulation_density.setClearButtonEnabled(True)
 
         self.gridLayout_2.addWidget(self.lineEdit_insulation_density, 5, 2, 1, 1)
@@ -252,7 +253,7 @@ class Ui_Form(object):
         self.label_23.setMinimumSize(QSize(150, 26))
         self.label_23.setMaximumSize(QSize(174, 26))
         self.label_23.setFont(font)
-        self.label_23.setAlignment(Qt.AlignCenter)
+        self.label_23.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label_23, 3, 1, 1, 1)
 
@@ -261,7 +262,7 @@ class Ui_Form(object):
         self.label_25.setMinimumSize(QSize(150, 26))
         self.label_25.setMaximumSize(QSize(174, 26))
         self.label_25.setFont(font)
-        self.label_25.setAlignment(Qt.AlignCenter)
+        self.label_25.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label_25, 5, 1, 1, 1)
 
@@ -270,7 +271,7 @@ class Ui_Form(object):
         self.label_26.setMinimumSize(QSize(150, 26))
         self.label_26.setMaximumSize(QSize(174, 26))
         self.label_26.setFont(font)
-        self.label_26.setAlignment(Qt.AlignCenter)
+        self.label_26.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label_26, 4, 1, 1, 1)
 
@@ -280,7 +281,7 @@ class Ui_Form(object):
         self.lineEdit_outside_diameter.setMaximumSize(QSize(120, 26))
         self.lineEdit_outside_diameter.setFont(font)
         self.lineEdit_outside_diameter.setStyleSheet(u"")
-        self.lineEdit_outside_diameter.setAlignment(Qt.AlignCenter)
+        self.lineEdit_outside_diameter.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_outside_diameter.setClearButtonEnabled(True)
 
         self.gridLayout_2.addWidget(self.lineEdit_outside_diameter, 0, 2, 1, 1)
@@ -290,7 +291,7 @@ class Ui_Form(object):
         self.label_18.setMinimumSize(QSize(50, 26))
         self.label_18.setMaximumSize(QSize(60, 26))
         self.label_18.setFont(font)
-        self.label_18.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_18.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_2.addWidget(self.label_18, 1, 3, 1, 1)
 
@@ -299,7 +300,7 @@ class Ui_Form(object):
         self.label_19.setMinimumSize(QSize(50, 26))
         self.label_19.setMaximumSize(QSize(60, 26))
         self.label_19.setFont(font)
-        self.label_19.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_19.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_2.addWidget(self.label_19, 2, 3, 1, 1)
 
@@ -308,9 +309,9 @@ class Ui_Form(object):
         self.lineEdit_wall_thickness.setMinimumSize(QSize(120, 26))
         self.lineEdit_wall_thickness.setMaximumSize(QSize(120, 26))
         self.lineEdit_wall_thickness.setFont(font)
-        self.lineEdit_wall_thickness.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_wall_thickness.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_wall_thickness.setStyleSheet(u"")
-        self.lineEdit_wall_thickness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_wall_thickness.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_wall_thickness.setClearButtonEnabled(True)
 
         self.gridLayout_2.addWidget(self.lineEdit_wall_thickness, 1, 2, 1, 1)
@@ -320,7 +321,7 @@ class Ui_Form(object):
         self.label_24.setMinimumSize(QSize(50, 26))
         self.label_24.setMaximumSize(QSize(60, 26))
         self.label_24.setFont(font)
-        self.label_24.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_24.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_2.addWidget(self.label_24, 3, 3, 1, 1)
 
@@ -329,7 +330,7 @@ class Ui_Form(object):
         self.label_21.setMinimumSize(QSize(150, 26))
         self.label_21.setMaximumSize(QSize(174, 26))
         self.label_21.setFont(font)
-        self.label_21.setAlignment(Qt.AlignCenter)
+        self.label_21.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label_21, 1, 1, 1, 1)
 
@@ -360,8 +361,8 @@ class Ui_Form(object):
 
         self.frame_30 = QFrame(self.tab_constant_pipe_section)
         self.frame_30.setObjectName(u"frame_30")
-        self.frame_30.setFrameShape(QFrame.NoFrame)
-        self.frame_30.setFrameShadow(QFrame.Raised)
+        self.frame_30.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_30.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_30 = QGridLayout(self.frame_30)
         self.gridLayout_30.setSpacing(4)
         self.gridLayout_30.setObjectName(u"gridLayout_30")
@@ -395,15 +396,15 @@ class Ui_Form(object):
 
         self.frame = QFrame(self.tab_variable_pipe_section)
         self.frame.setObjectName(u"frame")
-        self.frame.setFrameShape(QFrame.NoFrame)
-        self.frame.setFrameShadow(QFrame.Raised)
+        self.frame.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_6 = QGridLayout(self.frame)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.gridLayout_6.setContentsMargins(0, 0, 0, 0)
         self.frame_10 = QFrame(self.frame)
         self.frame_10.setObjectName(u"frame_10")
-        self.frame_10.setFrameShape(QFrame.NoFrame)
-        self.frame_10.setFrameShadow(QFrame.Raised)
+        self.frame_10.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_10.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_15 = QGridLayout(self.frame_10)
         self.gridLayout_15.setSpacing(0)
         self.gridLayout_15.setObjectName(u"gridLayout_15")
@@ -422,8 +423,8 @@ class Ui_Form(object):
 
         self.frame_4 = QFrame(self.frame)
         self.frame_4.setObjectName(u"frame_4")
-        self.frame_4.setFrameShape(QFrame.NoFrame)
-        self.frame_4.setFrameShadow(QFrame.Raised)
+        self.frame_4.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_11 = QGridLayout(self.frame_4)
         self.gridLayout_11.setSpacing(0)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
@@ -445,7 +446,7 @@ class Ui_Form(object):
         self.label_82.setMinimumSize(QSize(0, 32))
         self.label_82.setMaximumSize(QSize(16777215, 32))
         self.label_82.setFont(font)
-        self.label_82.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_82.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_82, 4, 1, 1, 1)
 
@@ -454,9 +455,9 @@ class Ui_Form(object):
         self.lineEdit_offset_y_final.setMinimumSize(QSize(120, 26))
         self.lineEdit_offset_y_final.setMaximumSize(QSize(120, 26))
         self.lineEdit_offset_y_final.setFont(font)
-        self.lineEdit_offset_y_final.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offset_y_final.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offset_y_final.setStyleSheet(u"")
-        self.lineEdit_offset_y_final.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offset_y_final.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offset_y_final.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_offset_y_final, 4, 5, 1, 1)
@@ -466,7 +467,7 @@ class Ui_Form(object):
         self.label_element_id.setMinimumSize(QSize(0, 32))
         self.label_element_id.setMaximumSize(QSize(16777215, 32))
         self.label_element_id.setFont(font)
-        self.label_element_id.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_element_id.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_element_id, 1, 1, 1, 1)
 
@@ -475,8 +476,8 @@ class Ui_Form(object):
         self.label_63.setMinimumSize(QSize(40, 26))
         self.label_63.setMaximumSize(QSize(40, 26))
         self.label_63.setFont(font)
-        self.label_63.setFrameShape(QFrame.NoFrame)
-        self.label_63.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_63.setFrameShape(QFrame.Shape.NoFrame)
+        self.label_63.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_63, 2, 3, 1, 1)
 
@@ -486,7 +487,7 @@ class Ui_Form(object):
         self.lineEdit_outside_diameter_initial.setMaximumSize(QSize(120, 26))
         self.lineEdit_outside_diameter_initial.setFont(font)
         self.lineEdit_outside_diameter_initial.setStyleSheet(u"")
-        self.lineEdit_outside_diameter_initial.setAlignment(Qt.AlignCenter)
+        self.lineEdit_outside_diameter_initial.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_outside_diameter_initial.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_outside_diameter_initial, 2, 2, 1, 1)
@@ -496,7 +497,7 @@ class Ui_Form(object):
         self.label_62.setMinimumSize(QSize(40, 26))
         self.label_62.setMaximumSize(QSize(40, 26))
         self.label_62.setFont(font)
-        self.label_62.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_62.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_62, 3, 3, 1, 1)
 
@@ -505,7 +506,7 @@ class Ui_Form(object):
         self.label_89.setMinimumSize(QSize(0, 32))
         self.label_89.setMaximumSize(QSize(16777215, 32))
         self.label_89.setFont(font)
-        self.label_89.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_89.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_89, 5, 1, 1, 1)
 
@@ -514,7 +515,7 @@ class Ui_Form(object):
         self.label_86.setMinimumSize(QSize(0, 32))
         self.label_86.setMaximumSize(QSize(16777215, 32))
         self.label_86.setFont(font)
-        self.label_86.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_86.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_86, 3, 1, 1, 1)
 
@@ -523,7 +524,7 @@ class Ui_Form(object):
         self.label_90.setMinimumSize(QSize(0, 32))
         self.label_90.setMaximumSize(QSize(16777215, 32))
         self.label_90.setFont(font)
-        self.label_90.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_90.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_90, 2, 1, 1, 1)
 
@@ -532,9 +533,9 @@ class Ui_Form(object):
         self.lineEdit_wall_thickness_final.setMinimumSize(QSize(120, 26))
         self.lineEdit_wall_thickness_final.setMaximumSize(QSize(120, 26))
         self.lineEdit_wall_thickness_final.setFont(font)
-        self.lineEdit_wall_thickness_final.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_wall_thickness_final.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_wall_thickness_final.setStyleSheet(u"")
-        self.lineEdit_wall_thickness_final.setAlignment(Qt.AlignCenter)
+        self.lineEdit_wall_thickness_final.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_wall_thickness_final.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_wall_thickness_final, 3, 5, 1, 1)
@@ -544,7 +545,7 @@ class Ui_Form(object):
         self.label_80.setMinimumSize(QSize(40, 26))
         self.label_80.setMaximumSize(QSize(40, 26))
         self.label_80.setFont(font)
-        self.label_80.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_80.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_80, 5, 6, 1, 1)
 
@@ -553,7 +554,7 @@ class Ui_Form(object):
         self.label_66.setMinimumSize(QSize(40, 26))
         self.label_66.setMaximumSize(QSize(40, 26))
         self.label_66.setFont(font)
-        self.label_66.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_66.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_66, 5, 3, 1, 1)
 
@@ -562,9 +563,9 @@ class Ui_Form(object):
         self.lineEdit_offset_z_initial.setMinimumSize(QSize(120, 26))
         self.lineEdit_offset_z_initial.setMaximumSize(QSize(120, 26))
         self.lineEdit_offset_z_initial.setFont(font)
-        self.lineEdit_offset_z_initial.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offset_z_initial.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offset_z_initial.setStyleSheet(u"")
-        self.lineEdit_offset_z_initial.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offset_z_initial.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offset_z_initial.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_offset_z_initial, 5, 2, 1, 1)
@@ -574,9 +575,9 @@ class Ui_Form(object):
         self.lineEdit_offset_y_initial.setMinimumSize(QSize(120, 26))
         self.lineEdit_offset_y_initial.setMaximumSize(QSize(120, 26))
         self.lineEdit_offset_y_initial.setFont(font)
-        self.lineEdit_offset_y_initial.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offset_y_initial.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offset_y_initial.setStyleSheet(u"")
-        self.lineEdit_offset_y_initial.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offset_y_initial.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offset_y_initial.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_offset_y_initial, 4, 2, 1, 1)
@@ -586,9 +587,9 @@ class Ui_Form(object):
         self.lineEdit_offset_z_final.setMinimumSize(QSize(120, 26))
         self.lineEdit_offset_z_final.setMaximumSize(QSize(120, 26))
         self.lineEdit_offset_z_final.setFont(font)
-        self.lineEdit_offset_z_final.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offset_z_final.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offset_z_final.setStyleSheet(u"")
-        self.lineEdit_offset_z_final.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offset_z_final.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offset_z_final.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_offset_z_final, 5, 5, 1, 1)
@@ -598,7 +599,7 @@ class Ui_Form(object):
         self.label_91.setMinimumSize(QSize(40, 26))
         self.label_91.setMaximumSize(QSize(40, 26))
         self.label_91.setFont(font)
-        self.label_91.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_91.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_91, 4, 6, 1, 1)
 
@@ -607,7 +608,7 @@ class Ui_Form(object):
         self.label_64.setMinimumSize(QSize(40, 26))
         self.label_64.setMaximumSize(QSize(40, 26))
         self.label_64.setFont(font)
-        self.label_64.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_64.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_64, 4, 3, 1, 1)
 
@@ -615,8 +616,8 @@ class Ui_Form(object):
         self.frame_6.setObjectName(u"frame_6")
         self.frame_6.setMinimumSize(QSize(120, 30))
         self.frame_6.setMaximumSize(QSize(180, 30))
-        self.frame_6.setFrameShape(QFrame.Box)
-        self.frame_6.setFrameShadow(QFrame.Raised)
+        self.frame_6.setFrameShape(QFrame.Shape.Box)
+        self.frame_6.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_13 = QGridLayout(self.frame_6)
         self.gridLayout_13.setSpacing(0)
         self.gridLayout_13.setObjectName(u"gridLayout_13")
@@ -626,7 +627,7 @@ class Ui_Form(object):
         self.label_36.setMinimumSize(QSize(0, 0))
         self.label_36.setMaximumSize(QSize(16777215, 60))
         self.label_36.setFont(font)
-        self.label_36.setAlignment(Qt.AlignCenter)
+        self.label_36.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_13.addWidget(self.label_36, 0, 0, 1, 1)
 
@@ -637,8 +638,8 @@ class Ui_Form(object):
         self.frame_5.setObjectName(u"frame_5")
         self.frame_5.setMinimumSize(QSize(120, 30))
         self.frame_5.setMaximumSize(QSize(180, 30))
-        self.frame_5.setFrameShape(QFrame.Box)
-        self.frame_5.setFrameShadow(QFrame.Raised)
+        self.frame_5.setFrameShape(QFrame.Shape.Box)
+        self.frame_5.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_12 = QGridLayout(self.frame_5)
         self.gridLayout_12.setSpacing(0)
         self.gridLayout_12.setObjectName(u"gridLayout_12")
@@ -648,7 +649,7 @@ class Ui_Form(object):
         self.label_37.setMinimumSize(QSize(0, 0))
         self.label_37.setMaximumSize(QSize(16777215, 60))
         self.label_37.setFont(font)
-        self.label_37.setAlignment(Qt.AlignCenter)
+        self.label_37.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_12.addWidget(self.label_37, 0, 0, 1, 1)
 
@@ -661,7 +662,7 @@ class Ui_Form(object):
         self.lineEdit_element_id_initial.setMaximumSize(QSize(120, 26))
         self.lineEdit_element_id_initial.setFont(font)
         self.lineEdit_element_id_initial.setStyleSheet(u"")
-        self.lineEdit_element_id_initial.setAlignment(Qt.AlignCenter)
+        self.lineEdit_element_id_initial.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_element_id_initial.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_element_id_initial, 1, 2, 1, 1)
@@ -672,7 +673,7 @@ class Ui_Form(object):
         self.lineEdit_element_id_final.setMaximumSize(QSize(120, 26))
         self.lineEdit_element_id_final.setFont(font)
         self.lineEdit_element_id_final.setStyleSheet(u"")
-        self.lineEdit_element_id_final.setAlignment(Qt.AlignCenter)
+        self.lineEdit_element_id_final.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_element_id_final.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_element_id_final, 1, 5, 1, 1)
@@ -682,7 +683,7 @@ class Ui_Form(object):
         self.label_79.setMinimumSize(QSize(40, 26))
         self.label_79.setMaximumSize(QSize(40, 26))
         self.label_79.setFont(font)
-        self.label_79.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_79.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_79, 2, 6, 1, 1)
 
@@ -691,9 +692,9 @@ class Ui_Form(object):
         self.lineEdit_wall_thickness_initial.setMinimumSize(QSize(120, 26))
         self.lineEdit_wall_thickness_initial.setMaximumSize(QSize(120, 26))
         self.lineEdit_wall_thickness_initial.setFont(font)
-        self.lineEdit_wall_thickness_initial.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_wall_thickness_initial.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_wall_thickness_initial.setStyleSheet(u"")
-        self.lineEdit_wall_thickness_initial.setAlignment(Qt.AlignCenter)
+        self.lineEdit_wall_thickness_initial.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_wall_thickness_initial.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_wall_thickness_initial, 3, 2, 1, 1)
@@ -704,7 +705,7 @@ class Ui_Form(object):
         self.lineEdit_outside_diameter_final.setMaximumSize(QSize(120, 26))
         self.lineEdit_outside_diameter_final.setFont(font)
         self.lineEdit_outside_diameter_final.setStyleSheet(u"")
-        self.lineEdit_outside_diameter_final.setAlignment(Qt.AlignCenter)
+        self.lineEdit_outside_diameter_final.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_outside_diameter_final.setClearButtonEnabled(True)
 
         self.gridLayout_6.addWidget(self.lineEdit_outside_diameter_final, 2, 5, 1, 1)
@@ -714,7 +715,7 @@ class Ui_Form(object):
         self.label_88.setMinimumSize(QSize(40, 26))
         self.label_88.setMaximumSize(QSize(40, 26))
         self.label_88.setFont(font)
-        self.label_88.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_88.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_88, 3, 6, 1, 1)
 
@@ -728,8 +729,8 @@ class Ui_Form(object):
 
         self.frame_11 = QFrame(self.frame)
         self.frame_11.setObjectName(u"frame_11")
-        self.frame_11.setFrameShape(QFrame.NoFrame)
-        self.frame_11.setFrameShadow(QFrame.Raised)
+        self.frame_11.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_11.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_16 = QGridLayout(self.frame_11)
         self.gridLayout_16.setObjectName(u"gridLayout_16")
         self.gridLayout_16.setContentsMargins(0, 0, 0, 0)
@@ -756,8 +757,8 @@ class Ui_Form(object):
         self.frame_20.setObjectName(u"frame_20")
         self.frame_20.setMinimumSize(QSize(0, 72))
         self.frame_20.setMaximumSize(QSize(16777215, 72))
-        self.frame_20.setFrameShape(QFrame.NoFrame)
-        self.frame_20.setFrameShadow(QFrame.Raised)
+        self.frame_20.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_20.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_9 = QGridLayout(self.frame_20)
         self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.gridLayout_9.setHorizontalSpacing(8)
@@ -768,7 +769,7 @@ class Ui_Form(object):
         self.label_48.setMinimumSize(QSize(132, 26))
         self.label_48.setMaximumSize(QSize(132, 26))
         self.label_48.setFont(font)
-        self.label_48.setAlignment(Qt.AlignCenter)
+        self.label_48.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_9.addWidget(self.label_48, 1, 1, 1, 1)
 
@@ -778,7 +779,7 @@ class Ui_Form(object):
         self.lineEdit_insulation_density_variable_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_insulation_density_variable_section.setFont(font)
         self.lineEdit_insulation_density_variable_section.setStyleSheet(u"")
-        self.lineEdit_insulation_density_variable_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_insulation_density_variable_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_insulation_density_variable_section.setClearButtonEnabled(True)
 
         self.gridLayout_9.addWidget(self.lineEdit_insulation_density_variable_section, 1, 2, 1, 1)
@@ -792,7 +793,7 @@ class Ui_Form(object):
         self.label_46.setMinimumSize(QSize(132, 26))
         self.label_46.setMaximumSize(QSize(132, 26))
         self.label_46.setFont(font)
-        self.label_46.setAlignment(Qt.AlignCenter)
+        self.label_46.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_9.addWidget(self.label_46, 0, 1, 1, 1)
 
@@ -801,7 +802,7 @@ class Ui_Form(object):
         self.label_45.setMinimumSize(QSize(60, 26))
         self.label_45.setMaximumSize(QSize(60, 26))
         self.label_45.setFont(font)
-        self.label_45.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_45.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_9.addWidget(self.label_45, 0, 3, 1, 1)
 
@@ -810,7 +811,7 @@ class Ui_Form(object):
         self.label_47.setMinimumSize(QSize(60, 26))
         self.label_47.setMaximumSize(QSize(60, 26))
         self.label_47.setFont(font)
-        self.label_47.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_47.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_9.addWidget(self.label_47, 1, 3, 1, 1)
 
@@ -819,9 +820,9 @@ class Ui_Form(object):
         self.lineEdit_insulation_thickness_variable_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_insulation_thickness_variable_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_insulation_thickness_variable_section.setFont(font)
-        self.lineEdit_insulation_thickness_variable_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_insulation_thickness_variable_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_insulation_thickness_variable_section.setStyleSheet(u"")
-        self.lineEdit_insulation_thickness_variable_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_insulation_thickness_variable_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_insulation_thickness_variable_section.setClearButtonEnabled(True)
 
         self.gridLayout_9.addWidget(self.lineEdit_insulation_thickness_variable_section, 0, 2, 1, 1)
@@ -850,11 +851,7 @@ class Ui_Form(object):
         self.tabWidget_beam_section.setObjectName(u"tabWidget_beam_section")
         self.tabWidget_beam_section.setMinimumSize(QSize(554, 350))
         self.tabWidget_beam_section.setMaximumSize(QSize(620, 380))
-        font2 = QFont()
-        font2.setFamilies([u"MS Shell Dlg 2"])
-        font2.setPointSize(10)
-        font2.setBold(False)
-        self.tabWidget_beam_section.setFont(font2)
+        self.tabWidget_beam_section.setFont(font)
         self.tab_rectangular_section = QWidget()
         self.tab_rectangular_section.setObjectName(u"tab_rectangular_section")
         self.gridLayout_35 = QGridLayout(self.tab_rectangular_section)
@@ -863,8 +860,8 @@ class Ui_Form(object):
         self.gridLayout_35.setContentsMargins(4, 4, 4, 4)
         self.frame_9 = QFrame(self.tab_rectangular_section)
         self.frame_9.setObjectName(u"frame_9")
-        self.frame_9.setFrameShape(QFrame.NoFrame)
-        self.frame_9.setFrameShadow(QFrame.Raised)
+        self.frame_9.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_9.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_26 = QGridLayout(self.frame_9)
         self.gridLayout_26.setSpacing(4)
         self.gridLayout_26.setObjectName(u"gridLayout_26")
@@ -873,7 +870,7 @@ class Ui_Form(object):
         self.label_109.setObjectName(u"label_109")
         self.label_109.setMinimumSize(QSize(30, 26))
         self.label_109.setMaximumSize(QSize(30, 26))
-        self.label_109.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_109.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_109, 2, 3, 1, 1)
 
@@ -881,7 +878,7 @@ class Ui_Form(object):
         self.label_112.setObjectName(u"label_112")
         self.label_112.setMinimumSize(QSize(120, 26))
         self.label_112.setMaximumSize(QSize(132, 26))
-        self.label_112.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_112.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_112, 2, 1, 1, 1)
 
@@ -889,7 +886,7 @@ class Ui_Form(object):
         self.label_113.setObjectName(u"label_113")
         self.label_113.setMinimumSize(QSize(120, 26))
         self.label_113.setMaximumSize(QSize(132, 26))
-        self.label_113.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_113.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_113, 3, 1, 1, 1)
 
@@ -897,10 +894,10 @@ class Ui_Form(object):
         self.lineEdit_base_rectangular_section.setObjectName(u"lineEdit_base_rectangular_section")
         self.lineEdit_base_rectangular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_base_rectangular_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_base_rectangular_section.setFont(font1)
-        self.lineEdit_base_rectangular_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_base_rectangular_section.setFont(font)
+        self.lineEdit_base_rectangular_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_base_rectangular_section.setStyleSheet(u"")
-        self.lineEdit_base_rectangular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_base_rectangular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_base_rectangular_section.setClearButtonEnabled(True)
 
         self.gridLayout_26.addWidget(self.lineEdit_base_rectangular_section, 0, 2, 1, 1)
@@ -909,7 +906,7 @@ class Ui_Form(object):
         self.label_94.setObjectName(u"label_94")
         self.label_94.setMinimumSize(QSize(120, 26))
         self.label_94.setMaximumSize(QSize(132, 26))
-        self.label_94.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_94.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_94, 1, 1, 1, 1)
 
@@ -917,7 +914,7 @@ class Ui_Form(object):
         self.label_110.setObjectName(u"label_110")
         self.label_110.setMinimumSize(QSize(30, 26))
         self.label_110.setMaximumSize(QSize(30, 26))
-        self.label_110.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_110.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_110, 3, 3, 1, 1)
 
@@ -925,7 +922,7 @@ class Ui_Form(object):
         self.label_100.setObjectName(u"label_100")
         self.label_100.setMinimumSize(QSize(30, 26))
         self.label_100.setMaximumSize(QSize(30, 26))
-        self.label_100.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_100.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_100, 0, 3, 1, 1)
 
@@ -933,7 +930,7 @@ class Ui_Form(object):
         self.label_114.setObjectName(u"label_114")
         self.label_114.setMinimumSize(QSize(120, 26))
         self.label_114.setMaximumSize(QSize(132, 26))
-        self.label_114.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_114.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_114, 4, 1, 1, 1)
 
@@ -941,10 +938,10 @@ class Ui_Form(object):
         self.lineEdit_offsety_rectangular_section.setObjectName(u"lineEdit_offsety_rectangular_section")
         self.lineEdit_offsety_rectangular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsety_rectangular_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_offsety_rectangular_section.setFont(font1)
-        self.lineEdit_offsety_rectangular_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsety_rectangular_section.setFont(font)
+        self.lineEdit_offsety_rectangular_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsety_rectangular_section.setStyleSheet(u"")
-        self.lineEdit_offsety_rectangular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsety_rectangular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsety_rectangular_section.setClearButtonEnabled(True)
 
         self.gridLayout_26.addWidget(self.lineEdit_offsety_rectangular_section, 3, 2, 1, 1)
@@ -953,10 +950,10 @@ class Ui_Form(object):
         self.lineEdit_height_rectangular_section.setObjectName(u"lineEdit_height_rectangular_section")
         self.lineEdit_height_rectangular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_height_rectangular_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_height_rectangular_section.setFont(font1)
-        self.lineEdit_height_rectangular_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_height_rectangular_section.setFont(font)
+        self.lineEdit_height_rectangular_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_height_rectangular_section.setStyleSheet(u"")
-        self.lineEdit_height_rectangular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_height_rectangular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_height_rectangular_section.setClearButtonEnabled(True)
 
         self.gridLayout_26.addWidget(self.lineEdit_height_rectangular_section, 1, 2, 1, 1)
@@ -965,7 +962,7 @@ class Ui_Form(object):
         self.label_107.setObjectName(u"label_107")
         self.label_107.setMinimumSize(QSize(30, 26))
         self.label_107.setMaximumSize(QSize(30, 26))
-        self.label_107.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_107.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_107, 1, 3, 1, 1)
 
@@ -973,7 +970,7 @@ class Ui_Form(object):
         self.label_72.setObjectName(u"label_72")
         self.label_72.setMinimumSize(QSize(120, 26))
         self.label_72.setMaximumSize(QSize(132, 26))
-        self.label_72.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_72.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_72, 0, 1, 1, 1)
 
@@ -981,7 +978,7 @@ class Ui_Form(object):
         self.label_111.setObjectName(u"label_111")
         self.label_111.setMinimumSize(QSize(30, 26))
         self.label_111.setMaximumSize(QSize(30, 26))
-        self.label_111.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_111.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_111, 4, 3, 1, 1)
 
@@ -989,10 +986,10 @@ class Ui_Form(object):
         self.lineEdit_offsetz_rectangular_section.setObjectName(u"lineEdit_offsetz_rectangular_section")
         self.lineEdit_offsetz_rectangular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsetz_rectangular_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_offsetz_rectangular_section.setFont(font1)
-        self.lineEdit_offsetz_rectangular_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsetz_rectangular_section.setFont(font)
+        self.lineEdit_offsetz_rectangular_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsetz_rectangular_section.setStyleSheet(u"")
-        self.lineEdit_offsetz_rectangular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsetz_rectangular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsetz_rectangular_section.setClearButtonEnabled(True)
 
         self.gridLayout_26.addWidget(self.lineEdit_offsetz_rectangular_section, 4, 2, 1, 1)
@@ -1001,10 +998,10 @@ class Ui_Form(object):
         self.lineEdit_wall_thickness_rectangular_section.setObjectName(u"lineEdit_wall_thickness_rectangular_section")
         self.lineEdit_wall_thickness_rectangular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_wall_thickness_rectangular_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_wall_thickness_rectangular_section.setFont(font1)
-        self.lineEdit_wall_thickness_rectangular_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_wall_thickness_rectangular_section.setFont(font)
+        self.lineEdit_wall_thickness_rectangular_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_wall_thickness_rectangular_section.setStyleSheet(u"")
-        self.lineEdit_wall_thickness_rectangular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_wall_thickness_rectangular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_wall_thickness_rectangular_section.setClearButtonEnabled(True)
 
         self.gridLayout_26.addWidget(self.lineEdit_wall_thickness_rectangular_section, 2, 2, 1, 1)
@@ -1022,8 +1019,8 @@ class Ui_Form(object):
 
         self.frame_17 = QFrame(self.tab_rectangular_section)
         self.frame_17.setObjectName(u"frame_17")
-        self.frame_17.setFrameShape(QFrame.NoFrame)
-        self.frame_17.setFrameShadow(QFrame.Raised)
+        self.frame_17.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_17.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_17)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
@@ -1048,8 +1045,8 @@ class Ui_Form(object):
         self.gridLayout_29.setContentsMargins(4, 4, 4, 4)
         self.frame_14 = QFrame(self.tab_circular_section)
         self.frame_14.setObjectName(u"frame_14")
-        self.frame_14.setFrameShape(QFrame.NoFrame)
-        self.frame_14.setFrameShadow(QFrame.Raised)
+        self.frame_14.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_14.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_27 = QGridLayout(self.frame_14)
         self.gridLayout_27.setSpacing(4)
         self.gridLayout_27.setObjectName(u"gridLayout_27")
@@ -1063,7 +1060,7 @@ class Ui_Form(object):
         self.label_43.setMinimumSize(QSize(140, 26))
         self.label_43.setMaximumSize(QSize(160, 26))
         self.label_43.setFont(font)
-        self.label_43.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_43.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_27.addWidget(self.label_43, 0, 1, 1, 1)
 
@@ -1071,7 +1068,7 @@ class Ui_Form(object):
         self.label_115.setObjectName(u"label_115")
         self.label_115.setMinimumSize(QSize(35, 26))
         self.label_115.setMaximumSize(QSize(35, 26))
-        self.label_115.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_115.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_27.addWidget(self.label_115, 0, 3, 1, 1)
 
@@ -1079,13 +1076,9 @@ class Ui_Form(object):
         self.lineEdit_outside_diameter_circular_section.setObjectName(u"lineEdit_outside_diameter_circular_section")
         self.lineEdit_outside_diameter_circular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_outside_diameter_circular_section.setMaximumSize(QSize(120, 26))
-        font3 = QFont()
-        font3.setPointSize(10)
-        font3.setBold(False)
-        font3.setItalic(False)
-        self.lineEdit_outside_diameter_circular_section.setFont(font3)
+        self.lineEdit_outside_diameter_circular_section.setFont(font)
         self.lineEdit_outside_diameter_circular_section.setStyleSheet(u"")
-        self.lineEdit_outside_diameter_circular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_outside_diameter_circular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_outside_diameter_circular_section.setClearButtonEnabled(True)
 
         self.gridLayout_27.addWidget(self.lineEdit_outside_diameter_circular_section, 0, 2, 1, 1)
@@ -1094,10 +1087,10 @@ class Ui_Form(object):
         self.lineEdit_wall_thickness_circular_section.setObjectName(u"lineEdit_wall_thickness_circular_section")
         self.lineEdit_wall_thickness_circular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_wall_thickness_circular_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_wall_thickness_circular_section.setFont(font3)
-        self.lineEdit_wall_thickness_circular_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_wall_thickness_circular_section.setFont(font)
+        self.lineEdit_wall_thickness_circular_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_wall_thickness_circular_section.setStyleSheet(u"")
-        self.lineEdit_wall_thickness_circular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_wall_thickness_circular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_wall_thickness_circular_section.setClearButtonEnabled(True)
 
         self.gridLayout_27.addWidget(self.lineEdit_wall_thickness_circular_section, 1, 2, 1, 1)
@@ -1107,7 +1100,7 @@ class Ui_Form(object):
         self.label_65.setMinimumSize(QSize(100, 26))
         self.label_65.setMaximumSize(QSize(160, 26))
         self.label_65.setFont(font)
-        self.label_65.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_65.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_27.addWidget(self.label_65, 1, 1, 1, 1)
 
@@ -1115,7 +1108,7 @@ class Ui_Form(object):
         self.label_118.setObjectName(u"label_118")
         self.label_118.setMinimumSize(QSize(35, 26))
         self.label_118.setMaximumSize(QSize(35, 26))
-        self.label_118.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_118.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_27.addWidget(self.label_118, 3, 3, 1, 1)
 
@@ -1123,7 +1116,7 @@ class Ui_Form(object):
         self.label_116.setObjectName(u"label_116")
         self.label_116.setMinimumSize(QSize(35, 26))
         self.label_116.setMaximumSize(QSize(35, 26))
-        self.label_116.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_116.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_27.addWidget(self.label_116, 1, 3, 1, 1)
 
@@ -1131,8 +1124,8 @@ class Ui_Form(object):
         self.label_119.setObjectName(u"label_119")
         self.label_119.setMinimumSize(QSize(100, 26))
         self.label_119.setMaximumSize(QSize(160, 26))
-        self.label_119.setFont(font1)
-        self.label_119.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_119.setFont(font)
+        self.label_119.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_27.addWidget(self.label_119, 2, 1, 1, 1)
 
@@ -1140,7 +1133,7 @@ class Ui_Form(object):
         self.label_120.setObjectName(u"label_120")
         self.label_120.setMinimumSize(QSize(35, 26))
         self.label_120.setMaximumSize(QSize(35, 26))
-        self.label_120.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_120.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_27.addWidget(self.label_120, 2, 3, 1, 1)
 
@@ -1148,8 +1141,8 @@ class Ui_Form(object):
         self.label_117.setObjectName(u"label_117")
         self.label_117.setMinimumSize(QSize(100, 26))
         self.label_117.setMaximumSize(QSize(160, 26))
-        self.label_117.setFont(font1)
-        self.label_117.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_117.setFont(font)
+        self.label_117.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_27.addWidget(self.label_117, 3, 1, 1, 1)
 
@@ -1157,10 +1150,10 @@ class Ui_Form(object):
         self.lineEdit_offsety_circular_section.setObjectName(u"lineEdit_offsety_circular_section")
         self.lineEdit_offsety_circular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsety_circular_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_offsety_circular_section.setFont(font3)
-        self.lineEdit_offsety_circular_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsety_circular_section.setFont(font)
+        self.lineEdit_offsety_circular_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsety_circular_section.setStyleSheet(u"")
-        self.lineEdit_offsety_circular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsety_circular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsety_circular_section.setClearButtonEnabled(True)
 
         self.gridLayout_27.addWidget(self.lineEdit_offsety_circular_section, 2, 2, 1, 1)
@@ -1169,10 +1162,10 @@ class Ui_Form(object):
         self.lineEdit_offsetz_circular_section.setObjectName(u"lineEdit_offsetz_circular_section")
         self.lineEdit_offsetz_circular_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsetz_circular_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_offsetz_circular_section.setFont(font3)
-        self.lineEdit_offsetz_circular_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsetz_circular_section.setFont(font)
+        self.lineEdit_offsetz_circular_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsetz_circular_section.setStyleSheet(u"")
-        self.lineEdit_offsetz_circular_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsetz_circular_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsetz_circular_section.setClearButtonEnabled(True)
 
         self.gridLayout_27.addWidget(self.lineEdit_offsetz_circular_section, 3, 2, 1, 1)
@@ -1186,8 +1179,8 @@ class Ui_Form(object):
 
         self.frame_15 = QFrame(self.tab_circular_section)
         self.frame_15.setObjectName(u"frame_15")
-        self.frame_15.setFrameShape(QFrame.NoFrame)
-        self.frame_15.setFrameShadow(QFrame.Raised)
+        self.frame_15.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_15.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_28 = QGridLayout(self.frame_15)
         self.gridLayout_28.setObjectName(u"gridLayout_28")
         self.label_7 = QLabel(self.frame_15)
@@ -1211,8 +1204,8 @@ class Ui_Form(object):
         self.gridLayout_49.setContentsMargins(4, 4, 4, 4)
         self.frame_26 = QFrame(self.tab_C_section)
         self.frame_26.setObjectName(u"frame_26")
-        self.frame_26.setFrameShape(QFrame.NoFrame)
-        self.frame_26.setFrameShadow(QFrame.Raised)
+        self.frame_26.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_26.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_48 = QGridLayout(self.frame_26)
         self.gridLayout_48.setSpacing(4)
         self.gridLayout_48.setObjectName(u"gridLayout_48")
@@ -1225,8 +1218,8 @@ class Ui_Form(object):
         self.label_67.setObjectName(u"label_67")
         self.label_67.setMinimumSize(QSize(90, 26))
         self.label_67.setMaximumSize(QSize(90, 26))
-        self.label_67.setFont(font1)
-        self.label_67.setAlignment(Qt.AlignCenter)
+        self.label_67.setFont(font)
+        self.label_67.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_48.addWidget(self.label_67, 0, 1, 1, 1)
 
@@ -1234,8 +1227,8 @@ class Ui_Form(object):
         self.label_68.setObjectName(u"label_68")
         self.label_68.setMinimumSize(QSize(90, 26))
         self.label_68.setMaximumSize(QSize(90, 26))
-        self.label_68.setFont(font1)
-        self.label_68.setAlignment(Qt.AlignCenter)
+        self.label_68.setFont(font)
+        self.label_68.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_48.addWidget(self.label_68, 1, 1, 1, 1)
 
@@ -1244,10 +1237,10 @@ class Ui_Form(object):
         self.lineEdit_height_C_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_height_C_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_height_C_section.setSizeIncrement(QSize(0, 26))
-        self.lineEdit_height_C_section.setFont(font1)
-        self.lineEdit_height_C_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_height_C_section.setFont(font)
+        self.lineEdit_height_C_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_height_C_section.setStyleSheet(u"")
-        self.lineEdit_height_C_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_height_C_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_height_C_section.setClearButtonEnabled(True)
 
         self.gridLayout_48.addWidget(self.lineEdit_height_C_section, 0, 2, 1, 1)
@@ -1256,8 +1249,8 @@ class Ui_Form(object):
         self.label_121.setObjectName(u"label_121")
         self.label_121.setMinimumSize(QSize(30, 26))
         self.label_121.setMaximumSize(QSize(30, 26))
-        self.label_121.setFont(font1)
-        self.label_121.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_121.setFont(font)
+        self.label_121.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_121, 0, 3, 1, 1)
 
@@ -1265,8 +1258,8 @@ class Ui_Form(object):
         self.label_122.setObjectName(u"label_122")
         self.label_122.setMinimumSize(QSize(30, 26))
         self.label_122.setMaximumSize(QSize(30, 26))
-        self.label_122.setFont(font1)
-        self.label_122.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_122.setFont(font)
+        self.label_122.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_122, 1, 3, 1, 1)
 
@@ -1274,8 +1267,8 @@ class Ui_Form(object):
         self.label_69.setObjectName(u"label_69")
         self.label_69.setMinimumSize(QSize(90, 26))
         self.label_69.setMaximumSize(QSize(90, 26))
-        self.label_69.setFont(font1)
-        self.label_69.setAlignment(Qt.AlignCenter)
+        self.label_69.setFont(font)
+        self.label_69.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_48.addWidget(self.label_69, 2, 1, 1, 1)
 
@@ -1284,10 +1277,10 @@ class Ui_Form(object):
         self.lineEdit_w1_C_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_w1_C_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_w1_C_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_w1_C_section.setFont(font1)
-        self.lineEdit_w1_C_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_w1_C_section.setFont(font)
+        self.lineEdit_w1_C_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_w1_C_section.setStyleSheet(u"")
-        self.lineEdit_w1_C_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_w1_C_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_w1_C_section.setClearButtonEnabled(True)
 
         self.gridLayout_48.addWidget(self.lineEdit_w1_C_section, 1, 2, 1, 1)
@@ -1297,10 +1290,10 @@ class Ui_Form(object):
         self.lineEdit_w2_C_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_w2_C_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_w2_C_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_w2_C_section.setFont(font1)
-        self.lineEdit_w2_C_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_w2_C_section.setFont(font)
+        self.lineEdit_w2_C_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_w2_C_section.setStyleSheet(u"")
-        self.lineEdit_w2_C_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_w2_C_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_w2_C_section.setClearButtonEnabled(True)
 
         self.gridLayout_48.addWidget(self.lineEdit_w2_C_section, 2, 2, 1, 1)
@@ -1309,8 +1302,8 @@ class Ui_Form(object):
         self.label_123.setObjectName(u"label_123")
         self.label_123.setMinimumSize(QSize(30, 26))
         self.label_123.setMaximumSize(QSize(30, 26))
-        self.label_123.setFont(font1)
-        self.label_123.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_123.setFont(font)
+        self.label_123.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_123, 2, 3, 1, 1)
 
@@ -1318,8 +1311,8 @@ class Ui_Form(object):
         self.label_70.setObjectName(u"label_70")
         self.label_70.setMinimumSize(QSize(90, 26))
         self.label_70.setMaximumSize(QSize(90, 26))
-        self.label_70.setFont(font1)
-        self.label_70.setAlignment(Qt.AlignCenter)
+        self.label_70.setFont(font)
+        self.label_70.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_48.addWidget(self.label_70, 3, 1, 1, 1)
 
@@ -1328,10 +1321,10 @@ class Ui_Form(object):
         self.lineEdit_t1_C_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_t1_C_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_t1_C_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_t1_C_section.setFont(font1)
-        self.lineEdit_t1_C_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_t1_C_section.setFont(font)
+        self.lineEdit_t1_C_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_t1_C_section.setStyleSheet(u"")
-        self.lineEdit_t1_C_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_t1_C_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_t1_C_section.setClearButtonEnabled(True)
 
         self.gridLayout_48.addWidget(self.lineEdit_t1_C_section, 3, 2, 1, 1)
@@ -1341,10 +1334,10 @@ class Ui_Form(object):
         self.lineEdit_t2_C_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_t2_C_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_t2_C_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_t2_C_section.setFont(font1)
-        self.lineEdit_t2_C_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_t2_C_section.setFont(font)
+        self.lineEdit_t2_C_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_t2_C_section.setStyleSheet(u"")
-        self.lineEdit_t2_C_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_t2_C_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_t2_C_section.setClearButtonEnabled(True)
 
         self.gridLayout_48.addWidget(self.lineEdit_t2_C_section, 4, 2, 1, 1)
@@ -1353,8 +1346,8 @@ class Ui_Form(object):
         self.label_71.setObjectName(u"label_71")
         self.label_71.setMinimumSize(QSize(90, 26))
         self.label_71.setMaximumSize(QSize(90, 26))
-        self.label_71.setFont(font1)
-        self.label_71.setAlignment(Qt.AlignCenter)
+        self.label_71.setFont(font)
+        self.label_71.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_48.addWidget(self.label_71, 4, 1, 1, 1)
 
@@ -1362,8 +1355,8 @@ class Ui_Form(object):
         self.label_124.setObjectName(u"label_124")
         self.label_124.setMinimumSize(QSize(30, 26))
         self.label_124.setMaximumSize(QSize(30, 26))
-        self.label_124.setFont(font1)
-        self.label_124.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_124.setFont(font)
+        self.label_124.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_124, 3, 3, 1, 1)
 
@@ -1372,10 +1365,10 @@ class Ui_Form(object):
         self.lineEdit_tw_C_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_tw_C_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_tw_C_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_tw_C_section.setFont(font1)
-        self.lineEdit_tw_C_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_tw_C_section.setFont(font)
+        self.lineEdit_tw_C_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_tw_C_section.setStyleSheet(u"")
-        self.lineEdit_tw_C_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_tw_C_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_tw_C_section.setClearButtonEnabled(True)
 
         self.gridLayout_48.addWidget(self.lineEdit_tw_C_section, 5, 2, 1, 1)
@@ -1384,8 +1377,8 @@ class Ui_Form(object):
         self.label_125.setObjectName(u"label_125")
         self.label_125.setMinimumSize(QSize(30, 26))
         self.label_125.setMaximumSize(QSize(30, 26))
-        self.label_125.setFont(font1)
-        self.label_125.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_125.setFont(font)
+        self.label_125.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_125, 4, 3, 1, 1)
 
@@ -1393,8 +1386,8 @@ class Ui_Form(object):
         self.label_73.setObjectName(u"label_73")
         self.label_73.setMinimumSize(QSize(90, 26))
         self.label_73.setMaximumSize(QSize(90, 26))
-        self.label_73.setFont(font1)
-        self.label_73.setAlignment(Qt.AlignCenter)
+        self.label_73.setFont(font)
+        self.label_73.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_48.addWidget(self.label_73, 5, 1, 1, 1)
 
@@ -1402,8 +1395,8 @@ class Ui_Form(object):
         self.label_131.setObjectName(u"label_131")
         self.label_131.setMinimumSize(QSize(90, 26))
         self.label_131.setMaximumSize(QSize(90, 26))
-        self.label_131.setFont(font1)
-        self.label_131.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_131.setFont(font)
+        self.label_131.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_131, 6, 1, 1, 1)
 
@@ -1412,10 +1405,10 @@ class Ui_Form(object):
         self.lineEdit_offsety_C_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsety_C_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_offsety_C_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_offsety_C_section.setFont(font1)
-        self.lineEdit_offsety_C_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsety_C_section.setFont(font)
+        self.lineEdit_offsety_C_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsety_C_section.setStyleSheet(u"")
-        self.lineEdit_offsety_C_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsety_C_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsety_C_section.setClearButtonEnabled(True)
 
         self.gridLayout_48.addWidget(self.lineEdit_offsety_C_section, 6, 2, 1, 1)
@@ -1424,8 +1417,8 @@ class Ui_Form(object):
         self.label_126.setObjectName(u"label_126")
         self.label_126.setMinimumSize(QSize(30, 26))
         self.label_126.setMaximumSize(QSize(30, 26))
-        self.label_126.setFont(font1)
-        self.label_126.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_126.setFont(font)
+        self.label_126.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_126, 5, 3, 1, 1)
 
@@ -1434,10 +1427,10 @@ class Ui_Form(object):
         self.lineEdit_offsetz_C_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsetz_C_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_offsetz_C_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_offsetz_C_section.setFont(font1)
-        self.lineEdit_offsetz_C_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsetz_C_section.setFont(font)
+        self.lineEdit_offsetz_C_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsetz_C_section.setStyleSheet(u"")
-        self.lineEdit_offsetz_C_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsetz_C_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsetz_C_section.setClearButtonEnabled(True)
 
         self.gridLayout_48.addWidget(self.lineEdit_offsetz_C_section, 7, 2, 1, 1)
@@ -1446,8 +1439,8 @@ class Ui_Form(object):
         self.label_128.setObjectName(u"label_128")
         self.label_128.setMinimumSize(QSize(30, 26))
         self.label_128.setMaximumSize(QSize(30, 26))
-        self.label_128.setFont(font1)
-        self.label_128.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_128.setFont(font)
+        self.label_128.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_128, 6, 3, 1, 1)
 
@@ -1455,8 +1448,8 @@ class Ui_Form(object):
         self.label_130.setObjectName(u"label_130")
         self.label_130.setMinimumSize(QSize(90, 26))
         self.label_130.setMaximumSize(QSize(90, 26))
-        self.label_130.setFont(font1)
-        self.label_130.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_130.setFont(font)
+        self.label_130.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_130, 7, 1, 1, 1)
 
@@ -1464,8 +1457,8 @@ class Ui_Form(object):
         self.label_129.setObjectName(u"label_129")
         self.label_129.setMinimumSize(QSize(30, 26))
         self.label_129.setMaximumSize(QSize(30, 26))
-        self.label_129.setFont(font1)
-        self.label_129.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_129.setFont(font)
+        self.label_129.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_48.addWidget(self.label_129, 7, 3, 1, 1)
 
@@ -1478,8 +1471,8 @@ class Ui_Form(object):
 
         self.frame_25 = QFrame(self.tab_C_section)
         self.frame_25.setObjectName(u"frame_25")
-        self.frame_25.setFrameShape(QFrame.NoFrame)
-        self.frame_25.setFrameShadow(QFrame.Raised)
+        self.frame_25.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_25.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_47 = QGridLayout(self.frame_25)
         self.gridLayout_47.setSpacing(0)
         self.gridLayout_47.setObjectName(u"gridLayout_47")
@@ -1505,8 +1498,8 @@ class Ui_Form(object):
         self.gridLayout_51.setContentsMargins(4, 4, 4, 4)
         self.frame_27 = QFrame(self.tab_I_section)
         self.frame_27.setObjectName(u"frame_27")
-        self.frame_27.setFrameShape(QFrame.NoFrame)
-        self.frame_27.setFrameShadow(QFrame.Raised)
+        self.frame_27.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_27.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_50 = QGridLayout(self.frame_27)
         self.gridLayout_50.setSpacing(4)
         self.gridLayout_50.setObjectName(u"gridLayout_50")
@@ -1519,8 +1512,8 @@ class Ui_Form(object):
         self.label_78.setObjectName(u"label_78")
         self.label_78.setMinimumSize(QSize(90, 26))
         self.label_78.setMaximumSize(QSize(90, 26))
-        self.label_78.setFont(font1)
-        self.label_78.setAlignment(Qt.AlignCenter)
+        self.label_78.setFont(font)
+        self.label_78.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_50.addWidget(self.label_78, 0, 1, 1, 1)
 
@@ -1529,10 +1522,10 @@ class Ui_Form(object):
         self.lineEdit_height_I_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_height_I_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_height_I_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_height_I_section.setFont(font1)
-        self.lineEdit_height_I_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_height_I_section.setFont(font)
+        self.lineEdit_height_I_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_height_I_section.setStyleSheet(u"")
-        self.lineEdit_height_I_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_height_I_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_height_I_section.setClearButtonEnabled(True)
 
         self.gridLayout_50.addWidget(self.lineEdit_height_I_section, 0, 2, 1, 1)
@@ -1542,10 +1535,10 @@ class Ui_Form(object):
         self.lineEdit_w1_I_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_w1_I_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_w1_I_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_w1_I_section.setFont(font1)
-        self.lineEdit_w1_I_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_w1_I_section.setFont(font)
+        self.lineEdit_w1_I_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_w1_I_section.setStyleSheet(u"")
-        self.lineEdit_w1_I_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_w1_I_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_w1_I_section.setClearButtonEnabled(True)
 
         self.gridLayout_50.addWidget(self.lineEdit_w1_I_section, 1, 2, 1, 1)
@@ -1554,8 +1547,8 @@ class Ui_Form(object):
         self.label_75.setObjectName(u"label_75")
         self.label_75.setMinimumSize(QSize(90, 26))
         self.label_75.setMaximumSize(QSize(90, 26))
-        self.label_75.setFont(font1)
-        self.label_75.setAlignment(Qt.AlignCenter)
+        self.label_75.setFont(font)
+        self.label_75.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_50.addWidget(self.label_75, 1, 1, 1, 1)
 
@@ -1563,7 +1556,7 @@ class Ui_Form(object):
         self.label_142.setObjectName(u"label_142")
         self.label_142.setMinimumSize(QSize(30, 26))
         self.label_142.setMaximumSize(QSize(30, 26))
-        self.label_142.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_142.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_142, 0, 3, 1, 1)
 
@@ -1572,10 +1565,10 @@ class Ui_Form(object):
         self.lineEdit_w2_I_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_w2_I_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_w2_I_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_w2_I_section.setFont(font1)
-        self.lineEdit_w2_I_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_w2_I_section.setFont(font)
+        self.lineEdit_w2_I_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_w2_I_section.setStyleSheet(u"")
-        self.lineEdit_w2_I_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_w2_I_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_w2_I_section.setClearButtonEnabled(True)
 
         self.gridLayout_50.addWidget(self.lineEdit_w2_I_section, 2, 2, 1, 1)
@@ -1584,7 +1577,7 @@ class Ui_Form(object):
         self.label_133.setObjectName(u"label_133")
         self.label_133.setMinimumSize(QSize(30, 26))
         self.label_133.setMaximumSize(QSize(30, 26))
-        self.label_133.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_133.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_133, 1, 3, 1, 1)
 
@@ -1592,8 +1585,8 @@ class Ui_Form(object):
         self.label_76.setObjectName(u"label_76")
         self.label_76.setMinimumSize(QSize(90, 26))
         self.label_76.setMaximumSize(QSize(90, 26))
-        self.label_76.setFont(font1)
-        self.label_76.setAlignment(Qt.AlignCenter)
+        self.label_76.setFont(font)
+        self.label_76.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_50.addWidget(self.label_76, 2, 1, 1, 1)
 
@@ -1602,10 +1595,10 @@ class Ui_Form(object):
         self.lineEdit_t1_I_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_t1_I_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_t1_I_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_t1_I_section.setFont(font1)
-        self.lineEdit_t1_I_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_t1_I_section.setFont(font)
+        self.lineEdit_t1_I_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_t1_I_section.setStyleSheet(u"")
-        self.lineEdit_t1_I_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_t1_I_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_t1_I_section.setClearButtonEnabled(True)
 
         self.gridLayout_50.addWidget(self.lineEdit_t1_I_section, 3, 2, 1, 1)
@@ -1614,7 +1607,7 @@ class Ui_Form(object):
         self.label_138.setObjectName(u"label_138")
         self.label_138.setMinimumSize(QSize(30, 26))
         self.label_138.setMaximumSize(QSize(30, 26))
-        self.label_138.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_138.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_138, 3, 3, 1, 1)
 
@@ -1622,8 +1615,8 @@ class Ui_Form(object):
         self.label_74.setObjectName(u"label_74")
         self.label_74.setMinimumSize(QSize(90, 26))
         self.label_74.setMaximumSize(QSize(90, 26))
-        self.label_74.setFont(font1)
-        self.label_74.setAlignment(Qt.AlignCenter)
+        self.label_74.setFont(font)
+        self.label_74.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_50.addWidget(self.label_74, 3, 1, 1, 1)
 
@@ -1631,7 +1624,7 @@ class Ui_Form(object):
         self.label_141.setObjectName(u"label_141")
         self.label_141.setMinimumSize(QSize(30, 26))
         self.label_141.setMaximumSize(QSize(30, 26))
-        self.label_141.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_141.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_141, 2, 3, 1, 1)
 
@@ -1639,8 +1632,8 @@ class Ui_Form(object):
         self.label_77.setObjectName(u"label_77")
         self.label_77.setMinimumSize(QSize(90, 26))
         self.label_77.setMaximumSize(QSize(90, 26))
-        self.label_77.setFont(font1)
-        self.label_77.setAlignment(Qt.AlignCenter)
+        self.label_77.setFont(font)
+        self.label_77.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_50.addWidget(self.label_77, 4, 1, 1, 1)
 
@@ -1649,10 +1642,10 @@ class Ui_Form(object):
         self.lineEdit_t2_I_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_t2_I_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_t2_I_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_t2_I_section.setFont(font1)
-        self.lineEdit_t2_I_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_t2_I_section.setFont(font)
+        self.lineEdit_t2_I_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_t2_I_section.setStyleSheet(u"")
-        self.lineEdit_t2_I_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_t2_I_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_t2_I_section.setClearButtonEnabled(True)
 
         self.gridLayout_50.addWidget(self.lineEdit_t2_I_section, 4, 2, 1, 1)
@@ -1661,7 +1654,7 @@ class Ui_Form(object):
         self.label_136.setObjectName(u"label_136")
         self.label_136.setMinimumSize(QSize(30, 26))
         self.label_136.setMaximumSize(QSize(30, 26))
-        self.label_136.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_136.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_136, 4, 3, 1, 1)
 
@@ -1670,10 +1663,10 @@ class Ui_Form(object):
         self.lineEdit_tw_I_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_tw_I_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_tw_I_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_tw_I_section.setFont(font1)
-        self.lineEdit_tw_I_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_tw_I_section.setFont(font)
+        self.lineEdit_tw_I_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_tw_I_section.setStyleSheet(u"")
-        self.lineEdit_tw_I_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_tw_I_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_tw_I_section.setClearButtonEnabled(True)
 
         self.gridLayout_50.addWidget(self.lineEdit_tw_I_section, 5, 2, 1, 1)
@@ -1682,7 +1675,7 @@ class Ui_Form(object):
         self.label_134.setObjectName(u"label_134")
         self.label_134.setMinimumSize(QSize(30, 26))
         self.label_134.setMaximumSize(QSize(30, 26))
-        self.label_134.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_134.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_134, 5, 3, 1, 1)
 
@@ -1690,8 +1683,8 @@ class Ui_Form(object):
         self.label_84.setObjectName(u"label_84")
         self.label_84.setMinimumSize(QSize(90, 26))
         self.label_84.setMaximumSize(QSize(90, 26))
-        self.label_84.setFont(font1)
-        self.label_84.setAlignment(Qt.AlignCenter)
+        self.label_84.setFont(font)
+        self.label_84.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_50.addWidget(self.label_84, 5, 1, 1, 1)
 
@@ -1699,7 +1692,7 @@ class Ui_Form(object):
         self.label_140.setObjectName(u"label_140")
         self.label_140.setMinimumSize(QSize(30, 26))
         self.label_140.setMaximumSize(QSize(30, 26))
-        self.label_140.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_140.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_140, 6, 3, 1, 1)
 
@@ -1707,10 +1700,10 @@ class Ui_Form(object):
         self.lineEdit_offsety_I_section.setObjectName(u"lineEdit_offsety_I_section")
         self.lineEdit_offsety_I_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsety_I_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_offsety_I_section.setFont(font1)
-        self.lineEdit_offsety_I_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsety_I_section.setFont(font)
+        self.lineEdit_offsety_I_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsety_I_section.setStyleSheet(u"")
-        self.lineEdit_offsety_I_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsety_I_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsety_I_section.setClearButtonEnabled(True)
 
         self.gridLayout_50.addWidget(self.lineEdit_offsety_I_section, 6, 2, 1, 1)
@@ -1719,8 +1712,8 @@ class Ui_Form(object):
         self.label_137.setObjectName(u"label_137")
         self.label_137.setMinimumSize(QSize(90, 26))
         self.label_137.setMaximumSize(QSize(90, 26))
-        self.label_137.setFont(font1)
-        self.label_137.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_137.setFont(font)
+        self.label_137.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_137, 6, 1, 1, 1)
 
@@ -1728,10 +1721,10 @@ class Ui_Form(object):
         self.lineEdit_offsetz_I_section.setObjectName(u"lineEdit_offsetz_I_section")
         self.lineEdit_offsetz_I_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsetz_I_section.setMaximumSize(QSize(120, 26))
-        self.lineEdit_offsetz_I_section.setFont(font1)
-        self.lineEdit_offsetz_I_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsetz_I_section.setFont(font)
+        self.lineEdit_offsetz_I_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsetz_I_section.setStyleSheet(u"")
-        self.lineEdit_offsetz_I_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsetz_I_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsetz_I_section.setClearButtonEnabled(True)
 
         self.gridLayout_50.addWidget(self.lineEdit_offsetz_I_section, 7, 2, 1, 1)
@@ -1740,8 +1733,8 @@ class Ui_Form(object):
         self.label_132.setObjectName(u"label_132")
         self.label_132.setMinimumSize(QSize(90, 26))
         self.label_132.setMaximumSize(QSize(90, 26))
-        self.label_132.setFont(font1)
-        self.label_132.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_132.setFont(font)
+        self.label_132.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_132, 7, 1, 1, 1)
 
@@ -1749,7 +1742,7 @@ class Ui_Form(object):
         self.label_139.setObjectName(u"label_139")
         self.label_139.setMinimumSize(QSize(30, 26))
         self.label_139.setMaximumSize(QSize(30, 26))
-        self.label_139.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_139.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_50.addWidget(self.label_139, 7, 3, 1, 1)
 
@@ -1762,8 +1755,8 @@ class Ui_Form(object):
 
         self.frame_22 = QFrame(self.tab_I_section)
         self.frame_22.setObjectName(u"frame_22")
-        self.frame_22.setFrameShape(QFrame.NoFrame)
-        self.frame_22.setFrameShadow(QFrame.Raised)
+        self.frame_22.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_22.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_46 = QGridLayout(self.frame_22)
         self.gridLayout_46.setSpacing(0)
         self.gridLayout_46.setObjectName(u"gridLayout_46")
@@ -1789,8 +1782,8 @@ class Ui_Form(object):
         self.gridLayout_53.setContentsMargins(4, 4, 4, 4)
         self.frame_28 = QFrame(self.tab_T_section)
         self.frame_28.setObjectName(u"frame_28")
-        self.frame_28.setFrameShape(QFrame.NoFrame)
-        self.frame_28.setFrameShadow(QFrame.Raised)
+        self.frame_28.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_28.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_52 = QGridLayout(self.frame_28)
         self.gridLayout_52.setSpacing(4)
         self.gridLayout_52.setObjectName(u"gridLayout_52")
@@ -1804,10 +1797,10 @@ class Ui_Form(object):
         self.lineEdit_tw_T_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_tw_T_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_tw_T_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_tw_T_section.setFont(font1)
-        self.lineEdit_tw_T_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_tw_T_section.setFont(font)
+        self.lineEdit_tw_T_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_tw_T_section.setStyleSheet(u"")
-        self.lineEdit_tw_T_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_tw_T_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_tw_T_section.setClearButtonEnabled(True)
 
         self.gridLayout_52.addWidget(self.lineEdit_tw_T_section, 3, 2, 1, 1)
@@ -1816,8 +1809,8 @@ class Ui_Form(object):
         self.label_85.setObjectName(u"label_85")
         self.label_85.setMinimumSize(QSize(90, 26))
         self.label_85.setMaximumSize(QSize(90, 26))
-        self.label_85.setFont(font1)
-        self.label_85.setAlignment(Qt.AlignCenter)
+        self.label_85.setFont(font)
+        self.label_85.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_52.addWidget(self.label_85, 3, 1, 1, 1)
 
@@ -1825,7 +1818,7 @@ class Ui_Form(object):
         self.label_145.setObjectName(u"label_145")
         self.label_145.setMinimumSize(QSize(30, 26))
         self.label_145.setMaximumSize(QSize(30, 26))
-        self.label_145.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_145.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_52.addWidget(self.label_145, 2, 3, 1, 1)
 
@@ -1833,8 +1826,8 @@ class Ui_Form(object):
         self.label_148.setObjectName(u"label_148")
         self.label_148.setMinimumSize(QSize(90, 26))
         self.label_148.setMaximumSize(QSize(90, 26))
-        self.label_148.setFont(font1)
-        self.label_148.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_148.setFont(font)
+        self.label_148.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_52.addWidget(self.label_148, 4, 1, 1, 1)
 
@@ -1842,7 +1835,7 @@ class Ui_Form(object):
         self.label_153.setObjectName(u"label_153")
         self.label_153.setMinimumSize(QSize(30, 26))
         self.label_153.setMaximumSize(QSize(30, 26))
-        self.label_153.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_153.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_52.addWidget(self.label_153, 3, 3, 1, 1)
 
@@ -1851,10 +1844,10 @@ class Ui_Form(object):
         self.lineEdit_offsety_T_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsety_T_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_offsety_T_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_offsety_T_section.setFont(font1)
-        self.lineEdit_offsety_T_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsety_T_section.setFont(font)
+        self.lineEdit_offsety_T_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsety_T_section.setStyleSheet(u"")
-        self.lineEdit_offsety_T_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsety_T_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsety_T_section.setClearButtonEnabled(True)
 
         self.gridLayout_52.addWidget(self.lineEdit_offsety_T_section, 4, 2, 1, 1)
@@ -1864,10 +1857,10 @@ class Ui_Form(object):
         self.lineEdit_offsetz_T_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_offsetz_T_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_offsetz_T_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_offsetz_T_section.setFont(font1)
-        self.lineEdit_offsetz_T_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_offsetz_T_section.setFont(font)
+        self.lineEdit_offsetz_T_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_offsetz_T_section.setStyleSheet(u"")
-        self.lineEdit_offsetz_T_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_offsetz_T_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_offsetz_T_section.setClearButtonEnabled(True)
 
         self.gridLayout_52.addWidget(self.lineEdit_offsetz_T_section, 5, 2, 1, 1)
@@ -1876,7 +1869,7 @@ class Ui_Form(object):
         self.label_143.setObjectName(u"label_143")
         self.label_143.setMinimumSize(QSize(30, 26))
         self.label_143.setMaximumSize(QSize(30, 26))
-        self.label_143.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_143.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_52.addWidget(self.label_143, 5, 3, 1, 1)
 
@@ -1884,7 +1877,7 @@ class Ui_Form(object):
         self.label_144.setObjectName(u"label_144")
         self.label_144.setMinimumSize(QSize(30, 26))
         self.label_144.setMaximumSize(QSize(30, 26))
-        self.label_144.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_144.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_52.addWidget(self.label_144, 4, 3, 1, 1)
 
@@ -1892,8 +1885,8 @@ class Ui_Form(object):
         self.label_149.setObjectName(u"label_149")
         self.label_149.setMinimumSize(QSize(90, 26))
         self.label_149.setMaximumSize(QSize(90, 26))
-        self.label_149.setFont(font1)
-        self.label_149.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_149.setFont(font)
+        self.label_149.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_52.addWidget(self.label_149, 5, 1, 1, 1)
 
@@ -1901,8 +1894,8 @@ class Ui_Form(object):
         self.label_87.setObjectName(u"label_87")
         self.label_87.setMinimumSize(QSize(90, 26))
         self.label_87.setMaximumSize(QSize(90, 26))
-        self.label_87.setFont(font1)
-        self.label_87.setAlignment(Qt.AlignCenter)
+        self.label_87.setFont(font)
+        self.label_87.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_52.addWidget(self.label_87, 0, 1, 1, 1)
 
@@ -1910,7 +1903,7 @@ class Ui_Form(object):
         self.label_152.setObjectName(u"label_152")
         self.label_152.setMinimumSize(QSize(30, 26))
         self.label_152.setMaximumSize(QSize(30, 26))
-        self.label_152.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_152.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_52.addWidget(self.label_152, 0, 3, 1, 1)
 
@@ -1919,10 +1912,10 @@ class Ui_Form(object):
         self.lineEdit_height_T_section.setMinimumSize(QSize(120, 26))
         self.lineEdit_height_T_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_height_T_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_height_T_section.setFont(font1)
-        self.lineEdit_height_T_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_height_T_section.setFont(font)
+        self.lineEdit_height_T_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_height_T_section.setStyleSheet(u"")
-        self.lineEdit_height_T_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_height_T_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_height_T_section.setClearButtonEnabled(True)
 
         self.gridLayout_52.addWidget(self.lineEdit_height_T_section, 0, 2, 1, 1)
@@ -1931,7 +1924,7 @@ class Ui_Form(object):
         self.label_151.setObjectName(u"label_151")
         self.label_151.setMinimumSize(QSize(30, 26))
         self.label_151.setMaximumSize(QSize(30, 26))
-        self.label_151.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_151.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_52.addWidget(self.label_151, 1, 3, 1, 1)
 
@@ -1940,10 +1933,10 @@ class Ui_Form(object):
         self.lineEdit_w1_T_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_w1_T_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_w1_T_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_w1_T_section.setFont(font1)
-        self.lineEdit_w1_T_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_w1_T_section.setFont(font)
+        self.lineEdit_w1_T_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_w1_T_section.setStyleSheet(u"")
-        self.lineEdit_w1_T_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_w1_T_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_w1_T_section.setClearButtonEnabled(True)
 
         self.gridLayout_52.addWidget(self.lineEdit_w1_T_section, 1, 2, 1, 1)
@@ -1952,8 +1945,8 @@ class Ui_Form(object):
         self.label_83.setObjectName(u"label_83")
         self.label_83.setMinimumSize(QSize(90, 26))
         self.label_83.setMaximumSize(QSize(90, 26))
-        self.label_83.setFont(font1)
-        self.label_83.setAlignment(Qt.AlignCenter)
+        self.label_83.setFont(font)
+        self.label_83.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_52.addWidget(self.label_83, 1, 1, 1, 1)
 
@@ -1962,10 +1955,10 @@ class Ui_Form(object):
         self.lineEdit_t1_T_section.setMinimumSize(QSize(120, 24))
         self.lineEdit_t1_T_section.setMaximumSize(QSize(120, 26))
         self.lineEdit_t1_T_section.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_t1_T_section.setFont(font1)
-        self.lineEdit_t1_T_section.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_t1_T_section.setFont(font)
+        self.lineEdit_t1_T_section.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_t1_T_section.setStyleSheet(u"")
-        self.lineEdit_t1_T_section.setAlignment(Qt.AlignCenter)
+        self.lineEdit_t1_T_section.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_t1_T_section.setClearButtonEnabled(True)
 
         self.gridLayout_52.addWidget(self.lineEdit_t1_T_section, 2, 2, 1, 1)
@@ -1974,8 +1967,8 @@ class Ui_Form(object):
         self.label_81.setObjectName(u"label_81")
         self.label_81.setMinimumSize(QSize(90, 26))
         self.label_81.setMaximumSize(QSize(90, 26))
-        self.label_81.setFont(font1)
-        self.label_81.setAlignment(Qt.AlignCenter)
+        self.label_81.setFont(font)
+        self.label_81.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_52.addWidget(self.label_81, 2, 1, 1, 1)
 
@@ -1988,8 +1981,8 @@ class Ui_Form(object):
 
         self.frame_21 = QFrame(self.tab_T_section)
         self.frame_21.setObjectName(u"frame_21")
-        self.frame_21.setFrameShape(QFrame.NoFrame)
-        self.frame_21.setFrameShadow(QFrame.Raised)
+        self.frame_21.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_21.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_45 = QGridLayout(self.frame_21)
         self.gridLayout_45.setObjectName(u"gridLayout_45")
         self.gridLayout_45.setVerticalSpacing(0)
@@ -2018,8 +2011,8 @@ class Ui_Form(object):
         self.frame_7.setMinimumSize(QSize(100, 250))
         self.frame_7.setMaximumSize(QSize(800, 250))
         self.frame_7.setStyleSheet(u"")
-        self.frame_7.setFrameShape(QFrame.NoFrame)
-        self.frame_7.setFrameShadow(QFrame.Raised)
+        self.frame_7.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_7.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_7 = QGridLayout(self.frame_7)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.gridLayout_7.setHorizontalSpacing(8)
@@ -2027,31 +2020,31 @@ class Ui_Form(object):
         self.gridLayout_7.setContentsMargins(4, 4, 4, 4)
         self.label_12 = QLabel(self.frame_7)
         self.label_12.setObjectName(u"label_12")
-        self.label_12.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_12.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label_12, 4, 1, 1, 1)
 
         self.label_15 = QLabel(self.frame_7)
         self.label_15.setObjectName(u"label_15")
-        self.label_15.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_15.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label_15, 1, 3, 1, 1)
 
         self.label_13 = QLabel(self.frame_7)
         self.label_13.setObjectName(u"label_13")
-        self.label_13.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_13.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label_13, 0, 3, 1, 1)
 
         self.label_16 = QLabel(self.frame_7)
         self.label_16.setObjectName(u"label_16")
-        self.label_16.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_16.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label_16, 2, 3, 1, 1)
 
         self.label_31 = QLabel(self.frame_7)
         self.label_31.setObjectName(u"label_31")
-        self.label_31.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_31.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label_31, 3, 3, 1, 1)
 
@@ -2059,10 +2052,10 @@ class Ui_Form(object):
         self.lineEdit_Izz.setObjectName(u"lineEdit_Izz")
         self.lineEdit_Izz.setMinimumSize(QSize(120, 26))
         self.lineEdit_Izz.setMaximumSize(QSize(120, 26))
-        self.lineEdit_Izz.setFont(font1)
-        self.lineEdit_Izz.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_Izz.setFont(font)
+        self.lineEdit_Izz.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_Izz.setStyleSheet(u"")
-        self.lineEdit_Izz.setAlignment(Qt.AlignCenter)
+        self.lineEdit_Izz.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_Izz.setClearButtonEnabled(True)
 
         self.gridLayout_7.addWidget(self.lineEdit_Izz, 2, 2, 1, 1)
@@ -2071,10 +2064,10 @@ class Ui_Form(object):
         self.lineEdit_area.setObjectName(u"lineEdit_area")
         self.lineEdit_area.setMinimumSize(QSize(120, 26))
         self.lineEdit_area.setMaximumSize(QSize(120, 26))
-        self.lineEdit_area.setFont(font1)
-        self.lineEdit_area.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_area.setFont(font)
+        self.lineEdit_area.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_area.setStyleSheet(u"")
-        self.lineEdit_area.setAlignment(Qt.AlignCenter)
+        self.lineEdit_area.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_area.setClearButtonEnabled(True)
 
         self.gridLayout_7.addWidget(self.lineEdit_area, 0, 2, 1, 1)
@@ -2083,10 +2076,10 @@ class Ui_Form(object):
         self.lineEdit_Iyy.setObjectName(u"lineEdit_Iyy")
         self.lineEdit_Iyy.setMinimumSize(QSize(120, 26))
         self.lineEdit_Iyy.setMaximumSize(QSize(120, 26))
-        self.lineEdit_Iyy.setFont(font1)
-        self.lineEdit_Iyy.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_Iyy.setFont(font)
+        self.lineEdit_Iyy.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_Iyy.setStyleSheet(u"")
-        self.lineEdit_Iyy.setAlignment(Qt.AlignCenter)
+        self.lineEdit_Iyy.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_Iyy.setClearButtonEnabled(True)
 
         self.gridLayout_7.addWidget(self.lineEdit_Iyy, 1, 2, 1, 1)
@@ -2095,10 +2088,10 @@ class Ui_Form(object):
         self.lineEdit_Iyz.setObjectName(u"lineEdit_Iyz")
         self.lineEdit_Iyz.setMinimumSize(QSize(120, 26))
         self.lineEdit_Iyz.setMaximumSize(QSize(120, 26))
-        self.lineEdit_Iyz.setFont(font1)
-        self.lineEdit_Iyz.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_Iyz.setFont(font)
+        self.lineEdit_Iyz.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_Iyz.setStyleSheet(u"")
-        self.lineEdit_Iyz.setAlignment(Qt.AlignCenter)
+        self.lineEdit_Iyz.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_Iyz.setClearButtonEnabled(True)
 
         self.gridLayout_7.addWidget(self.lineEdit_Iyz, 3, 2, 1, 1)
@@ -2107,35 +2100,35 @@ class Ui_Form(object):
         self.lineEdit_shear_coefficient.setObjectName(u"lineEdit_shear_coefficient")
         self.lineEdit_shear_coefficient.setMinimumSize(QSize(120, 26))
         self.lineEdit_shear_coefficient.setMaximumSize(QSize(120, 26))
-        self.lineEdit_shear_coefficient.setFont(font1)
-        self.lineEdit_shear_coefficient.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_shear_coefficient.setFont(font)
+        self.lineEdit_shear_coefficient.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_shear_coefficient.setStyleSheet(u"")
-        self.lineEdit_shear_coefficient.setAlignment(Qt.AlignCenter)
+        self.lineEdit_shear_coefficient.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_shear_coefficient.setClearButtonEnabled(True)
 
         self.gridLayout_7.addWidget(self.lineEdit_shear_coefficient, 4, 2, 1, 1)
 
         self.label = QLabel(self.frame_7)
         self.label.setObjectName(u"label")
-        self.label.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label, 0, 1, 1, 1)
 
         self.label_3 = QLabel(self.frame_7)
         self.label_3.setObjectName(u"label_3")
-        self.label_3.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_3.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label_3, 2, 1, 1, 1)
 
         self.label_2 = QLabel(self.frame_7)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label_2, 1, 1, 1, 1)
 
         self.label_5 = QLabel(self.frame_7)
         self.label_5.setObjectName(u"label_5")
-        self.label_5.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_5.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_7.addWidget(self.label_5, 3, 1, 1, 1)
 
@@ -2152,8 +2145,8 @@ class Ui_Form(object):
 
         self.frame_8 = QFrame(self.tab_generic_section)
         self.frame_8.setObjectName(u"frame_8")
-        self.frame_8.setFrameShape(QFrame.NoFrame)
-        self.frame_8.setFrameShadow(QFrame.Raised)
+        self.frame_8.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_8.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_14 = QGridLayout(self.frame_8)
         self.gridLayout_14.setObjectName(u"gridLayout_14")
         self.gridLayout_14.setContentsMargins(4, 4, 4, 4)
@@ -2161,10 +2154,10 @@ class Ui_Form(object):
         self.label_44.setObjectName(u"label_44")
         self.label_44.setMinimumSize(QSize(380, 40))
         self.label_44.setMaximumSize(QSize(420, 40))
-        self.label_44.setFont(font1)
-        self.label_44.setFrameShape(QFrame.Box)
-        self.label_44.setFrameShadow(QFrame.Raised)
-        self.label_44.setAlignment(Qt.AlignCenter)
+        self.label_44.setFont(font)
+        self.label_44.setFrameShape(QFrame.Shape.Box)
+        self.label_44.setFrameShadow(QFrame.Shadow.Raised)
+        self.label_44.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.label_44, 0, 0, 1, 1)
 
@@ -2179,8 +2172,8 @@ class Ui_Form(object):
         self.frame_16.setObjectName(u"frame_16")
         self.frame_16.setMinimumSize(QSize(0, 52))
         self.frame_16.setMaximumSize(QSize(16777215, 52))
-        self.frame_16.setFrameShape(QFrame.NoFrame)
-        self.frame_16.setFrameShadow(QFrame.Raised)
+        self.frame_16.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_16.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_34 = QGridLayout(self.frame_16)
         self.gridLayout_34.setSpacing(4)
         self.gridLayout_34.setObjectName(u"gridLayout_34")
@@ -2189,7 +2182,7 @@ class Ui_Form(object):
         self.pushButton_confirm_beam.setObjectName(u"pushButton_confirm_beam")
         self.pushButton_confirm_beam.setMinimumSize(QSize(140, 30))
         self.pushButton_confirm_beam.setMaximumSize(QSize(140, 30))
-        self.pushButton_confirm_beam.setFont(font1)
+        self.pushButton_confirm_beam.setFont(font)
         self.pushButton_confirm_beam.setStyleSheet(u"")
 
         self.gridLayout_34.addWidget(self.pushButton_confirm_beam, 0, 3, 1, 1)
@@ -2207,7 +2200,7 @@ class Ui_Form(object):
         self.pushButton_exit_beam.setObjectName(u"pushButton_exit_beam")
         self.pushButton_exit_beam.setMinimumSize(QSize(140, 30))
         self.pushButton_exit_beam.setMaximumSize(QSize(140, 30))
-        self.pushButton_exit_beam.setFont(font1)
+        self.pushButton_exit_beam.setFont(font)
         self.pushButton_exit_beam.setStyleSheet(u"")
 
         self.gridLayout_34.addWidget(self.pushButton_exit_beam, 0, 0, 1, 1)
@@ -2233,8 +2226,8 @@ class Ui_Form(object):
         self.frame_23.setObjectName(u"frame_23")
         self.frame_23.setMinimumSize(QSize(0, 52))
         self.frame_23.setMaximumSize(QSize(16777215, 52))
-        self.frame_23.setFrameShape(QFrame.NoFrame)
-        self.frame_23.setFrameShadow(QFrame.Raised)
+        self.frame_23.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_23.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_24 = QGridLayout(self.frame_23)
         self.gridLayout_24.setSpacing(4)
         self.gridLayout_24.setObjectName(u"gridLayout_24")
@@ -2245,6 +2238,7 @@ class Ui_Form(object):
         self.pushButton_load_section_data.setMaximumSize(QSize(140, 30))
         self.pushButton_load_section_data.setFont(font)
         self.pushButton_load_section_data.setStyleSheet(u"")
+        self.pushButton_load_section_data.setAutoDefault(False)
 
         self.gridLayout_24.addWidget(self.pushButton_load_section_data, 0, 1, 1, 1)
 
@@ -2254,32 +2248,31 @@ class Ui_Form(object):
         self.pushButton_edit_section_data.setMaximumSize(QSize(140, 30))
         self.pushButton_edit_section_data.setFont(font)
         self.pushButton_edit_section_data.setStyleSheet(u"")
+        self.pushButton_edit_section_data.setAutoDefault(False)
 
         self.gridLayout_24.addWidget(self.pushButton_edit_section_data, 0, 0, 1, 1)
 
 
         self.gridLayout_25.addWidget(self.frame_23, 3, 0, 1, 1)
 
-        self.treeWidget_sections_parameters_by_lines = QTreeWidget(self.tab_sections)
+        self.treeWidget_lines_info = QTreeWidget(self.tab_sections)
         __qtreewidgetitem = QTreeWidgetItem()
         __qtreewidgetitem.setTextAlignment(3, Qt.AlignCenter)
         __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
         __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
         __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_sections_parameters_by_lines.setHeaderItem(__qtreewidgetitem)
-        self.treeWidget_sections_parameters_by_lines.setObjectName(u"treeWidget_sections_parameters_by_lines")
-        self.treeWidget_sections_parameters_by_lines.setMinimumSize(QSize(500, 300))
-        self.treeWidget_sections_parameters_by_lines.setMaximumSize(QSize(580, 360))
-        font4 = QFont()
-        font4.setFamilies([u"MS Shell Dlg 2"])
-        self.treeWidget_sections_parameters_by_lines.setFont(font4)
-        self.treeWidget_sections_parameters_by_lines.setIndentation(1)
-        self.treeWidget_sections_parameters_by_lines.setHeaderHidden(False)
-        self.treeWidget_sections_parameters_by_lines.header().setHighlightSections(False)
-        self.treeWidget_sections_parameters_by_lines.header().setProperty(u"showSortIndicator", False)
-        self.treeWidget_sections_parameters_by_lines.header().setStretchLastSection(True)
+        self.treeWidget_lines_info.setHeaderItem(__qtreewidgetitem)
+        self.treeWidget_lines_info.setObjectName(u"treeWidget_lines_info")
+        self.treeWidget_lines_info.setMinimumSize(QSize(500, 300))
+        self.treeWidget_lines_info.setMaximumSize(QSize(580, 360))
+        self.treeWidget_lines_info.setFont(font)
+        self.treeWidget_lines_info.setIndentation(1)
+        self.treeWidget_lines_info.setHeaderHidden(False)
+        self.treeWidget_lines_info.header().setHighlightSections(False)
+        self.treeWidget_lines_info.header().setProperty(u"showSortIndicator", False)
+        self.treeWidget_lines_info.header().setStretchLastSection(True)
 
-        self.gridLayout_25.addWidget(self.treeWidget_sections_parameters_by_lines, 1, 0, 1, 1)
+        self.gridLayout_25.addWidget(self.treeWidget_lines_info, 1, 0, 1, 1)
 
         self.tabWidget_general.addTab(self.tab_sections, "")
 
@@ -2360,8 +2353,8 @@ class Ui_Form(object):
         self.tabWidget_beam_section.setCurrentIndex(0)
         self.pushButton_confirm_beam.setDefault(False)
         self.pushButton_exit_beam.setDefault(False)
-        self.pushButton_load_section_data.setDefault(True)
-        self.pushButton_edit_section_data.setDefault(True)
+        self.pushButton_load_section_data.setDefault(False)
+        self.pushButton_edit_section_data.setDefault(False)
 
 
         QMetaObject.connectSlotsByName(Form)
@@ -2369,7 +2362,6 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self.pushButton_plot_pipe_cross_section.setText(QCoreApplication.translate("Form", u"Plot cross-section", None))
         self.pushButton_confirm_pipe.setText(QCoreApplication.translate("Form", u"Confirm", None))
 #if QT_CONFIG(shortcut)
         self.pushButton_confirm_pipe.setShortcut(QCoreApplication.translate("Form", u"Ctrl+Return", None))
@@ -2378,6 +2370,7 @@ class Ui_Form(object):
 #if QT_CONFIG(shortcut)
         self.pushButton_exit_pipe.setShortcut(QCoreApplication.translate("Form", u"Ctrl+Return", None))
 #endif // QT_CONFIG(shortcut)
+        self.pushButton_plot_pipe_cross_section.setText(QCoreApplication.translate("Form", u"Plot cross-section", None))
         self.pushButton_select_standard_section.setText(QCoreApplication.translate("Form", u"Get a standardized section", None))
         self.pushButton_check_if_section_is_normalized.setText(QCoreApplication.translate("Form", u"Check if section is normalized", None))
         self.label_17.setText(QCoreApplication.translate("Form", u"<html><head/><body><p>[m]</p></body></html>", None))
@@ -2526,7 +2519,7 @@ class Ui_Form(object):
         self.tabWidget_general.setTabText(self.tabWidget_general.indexOf(self.tab_beam), QCoreApplication.translate("Form", u"Beam", None))
         self.pushButton_load_section_data.setText(QCoreApplication.translate("Form", u"Load section data", None))
         self.pushButton_edit_section_data.setText(QCoreApplication.translate("Form", u"Edit section data", None))
-        ___qtreewidgetitem = self.treeWidget_sections_parameters_by_lines.headerItem()
+        ___qtreewidgetitem = self.treeWidget_lines_info.headerItem()
         ___qtreewidgetitem.setText(3, QCoreApplication.translate("Form", u"Section parameters", None))
         ___qtreewidgetitem.setText(2, QCoreApplication.translate("Form", u"Section type", None))
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Element type", None))
@@ -2546,9 +2539,9 @@ class CrossSectionWidget_UI(QDialog, Ui_Form):
                         - (Layout): QGridLayout
                                 - bottom_frame_buttons: QFrame
                                     - (Layout): QGridLayout
-                                            - pushButton_plot_pipe_cross_section: QPushButton
                                             - pushButton_confirm_pipe: QPushButton
                                             - pushButton_exit_pipe: QPushButton
+                                            - pushButton_plot_pipe_cross_section: QPushButton
                                 - tabWidget_pipe_section: QTabWidget
                                     - tab_constant_pipe_section: QWidget
                                         - (Layout): QGridLayout
@@ -2792,7 +2785,7 @@ class CrossSectionWidget_UI(QDialog, Ui_Form):
                                     - (Layout): QGridLayout
                                             - pushButton_load_section_data: QPushButton
                                             - pushButton_edit_section_data: QPushButton
-                                - treeWidget_sections_parameters_by_lines: QTreeWidget
+                                - treeWidget_lines_info: QTreeWidget
     """
 
     def __init__(self, *args, **kwargs):

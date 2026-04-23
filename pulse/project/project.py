@@ -1,24 +1,26 @@
 # fmt: off
 
-from pulse import app, TEMP_PROJECT_DIR
-from pulse.model import AnalysisID
-from pulse.interface.file.project_file import ProjectFile
-from pulse.project.load_project import LoadProject
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
-from pulse.interface.user_input.project.loading_window import LoadingWindow
-#
-from pulse.editor import Pipeline
-from pulse.model.model import Model
-from pulse.model.after_run import AfterRun
-from pulse.model.before_run import BeforeRun
-from pulse.processing.structural_solver import StructuralSolver
-from pulse.processing.acoustic_solver import AcousticSolver
-from pulse.utils.common_utils import *
-#
 import logging
 from collections import defaultdict
+from pathlib import Path
 
+import numpy as np
+
+from pulse import TEMP_PROJECT_DIR, app
+from pulse.editor import Pipeline
+from pulse.interface.file.project_file import ProjectFile
+from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model import AnalysisID
+from pulse.model.after_run import AfterRun
+from pulse.model.before_run import BeforeRun
+from pulse.model.model import Model
+from pulse.processing.acoustic_solver import AcousticSolver
+from pulse.processing.structural_solver import StructuralSolver
+from pulse.project.load_project import LoadProject
+
+error_title = "Error"
+warning_title = "Warning"
 
 class Project:
     def __init__(self):
@@ -245,7 +247,7 @@ class Project:
                     d_eff = element.cross_section.section_parameters[1]
                     plot_key = element.cross_section.section_parameters[0]
 
-                    thickness = (outer_diameter - inner_diameter) / 2
+                    # thickness = (outer_diameter - inner_diameter) / 2
                     parameters = [plot_key, d_eff, inner_diameter]
 
                     element.section_parameters_render = parameters
@@ -299,7 +301,7 @@ class Project:
                 AnalysisID.STRUCTURAL_MODAL,
                 AnalysisID.ACOUSTIC_MODAL,
             ]:
-                if not "number_of_modes" in analysis_setup.keys():
+                if "number_of_modes" not in analysis_setup.keys():
                     return False
 
                 if not isinstance(analysis_setup["number_of_modes"], int):
@@ -328,7 +330,7 @@ class Project:
                     
                 if self.analysis_method == "mode_superposition":
 
-                    if not "number_of_modes" in analysis_setup.keys():
+                    if "number_of_modes" not in analysis_setup.keys():
                         return False
 
                     if not isinstance(analysis_setup["number_of_modes"], int):
@@ -629,12 +631,12 @@ class Project:
             self.structural_solution = self.structural_solver.solution
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
-            self.structural_solver.modal_analysis(modes = self.number_of_modes, sigma_factor = self.sigma_factor)
+            self.structural_solver.modal_analysis(number_of_modes = self.number_of_modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_structural = self.structural_solver.natural_frequencies
             self.structural_solution = self.structural_solver.modal_shapes
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-            self.acoustic_solver.modal_analysis(modes = self.number_of_modes, sigma_factor = self.sigma_factor)
+            self.acoustic_solver.modal_analysis(number_of_modes = self.number_of_modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
             self.complex_natural_frequencies_acoustic = self.acoustic_solver.complex_natural_frequencies
             self.acoustic_solution = self.acoustic_solver.modal_shapes

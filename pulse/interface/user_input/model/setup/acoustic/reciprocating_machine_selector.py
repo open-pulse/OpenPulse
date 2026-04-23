@@ -78,9 +78,9 @@ class ReciprocatingMachineSelector(ReciprocatingPumpSelector_UI):
 
     def reset_selection(self):
         app().main_window.set_selection()
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_connection_type.setText("")
-        self.lineEdit_volumetric_flow_rate.setText("")
+        self.lineEdit_selected_id.clear()
+        self.lineEdit_connection_type.clear()
+        self.lineEdit_volumetric_flow_rate.clear()
 
     def select_callback(self):
         if self.lineEdit_selected_id.text() != "":

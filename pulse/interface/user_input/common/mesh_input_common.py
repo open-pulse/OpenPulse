@@ -109,7 +109,7 @@ class MeshInputCommon(MeshInputCommon_UI):
                 self.selected_lineedit(", ".join(selected_elements))
 
         else:
-            self.selected_lineedit.setText("")
+            self.selected_lineedit.clear()
 
     def update_filter(self):
         self.attribute_to_combobox.clear()

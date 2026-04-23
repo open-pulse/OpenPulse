@@ -8,8 +8,8 @@ class Pipe(LinearStructure):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.diameter = kwargs.get("diameter", 0.1)
-        self.thickness = kwargs.get("thickness", 0.01)
+        self.diameter = kwargs.get("diameter", 0.01)
+        self.thickness = kwargs.get("thickness", 0.001)
         self.offset_y = kwargs.get("offset_y", 0)
         self.offset_z = kwargs.get("offset_z", 0)
 
@@ -40,16 +40,20 @@ class Pipe(LinearStructure):
             offset_z=section_parameters[3],
         )
         section_info = {
-            "section_type_label": data["section_type_label"],
-            "section_parameters": section_parameters,
+            "section_type_label" : data["section_type_label"],
+            "section_parameters" : section_parameters,
         }
+
         structure.extra_info["cross_section_info"] = section_info
         structure.extra_info["structural_element_type"] = "pipe_1"
+        structure.extra_info["wall_formulation"] = "thin"
+        structure.extra_info["force_offset"] = True
+        structure.extra_info["capped_end"] = True
 
         if "psd_label" in data.keys():
             structure.extra_info["psd_label"] = data["psd_label"]
-        
+
         if "pulsation_damper_label" in data.keys():
             structure.extra_info["pulsation_damper_label"] = data["pulsation_damper_label"]
-        
+
         return structure

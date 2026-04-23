@@ -94,7 +94,7 @@ class GetInformationOfGroup(GetGroupInformation_UI):
                 self.project.set_capped_end_by_lines(line, False)
                 self.load_group_info()
                 self.lines_removed = True
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.clear()
 
     def load_group_info(self):
         self.treeWidget_group_info.clear()

@@ -1,5 +1,6 @@
+from PySide6.QtGui import QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem
-from PySide6.QtCore import Qt, QSize, QRect
+from PySide6.QtCore import Qt, QSize
 
 class BorderItemDelegate(QStyledItemDelegate):
     def __init__(self, parent, borderRole):
@@ -8,8 +9,9 @@ class BorderItemDelegate(QStyledItemDelegate):
 
     def initStyleOption(self, option, index):
         super(BorderItemDelegate, self).initStyleOption(option, index)
-        option.decorationAlignment = Qt.AlignRight
-        option.decorationPosition = QStyleOptionViewItem.Right
+        option.decorationAlignment = Qt.AlignmentFlag.AlignRight
+        option.decorationPosition = QStyleOptionViewItem.Position.Right
+        option.icon = QIcon()  # prevent base paint from drawing the icon; drawn manually in paint()
 
     def sizeHint(self, option, index):        
         size = super(BorderItemDelegate, self).sizeHint(option, index)
@@ -27,26 +29,20 @@ class BorderItemDelegate(QStyledItemDelegate):
         separator_size.setHeight(2)
         return item.setSizeHint(0, separator_size)
 
-    def paint(self, painter, option, index):
-        pen = index.data(self.borderRole)
-        rect = QRect(option.rect)
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index):
+        painter.save()
 
-        if pen is not None:
-            width = max(pen.width(), 1)
-            # ...and remove the extra room we added in sizeHint...
-            option.rect.adjust(width, width, -width, -width)      
+        super().paint(painter, option, index)
 
-        super(BorderItemDelegate, self).paint(painter, option, index)
-
-        if pen is not None:
-            painter.save() # Saves previous status
+        original_icon: QIcon = index.data(Qt.ItemDataRole.DecorationRole)
+        if original_icon and not original_icon.isNull():
+            new_icon_size = QSize(20, 20)
+            scaled_pixmap: QPixmap = original_icon.pixmap(new_icon_size, QIcon.Mode.Normal, QIcon.State.On)
             
-            # Align rect 
-            painter.setClipRect(rect, Qt.ReplaceClip);          
-            pen.setWidth(2 * width)
+            x_offset = option.rect.left()
+            x_offset += option.rect.width() - 32
+            y_offset = option.rect.top() + (option.rect.height() - new_icon_size.height()) // 2
 
-            # Paint the borders
-            painter.setPen(pen)
-            painter.drawRect(rect)     
-            
-            painter.restore() # Recovers previous status
+            painter.drawPixmap(x_offset, y_offset, scaled_pixmap)
+
+        painter.restore()

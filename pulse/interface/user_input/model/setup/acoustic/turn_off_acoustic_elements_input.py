@@ -1,26 +1,24 @@
-from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.turn_off_acoustic_elements_input_ui import TurnOffAcousticElementsInput_UI
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-
-
-import numpy as np
+from pulse.interface.ui_generated.model.setup.acoustic.turn_off_acoustic_elements_input_ui import (
+    TurnOffAcousticElementsInput_UI,
+)
+from pulse.interface.user_input.model.setup.elements_input import ElementsInput
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
+class TurnOffAcousticElementsInput(ElementsInput, TurnOffAcousticElementsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
-        self.preprocessor = app().project.model.preprocessor
 
-        self._config_window()
         self._initialize()
         self._create_connections()
         self._config_widgets()
@@ -30,12 +28,6 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
         while self.keep_window_open:
             self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
 
         self.keep_window_open = True
@@ -44,8 +36,6 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
         self.dkey = None
         self.log_removal = True
 
-        self.before_run = app().project.get_pre_solution_model_checks()
-    
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
@@ -56,7 +46,9 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
         self.tabWidget_main.currentChanged.connect(self._tab_event_update)
         #
         self.treeWidget_elements_info.itemClicked.connect(self.on_click_item)
-        self.treeWidget_elements_info.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_elements_info.itemDoubleClicked.connect(
+            self.on_doubleclick_item
+        )
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -82,7 +74,7 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
             self.selection_callback()
 
         elif index == 1:
-            self.lineEdit_element_id.setText("")
+            self.lineEdit_element_id.clear()
 
         self.lineEdit_element_id.setDisabled(bool(index))
         self.pushButton_remove.setDisabled(True)
@@ -91,7 +83,7 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
 
         lineEdit = self.lineEdit_element_id.text()
         stop, element_ids = self.before_run.check_selected_ids(lineEdit, "elements")
-        
+
         if stop:
             return
 
@@ -99,64 +91,67 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
         self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, True)
 
         for element_id in element_ids:
-
             coords = list()
             element = self.preprocessor.acoustic_elements[element_id]
             coords.extend(list(np.round(element.first_node.coordinates, 5)))
             coords.extend(list(np.round(element.last_node.coordinates, 5)))
 
-            data = {
-                    "coords" : coords,
-                    "turned_off" : not bool(index)
-                    }
+            data = {"coords": coords, "turned_off": not bool(index)}
 
-            self.properties._set_element_property("acoustic_element_turned_off", data, element_ids=element_id)
+            self.properties._set_element_property(
+                "acoustic_element_turned_off", data, element_ids=element_id
+            )
 
         self.actions_to_finalize()
 
     def remove_callback(self):
 
-        if  self.lineEdit_element_id.text() != "":
-
+        if self.lineEdit_element_id.text() != "":
             str_element = self.lineEdit_element_id.text()
-            stop, element_ids = self.before_run.check_selected_ids(str_element, "elements")
+            stop, element_ids = self.before_run.check_selected_ids(
+                str_element, "elements"
+            )
             if stop:
                 return
 
             for element_id in element_ids:
-                self.properties._remove_element_property("acoustic_element_turned_off", element_id)
-            
-            self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
-            self.lineEdit_element_id.setText("")
+                self.properties._remove_element_property(
+                    "acoustic_element_turned_off", element_id
+                )
+
+            self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(
+                element_ids, False
+            )
+            self.lineEdit_element_id.clear()
             self.actions_to_finalize()
 
     def reset_callback(self):
 
-            self.hide()
+        self.hide()
 
-            title = f"Turn-on all acoustic elements"
-            message = "Would you like to turn-on the all acoustic elements?"
+        title = "Turn-on all acoustic elements"
+        message = "Would you like to turn-on the all acoustic elements?"
 
-            buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+        buttons_config = {"left_button_label": "No", "right_button_label": "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._cancel:
-                return
+        if read._cancel:
+            return
 
-            if not read._continue:
-                return
+        if not read._continue:
+            return
 
-            element_ids = list()
-            for (property, element_id) in self.properties.element_properties.keys():
-                if property == "acoustic_element_turned_off":
-                    element_ids.append(element_id)
+        element_ids = list()
+        for (property, element_id) in self.properties.element_properties.keys():
+            if property == "acoustic_element_turned_off":
+                element_ids.append(element_id)
 
-            if element_ids:
-                for element_id in element_ids:
-                    self.properties._remove_element_property("acoustic_element_turned_off", element_id)
+        if element_ids:
+            for element_id in element_ids:
+                self.properties._remove_element_property("acoustic_element_turned_off", element_id)
 
-                self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
-                self.actions_to_finalize()
+            self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
+            self.actions_to_finalize()
 
     def actions_to_finalize(self):
         self.load_elements_info()
@@ -184,12 +179,12 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
 
             self.treeWidget_elements_info.addTopLevelItem(item)
 
-        self.update_tabs_visibility()         
+        self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
 
         self.pushButton_remove.setDisabled(True)
-        for (property, _) in self.properties.element_properties.keys():
+        for property, _ in self.properties.element_properties.keys():
             if property == "acoustic_element_turned_off":
                 # self.tabWidget_main.setCurrentIndex(0)
                 self.tabWidget_main.setTabVisible(1, True)
@@ -206,17 +201,3 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
 
     def on_doubleclick_item(self, item):
         self.on_click_item(item)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.set_selection()
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)

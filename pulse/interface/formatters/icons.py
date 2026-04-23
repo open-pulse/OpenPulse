@@ -1,5 +1,4 @@
 from pathlib import Path
-from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtCore import QSize
 from pulse import ICON_DIR
@@ -39,40 +38,36 @@ def get_error_icon(color=None):
         icon_path = str(ICON_DIR / 'warnings/transparent_warning.png')
         return get_formatted_icon(icon_path, color)
 
-def change_icon_color(icon: QIcon, color: QColor):
-    if icon is None:
-        return 
+def change_icon_color(icon: QIcon, size: QSize, color: QColor):
+    if icon is None or icon.isNull():
+        return None
 
-    size = icon.actualSize(QSize(10_000, 10_000))
-    invalid_sizes = [-1, 0, 10_000]
+    pixmap = icon.pixmap(size)
+    if pixmap.isNull():
+        return None
 
-    if size.width() in invalid_sizes:
-        return
-    
-    if size.height() in invalid_sizes:
-        return
-
-    pixmap: QPixmap = icon.pixmap(size)
     painter = QPainter(pixmap)
     if not painter.isActive():
-        return
+        return None
 
     painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
     painter.fillRect(pixmap.rect(), color)
     painter.end()
-    icon.addPixmap(pixmap)
+    return QIcon(pixmap)
 
-def change_icon_color_for_widgets(widgets: list[QWidget], color: QColor):
+def change_icon_color_for_widgets(widgets, color: QColor):
     for widget in widgets:
         if not hasattr(widget, "icon") or not callable(widget.icon):
             continue
-        
+
         if not hasattr(widget, "setIcon") or not callable(widget.setIcon):
             continue
-    
+
         if hasattr(widget, "should_paint") and not widget.should_paint:
             continue
-        
+
         icon = widget.icon()
-        change_icon_color(icon, color)
-        widget.setIcon(icon)
+        size = widget.iconSize() if hasattr(widget, "iconSize") else icon.actualSize(QSize(256, 256))
+        new_icon = change_icon_color(icon, size, color)
+        if new_icon is not None:
+            widget.setIcon(new_icon)

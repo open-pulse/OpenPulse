@@ -33,6 +33,9 @@ envpulse/
 measured_data/
 temporary_data/
 
+# pyenv
+.python-version
+
 # Do not ignore
 !pulse/libraries/*.dat
 !examples/projects/*.pulse

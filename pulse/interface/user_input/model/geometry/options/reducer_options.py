@@ -1,12 +1,13 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     pass
 
-from pulse.editor.structures import Reducer
-from molde.stylesheets import set_qproperty
-from .structure_options import StructureOptions
-
 from copy import deepcopy
+
+from pulse.editor.structures import Reducer
+
+from .structure_options import StructureOptions
 
 
 class ReducerOptions(StructureOptions):
@@ -21,29 +22,30 @@ class ReducerOptions(StructureOptions):
             return
 
         return dict(
-            initial_diameter = parameters[0],
-            final_diameter = parameters[4],
-            thickness = parameters[1],
-            initial_offset_y = parameters[2],
-            initial_offset_z = parameters[3],
-            final_offset_y = parameters[6],
-            final_offset_z = parameters[7],
-            extra_info = self._get_extra_info(),
+            initial_diameter=parameters[0],
+            final_diameter=parameters[4],
+            thickness=parameters[1],
+            initial_offset_y=parameters[2],
+            initial_offset_z=parameters[3],
+            final_offset_y=parameters[6],
+            final_offset_z=parameters[7],
+            extra_info=self._get_extra_info(),
         )
 
     def configure_structure(self):
 
-        self.cross_section_widget.set_inputs_to_geometry_creator()     
-        self.cross_section_widget.hide_all_tabs()     
+        self.cross_section_widget.set_inputs_to_geometry_creator()
+        self.cross_section_widget.hide_all_tabs()
         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
         self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
         self.load_data_from_pipe_section()
+        self.cross_section_dialog.load_active_sections("reducer")
         self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:
             return
-        
+
         if self.cross_section_widget.get_variable_section_pipe_parameters():
             self.configure_structure()  # if it is invalid try again
             return
@@ -51,17 +53,6 @@ class ReducerOptions(StructureOptions):
         self.structure_info = self.cross_section_widget.pipe_section_info
         self.configure_section_of_selected()
         self.update_permissions()
-
-    def update_permissions(self):
-        if self.structure_info:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
-            enable = True
-        else:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
-            enable = False
-
-        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
-        super().update_permissions(enable)
 
     def load_data_from_pipe_section(self):
 
@@ -74,14 +65,14 @@ class ReducerOptions(StructureOptions):
             self.cross_section_widget.left_variable_pipe_lineEdits[i].setText(value)
 
         for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
         if outside_diameter != "" and wall_thickness != "":
             self.cross_section_widget.lineEdit_outside_diameter_final.setFocus()
 
     def _get_extra_info(self):
         return dict(
-            structural_element_type = "pipe_1",
-            cross_section_info = deepcopy(self.structure_info),
-            material_id = self.geometry_designer_widget.current_material_id,
+            structural_element_type="pipe_1",
+            cross_section_info=deepcopy(self.structure_info),
+            material_id=self.geometry_designer_widget.current_material_id,
         )

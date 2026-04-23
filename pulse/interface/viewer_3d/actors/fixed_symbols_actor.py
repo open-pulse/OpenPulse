@@ -1,20 +1,18 @@
 from functools import partial
-from itertools import chain
 from typing import Iterator
 
 from molde.actors import CommonSymbolsActorFixedSize
 import numpy as np
-from molde.colors import Color, color_names
-from molde.utils import set_polydata_colors, read_obj_file, transform_polydata
+from molde.colors import color_names
+from molde.utils import read_obj_file, transform_polydata
 
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
 from vtkmodules.vtkFiltersSources import vtkLineSource
-from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
 from pulse import app, SYMBOLS_DIR
 from pulse.utils.cross_section_sources import valve_data
-from pulse.utils.rotations import align_vtk_geometry
 
 from ..polydata import (
     create_compressor_discharge,
@@ -28,6 +26,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
         super().__init__()
         self.build()
         self.configure_appearance()
+        self.UseBoundsOff()
 
     def build(self):
         mapper = vtkPolyDataMapper()
@@ -38,12 +37,8 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
         self.create_structural_links()
         self.create_psd_structural_links()
         self.create_acoustic_transfer_element()
-
-        for symbol in chain(
-            self.create_perforated_plates(),
-            self.create_valves(),
-        ):
-            source.AddInputData(symbol)
+        self.create_perforated_plates()
+        self.create_valves()
 
         source.Update()
         mapper.SetInputData(source.GetOutput())
@@ -125,7 +120,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                         color=color_names.BLUE,
                     )
 
-    def create_structural_links(self) -> Iterator[vtkPolyData]:
+    def create_structural_links(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
@@ -135,7 +130,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
             self.add_symbol(func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
-    def create_psd_structural_links(self) -> Iterator[vtkPolyData]:
+    def create_psd_structural_links(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
@@ -145,7 +140,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
             self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
-    def create_psd_acoustic_links(self) -> Iterator[vtkPolyData]:
+    def create_psd_acoustic_links(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
@@ -155,7 +150,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
             self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
-    def create_acoustic_transfer_element(self) -> Iterator[vtkPolyData]:
+    def create_acoustic_transfer_element(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
@@ -165,7 +160,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
             self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
-    def create_perforated_plates(self) -> Iterator[vtkPolyData]:
+    def create_perforated_plates(self):
         element_properties = app().project.model.properties.element_properties
         perforated_plate_many_holes = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_many_holes.obj")
         perforated_plate_single_hole = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_single_hole.obj")
@@ -199,13 +194,13 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
             data = transform_polydata(
                 data,
-                scale=(diameter, thickness, diameter),
+                rotation=(0, 0, 90),
+                scale=(thickness, diameter, diameter),
             )
-            data = align_vtk_geometry(data, coord_a, vector)
-            set_polydata_colors(data, color_names.PINK_6.to_rgb())
-            yield data
 
-    def create_valves(self) -> Iterator[vtkPolyData]:
+            self.add_symbol(lambda : data, coord_a, vector, color_names.PINK_6)
+
+    def create_valves(self):
         line_properties = app().project.model.properties.line_properties
 
         for line_id, data in line_properties.items():
@@ -235,9 +230,12 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 flange_length,
             )
 
-            data = align_vtk_geometry(source, coords_a, vector, angle)
-            set_polydata_colors(data, color_names.PINK_6.to_rgb())
-            yield data
+            source = transform_polydata(
+                source,
+                rotation=(0, 0, -90),
+            )
+
+            self.add_symbol(lambda : source, coords_a, vector, color_names.PINK_6)
 
     def configure_appearance(self):
         self.set_zbuffer_offsets(1, -6600)

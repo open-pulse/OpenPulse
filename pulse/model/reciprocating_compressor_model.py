@@ -178,13 +178,13 @@ class ReciprocatingCompressorModel:
             tdc = self.tdc_1
 
         r = self.radius
-        l = self.connecting_rod_length
-        x_max = l + r
+        L = self.connecting_rod_length
+        x_max = L + r
 
         theta = np.linspace(0, 2 * pi, N)
         d_theta = theta + tdc
 
-        x = (r * np.cos(d_theta) + np.sqrt(l**2 - ((r * np.sin(d_theta))**2))) - x_max
+        x = (r * np.cos(d_theta) + np.sqrt(L**2 - ((r * np.sin(d_theta))**2))) - x_max
 
         return theta, x 
 
@@ -205,12 +205,12 @@ class ReciprocatingCompressorModel:
             tdc = self.tdc_1
 
         r = self.radius
-        l = self.connecting_rod_length
+        L = self.connecting_rod_length
 
         theta = np.linspace(0, 2*pi, N)
         d_theta = theta + tdc
 
-        v = -(r * np.sin(d_theta))*(1 + ((r*np.cos(d_theta))/np.sqrt(l**2 - ((r*np.sin(d_theta))**2))))
+        v = -(r * np.sin(d_theta))*(1 + ((r*np.cos(d_theta))/np.sqrt(L**2 - ((r*np.sin(d_theta))**2))))
         v *= self.rpm * (2 * pi / 60)
 
         return v
@@ -562,7 +562,6 @@ class ReciprocatingCompressorModel:
         valves_info = dict()
         open_suc = np.zeros(N, dtype=bool)
         open_disc = np.zeros(N, dtype=bool)
-        message = ""
 
         # print(f"Capacity (crank-end): {capacity}")
         stage_log = f"Capacity (crank-end) = {capacity}\n\n"
@@ -881,7 +880,7 @@ class ReciprocatingCompressorModel:
             max_iter = 100
             i = 0
 
-            while stable == False and i != max_iter: 
+            while not stable and i != max_iter: 
                 
                 iter_flow = self.get_in_mass_flow(capacity=cap_aux[i])
                 if iter_flow is None:
@@ -991,17 +990,134 @@ class ReciprocatingCompressorModel:
         flow_rate = flow_rate[:len(freq)]
 
         return freq, flow_rate
+    
+    def get_piston_position_and_velocity_data(self, tdc=None, domain="time") -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        _, x = self.recip_x(tdc=tdc)
+        v = self.recip_v(tdc=tdc)
+        Trev = 60 / self.rpm
+        N = len(x)
+
+        if domain == "time":
+            x_data = np.linspace(0, Trev, N)
+
+        else:
+            x_data = np.linspace(0, 360, N)
+
+        return x_data, x, v
+
+    def get_PV_diagram_head_end_data(self) -> tuple[np.ndarray, np.ndarray]:
+        volume_HE, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
+        if volume_HE is None:
+            return None, None
+
+        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
+
+        return volume_HE, pressure_HE
+
+    def get_PV_diagram_crank_end_data(self) -> tuple[np.ndarray, np.ndarray]:
+        volume_CE, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
+        if volume_CE is None:
+            return None, None
+
+        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", self.pressure_unit)
+
+        return volume_CE, pressure_CE
+
+    def get_volumetric_flow_rate_at_suction_time_data(self) -> tuple[np.ndarray, np.ndarray]:
+        flow_rate = self.process_sum_of_volumetric_flow_rate("in_flow")
+        if flow_rate is None:
+            return None, None
+
+        Trev = 60 / self.rpm
+        N = len(flow_rate)
+        time = np.linspace(0, Trev, N)
+
+        return time, flow_rate
+
+    def get_volumetric_flow_rate_at_discharge_time_data(self) -> tuple[np.ndarray, np.ndarray]:
+        flow_rate = self.process_sum_of_volumetric_flow_rate("out_flow")
+        if flow_rate is None:
+            return None, None
+
+        Trev = 60 / self.rpm
+        N = len(flow_rate)
+        time = np.linspace(0, Trev, N)
+
+        return time, flow_rate
+
+    def get_rod_pressure_load_time_data(self) -> tuple[np.ndarray, np.ndarray]:
+        _, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
+        _, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
+
+        load_head = pressure_HE_Pa * self.area_head_end
+        load_crank = -pressure_CE_Pa * self.area_crank_end
+
+        # convert the calculated force in kN
+        rod_pressure_load = (load_head + load_crank) / 1000
+
+        Trev = 60 / self.rpm
+        N = len(rod_pressure_load)
+        time = np.linspace(0, Trev, N)
+
+        return time, rod_pressure_load
+
+    def get_rod_pressure_load_frequency_data(self, revolutions: int) -> tuple[np.ndarray, np.ndarray]:
+        _, rod_pressure_load_time = self.get_rod_pressure_load_time_data()
+
+        freq, rod_pressure_load = self.process_FFT_of_(rod_pressure_load_time, revolutions)
+        mask = freq <= self.max_frequency
+
+        return freq[mask], rod_pressure_load[mask]
+
+    def get_volumetric_flow_rate_at_suction_frequency_data(self, revolutions: int) -> tuple[np.ndarray, np.ndarray]:
+        return self.process_FFT_of_volumetric_flow_rate(revolutions, "in_flow")
+
+    def get_volumetric_flow_rate_at_discharge_frequency_data(self, revolutions: int) -> tuple[np.ndarray, np.ndarray]:
+        return self.process_FFT_of_volumetric_flow_rate(revolutions, "out_flow")
+
+    def get_pressure_head_end_angle_data(self) -> tuple[np.ndarray, np.ndarray]:
+        _, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
+
+        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
+
+        N = len(pressure_HE)
+        angle = np.linspace(0, 360, N)
+
+        return angle, pressure_HE
+
+    def get_volume_head_end_angle_data(self) -> tuple[np.ndarray, np.ndarray]:
+        volume_HE, _, _ = self.process_head_end_volumes_and_pressures()
+
+        N = len(volume_HE)
+        angle = np.linspace(0, 360, N)
+
+        return angle, volume_HE
+
+    def get_pressure_crank_end_angle_data(self) -> tuple[np.ndarray, np.ndarray]:
+        _, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
+
+        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", self.pressure_unit)
+
+        N = len(pressure_CE)
+        angle = np.linspace(0, 360, N)
+
+        return angle, pressure_CE
+
+    def get_volume_crank_end_angle_data(self) -> tuple[np.ndarray, np.ndarray]:
+        volume_CE, _, _ = self.process_crank_end_volumes_and_pressures()
+
+        N = len(volume_CE)
+        angle = np.linspace(0, 360, N)
+
+        return angle, volume_CE
 
     def plot_PV_diagram_both_ends(self):
 
-        volume_HE, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
-        volume_CE, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
+        volume_HE, pressure_HE = self.get_PV_diagram_head_end_data()
+        volume_CE, pressure_CE = self.get_PV_diagram_crank_end_data()
 
         if volume_HE is None:
             return
-        
-        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
-        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", self.pressure_unit)
 
         x_label = "Volume [m³]"
         y_label = f"Pressure [{self.pressure_unit}]"
@@ -1017,11 +1133,9 @@ class ReciprocatingCompressorModel:
 
     def plot_PV_diagram_head_end(self):
 
-        volume_HE, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
+        volume_HE, pressure_HE = self.get_PV_diagram_head_end_data()
         if volume_HE is None:
             return
-
-        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
 
         x_label = "Volume [m³]"
         y_label = f"Pressure [{self.pressure_unit}]"
@@ -1031,11 +1145,9 @@ class ReciprocatingCompressorModel:
 
     def plot_PV_diagram_crank_end(self):
 
-        volume_CE, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
+        volume_CE, pressure_CE = self.get_PV_diagram_crank_end_data()
         if volume_CE is None:
             return
-
-        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", self.pressure_unit)
 
         x_label = "Volume [m³]"
         y_label = f"Pressure [{self.pressure_unit}]"
@@ -1048,12 +1160,12 @@ class ReciprocatingCompressorModel:
         _, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
         _, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
         
-        Trev = 60 / self.rpm
-        N = len(pressure_HE)
-        time = np.linspace(0, Trev, N)
-
-        if pressure_HE is None:
+        if pressure_HE_Pa is None:
             return
+
+        Trev = 60 / self.rpm
+        N = len(pressure_HE_Pa)
+        time = np.linspace(0, Trev, N)
 
         pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
         pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", self.pressure_unit)
@@ -1080,7 +1192,7 @@ class ReciprocatingCompressorModel:
         time = np.linspace(0, Trev, N)
 
         x_label = "Time [s]"
-        y_label = f"Volume [m³]"
+        y_label = "Volume [m³]"
         x_data = [time, time]
         y_data = [volume_HE, volume_CE]
         labels = ["Head End", "Crank End"]
@@ -1092,15 +1204,10 @@ class ReciprocatingCompressorModel:
 
     def plot_volumetric_flow_rate_at_suction_time(self):
 
-        flow_rate = self.process_sum_of_volumetric_flow_rate('in_flow')
+        time, flow_rate = self.get_volumetric_flow_rate_at_suction_time_data()
         if flow_rate is None:
             return
 
-        Trev = 60 / self.rpm
-        N = len(flow_rate)
-
-        time = np.linspace(0, Trev, N)
-        # angle = np.linspace(0, 2*pi, N)
         x_label = "Time [s]"
         y_label = "Volume [m³/s]"
         title = "Volumetric flow rate at suction"
@@ -1110,14 +1217,9 @@ class ReciprocatingCompressorModel:
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
 
-        flow_rate = self.process_sum_of_volumetric_flow_rate('out_flow')
+        time, flow_rate = self.get_volumetric_flow_rate_at_discharge_time_data()
         if flow_rate is None:
             return
-
-        Trev = 60 / self.rpm
-        N = len(flow_rate)
-        time = np.linspace(0, Trev, N)
-        angle = np.linspace(0, 2*pi, N)
 
         x_label = "Time [s]"
         y_label = "Volume [m³/s]"
@@ -1127,61 +1229,34 @@ class ReciprocatingCompressorModel:
 
     def plot_rod_pressure_load_frequency(self, revolutions):
 
-        _, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
-        _, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
-
-        load_head = pressure_HE_Pa * self.area_head_end
-        load_crank = -pressure_CE_Pa * self.area_crank_end
-
-        # convert the calculate force in kN
-        rod_pressure_load_time = (load_head + load_crank) / 1000
-
-        freq, rod_pressure_load = self.process_FFT_of_(rod_pressure_load_time, revolutions)
-        mask = freq <= self.max_frequency
-        freq = freq[mask]
-        rod_pressure_load = rod_pressure_load[mask]
+        freq, rod_pressure_load = self.get_rod_pressure_load_frequency_data(revolutions)
 
         x_label = "Frequency [Hz]"
         y_label = "Rod pressure load [kN]"
         title = "Rod pressure load"
-        
-        plot(freq, rod_pressure_load, x_label, y_label, title, _absolute=True)  
+
+        plot(freq, rod_pressure_load, x_label, y_label, title, _absolute=True)
 
     def plot_rod_pressure_load_time(self):
 
-        _, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
-        _, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
+        time, rod_pressure_load_time = self.get_rod_pressure_load_time_data()
 
-        load_head = pressure_HE_Pa * self.area_head_end
-        load_crank = -pressure_CE_Pa * self.area_crank_end
-
-        # convert the calculate force in kN
-        rod_pressure_load_time = (load_head + load_crank) / 1000
-
-        Trev = 60 / self.rpm
-        N = len(rod_pressure_load_time)
-        time = np.linspace(0, Trev, N)
-        
         x_label = "Time [s]"
         y_label = "Rod pressure load [kN]"
         title = "Rod pressure load"
-        
-        plot(time, rod_pressure_load_time, x_label, y_label, title, _absolute=True) 
+
+        plot(time, rod_pressure_load_time, x_label, y_label, title, _absolute=True)
+
 
     def plot_piston_position_and_velocity(self, tdc=None, domain="time"):
 
-        _, x = self.recip_x(tdc=tdc)
-        v = self.recip_v(tdc=tdc)
-        Trev = 60 / self.rpm
-        N = len(x)
+        x_data, x, v = self.get_piston_position_and_velocity_data()
 
         if domain == "time":
             x_label = "Time [s]"
-            x_data = np.linspace(0, Trev, N)
 
         else:
             x_label = "Angle [deg]"
-            x_data = np.linspace(0, 360, N)
 
         data = dict()
         data["Piston position"] = { 
@@ -1216,7 +1291,7 @@ class ReciprocatingCompressorModel:
 
     def plot_volumetric_flow_rate_at_suction_frequency(self, revolutions):
 
-        freq, flow_rate = self.process_FFT_of_volumetric_flow_rate(revolutions, 'in_flow')
+        freq, flow_rate = self.get_volumetric_flow_rate_at_suction_frequency_data(revolutions)
         if flow_rate is None:
             return
 
@@ -1228,7 +1303,7 @@ class ReciprocatingCompressorModel:
 
     def plot_volumetric_flow_rate_at_discharge_frequency(self, revolutions):
 
-        freq, flow_rate = self.process_FFT_of_volumetric_flow_rate(revolutions, 'out_flow')
+        freq, flow_rate = self.get_volumetric_flow_rate_at_discharge_frequency_data(revolutions)
         if flow_rate is None:
             return
 
@@ -1239,13 +1314,8 @@ class ReciprocatingCompressorModel:
         plot(freq, flow_rate, x_label, y_label, title, _absolute=True)
 
     def plot_head_end_pressure_vs_angle(self):
-        
-        _, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
 
-        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
-        
-        N = len(pressure_HE)
-        angle = np.linspace(0, 360, N)
+        angle, pressure_HE = self.get_pressure_head_end_angle_data()
 
         x_label = "Crank angle [degree]"
         y_label = f"Pressure [{self.pressure_unit}]"
@@ -1255,10 +1325,7 @@ class ReciprocatingCompressorModel:
 
     def plot_head_end_volume_vs_angle(self):
 
-        volume_HE, _, _ = self.process_head_end_volumes_and_pressures()
-
-        N = len(volume_HE)
-        angle = np.linspace(0, 360, N)
+        angle, volume_HE = self.get_volume_head_end_angle_data()
 
         x_label = "Crank angle [degree]"
         y_label = "Volume [m³]"
@@ -1268,12 +1335,7 @@ class ReciprocatingCompressorModel:
 
     def plot_crank_end_pressure_vs_angle(self):
 
-        _, pressure_CE_Pa, _ = self.process_head_end_volumes_and_pressures()
-
-        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", self.pressure_unit)
-
-        N = len(pressure_CE)
-        angle = np.linspace(0, 360, N)
+        angle, pressure_CE = self.get_pressure_crank_end_angle_data()
 
         x_label = "Crank angle [degree]"
         y_label = f"Pressure [{self.pressure_unit}]"
@@ -1283,10 +1345,7 @@ class ReciprocatingCompressorModel:
 
     def plot_crank_end_volume_vs_angle(self):
 
-        volume_CE, _, _ = self.process_crank_end_volumes_and_pressures(acting_label="CE")
-
-        N = len(volume_CE)
-        angle = np.linspace(0, 360, N)
+        angle, volume_CE = self.get_volume_crank_end_angle_data()
 
         x_label = "Crank angle [degree]"
         y_label = "Volume [m³]"

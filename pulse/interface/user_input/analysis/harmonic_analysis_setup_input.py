@@ -56,7 +56,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         self.lineEdit_modes_to_expand.setVisible(not direct_method)
 
         if direct_method:
-            self.lineEdit_modes_to_expand.setText("")
+            self.lineEdit_modes_to_expand.clear()
             return
 
         analysis_setup = app().project.file.read_analysis_setup_from_file()

@@ -29,6 +29,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
         self.build()
         self.configure_appearance()
+        self.UseBoundsOff()
 
     def build(self):
         nodal_properties = app().project.model.properties.nodal_properties
@@ -187,6 +188,9 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
         ]
 
         for axis, mask in zip(axes, axes_mask):
+            if isinstance(mask, np.ndarray):
+                mask = mask.any()
+
             if mask:
                 self.add_symbol(shape_name, position, np.real(mask) * axis, color, size)
 

@@ -16,6 +16,9 @@ from vtkmodules.vtkRenderingCore import vtkActor, vtkGlyph3DMapper
 from pulse import app
 from pulse.utils.interface_utils import ColorMode
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
+from pulse.model.acoustic_element import AcousticElement
+from pulse.model.structural_element import StructuralElement
+from pulse.model.cross_section import CrossSection
 
 
 class TubeActor(vtkActor):
@@ -68,7 +71,6 @@ class TubeActor(vtkActor):
         colors.Fill(255)
         colors.SetName("colors")
 
-
         section_index = dict()
         for element in visible_elements.values():
             points.InsertNextPoint(self.get_element_coordinates(element))
@@ -107,17 +109,17 @@ class TubeActor(vtkActor):
         
         self.clear_colors()
 
-    def get_element_coordinates(self, element) -> tuple[float, float, float]:
+    def get_element_coordinates(self, element: AcousticElement | StructuralElement) -> tuple[float, float, float]:
         return element.first_node.coordinates
 
-    def get_element_rotations(self, element) -> tuple[float, float, float]:
+    def get_element_rotations(self, element: AcousticElement | StructuralElement) -> tuple[float, float, float]:
         return element.section_rotation_xyz_undeformed
 
-    def create_element_data(self, element):
+    def create_element_data(self, element: AcousticElement | StructuralElement):
         cross_section = element.cross_section
-        if cross_section is None:
+        if not isinstance(cross_section, CrossSection):
             return vtkPolyData()
-        
+
         tube_sides = self._get_tube_sides()
         length = element.length
 
@@ -127,9 +129,7 @@ class TubeActor(vtkActor):
 
         elif cross_section.section_type_label == "rectangular_beam":
             b, h, b_in, h_in, offset_y, offset_z, *_ = element.section_parameters_render
-            t0 = (b - b_in) / 2
-            t1 = (h - h_in) / 2
-            return cross_section_sources.rectangular_beam_data(length, b, h, t0, t1, offset_y=offset_y, offset_z=offset_z)
+            return cross_section_sources.rectangular_beam_data(length, b, h, b_in, h_in, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "circular_beam":
             d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
@@ -324,18 +324,8 @@ class TubeActor(vtkActor):
         if source is None:
             return vtkPolyData()
 
-        transform = vtkTransform()
-        transform.RotateZ(-90)
-        transform.RotateY(90)
-        transform.Update()
-
-        transform_filter = vtkTransformFilter()
-        transform_filter.SetInputData(source)
-        transform_filter.SetTransform(transform)
-        transform_filter.Update()
-
         normals_filter = vtkPolyDataNormals()
-        normals_filter.AddInputData(transform_filter.GetOutput())
+        normals_filter.AddInputData(source)
         normals_filter.Update()
 
         return normals_filter.GetOutput()

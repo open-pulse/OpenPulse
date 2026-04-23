@@ -1,55 +1,68 @@
 
-from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QFileDialog, QMessageBox
-from PySide6.QtCore import Qt, Signal, QEvent, QPoint
-from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
-
-from molde.render_widgets import CommonRenderWidget
-from molde import stylesheets
-from molde.colors import color_names
-
-# TODO: remove this import
-from pulse import (
-    app,
-    UI_DIR,
-    QSS_DIR,
-    USER_PATH,
-    TEMP_PROJECT_DIR,
-)
-from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
-
-from pulse.interface.formatters import icons
-from pulse.interface.auxiliar.file_dialog import FileDialog
-from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.handler.pcf_file_io import PCFFileIO
-from pulse.interface.welcome_widget import WelcomeWidget
-from pulse.interface.menu.model_setup_widget import ModelSetupWidget
-from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
-from pulse.interface.others.status_bar import StatusBar
-from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
-from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
-from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
-from pulse.interface.user_input.input_ui import InputUi
-from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-from pulse.interface.user_input.project.new_project import NewProjectInput
-from pulse.interface.user_input.project.reset_project import ResetProjectInput
-from pulse.interface.user_input.project.import_geometry import ImportGeometry
-from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
-from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
-from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
-from pulse.interface.user_input.project.loading_window import LoadingWindow
-from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
-from pulse.utils.interface_utils import VisualizationFilter, SelectionFilter, ColorMode
-
 import logging
 import os
-
 from functools import partial
 from pathlib import Path
 from shutil import rmtree
 from sys import argv
 from time import time
+
+from molde import stylesheets
+from molde.colors import color_names
+from molde.render_widgets import CommonRenderWidget
+from PySide6.QtCore import QEvent, QPoint, Qt, Signal
+from PySide6.QtGui import QAction, QCloseEvent, QColor, QCursor
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QDialog,
+    QMessageBox,
+)
+
+# TODO: remove this import
+# TODO: remove this import
+from pulse import (
+    QSS_DIR,
+    TEMP_PROJECT_DIR,
+    UI_DIR,
+    USER_PATH,
+    app,
+)
+from pulse.interface.formatters import icons
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.handler.pcf_file_io import PCFFileIO
+from pulse.interface.menu.model_setup_widget import ModelSetupWidget
+from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+from pulse.interface.others.status_bar import StatusBar
+from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
+from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
+from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
+from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
+from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.input_ui import InputUi
+from pulse.interface.user_input.model.geometry.geometry_designer_widget import (
+    GeometryDesignerWidget,
+)
+from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
+from pulse.interface.user_input.project.import_geometry import ImportGeometry
+from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.user_input.project.new_project import NewProjectInput
+from pulse.interface.user_input.project.reset_project import ResetProjectInput
+from pulse.interface.user_input.project.save_project_data_selector import (
+    SaveProjectDataSelector,
+)
+from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
+from pulse.interface.viewer_3d.render_widgets import (
+    GeometryRenderWidget,
+    MeshRenderWidget,
+    ResultsRenderWidget,
+)
+from pulse.interface.welcome_widget import WelcomeWidget
+from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter
 
 
 class MainWindow(MainWindow_UI):
@@ -175,9 +188,6 @@ class MainWindow(MainWindow_UI):
 
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
 
-    def create_file_dialog(self):
-        self.file_dialog = FileDialog()
-
     def configure_window(self):
         t0 = time()
         # self._load_stylesheets()
@@ -210,7 +220,6 @@ class MainWindow(MainWindow_UI):
         self.showMaximized()
 
         app().processEvents()
-        self.create_file_dialog()
         dt = time() - t0
         # print(f"Time to process D: {round(dt, 6)} [s]")
 
@@ -261,8 +270,8 @@ class MainWindow(MainWindow_UI):
         return True
     
     def filter_tab_scroll_by_wheel(self):
+        from PySide6.QtCore import QEvent, QObject
         from PySide6.QtWidgets import QTabBar
-        from PySide6.QtCore import QObject, QEvent
 
         class Filter(QObject):
             def eventFilter(self, obj, event):
@@ -305,13 +314,10 @@ class MainWindow(MainWindow_UI):
         if last_path is None:
             last_path = str(Path().home())
 
-        path, check = self.file_dialog.get_save_file_name(
-                                                            'Export geometry file', 
-                                                            last_path, 
-                                                            'Geometry File (*.step)'
-                                                          )
-
-        if not check:
+        extensions = ["step"]
+        path = FileDialogService.save_file(extensions, "Export geometry file", last_path)
+    
+        if path is None:
             return
 
         geometry_handler = GeometryHandler(app().project)
@@ -319,6 +325,7 @@ class MainWindow(MainWindow_UI):
 
     # public
     def update_plots(self, reset_camera=True):
+        self.model_setup_widget.model_setup_items.update_items_apperence()
         self.project.enhance_pipe_sections_appearance()
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)
@@ -457,9 +464,8 @@ class MainWindow(MainWindow_UI):
                 # dt = time() - t0
                 # print(f"initial_project_action: {round(dt, 6)} s")
                 return True
-            else:
-                self.model_and_analysis_items.modify_geometry_item_access(False)
-                return True
+
+            return True
 
         self.project.none_project_action = True
         return False
@@ -873,7 +879,7 @@ class MainWindow(MainWindow_UI):
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            self.icon_color = QColor(color_names.BLUE_6.to_hex())
+            self.icon_color = QColor(color_names.BLUE_7.to_hex())
 
         elif theme == "light":
             self.icon_color = QColor(color_names.BLUE_4.to_hex())
@@ -897,13 +903,10 @@ class MainWindow(MainWindow_UI):
         if last_path is None:
             last_path = str(Path().home())
 
-        path, check = self.file_dialog.get_save_file_name(
-                                                          'Save Captured Image', 
-                                                          last_path, 
-                                                          'PNG File (*.png)'
-                                                          )
+        extensions = ["png"]
+        path = FileDialogService.save_file(extensions, "Save Captured Image", last_path)
 
-        if not check:
+        if path is None:
             return
 
         # TODO: reimplement this
@@ -1018,13 +1021,10 @@ class MainWindow(MainWindow_UI):
         if last_path is None:
             last_path = str(Path().home())
 
-        project_path, check = self.file_dialog.get_open_file_name(
-                                                                  "Open Project", 
-                                                                  last_path, 
-                                                                  filter = "Pulse File (*.pulse)"
-                                                                  )
+        extensions = ["pulse"]
+        project_path = FileDialogService.open_file(extensions, "Open Project", last_path)
 
-        if not check:
+        if project_path is None:
             return True
 
         self.open_project(project_path)
@@ -1039,28 +1039,26 @@ class MainWindow(MainWindow_UI):
 
     def save_project_as_dialog(self):
         obj = SaveProjectDataSelector()
-        if obj.complete:
+        if not obj.complete:
+            return obj.complete
 
-            last_path = self.config.get_last_folder_for("project_folder")
-            if last_path is None:
-                last_path = str(Path.home())
+        last_path = self.config.get_last_folder_for("project_folder")
+        if last_path is None:
+            last_path = str(Path.home())
 
-            file_path, check = self.file_dialog.get_save_file_name(
-                                                                   "Save As",
-                                                                   last_path,
-                                                                   filter = "Pulse File (*.pulse)",
-                                                                   )
+        extensions = ["pulse"]
+        file_path = FileDialogService.save_file(extensions, "Save As", last_path)
 
-            if not check:
-                return
+        if file_path is None:
+            return obj.complete
 
-            if obj.ignore_results_data:
-                app().project.file.remove_results_data_from_project_file()
+        if obj.ignore_results_data:
+            app().project.file.remove_results_data_from_project_file()
 
-            if obj.ignore_mesh_data:
-                app().project.file.remove_mesh_data_from_project_file()
+        if obj.ignore_mesh_data:
+            app().project.file.remove_mesh_data_from_project_file()
 
-            self.save_project_as(file_path)
+        self.save_project_as(file_path)
 
         return obj.complete
 
@@ -1070,8 +1068,8 @@ class MainWindow(MainWindow_UI):
 
             logging.info("Saving the project data... [10%]")
 
-            from time import sleep
             from datetime import datetime
+            from time import sleep
 
             path = Path(path)
             self.project.name = path.stem
@@ -1100,19 +1098,17 @@ class MainWindow(MainWindow_UI):
         self.capture_image()
     
     def capture_image(self):
-        path, check = QFileDialog.getSaveFileName(
-            self,
-            "PNG",
-            filter="PNG (*.png)",
-        )
+        extensions = ["png"]
+
+        path = FileDialogService.save_file(extensions, "PNG")
         
-        if not check:
+        if path is None:
             return
 
         widget = self.render_widgets_stack.currentWidget()
         if isinstance(widget, CommonRenderWidget):
             image = widget.get_screenshot()
-            with open(path, "wb") as file:
+            with open(str(path), "wb") as file:
                 image.save(file)
 
     def update_window_title(self, project_path : str | Path):
