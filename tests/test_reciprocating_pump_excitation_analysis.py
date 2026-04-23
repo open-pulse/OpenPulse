@@ -1,20 +1,16 @@
-
-from pulse import TEMP_PROJECT_DIR
 from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
-from pulse.model.cross_section import CrossSection, get_beam_section_properties
+from pulse.model.cross_section import CrossSection
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
-import os
-import pytest
 import numpy as np
 
 from pathlib import Path
 
 
-def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
+def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Initialize a project
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=datadir)
@@ -278,9 +274,6 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
     assert np.any(np.abs(acoustic_solution) > 0), "Acoustic solution is all zeros"
     assert np.all(np.isfinite(acoustic_solution)), "Non-finite values in acoustic solution"
 
-    ## Uncomment the following function to remove the created files from the temp_pulse folder
-    # remove_files_from_temporary_folder()
-
 
 def create_fluids():
 
@@ -462,23 +455,3 @@ def save_table_values(project: Project, table_name: str, frequencies: np.ndarray
     data = np.array([frequencies, real_values, imag_values], dtype=float).T
 
     project.model.properties.add_imported_tables("acoustic", table_name, data)
-
-
-def remove_files_from_temporary_folder():
-
-    from pulse import TEMP_PROJECT_DIR
-    from shutil import rmtree
-    from os import path, remove, listdir
-
-    if TEMP_PROJECT_DIR.exists():
-        for filename in listdir(TEMP_PROJECT_DIR).copy():
-            file_path = TEMP_PROJECT_DIR / filename
-            if path.exists(file_path):
-                if "." in filename:
-                    remove(file_path)
-                else:
-                    rmtree(file_path)
-
-
-if __name__ == "__main__":
-    test_reciprocating_pump_excitation_analysis()
