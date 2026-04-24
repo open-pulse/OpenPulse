@@ -203,7 +203,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             # this makes the valve handle always point up
             angle = 0
             if vector[0] < 0:
-                angle = -180
+                angle = -np.pi
 
             valve_info = data["valve_info"]
             outside_diameter, thickness, offset_y, offset_z, *_ = valve_info["body_section_parameters"]
@@ -220,13 +220,23 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 offset_z=offset_z,
             )
 
+            # Every valve is different, thus we need a different function for each one.
+            # Since the position and rotation are already handled by the function, we
+            # pass the default values (0, 0, 0) and (1, 0, 0) for the add_symbol method.
             func = partial(
-                transform_polydata,
+                align_vtk_geometry,
                 source,
-                rotation=(angle, 0, 0),
+                coords_a,
+                vector,
+                angle,
             )
 
-            self.add_symbol(func, coords_a, vector, color_names.PINK_6)
+            self.add_symbol(
+                func,
+                (0, 0, 0),
+                (1, 0, 0),
+                color_names.PINK_6,
+            )
 
     def configure_appearance(self):
         self.set_zbuffer_offsets(1, -6600)
