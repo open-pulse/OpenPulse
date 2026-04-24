@@ -7,6 +7,18 @@ from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from pulse.utils.common_utils import transformation_matrix_3x3
 
 
+def get_rotation_matrix(vector: np.ndarray, angle=0.):
+
+    # compute the transformation matrix
+    transformation_matrices = transformation_matrix_3x3( 
+        vector[0],
+        vector[1],
+        vector[2],
+        gamma = angle,
+        )
+    
+    return transformation_matrices
+
 def align_y_rotations(vector):
     "https://www.fundza.com/mel/axis_to_vector/index.html"
 
@@ -39,15 +51,10 @@ def align_vtk_geometry(geometry: vtkPolyData, start: np.ndarray, vector: np.ndar
     x, y, z = start
 
     # compute the transformation matrix
-    transformation_matrices = transformation_matrix_3x3( 
-        vector[0],
-        vector[1],
-        vector[2],
-        gamma = angle,
-        )
+    transf_matrices = get_rotation_matrix(vector, angle=angle)
 
     # compute the rotation matrix
-    rot_matrix = Rotation.from_matrix(transformation_matrices)
+    rot_matrix = Rotation.from_matrix(transf_matrices)
 
     # compute the rotation angles rz, rx and ry in degrees
     rz, rx, ry = -rot_matrix.as_euler('zxy', degrees=True)

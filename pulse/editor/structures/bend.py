@@ -10,12 +10,16 @@ class Bend(Fillet):
         self.diameter = kwargs.get("diameter", 0.1)
         self.thickness = kwargs.get("thickness", 0.01)
         self.center_coords = kwargs.get("center_coords")
+        self.offset_y = kwargs.get("offset_y", 0.)
+        self.offset_z = kwargs.get("offset_z", 0.)
         self.color = PURPLE_7
 
     def as_dict(self) -> dict:
         return super().as_dict() | {
             "diameter": self.diameter,
             "thickness": self.thickness,
+            "offset_y": self.offset_y,
+            "offset_z": self.offset_z,
         }
 
     def as_vtk(self):
@@ -39,6 +43,8 @@ class Bend(Fillet):
             center_coords=center_coords,
             diameter=section_parameters[0],
             thickness=section_parameters[1],
+            offset_y=section_parameters[2],
+            offset_z=section_parameters[3],
         )
 
         # This should not be necessary anymore
