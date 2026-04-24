@@ -22,6 +22,8 @@ from pulse.utils.common_utils import (
     transformation_matrix_Nx3x3_by_angles,
 )
 
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+
 if TYPE_CHECKING:
     from pulse.model.mesh import Mesh
 
@@ -880,8 +882,8 @@ class Preprocessor:
                 for element in slicer(self.structural_elements, _element):
                     element.cross_section = _cross_section
                     element.variable_section = variable_section
-                    if not sections_mapping:
-                        element.section_parameters_render = _cross_section.section_parameters
+                    # if not sections_mapping:
+                    #     element.section_parameters_render = _cross_section.section_parameters
 
                 for element in slicer(self.acoustic_elements, _element):
                     element.cross_section = _cross_section
@@ -891,8 +893,8 @@ class Preprocessor:
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
                 element.variable_section = variable_section
-                if not sections_mapping:
-                    element.section_parameters_render = cross_section.section_parameters
+                # if not sections_mapping:
+                #     element.section_parameters_render = cross_section.section_parameters
 
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
@@ -920,17 +922,26 @@ class Preprocessor:
             line_ids = [line_ids]
 
         if isinstance(section_data, dict):
+            
+            section_parameters = section_data.get("section_parameters")
+            if section_parameters is None:
+                return
+            
+            if len(section_parameters) != 10:
+                return
 
-            [   outer_diameter_initial, 
-                thickness_initial, 
-                offset_y_initial, 
+            [
+                outer_diameter_initial,
+                thickness_initial,
+                offset_y_initial,
                 offset_z_initial,
-                outer_diameter_final, 
-                thickness_final, 
-                offset_y_final, 
+                outer_diameter_final,
+                thickness_final,
+                offset_y_final,
                 offset_z_final,
-                insulation_thickness, 
-                insulation_density   ] = section_data["section_parameters"]
+                insulation_thickness,
+                insulation_density,
+            ] = section_parameters
 
             for line_id in line_ids:
                 elements_from_line = self.mesh.elements_from_line[line_id]
@@ -964,37 +975,50 @@ class Preprocessor:
                 # cross_sections_last = list()
 
                 for index, element_id in enumerate(elements_from_line):
-                    
+
                     element = self.structural_elements[element_id]
                     first_node = element.first_node
                     last_node = element.last_node
 
                     section_parameters_first = [
-                                                outer_diameter_first[index],
-                                                thickness_first[index],
-                                                offset_y_first[index],
-                                                offset_z_first[index],
-                                                insulation_thickness,
-                                                insulation_density
-                                                ]
-
-                    pipe_section_info_first = { "section_type_label" : "reducer" ,
-                                                "section_parameters" : section_parameters_first }
+                        outer_diameter_first[index],
+                        thickness_first[index],
+                        offset_y_first[index],
+                        offset_z_first[index],
+                        insulation_thickness,
+                        insulation_density,
+                        "reducer",
+                        ]
 
                     section_parameters_last = [
-                                                outer_diameter_last[index],
-                                                thickness_last[index],
-                                                offset_y_last[index],
-                                                offset_z_last[index],
-                                                insulation_thickness,
-                                                insulation_density
-                                            ]
+                        outer_diameter_last[index],
+                        thickness_last[index],
+                        offset_y_last[index],
+                        offset_z_last[index],
+                        insulation_thickness,
+                        insulation_density,
+                        "reducer",
+                        ]
 
-                    pipe_section_info_last = { "section_type_label" : "reducer" ,
-                                                "section_parameters" : section_parameters_last }
+                    # pipe_section_info_first = { 
+                    #     "section_type_label" : "reducer" ,
+                    #     "section_parameters" : section_parameters_first,
+                    #     }
 
-                    cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
-                    cross_section_last = CrossSection(pipe_section_info = pipe_section_info_last)
+                    # pipe_section_info_last = { 
+                    #     "section_type_label" : "reducer" ,
+                    #     "section_parameters" : section_parameters_last,
+                    #     }
+
+                    cross_section_first = CrossSection(
+                        element_type = "pipe_1",
+                        pipe_section_info = PipeCrossSection(*section_parameters_first),
+                    )
+
+                    cross_section_last = CrossSection(
+                        element_type = "pipe_1",
+                        pipe_section_info = PipeCrossSection(*section_parameters_last),
+                    )
 
                     cross_sections_first.append(cross_section_first)
                     # cross_sections_last.append(cross_section_last)
@@ -1002,9 +1026,11 @@ class Preprocessor:
                     first_node.cross_section = cross_section_first
                     last_node.cross_section = cross_section_last
 
-                self.set_cross_section_by_elements( elements_from_line,
-                                                    cross_sections_first,
-                                                    variable_section = True )
+                self.set_cross_section_by_elements( 
+                    elements_from_line,
+                    cross_sections_first,
+                    variable_section = True,
+                    )
 
     def set_cross_sections_to_valve_elements(self, line_id: int, data: dict):
 

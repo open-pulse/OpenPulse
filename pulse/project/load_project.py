@@ -7,6 +7,14 @@ from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
+from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
+from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
+
 if TYPE_CHECKING:
     from pulse.project.project import Project
 
@@ -129,10 +137,12 @@ class LoadProject:
                 section_type_label = self.fix_data_for_backwards_compatibility(data)
 
                 if data.get("structure_name") in ["pipe", "bend", "arc_bend", "flange"]:
-                    pipe_section_info = {   
-                        "section_type_label" : section_type_label,
-                        "section_parameters" : data["section_parameters"],
-                        }
+                    # pipe_section_info = {   
+                    #     "section_type_label" : section_type_label,
+                    #     "section_parameters" : data["section_parameters"],
+                    #     }
+
+                    pipe_section_info = PipeCrossSection(*data["section_parameters"])
 
                     self.cross_sections[line_id] = CrossSection(
                         element_type = "pipe_1",
@@ -140,11 +150,29 @@ class LoadProject:
                     )
 
                 elif "section_properties" in data.keys():
-                    beam_section_info = {   
-                        "section_type_label" : section_type_label,
-                        "section_parameters" : data["section_parameters"],
-                        "section_properties" : data["section_properties"],
-                        }
+
+                    section_parameters = data["section_parameters"]
+                    match section_type_label:
+                        case "circular_beam":
+                            beam_section_info = CircularBeamCrossSection(*section_parameters)
+                        case "rectangular_beam":
+                            beam_section_info = RectangularBeamCrossSection(*section_parameters)
+                        case "c_beam":
+                            beam_section_info = CBeamCrossSection(*section_parameters)
+                        case "i_beam":
+                            beam_section_info = IBeamCrossSection(*section_parameters)
+                        case "t_beam":
+                            beam_section_info = TBeamCrossSection(*section_parameters)
+                        case "generic_beam":
+                            beam_section_info = GenericBeamCrossSection(*section_parameters)
+                        case _:
+                            continue
+
+                    # beam_section_info = {   
+                    #     "section_type_label" : section_type_label,
+                    #     "section_parameters" : data["section_parameters"],
+                    #     "section_properties" : data["section_properties"],
+                    #     }
 
                     self.cross_sections[line_id] = CrossSection(
                         element_type = "beam_1",

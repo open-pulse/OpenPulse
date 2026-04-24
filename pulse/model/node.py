@@ -1,4 +1,5 @@
 import numpy as np
+from pulse.model.cross_section import CrossSection
 
 DOF_PER_NODE_STRUCTURAL = 6
 DOF_PER_NODE_ACOUSTIC = 1
@@ -50,7 +51,7 @@ class Node:
         self.nodal_solution_gcs = None
         self.static_nodal_solution_gcs = None
         self.acoustic_solution = None
-        self.cross_section = None
+        self.cross_section: CrossSection = None
 
     @property
     def coordinates(self):

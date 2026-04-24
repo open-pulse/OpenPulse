@@ -17,10 +17,19 @@ from pulse.interface.user_input.model.setup.structural.get_standard_cross_sectio
 from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import (
-    get_beam_section_properties,
+    # get_beam_section_properties,
     get_points_to_plot_section,
 )
 from pulse.utils.interface_utils import check_inputs
+
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.variable_pipe_cross_section import VariablePipeCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
+from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
+from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
 
 
 class TabIndex(IntEnum):
@@ -28,6 +37,14 @@ class TabIndex(IntEnum):
     BEAM = 1
     ACTIVE_SECTIONS = 2
 
+
+class BeamType(IntEnum):
+    RECTANGULAR_BEAM = 0
+    CIRCULAR_BEAM = 1
+    C_BEAM = 2
+    I_BEAM = 3
+    T_BEAM = 4
+    GENERIC_BEAM = 5
 
 error_title = "Error"
 
@@ -60,7 +77,7 @@ class CrossSectionWidget(CrossSectionWidget_UI):
         self.section_parameters = None
         self.section_properties = None
         self.beam_section_info = None
-        self.pipe_section_info = dict()
+        self.pipe_section_info = None
 
         self.complete = False
  
@@ -201,8 +218,8 @@ class CrossSectionWidget(CrossSectionWidget_UI):
     def get_constant_section_pipe_parameters(self):
 
         self.section_type_label = None
+        self.pipe_section_info = None
         self.section_parameters = list()
-        self.pipe_section_info.clear()
 
         outside_diameter = check_inputs(self.lineEdit_outside_diameter, 'outside diameter')
         if outside_diameter is None:
@@ -253,10 +270,15 @@ class CrossSectionWidget(CrossSectionWidget_UI):
         if len(self.section_parameters) == 6:
             
             self.section_type_label = "pipe"
-            self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
-                                        "section_parameters" : self.section_parameters  }
+            # self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
+            #                             "section_parameters" : self.section_parameters  }
+            
+            self.pipe_section_info = PipeCrossSection(*self.section_parameters)
 
     def get_variable_section_pipe_parameters(self):
+
+        self.section_type_label = None
+        self.pipe_section_info = None
 
         message = ""
 
@@ -326,27 +348,32 @@ class CrossSectionWidget(CrossSectionWidget_UI):
             return True
 
         self.variable_parameters = [
-                                    outside_diameter_initial,
-                                    thickness_initial,
-                                    offset_y_initial,
-                                    offset_z_initial,
-                                    outside_diameter_final,
-                                    thickness_final,
-                                    offset_y_final,
-                                    offset_z_final,
-                                    insulation_thickness,
-                                    insulation_density
-                                    ]
+            outside_diameter_initial,
+            thickness_initial,
+            offset_y_initial,
+            offset_z_initial,
+            outside_diameter_final,
+            thickness_final,
+            offset_y_final,
+            offset_z_final,
+            insulation_thickness,
+            insulation_density,
+        ]
 
         self.section_type_label = "reducer"
-        self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
-                                    "section_parameters" : self.variable_parameters  }
+        # self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
+        #                             "section_parameters" : self.variable_parameters  }
+
+        self.pipe_section_info = VariablePipeCrossSection(*self.variable_parameters)
+
 
     def get_beam_section_parameters(self):
 
+        self.beam_section_info = None
+
         tab_index = self.tabWidget_beam_section.currentIndex()
 
-        if tab_index == 0: # rectangular-beam
+        if tab_index == BeamType.RECTANGULAR_BEAM:
 
             self.section_type_label = "rectangular_beam"
 
@@ -392,8 +419,9 @@ class CrossSectionWidget(CrossSectionWidget_UI):
                 height_in = 0
 
             self.section_parameters = [base, height, base_in, height_in, offset_y, offset_z]
+            self.beam_section_info = RectangularBeamCrossSection(*self.section_parameters)
 
-        elif tab_index == 1: # circular-beam
+        elif tab_index == BeamType.CIRCULAR_BEAM:
 
             self.section_type_label = "circular_beam"
 
@@ -426,8 +454,9 @@ class CrossSectionWidget(CrossSectionWidget_UI):
                 return True
 
             self.section_parameters = [outside_diameter_beam, thickness, offset_y, offset_z]
+            self.beam_section_info = CircularBeamCrossSection(*self.section_parameters)
 
-        elif tab_index == 2: # c-beam
+        elif tab_index == BeamType.C_BEAM:
 
             self.section_type_label = "c_beam"
 
@@ -478,8 +507,9 @@ class CrossSectionWidget(CrossSectionWidget_UI):
                 return True
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
+            self.beam_section_info = CBeamCrossSection(*self.section_parameters)
 
-        elif tab_index == 3: # i-beam
+        elif tab_index == BeamType.I_BEAM:
 
             self.section_type_label = "i_beam"
 
@@ -530,8 +560,9 @@ class CrossSectionWidget(CrossSectionWidget_UI):
                 return True
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
+            self.beam_section_info = IBeamCrossSection(*self.section_parameters)
             
-        elif tab_index == 4: # t-beam
+        elif tab_index == BeamType.T_BEAM:
 
             self.section_type_label = "t_beam"
 
@@ -572,8 +603,9 @@ class CrossSectionWidget(CrossSectionWidget_UI):
                 return True
 
             self.section_parameters = [h, w1, t1, tw, offset_y, offset_z]
+            self.beam_section_info = TBeamCrossSection(*self.section_parameters)
 
-        elif tab_index == 5: # generic-section
+        elif tab_index == BeamType.GENERIC_BEAM:
 
             area = float(0)
             Iyy = float(0)
@@ -605,21 +637,25 @@ class CrossSectionWidget(CrossSectionWidget_UI):
                 message = "The shear factor must be less or equals to 1."
                 PrintMessageInput([error_title, title, message]) 
                 return True
-            else:  
+            else:
 
                 self.section_type_label = "generic_beam"
                 self.section_parameters = None
                 _section_properties = [area, Iyy, Izz, Iyz, shear_coefficient, 0, 0]
 
-        if tab_index == 5:
-            self.section_properties = get_beam_section_properties(self.section_type_label, _section_properties)
-            
-        else:
-            self.section_properties = get_beam_section_properties(self.section_type_label, self.section_parameters)
+                self.beam_section_info = GenericBeamCrossSection(*_section_properties)
 
-        self.beam_section_info = {  "section_type_label" : self.section_type_label,
-                                    "section_parameters" : self.section_parameters,
-                                    "section_properties" : self.section_properties  }
+        # if tab_index == 5:
+        #     self.section_properties = get_beam_section_properties(self.section_type_label, _section_properties)
+        #     self.beam_section_info = {  "section_type_label" : self.section_type_label,
+        #                                 "section_parameters" : self.section_parameters,
+        #                                 "section_properties" : self.section_properties  }
+        # else:
+        #     self.section_properties = get_beam_section_properties(self.section_type_label, self.section_parameters)
+
+        # self.beam_section_info = {  "section_type_label" : self.section_type_label,
+        #                             "section_parameters" : self.section_parameters,
+        #                             "section_properties" : self.section_properties  }
 
         return False
 
@@ -661,8 +697,18 @@ class CrossSectionWidget(CrossSectionWidget_UI):
                 return
 
         points = get_points_to_plot_section(self.section_type_label, self.section_parameters)
+        if isinstance(self.pipe_section_info, PipeCrossSection):
+            points = self.pipe_section_info.section_points_to_draw
+            section_type_label = self.pipe_section_info.section_type_label
 
-        plotter.plot_cross_section(points, self.section_type_label, self.section_type)
+        elif isinstance(self.beam_section_info, RectangularBeamCrossSection | CircularBeamCrossSection | CBeamCrossSection | IBeamCrossSection | TBeamCrossSection):
+            points = self.beam_section_info.section_points_to_draw
+            section_type_label = self.beam_section_info.section_type_label
+
+        else:
+            return
+
+        plotter.plot_cross_section(points, section_type_label)
         plotter.exec()
 
         self.show_dialog()

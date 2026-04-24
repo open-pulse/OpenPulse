@@ -140,6 +140,8 @@ class StructuralElement:
         self.stress_intensification: bool = kwargs.get('stress_intensification', True)
         self.turned_off: bool = kwargs.get("turned_off", False)
 
+        self.section_parameters_render = None
+
         self._initialize()
 
         self.reset_expansion_joint_data()
@@ -1048,8 +1050,8 @@ class StructuralElement:
         delta_ys = ys_2 - ys_1
         delta_zs = zs_2 - zs_1
 
-        offset_first = cross_section_first.offset
-        offset_last = cross_section_last.offset
+        offset_first = cross_section_first.offsets
+        offset_last = cross_section_last.offsets
 
         y1_offset, z1_offset = offset_first
         y2_offset, z2_offset = offset_last

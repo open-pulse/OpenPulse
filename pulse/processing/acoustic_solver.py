@@ -52,8 +52,8 @@ class AcousticSolver:
 
         self.solution = None
         self.modal_shapes = None
-        self.natural_frequencies = None
-        self.complex_natural_frequencies = None
+        self.natural_frequencies = np.ndarray([])
+        self.complex_natural_frequencies = np.ndarray([])
 
         self.convergence_data_log = None
 

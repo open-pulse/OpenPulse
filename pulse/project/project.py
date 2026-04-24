@@ -262,27 +262,27 @@ class Project:
 
                     thickness = (outer_diameter - inner_diameter) / 2
                     parameters = [  
-                                    outer_diameter, 
-                                    thickness, 
-                                    offset_y, 
-                                    offset_z, 
-                                    insulation_thickness
-                                  ]
+                        outer_diameter, 
+                        thickness, 
+                        offset_y, 
+                        offset_z, 
+                        insulation_thickness
+                    ]
 
                     element.section_parameters_render = parameters
 
     def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
 
         acoustic_properties = [
-                                "acoustic_pressure", 
-                                "volume_velocity", 
-                                "specific_impedance", 
-                                "radiation_impedance", 
-                                "reciprocating_compressor_excitation",
-                                "reciprocating_pump_excitation",
-                                "psd_acoustic_link",
-                                "acoustic_transfer_element"
-                                ]
+            "acoustic_pressure", 
+            "volume_velocity", 
+            "specific_impedance", 
+            "radiation_impedance", 
+            "reciprocating_compressor_excitation",
+            "reciprocating_pump_excitation",
+            "psd_acoustic_link",
+            "acoustic_transfer_element"
+        ]
 
         for (property, *args) in self.model.properties.nodal_properties.keys():
             if property in acoustic_properties and node_id in args:
