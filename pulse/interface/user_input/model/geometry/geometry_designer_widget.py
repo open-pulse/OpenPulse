@@ -689,6 +689,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.render_widget.update_plot(reset_camera=False)
         self.modified = True
         self._reset_xyz()
+        self._reset_length()
         self._update_permissions()
         self._update_information_text()
 
