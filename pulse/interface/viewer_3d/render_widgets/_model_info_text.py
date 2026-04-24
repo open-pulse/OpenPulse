@@ -275,8 +275,8 @@ def cross_section_info_text(
     if structural_element_type == "expansion_joint":
         if isinstance(expansion_joint_info, dict):
             effective_diameter = expansion_joint_info.get("effective_diameter")
-            offset_y = expansion_joint_info.get("offset_y")
-            offset_z = expansion_joint_info.get("offset_z")
+            offset_y = expansion_joint_info.get("offset_y", 0.)
+            offset_z = expansion_joint_info.get("offset_z", 0.)
 
             tree = TreeInfo("cross section (expansion joint)")
             tree.add_item("Effective diameter", round(effective_diameter, 6), "m")
@@ -289,8 +289,8 @@ def cross_section_info_text(
         if isinstance(valve_info, dict):
             effective_diameter = valve_info.get("valve_effective_diameter")
             thickness = valve_info.get("valve_wall_thickness")
-            offset_y = valve_info.get("offset_y")
-            offset_z = valve_info.get("offset_z")
+            offset_y = valve_info.get("offset_y", 0.)
+            offset_z = valve_info.get("offset_z", 0.)
             # insulation_thickness = valve_info.get("insulation_thickness", 0)
             # insulation_density = valve_info.get("insulation_density")
 
