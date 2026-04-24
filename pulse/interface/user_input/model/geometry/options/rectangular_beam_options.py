@@ -25,7 +25,8 @@ class RectangularBeamOptions(StructureOptions):
         return dict(
             width=parameters[0],
             height=parameters[1],
-            thickness=(parameters[0] - parameters[2]) / 2,
+            width_internal=parameters[2],
+            height_internal=parameters[3],
             offset_y=parameters[4],
             offset_z=parameters[5],
             extra_info=self._get_extra_info(),
@@ -48,7 +49,7 @@ class RectangularBeamOptions(StructureOptions):
             self.configure_structure()  # if it is invalid try again
             return
 
-        self.structure_info = self.cross_section_widget.beam_section_info
+        self.structure_info = self.cross_section_widget.beam_section_info._as_dict()
         self.configure_section_of_selected()
         self.update_permissions()
 

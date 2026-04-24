@@ -49,7 +49,7 @@ class TBeamOptions(StructureOptions):
             self.configure_structure()  # if it is invalid try again
             return
 
-        self.structure_info = self.cross_section_widget.beam_section_info
+        self.structure_info = self.cross_section_widget.beam_section_info._as_dict()
         self.configure_section_of_selected()
         self.update_permissions()
 
