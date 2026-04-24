@@ -219,7 +219,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 angle = -180
 
             valve_info = data["valve_info"]
-            outside_diameter, thickness, *_ = valve_info["body_section_parameters"]
+            outside_diameter, thickness, offset_y, offset_z, *_ = valve_info["body_section_parameters"]
             flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
             flange_length = valve_info["flange_length"]
 
@@ -229,6 +229,8 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 thickness,
                 flange_outer_diameter,
                 flange_length,
+                offset_y=offset_y,
+                offset_z=offset_z,
             )
 
             source = transform_polydata(

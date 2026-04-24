@@ -165,9 +165,9 @@ class TubeActor(vtkActor):
             return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "valve":
-            d_out, t, *_ = element.section_parameters_render
-            return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
-        
+            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
+
         else:
             logging.warn(f"Representation not found for section {cross_section.section_type_label}")
 

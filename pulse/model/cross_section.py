@@ -12,6 +12,7 @@ from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
 from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
 from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
+from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
 
 
 rows, cols = 4, 2
@@ -199,10 +200,10 @@ class CrossSection:
         self.poisson_ratio = kwargs.get('poisson_ratio', 0)
 
         # Input cluster data for pipe and beam sections 
-        self.pipe_section_info = kwargs.get('pipe_section_info', None)
+        self.pipe_section_info: PipeCrossSection = kwargs.get('pipe_section_info', None)
         self.beam_section_info = kwargs.get('beam_section_info', None)
         self.expansion_joint_info: ExpansionJointCrossSection = kwargs.get('expansion_joint_info', None)
-        self.valve_section_info: dict = kwargs.get('valve_section_info', None)
+        self.valve_section_info: ValveCrossSection = kwargs.get('valve_section_info', None)
 
         self.section_type_label: str = kwargs.get('section_label', None)
         self.section_parameters: dict = kwargs.get('section_parameters', None)
@@ -226,28 +227,25 @@ class CrossSection:
         if isinstance(self.beam_section_info, CircularBeamCrossSection | RectangularBeamCrossSection | CBeamCrossSection | IBeamCrossSection | TBeamCrossSection | GenericBeamCrossSection):
             self.load_beam_section_data()
 
-        if isinstance(self.valve_section_info, dict):
-            self.load_valve_section_data()
-
-        if self.expansion_joint_info is not None:
+        if isinstance(self.expansion_joint_info, ExpansionJointCrossSection):
             self.load_expansion_joint_data()
 
+        if isinstance(self.valve_section_info, ValveCrossSection):
+            self.load_valve_section_data()
+
     def load_pipe_section_data(self):
-
-        self.section_type_label = self.pipe_section_info.section_type_label
-        self.section_parameters = self.pipe_section_info.section_parameters
-
-        self.outer_diameter = self.pipe_section_info.d_out
-        self.thickness =  self.pipe_section_info.thickness
-        self.offset_y = self.pipe_section_info.offset_y
-        self.offset_z = self.pipe_section_info.offset_y
-        self.insulation_thickness = self.pipe_section_info.insulation_thickness
-        self.insulation_density = self.pipe_section_info.insulation_density
-
         self.section_info = self.pipe_section_info
+        self.section_type_label = self.section_info.section_type_label
+        self.section_parameters = self.section_info.section_parameters
+
+        self.outer_diameter = self.section_info.d_out
+        self.thickness =  self.section_info.thickness
+        self.offset_y = self.section_info.offset_y
+        self.offset_z = self.section_info.offset_y
+        self.insulation_thickness = self.section_info.insulation_thickness
+        self.insulation_density = self.section_info.insulation_density
 
     def load_beam_section_data(self):
-
         self.section_type_label = self.beam_section_info.section_type_label
         self.section_parameters = self.beam_section_info.section_parameters
         self.section_properties = self.beam_section_info.section_properties
@@ -265,58 +263,22 @@ class CrossSection:
 
         self.section_info = self.beam_section_info
 
-    def load_pipe_section_data_old(self):
-
-        self.section_type_label = self.pipe_section_info["section_type_label"]
-        self.section_parameters = self.pipe_section_info["section_parameters"]
-
+    def load_expansion_joint_data(self):
+        self.section_type_label = self.expansion_joint_info.section_type_label
+        self.section_parameters = self.expansion_joint_info.section_parameters
         self.outer_diameter = self.section_parameters[0]
-        self.thickness =  self.section_parameters[1]
-        self.offset_y = self.section_parameters[2]
-        self.offset_z = self.section_parameters[3]
-        self.insulation_thickness = self.section_parameters[4]
-        self.insulation_density = self.section_parameters[5]
-
-        self.section_info = self.pipe_section_info
-
-    def load_beam_section_data_old(self):
-
-        self.section_type_label = self.beam_section_info["section_type_label"]
-        self.section_parameters = self.beam_section_info["section_parameters"]
-        self.section_properties = self.beam_section_info["section_properties"]
-        
-        self.area = self.section_properties['area']
-        self.second_moment_area_y = self.section_properties['Iyy']
-        self.second_moment_area_z = self.section_properties['Izz']
-        self.second_moment_area_yz = self.section_properties['Iyz']
-        
-        if self.section_type_label == "generic_beam":
-            self.shear_coefficient = self.section_properties['shear_coefficient']
-        else:
-            self.offset_y = self.section_parameters[-2]
-            self.offset_z = self.section_parameters[-1]
-
-        self.section_info = self.beam_section_info
 
     def load_valve_section_data(self):
-
-        self.section_type_label = self.valve_section_info["section_type_label"]
-        self.section_parameters = self.valve_section_info["section_parameters"]
-
-        self.outer_diameter = self.section_parameters[0]
-        self.thickness =  self.section_parameters[1]
-        self.offset_y = self.section_parameters[2]
-        self.offset_z = self.section_parameters[3]
-        self.insulation_thickness = self.section_parameters[4]
-        self.insulation_density = self.section_parameters[5]
-
         self.section_info = self.valve_section_info
+        self.section_type_label = self.section_info.section_type_label
+        self.section_parameters = self.section_info.section_parameters
 
-    def load_expansion_joint_data(self):
-        if isinstance(self.expansion_joint_info, ExpansionJointCrossSection):
-            self.section_type_label = self.expansion_joint_info.section_type_label
-            self.section_parameters = self.expansion_joint_info.section_parameters
-            self.outer_diameter = self.section_parameters[0]
+        self.outer_diameter = self.section_info.d_out
+        self.thickness =  self.section_info.thickness
+        self.offset_y = self.section_info.offset_y
+        self.offset_z = self.section_info.offset_y
+        self.insulation_thickness = self.section_info.insulation_thickness
+        self.insulation_density = self.section_info.insulation_density
 
     def set_section_parameters(self, parameters):
         self.outer_diameter, self.thickness = parameters

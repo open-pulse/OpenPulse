@@ -418,7 +418,7 @@ def expansion_joint_data(length, outside_diameter, thickness, offset_y=0, offset
 
     return apply_transform(append_polydata.GetOutput(), dy=offset_y, dz=offset_z)
 
-def valve_data(length, outside_diameter, thickness, flange_diameter, flange_length):
+def valve_data(length, outside_diameter, thickness, flange_diameter, flange_length, offset_y=0, offset_z=0):
     append_polydata = vtkAppendPolyData()
 
     if length == 0:
@@ -436,8 +436,8 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
     append_polydata.AddInputData(end_flange)
     append_polydata.AddInputData(handle)
     append_polydata.Update()
-    
-    return append_polydata.GetOutput()
+
+    return apply_transform(append_polydata.GetOutput(), dy=offset_y, dz=offset_z)
 
 def valve_handle(outside_diameter):
     height = 1.5 * outside_diameter

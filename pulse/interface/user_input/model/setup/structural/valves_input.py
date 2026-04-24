@@ -77,6 +77,10 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
             line_edit.setValidator(validator)
 
+        offsets_validator = StrictDoubleValidator(-1e8, 1e8, 6)
+        self.lineEdit_offset_y.setValidator(offsets_validator)
+        self.lineEdit_offset_z.setValidator(offsets_validator)
+
     def _configure_appearance(self):
         if self.render_type == "model":
             self.selection_frame.setVisible(True)
@@ -174,7 +178,6 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             self.lineEdit_selected_id.setEnabled(True)
             return
 
-
     def valve_setup_callback(self):
         self.acoustic_effects_callback()
         self.flanged_valves_callback()
@@ -219,12 +222,15 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
         for line_id, data in self.properties.line_properties.items():
             if "valve_info" in data.keys():
-                valve_info = data["valve_info"]
-                valve_name = valve_info["valve_name"]
-                mass = valve_info["valve_mass"]
-                stiffening_factor = valve_info["stiffening_factor"]
-                acoustic_effects = valve_info["acoustic_behavior"]
-                effective_diameter = valve_info["valve_effective_diameter"]
+                valve_info = data.get("valve_info")
+                if not isinstance(valve_info, dict):
+                    continue
+
+                valve_name = valve_info.get("valve_name")
+                mass = valve_info.get("valve_mass")
+                stiffening_factor = valve_info.get("stiffening_factor")
+                acoustic_effects = valve_info.get("acoustic_behavior")
+                effective_diameter = valve_info.get("valve_effective_diameter")
 
                 parameters = str(
                     [effective_diameter, stiffening_factor, mass, acoustic_effects]
@@ -291,17 +297,19 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             self.lineEdit_stiffening_factor,
             self.lineEdit_valve_effective_diameter,
             self.lineEdit_valve_wall_thickness,
+            self.lineEdit_offset_y,
+            self.lineEdit_offset_z,
             ]
 
         for line_edit in line_edits:
-            if line_edit.text() == "":
+            obj_name = line_edit.objectName()
+            text_value = line_edit.text()
+            if "offset" not in obj_name and text_value == "":
                 line_edit.setFocus()
                 return True
-
-            obj_name = line_edit.objectName()
+ 
             var_name = obj_name.split("lineEdit_")[1]
-
-            self.valve_info[var_name] = float(line_edit.text())
+            self.valve_info[var_name] = float(text_value) if text_value != "" else 0
 
     def check_flange_parameters(self):
 
@@ -440,18 +448,20 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
     def add_section_parameters_into_valve_info(self):
 
-        d_in = self.valve_info["valve_effective_diameter"]
-        t = round(self.valve_info["valve_wall_thickness"], 6)
+        d_in = self.valve_info.get("valve_effective_diameter")
+        t = round(self.valve_info.get("valve_wall_thickness"), 6)
+        offset_y = round(self.valve_info.get("offset_y"), 6)
+        offset_z = round(self.valve_info.get("offset_z"), 6)
 
         d_out = round(d_in + 2 * t, 6)
-        section_parameters = [d_out, t, 0, 0, 0, 0]
+        section_parameters = [d_out, t, offset_y, offset_z, 0, 0]
 
         self.valve_info["body_section_parameters"] = section_parameters
 
         if "flange_diameter" in self.valve_info.keys():
-            df_out = self.valve_info["flange_diameter"]
+            df_out = self.valve_info.get("flange_diameter")
             tf = round((df_out - d_in) / 2, 6)
-            flange_section_parameters = [df_out, tf, 0, 0, 0, 0]
+            flange_section_parameters = [df_out, tf, offset_y, offset_z, 0, 0]
             self.valve_info["flange_section_parameters"] = flange_section_parameters
 
     def search_for_cross_section_in_neighborhood(self, line_id: int):

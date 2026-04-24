@@ -23,6 +23,7 @@ from pulse.utils.common_utils import (
 )
 
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
 
 if TYPE_CHECKING:
     from pulse.model.mesh import Mesh
@@ -1037,20 +1038,19 @@ class Preprocessor:
 
         line_elements = self.mesh.elements_from_line[line_id]
 
-        valve_info = data.get("valve_info", None)
-        if valve_info is None:
+        valve_info = data.get("valve_info")
+        if not isinstance(valve_info, dict):
             return
 
-        valve_flange_elements = list()
         valve_body_elements = list()
+        valve_flange_elements = list()
 
         if "flange_length" in valve_info.keys():
 
-            flange_length = valve_info["flange_length"]
-            df_out, tf, *_ = valve_info["flange_section_parameters"]
+            flange_length = valve_info.get("flange_length")
+            d_out_flange, t_flange, offset_y_flange, offset_z_flange, *_ = valve_info.get("flange_section_parameters")
 
             for element_id in line_elements:
-
                 element = self.structural_elements[element_id]
                 center_coords = element.center_coordinates
 
@@ -1066,35 +1066,26 @@ class Preprocessor:
             for element_id in line_elements:
                 valve_body_elements.append(element_id)
 
-        body_section_info = {   
-            "section_type_label" : "valve",
-            "section_parameters" : valve_info["body_section_parameters"],
-        }
-
+        body_section_info = ValveCrossSection(*valve_info.get("body_section_parameters", list()))
         body_cross_section = CrossSection(valve_section_info=body_section_info)
         self.set_cross_section_by_elements(valve_body_elements, body_cross_section)
 
         if "flange_section_parameters" in valve_info.keys():
-
-            flange_section_info = { 
-                "section_type_label" : "valve",
-                "section_parameters" : valve_info["flange_section_parameters"],
-            }
-
+            flange_section_info = ValveCrossSection(*valve_info.get("flange_section_parameters", list()))
             flange_cross_section = CrossSection(valve_section_info=flange_section_info)
             self.set_cross_section_by_elements(valve_flange_elements, flange_cross_section)
 
         N = len(valve_body_elements)
-        d_out, t, *_ = valve_info["body_section_parameters"]
-        diameters = get_V_linear_distribution(d_out, N)
+        d_out_body, t_body, offset_y_body, offset_z_body, *_ = valve_info.get("body_section_parameters")
+        diameters = get_V_linear_distribution(d_out_body, N)
 
         for i, element_id in enumerate(valve_flange_elements):
             element = self.structural_elements[element_id]
-            element.section_parameters_render = [df_out, tf, 0, 0, 0, 0]
+            element.section_parameters_render = [d_out_flange, t_flange, offset_y_flange, offset_z_flange, 0, 0]
 
         for i, element_id in enumerate(valve_body_elements):
             element = self.structural_elements[element_id]
-            element.section_parameters_render = [diameters[i], t, 0, 0, 0, 0]
+            element.section_parameters_render = [diameters[i], t_body, offset_y_body, offset_z_body, 0, 0]
 
     def set_cross_sections_to_expansion_joint(self, line_id: int, expansion_joint_info: dict):
 
@@ -2076,10 +2067,7 @@ class Preprocessor:
                 cross_section = CrossSection(pipe_section_info=pipe_section_info)
 
             elif el_type == "valve":
-                valve_section_info = {
-                    "section_type_label": "valve",
-                    "section_parameters": section_parameters,
-                }
+                valve_section_info = ValveCrossSection(*section_parameters)
                 cross_section = CrossSection(valve_section_info=valve_section_info)
 
             if self.stop_processing:

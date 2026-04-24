@@ -2421,6 +2421,8 @@
   <tabstop>scrollArea</tabstop>
   <tabstop>lineEdit_expansion_joint_name</tabstop>
   <tabstop>lineEdit_effective_diameter</tabstop>
+  <tabstop>lineEdit_offset_y</tabstop>
+  <tabstop>lineEdit_offset_z</tabstop>
   <tabstop>lineEdit_joint_mass</tabstop>
   <tabstop>lineEdit_axial_locking_criteria</tabstop>
   <tabstop>comboBox_axial_stop_rod</tabstop>
@@ -2429,8 +2431,6 @@
   <tabstop>lineEdit_Kyz</tabstop>
   <tabstop>lineEdit_Krx</tabstop>
   <tabstop>lineEdit_Kryz</tabstop>
-  <tabstop>pushButton_attribute</tabstop>
-  <tabstop>pushButton_exit</tabstop>
   <tabstop>lineEdit_Kx_table_path</tabstop>
   <tabstop>pushButton_load_Kx_table</tabstop>
   <tabstop>lineEdit_Kyz_table_path</tabstop>
@@ -2439,9 +2439,11 @@
   <tabstop>pushButton_load_Krx_table</tabstop>
   <tabstop>lineEdit_Kryz_table_path</tabstop>
   <tabstop>pushButton_load_Kryz_table</tabstop>
-  <tabstop>treeWidget_lines_info</tabstop>
-  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_exit</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>treeWidget_lines_info</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../icons/resources.qrc"/>

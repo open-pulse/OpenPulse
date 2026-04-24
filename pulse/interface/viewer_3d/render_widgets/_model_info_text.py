@@ -155,14 +155,13 @@ def elements_info_text() -> str:
         if acoustic_element.fluid:
             info_text += fluid_info_text(acoustic_element.fluid)
 
-        valve_name = structural_element.valve_data.get("valve_name", "")
-
         info_text += cross_section_info_text(
-                                             structural_element.cross_section, 
-                                             structural_element.element_type,
-                                             structural_element.beam_xaxis_rotation,
-                                             valve_name
-                                             )
+            structural_element.cross_section, 
+            structural_element.element_type,
+            structural_element.beam_xaxis_rotation,
+            structural_element.expansion_joint_data,
+            structural_element.valve_data
+            )
 
     return info_text
 
@@ -207,21 +206,17 @@ def lines_info_text() -> str:
             info_text += fluid_info_text(fluid)
 
         cross_section = properties._get_property("cross_section", line_id=line_id)
-        expansion_joint_info = properties._get_property("expansion_joint_info", line_id=line_id)
         structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
         beam_xaxis_rotation = properties._get_property("beam_xaxis_rotation", line_id=line_id)
-
-        valve_name = ""
+        expansion_joint_info = properties._get_property("expansion_joint_info", line_id=line_id)
         valve_info = properties._get_property("valve_info", line_id=line_id)
-        if isinstance(valve_info, dict):
-            valve_name = valve_info.get("valve_name", "")
 
         info_text += cross_section_info_text(
             cross_section, 
             structural_element_type, 
             beam_xaxis_rotation,
             expansion_joint_info, 
-            valve_name,
+            valve_info,
             )
 
         info_text += structural_element_info_text()
@@ -271,22 +266,49 @@ def cross_section_info_text(
         cross_section: CrossSection | None, 
         structural_element_type: str, 
         beam_xaxis_rotation: float | None, 
-        expansion_joint: dict | None, 
-        valve_name: str | None
+        expansion_joint_info: dict | None, 
+        valve_info: dict | None
         ) -> str:
 
     info_text = ""
 
     if structural_element_type == "expansion_joint":
-        if isinstance(expansion_joint, dict):
-            effective_diameter = expansion_joint.get("effective_diameter")
-            offset_y = expansion_joint.get("offset_y")
-            offset_z = expansion_joint.get("offset_z")
+        if isinstance(expansion_joint_info, dict):
+            effective_diameter = expansion_joint_info.get("effective_diameter")
+            offset_y = expansion_joint_info.get("offset_y")
+            offset_z = expansion_joint_info.get("offset_z")
 
             tree = TreeInfo("cross section (expansion joint)")
             tree.add_item("Effective diameter", round(effective_diameter, 6), "m")
             tree.add_item("Offset y", round(offset_y, 6), "m")
             tree.add_item("Offset z", round(offset_z, 6), "m")
+
+            info_text += str(tree)
+
+    elif structural_element_type == "valve":
+        if isinstance(valve_info, dict):
+            effective_diameter = valve_info.get("valve_effective_diameter")
+            thickness = valve_info.get("valve_wall_thickness")
+            offset_y = valve_info.get("offset_y")
+            offset_z = valve_info.get("offset_z")
+            # insulation_thickness = valve_info.get("insulation_thickness", 0)
+            # insulation_density = valve_info.get("insulation_density")
+
+            tree = TreeInfo("cross section (valve)")
+            tree.add_item("Section type", "valve", "")
+            tree.add_item("Valve name", valve_info.get("valve_name"), "")
+
+            tree.add_item("Effective diameter", round(effective_diameter, 6), "m")
+            tree.add_item("Thickness", round(thickness, 6), "m")
+            # tree.add_separator()
+
+            tree.add_item("Offset y", round(offset_y, 6), "m")
+            tree.add_item("Offset z", round(offset_z, 6), "m")
+            tree.add_separator()
+
+            # if insulation_thickness or insulation_density:
+            #     tree.add_item("Insulation thickness", round(insulation_thickness, 4),"m")
+            #     tree.add_item("Insulation density", round(insulation_density, 4), "kg/m³")
 
             info_text += str(tree)
 
@@ -308,21 +330,19 @@ def cross_section_info_text(
 
         info_text += str(tree)
 
-    elif structural_element_type in ["pipe_1", "valve"]:
+    elif structural_element_type == "pipe_1":
 
         tree = TreeInfo("cross section")
         tree.add_item("Section type", cross_section.section_type_label, "")
-        if structural_element_type == "valve":
-            tree.add_item("Valve name", valve_name, "")
 
         tree.add_item("Outer diameter", round(cross_section.outer_diameter, 4), "m")
         tree.add_item("Thickness", round(cross_section.thickness, 6), "m")
-        tree.add_separator()
+        # tree.add_separator()
 
         if cross_section.offset_y or cross_section.offset_z:
             tree.add_item("Offset y", round(cross_section.offset_y, 6), "m")
             tree.add_item("Offset z", round(cross_section.offset_z, 6), "m")
-            tree.add_separator()
+            # tree.add_separator()
 
         if cross_section.insulation_thickness or cross_section.insulation_density:
             tree.add_item("Insulation thickness", round(cross_section.insulation_thickness, 4),"m")

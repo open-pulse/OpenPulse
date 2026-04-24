@@ -18,6 +18,11 @@ from pulse.model.model import Model
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.project.load_project import LoadProject
+from pulse.model.acoustic_element import AcousticElement
+from pulse.model.structural_element import StructuralElement
+from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
+from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
+
 
 error_title = "Error"
 warning_title = "Warning"
@@ -195,6 +200,8 @@ class Project:
             element = None
             if len(elements) == 2:
                 first_element, last_element = elements
+                first_element: StructuralElement
+                last_element: StructuralElement
                 
                 if 'beam_1' not in [first_element.element_type, last_element.element_type]:
                     first_cross = first_element.cross_section
@@ -218,7 +225,9 @@ class Project:
 
             elif len(elements) == 1: 
 
-                element = elements[0]   
+                element = elements[0]
+                element: StructuralElement
+ 
                 if element.element_type == 'beam_1':
                     continue  
 
@@ -240,36 +249,20 @@ class Project:
                     if self.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
                         inner_diameter = 0
 
-            if element:
+            if isinstance(element, AcousticElement | StructuralElement):
 
                 if element.element_type == 'expansion_joint':
-
-                    d_eff = element.cross_section.section_parameters[1]
-                    plot_key = element.cross_section.section_parameters[0]
-
-                    # thickness = (outer_diameter - inner_diameter) / 2
-                    parameters = [plot_key, d_eff, inner_diameter]
-
-                    element.section_parameters_render = parameters
+                    section_info = element.cross_section.section_info
+                    if isinstance(section_info, ExpansionJointCrossSection):
+                        element.section_parameters_render = section_info._as_list()
 
                 else:
 
-                    cross = element.cross_section
-                    outer_diameter = cross.outer_diameter
-                    offset_y = cross.offset_y
-                    offset_z = cross.offset_z
-                    insulation_thickness = cross.insulation_thickness
+                    section_info = element.cross_section.section_info
+                    outer_diameter, _, offset_y, offset_z, t_ins, *_ = section_info.section_parameters
 
                     thickness = (outer_diameter - inner_diameter) / 2
-                    parameters = [  
-                        outer_diameter, 
-                        thickness, 
-                        offset_y, 
-                        offset_z, 
-                        insulation_thickness
-                    ]
-
-                    element.section_parameters_render = parameters
+                    element.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
 
     def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
 
