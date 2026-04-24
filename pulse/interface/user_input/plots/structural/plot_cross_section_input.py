@@ -41,6 +41,7 @@ class PlotCrossSectionInput(PlotSection_UI):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+        self.section_info = None
         self.keep_window_open = True
         self.before_run = app().project.get_pre_solution_model_checks()
 
@@ -90,14 +91,19 @@ class PlotCrossSectionInput(PlotSection_UI):
 
     def preprocess_selection(self):
 
+        model = app().project.model
+
         if self.comboBox_selection.currentIndex() == SelectionType.LINES:
             lineEdit = self.lineEdit_selected_id.text()
             stop, line_id = self.before_run.check_selected_ids(lineEdit, "lines", single_id=True)
             if stop:
                 return True
 
-            cross_section = app().project.model.properties._get_property("cross_section", line_id=line_id)
+            section_type_label = model.properties._get_property("section_type_label", line_id=line_id)
+            if self.check_invalid_cross_section_plots(section_type_label):
+                return True
 
+            cross_section = model.properties._get_property("cross_section", line_id=line_id)
             if cross_section is None:
                 self.hide()
                 title = "Undefined cross-section"
@@ -111,8 +117,12 @@ class PlotCrossSectionInput(PlotSection_UI):
             if stop:
                 return True
 
-            element = app().project.model.preprocessor.structural_elements[element_id]
+            element = model.preprocessor.structural_elements[element_id]
             cross_section = element.cross_section
+
+            section_type_label = cross_section.section_type_label
+            if self.check_invalid_cross_section_plots(section_type_label):
+                return True
 
             if not isinstance(cross_section, CrossSection):
                 self.hide()
@@ -121,29 +131,28 @@ class PlotCrossSectionInput(PlotSection_UI):
                 PrintMessageInput([error_title, title, message])
                 return True
 
-        self.section_type_label = cross_section.section_type_label
+        self.section_info = cross_section.section_info
 
+        return False
+       
+    def check_invalid_cross_section_plots(self, section_type_label: str):
         message = ""
-        if self.section_type_label == "expansion_joint":
-            title = "Non-plottable cross-section"
+        title = "Non-plottable cross-section"
+
+        if section_type_label == "expansion_joint":
             message = "The expansion joint cross-section cannot be plotted."
 
-        elif self.section_type_label == "valve":
-            title = "Non-plottable cross-section"
+        elif section_type_label == "valve":
             message = "The valve cross-section cannot be plotted."
+
+        elif section_type_label == "reducer":
+            message = "The reducer cross-section cannot be plotted."
 
         if message != "":
             self.hide()
             PrintMessageInput([warning_title, title, message])
             return True
 
-        if self.section_type_label != 'expansion_joint':
-            self.section_parameters = cross_section.section_parameters
-            # if self.section_type_label != "pipe":
-            #     self.section_properties = cross_section.section_properties
-
-        return False
-       
     def plot_section(self):
 
         if self.preprocess_selection():
@@ -152,9 +161,9 @@ class PlotCrossSectionInput(PlotSection_UI):
         self.hide()
         plotter = CrossSectionPlotter()
 
-        points = get_points_to_plot_section(self.section_type_label, self.section_parameters)
+        points = self.section_info.section_points_to_draw
 
-        plotter.plot_cross_section(points, self.section_type_label, self.section_type_label)
+        plotter.plot_cross_section(points, self.section_info.section_type_label)
         plotter.exec()
 
     def keyPressEvent(self, event):
