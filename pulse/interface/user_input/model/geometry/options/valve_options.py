@@ -6,11 +6,11 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-
 from pulse import app
 from pulse.editor.structures import Valve
 from pulse.interface.user_input.model.setup.structural.valves_input import ValvesInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 from .structure_options import StructureOptions
 
@@ -51,12 +51,11 @@ class ValveOptions(StructureOptions):
 
         try:
 
-            section_parameters = self.cross_section_widget.pipe_section_info.get("section_parameters")
-            if section_parameters is None:
+            pipe_section_info = self.cross_section_widget.pipe_section_info
+            if not isinstance(pipe_section_info, PipeCrossSection):
                 return
-
-            outside_diameter = section_parameters[0]
-            wall_thickness = section_parameters[1]
+            
+            outside_diameter, wall_thickness, *_ = pipe_section_info.section_parameters
             effective_diameter = outside_diameter - 2 * wall_thickness
 
             self.valve_input.lineEdit_valve_effective_diameter.setText(f"{round(effective_diameter, 6)}")
