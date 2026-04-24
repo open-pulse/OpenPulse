@@ -71,6 +71,9 @@ class MainEditor(Editor):
 
             if len(tangent_vectors) != 1:
                 continue
+        
+            if length == 0:
+                continue
 
             vector = tangent_vectors[0]
             deltas = vector * length
