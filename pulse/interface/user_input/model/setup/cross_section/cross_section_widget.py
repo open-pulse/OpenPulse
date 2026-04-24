@@ -16,20 +16,23 @@ from pulse.interface.user_input.model.setup.structural.get_standard_cross_sectio
 )
 from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.cross_section import (
-    # get_beam_section_properties,
-    get_points_to_plot_section,
+from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import (
+    CircularBeamCrossSection,
+)
+from pulse.model.cross_sections.generic_beam_cross_section import (
+    GenericBeamCrossSection,
+)
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import (
+    RectangularBeamCrossSection,
+)
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
+from pulse.model.cross_sections.variable_pipe_cross_section import (
+    VariablePipeCrossSection,
 )
 from pulse.utils.interface_utils import check_inputs
-
-from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
-from pulse.model.cross_sections.variable_pipe_cross_section import VariablePipeCrossSection
-from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
-from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
-from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
-from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
-from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
-from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
 
 
 class TabIndex(IntEnum):
@@ -645,18 +648,6 @@ class CrossSectionWidget(CrossSectionWidget_UI):
 
                 self.beam_section_info = GenericBeamCrossSection(*_section_properties)
 
-        # if tab_index == 5:
-        #     self.section_properties = get_beam_section_properties(self.section_type_label, _section_properties)
-        #     self.beam_section_info = {  "section_type_label" : self.section_type_label,
-        #                                 "section_parameters" : self.section_parameters,
-        #                                 "section_properties" : self.section_properties  }
-        # else:
-        #     self.section_properties = get_beam_section_properties(self.section_type_label, self.section_parameters)
-
-        # self.beam_section_info = {  "section_type_label" : self.section_type_label,
-        #                             "section_parameters" : self.section_parameters,
-        #                             "section_properties" : self.section_properties  }
-
         return False
 
     def check_if_section_is_normalized(self):
@@ -696,7 +687,6 @@ class CrossSectionWidget(CrossSectionWidget_UI):
                 self.show_dialog()
                 return
 
-        points = get_points_to_plot_section(self.section_type_label, self.section_parameters)
         if isinstance(self.pipe_section_info, PipeCrossSection):
             points = self.pipe_section_info.section_points_to_draw
             section_type_label = self.pipe_section_info.section_type_label
