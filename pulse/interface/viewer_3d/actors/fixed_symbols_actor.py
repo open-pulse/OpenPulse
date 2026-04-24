@@ -1,11 +1,9 @@
 from functools import partial
-from typing import Iterator
 
 import numpy as np
 from molde.actors import CommonSymbolsActorFixedSize
 from molde.colors import color_names
 from molde.utils import read_obj_file, transform_polydata
-from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
 from vtkmodules.vtkFiltersSources import vtkLineSource
 from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
