@@ -554,10 +554,10 @@ class CrossSection:
         rows, cols = self.division_number, 9
         cols_dofs = self.connectivity.reshape(-1,1)
         cols_dofs = cols_dofs.reshape(rows, cols)
-        J = np.tile(cols_dofs, cols)
-        I = cols_dofs.reshape(-1,1)@np.ones((1,cols), dtype=int) 
-        self.rows_ind = I.reshape(-1)
-        self.cols_ind = J.reshape(-1)
+        cols_matrix = np.tile(cols_dofs, cols)
+        rows_matrix = cols_dofs.reshape(-1,1) @ np.ones((1,cols), dtype=int) 
+        self.rows_ind = rows_matrix.reshape(-1)
+        self.cols_ind = cols_matrix.reshape(-1)
                             
     def shear_properties(self, poisson_ratio = 0, el_type = 'pipe_1'):
         """

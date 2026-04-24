@@ -882,7 +882,8 @@ class Preprocessor:
                 for element in slicer(self.structural_elements, _element):
                     element.cross_section = _cross_section
                     element.variable_section = variable_section
-                    # if not sections_mapping:
+                    if not sections_mapping:
+                        pass
                     #     element.section_parameters_render = _cross_section.section_parameters
 
                 for element in slicer(self.acoustic_elements, _element):
@@ -893,7 +894,8 @@ class Preprocessor:
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
                 element.variable_section = variable_section
-                # if not sections_mapping:
+                if not sections_mapping:
+                    pass
                 #     element.section_parameters_render = cross_section.section_parameters
 
             for element in slicer(self.acoustic_elements, elements):
