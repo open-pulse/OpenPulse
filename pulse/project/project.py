@@ -41,9 +41,9 @@ class Project:
 
     def _initialize(self):
         self.structural_reactions = dict()
-        self.natural_frequencies_acoustic = np.ndarray([])
-        self.natural_frequencies_structural = np.ndarray([])
-        self.complex_natural_frequencies_acoustic = np.ndarray([])
+        self.natural_frequencies_acoustic = None
+        self.natural_frequencies_structural = None
+        self.complex_natural_frequencies_acoustic = None
 
         self.preferences = dict()
         self.color_scale_setup = dict()
@@ -78,9 +78,9 @@ class Project:
         self.structural_solution = None
         self.acoustic_solution = None
 
-        self.natural_frequencies_acoustic = np.ndarray([])
-        self.natural_frequencies_structural = np.ndarray([])
-        self.complex_natural_frequencies_acoustic = np.ndarray([])
+        self.natural_frequencies_acoustic = None
+        self.natural_frequencies_structural = None
+        self.complex_natural_frequencies_acoustic = None
         self.structural_reactions.clear()
 
         if self.acoustic_solver is not None:
