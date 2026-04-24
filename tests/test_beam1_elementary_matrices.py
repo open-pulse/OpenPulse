@@ -44,7 +44,7 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
         "end_coords": end_coords,
         "structural_element_type" : "beam_1",
     }
-    geometry_info.update(section_info._as_dict())
+    geometry_info.update(section_info.as_dict())
 
     model.properties._set_multiple_line_properties(geometry_info, line_id)
 
@@ -81,7 +81,7 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     ## Create the model cross-sections
     cross_section = CrossSection(beam_section_info = section_info)
     model.properties._set_line_property("cross_section", cross_section, line_id)
-    model.properties._set_multiple_line_properties(section_info._as_dict(), line_id)
+    model.properties._set_multiple_line_properties(section_info.as_dict(), line_id)
 
     preprocessor.set_cross_section_by_lines(line_id, cross_section)
     preprocessor.set_structural_element_type_by_lines(line_id, "beam_1")

@@ -90,7 +90,7 @@ class TBeamCrossSection:
 
         return Zp, Yp, Zc_offset, Yc_offset
 
-    def _as_dict(self):
+    def as_dict(self):
         return {
             "section_type_label" : self.section_type_label,
             "section_parameters" : self.section_parameters,

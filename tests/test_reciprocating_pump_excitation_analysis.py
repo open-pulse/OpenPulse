@@ -120,7 +120,7 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
             else:
                 model.properties._set_line_property("structure_name", "bend", line_id)
 
-        model.properties._set_multiple_line_properties(section_info._as_dict(), line_ids)
+        model.properties._set_multiple_line_properties(section_info.as_dict(), line_ids)
         model.properties._set_line_property("cross_section", cross_section, line_ids)
         model.properties._set_line_property("structural_element_type", "pipe_1", line_ids)
         preprocessor.set_cross_section_by_lines(line_ids, cross_section)

@@ -94,7 +94,7 @@ def test_structural_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
         else:
             model.properties._set_line_property("structure_name", "bend", line_id)
 
-    model.properties._set_multiple_line_properties(main_section_info._as_dict(), main_lines)
+    model.properties._set_multiple_line_properties(main_section_info.as_dict(), main_lines)
     model.properties._set_line_property("cross_section", cross_section_main, main_lines)
     model.properties._set_line_property("structural_element_type", "pipe_1", main_lines)
     preprocessor.set_cross_section_by_lines(main_lines, cross_section_main)
@@ -112,7 +112,7 @@ def test_structural_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
         else:
             model.properties._set_line_property("structure_name", "bend", line_id)
 
-    model.properties._set_multiple_line_properties(branch_section_info._as_dict(), branch_lines)
+    model.properties._set_multiple_line_properties(branch_section_info.as_dict(), branch_lines)
     model.properties._set_line_property("cross_section", cross_section_branch, branch_lines)
     model.properties._set_line_property("structural_element_type", "pipe_1", branch_lines)
     preprocessor.set_cross_section_by_lines(branch_lines, cross_section_branch)
@@ -120,7 +120,7 @@ def test_structural_modal_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
     ## Assign the cross-sections to beam lines
     model.properties._set_line_property("structure_name", beam_section_info.section_type_label, beam_lines)
-    model.properties._set_multiple_line_properties(beam_section_info._as_dict(), beam_lines)
+    model.properties._set_multiple_line_properties(beam_section_info.as_dict(), beam_lines)
     model.properties._set_line_property("cross_section", cross_section_beam, beam_lines)
     model.properties._set_line_property("structural_element_type", "beam_1", beam_lines)
     preprocessor.set_cross_section_by_lines(beam_lines, cross_section_beam)

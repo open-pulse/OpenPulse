@@ -45,7 +45,7 @@ class VariablePipeCrossSection:
     def section_points_to_draw(self):
         return None
 
-    def _as_dict(self):
+    def as_dict(self):
         return {
             "section_type_label" : self.section_type_label,
             "section_parameters" : self.section_parameters,
