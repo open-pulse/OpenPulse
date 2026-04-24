@@ -952,33 +952,6 @@ class CrossSection:
         elif self.section_type_label == "generic_beam":
             return 0, 0
 
-def get_points_to_plot_section(section_label: str, section_parameters: list):   
-    
-    if section_label in ["pipe", "reducer"]:
-        pipe_section = PipeCrossSection(*section_parameters)
-        return pipe_section.section_points_to_draw
-
-    else:
-        if section_label == "generic_beam":
-            return None, None, None, None
-
-        if section_label == "rectangular_beam":
-            beam_section = RectangularBeamCrossSection(*section_parameters)
-
-        elif section_label == "circular_beam":
-            beam_section = CircularBeamCrossSection(*section_parameters)
-
-        elif section_label == "c_beam":
-            beam_section = CBeamCrossSection(*section_parameters)
-
-        elif section_label == "i_beam":
-            beam_section = IBeamCrossSection(*section_parameters)
-
-        elif section_label == "t_beam":
-            beam_section = TBeamCrossSection(*section_parameters)
-
-        return beam_section.section_points_to_draw
-
 def get_beam_section_properties(section_label, data):
 
     if section_label == "generic_beam":

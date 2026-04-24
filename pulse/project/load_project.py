@@ -137,10 +137,6 @@ class LoadProject:
                 section_type_label = self.fix_data_for_backwards_compatibility(data)
 
                 if data.get("structure_name") in ["pipe", "bend", "arc_bend", "flange"]:
-                    # pipe_section_info = {   
-                    #     "section_type_label" : section_type_label,
-                    #     "section_parameters" : data["section_parameters"],
-                    #     }
 
                     pipe_section_info = PipeCrossSection(*data["section_parameters"])
 
@@ -167,12 +163,6 @@ class LoadProject:
                             beam_section_info = GenericBeamCrossSection(*section_parameters)
                         case _:
                             continue
-
-                    # beam_section_info = {   
-                    #     "section_type_label" : section_type_label,
-                    #     "section_parameters" : data["section_parameters"],
-                    #     "section_properties" : data["section_properties"],
-                    #     }
 
                     self.cross_sections[line_id] = CrossSection(
                         element_type = "beam_1",

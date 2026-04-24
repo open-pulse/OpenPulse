@@ -1000,16 +1000,6 @@ class Preprocessor:
                         "reducer",
                         ]
 
-                    # pipe_section_info_first = { 
-                    #     "section_type_label" : "reducer" ,
-                    #     "section_parameters" : section_parameters_first,
-                    #     }
-
-                    # pipe_section_info_last = { 
-                    #     "section_type_label" : "reducer" ,
-                    #     "section_parameters" : section_parameters_last,
-                    #     }
-
                     cross_section_first = CrossSection(
                         element_type = "pipe_1",
                         pipe_section_info = PipeCrossSection(*section_parameters_first),
@@ -1068,20 +1058,22 @@ class Preprocessor:
             for element_id in line_elements:
                 valve_body_elements.append(element_id)
 
-        body_section_info = {   "section_type_label" : "valve",
-                                "section_parameters" : valve_info["body_section_parameters"]   }
+        body_section_info = {   
+            "section_type_label" : "valve",
+            "section_parameters" : valve_info["body_section_parameters"],
+        }
 
         body_cross_section = CrossSection(valve_section_info=body_section_info)
-
         self.set_cross_section_by_elements(valve_body_elements, body_cross_section)
 
         if "flange_section_parameters" in valve_info.keys():
 
-            flange_section_info = { "section_type_label" : "valve",
-                                    "section_parameters" : valve_info["flange_section_parameters"] }
+            flange_section_info = { 
+                "section_type_label" : "valve",
+                "section_parameters" : valve_info["flange_section_parameters"],
+            }
 
             flange_cross_section = CrossSection(valve_section_info=flange_section_info)
-
             self.set_cross_section_by_elements(valve_flange_elements, flange_cross_section)
 
         N = len(valve_body_elements)
@@ -2027,57 +2019,37 @@ class Preprocessor:
 
     def process_cross_sections_mapping(self):  
 
-        label_etypes = ['pipe_1', 'valve']
         indexes = [0, 1]
+        label_etypes = ['pipe_1', 'valve']
 
-        dict_etype_index = dict(zip(label_etypes,indexes))
-        dict_index_etype = dict(zip(indexes,label_etypes))
         map_cross_section_to_elements = defaultdict(list)
+        map_etype_to_index = dict(zip(label_etypes, indexes))
+        map_index_to_etype = dict(zip(indexes, label_etypes))
 
         logging.info("Processing the cross-sections [25%]")
 
         for index, element in self.structural_elements.items():
 
-            # if None not in [element.first_node.cross_section, element.last_node.cross_section]:
-            #     continue
-
             if element.variable_section:
                 continue
 
-            e_type  = element.element_type
-            if e_type in ['beam_1', 'expansion_joint']:
+            e_type = element.element_type
+            if e_type in ["beam_1", "expansion_joint"]:
                 continue
 
             elif e_type is None:
-                e_type = 'pipe_1'
+                e_type = "pipe_1"
                 self.acoustic_analysis = True
-        
-            index_etype = dict_etype_index[e_type]
 
+            index_etype = map_etype_to_index.get(e_type)
             poisson = element.material.poisson_ratio
             if poisson is None:
                 poisson = 0
 
-            outer_diameter = element.cross_section.outer_diameter
-            thickness = element.cross_section.thickness
-            offset_y = element.cross_section.offset_y
-            offset_z = element.cross_section.offset_z
-            insulation_thickness = element.cross_section.insulation_thickness
-            insulation_density = element.cross_section.insulation_density
-
-            section_parameters = [  
-                                  outer_diameter, 
-                                  thickness, 
-                                  offset_y, 
-                                  offset_z, 
-                                  poisson,
-                                  index_etype, 
-                                  insulation_thickness, 
-                                  insulation_density
-                                  ]
+            section_parameters = element.cross_section.section_info.section_parameters
+            section_parameters.extend([poisson, index_etype])
 
             map_cross_section_to_elements[str(section_parameters)].append(index)
-
             if self.stop_processing:
                 return
 
@@ -2085,25 +2057,22 @@ class Preprocessor:
 
         for key, elements in map_cross_section_to_elements.items():
 
-            cross_strings = key[1:-1].split(',')
-            vals = [float(value) for value in cross_strings]
-            el_type = dict_index_etype[vals[5]]
+            cross_strings = key[1:-1].split(",")
+            section_parameters = [float(value) for value in cross_strings[:6]]
 
-            section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[6], vals[7]]
+            index_etype = int(cross_strings[-1])
+            el_type = map_index_to_etype.get(index_etype)
 
-            if el_type == 'pipe_1':
-                pipe_section_info = {   
-                                     "section_type_label" : "pipe",
-                                     "section_parameters" : section_parameters
-                                    }
-                cross_section = CrossSection(pipe_section_info = pipe_section_info)                             
+            if el_type == "pipe_1":
+                pipe_section_info = PipeCrossSection(*section_parameters)
+                cross_section = CrossSection(pipe_section_info=pipe_section_info)
 
-            elif el_type == 'valve':
-                valve_section_info = {  
-                                      "section_type_label" : "valve",
-                                      "section_parameters" : section_parameters
-                                      }
-                cross_section = CrossSection(valve_section_info = valve_section_info)     
+            elif el_type == "valve":
+                valve_section_info = {
+                    "section_type_label": "valve",
+                    "section_parameters": section_parameters,
+                }
+                cross_section = CrossSection(valve_section_info=valve_section_info)
 
             if self.stop_processing:
                 return True
@@ -2111,11 +2080,8 @@ class Preprocessor:
             logging.info("Processing the cross-sections [95%]")
 
             self.set_cross_section_by_elements(
-                                               elements, 
-                                               cross_section, 
-                                               update_properties = True, 
-                                               sections_mapping = True
-                                               )  
+                elements, cross_section, update_properties=True, sections_mapping=True
+            )
 
     def process_element_cross_sections_orientation_to_plot(self):
         """

@@ -9,7 +9,7 @@ from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter 
     CrossSectionPlotter,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.cross_section import CrossSection, get_points_to_plot_section
+from pulse.model.cross_section import CrossSection
 
 
 class SelectionType(IntEnum):
