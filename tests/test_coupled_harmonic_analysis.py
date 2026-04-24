@@ -90,7 +90,7 @@ def test_coupled_harmonic_analysis(datadir: Path=TEMP_PROJECT_DIR):
         corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
 
         if (center_coords, corner_coords).count(None) == 2:
-            section_label = main_section_info["section_type_label"]
+            section_label = main_section_info.section_type_label
             model.properties._set_line_property("structure_name", section_label, line_id)
         else:
             model.properties._set_line_property("structure_name", "bend", line_id)
@@ -108,7 +108,7 @@ def test_coupled_harmonic_analysis(datadir: Path=TEMP_PROJECT_DIR):
         corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
 
         if (center_coords, corner_coords).count(None) == 2:
-            section_label = branch_section_info["section_type_label"]
+            section_label = branch_section_info.section_type_label
             model.properties._set_line_property("structure_name", section_label, line_id)
         else:
             model.properties._set_line_property("structure_name", "bend", line_id)
@@ -121,7 +121,7 @@ def test_coupled_harmonic_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
     ## Assign the cross-sections to beam lines
 
-    model.properties._set_line_property("structure_name", beam_section_info["section_type_label"], beam_lines)
+    model.properties._set_line_property("structure_name", beam_section_info.section_type_label, beam_lines)
     model.properties._set_multiple_line_properties(beam_section_info._as_dict(), beam_lines)
     model.properties._set_line_property("cross_section", cross_section_beam, beam_lines)
     model.properties._set_line_property("structural_element_type", "beam_1", beam_lines)
