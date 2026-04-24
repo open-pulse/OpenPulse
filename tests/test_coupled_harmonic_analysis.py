@@ -64,8 +64,8 @@ def test_coupled_harmonic_analysis(example2_project, num_regression):
 
     project.build_model_and_solve(running_by_script=True)
 
-    structural_solution = project.structural_solution
-    acoustic_solution = project.acoustic_solution
+    structural_solution = project.get_structural_solution()
+    acoustic_solution = project.get_acoustic_solution()
 
     assert structural_solution is not None, "No structural solution returned"
     assert acoustic_solution is not None, "No acoustic solution returned"
