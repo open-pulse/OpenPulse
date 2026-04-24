@@ -1,19 +1,18 @@
 from functools import partial
 from typing import Iterator
 
-from molde.actors import CommonSymbolsActorFixedSize
 import numpy as np
+from molde.actors import CommonSymbolsActorFixedSize
 from molde.colors import color_names
 from molde.utils import read_obj_file, transform_polydata
-from pulse.utils.rotations import align_vtk_geometry
-
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
 from vtkmodules.vtkFiltersSources import vtkLineSource
 from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
-from pulse import app, SYMBOLS_DIR
+from pulse import SYMBOLS_DIR, app
 from pulse.utils.cross_section_sources import valve_data
+from pulse.utils.rotations import align_vtk_geometry
 
 from ..polydata import (
     create_compressor_discharge,
@@ -21,6 +20,7 @@ from ..polydata import (
     create_pump_discharge,
     create_pump_suction,
 )
+
 
 class FixedSymbolsActor(CommonSymbolsActorFixedSize):
     def __init__(self):
@@ -71,22 +71,10 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 scale = outer_diameter.outer_diameter
 
                 if data["connection_type"] == "discharge":
-                    self.add_symbol(
-                        create_compressor_discharge,
-                        data["coords"],
-                        orientation,
-                        color=color_names.RED_2,
-                        scale=scale
-                    )
+                    self.add_symbol(create_compressor_discharge, data["coords"], orientation, color=color_names.RED_2, scale=scale)
 
                 elif data["connection_type"] == "suction":
-                    self.add_symbol(
-                        create_compressor_suction,
-                        data["coords"],
-                        orientation,
-                        color=color_names.BLUE_2,
-                        scale=scale
-                    )
+                    self.add_symbol(create_compressor_suction, data["coords"], orientation, color=color_names.BLUE_2, scale=scale)
 
     def create_reciprocating_pump_excitation(self):
         nodal_properties = app().project.model.properties.nodal_properties
@@ -166,7 +154,6 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
         perforated_plate_many_holes = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_many_holes.obj")
         perforated_plate_single_hole = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_single_hole.obj")
 
-
         for (property_name, element_id), data in element_properties.items():
             if property_name != "perforated_plate":
                 continue
@@ -180,7 +167,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             thickness = element.perforated_plate.thickness
             if element.valve_data:
                 d_in = element.valve_data["valve_effective_diameter"]
-                diameter = (d_in / 2)
+                diameter = d_in / 2
             else:
                 diameter = element.cross_section.inner_diameter
 
@@ -191,7 +178,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             if element.perforated_plate.single_hole:
                 data = perforated_plate_single_hole
             else:
-                data = perforated_plate_many_holes    
+                data = perforated_plate_many_holes
 
             data = transform_polydata(
                 data,
@@ -199,7 +186,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 scale=(thickness, diameter, diameter),
             )
 
-            self.add_symbol(lambda : data, coord_a, vector, color_names.PINK_6)
+            self.add_symbol(lambda: data, coord_a, vector, color_names.PINK_6)
 
     def create_valves(self):
         line_properties = app().project.model.properties.line_properties
@@ -233,12 +220,13 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 offset_z=offset_z,
             )
 
-            source = transform_polydata(
+            func = partial(
+                transform_polydata,
                 source,
                 rotation=(angle, 0, 0),
             )
 
-            self.add_symbol(lambda : source, coords_a, vector, color_names.PINK_6)
+            self.add_symbol(func, coords_a, vector, color_names.PINK_6)
 
     def configure_appearance(self):
         self.set_zbuffer_offsets(1, -6600)
