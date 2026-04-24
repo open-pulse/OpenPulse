@@ -8,9 +8,7 @@ from vtkmodules.vtkCommonCore import (
     vtkUnsignedCharArray,
 )
 from vtkmodules.vtkCommonDataModel import vtkPlane, vtkPolyData
-from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
-from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkRenderingCore import vtkActor, vtkGlyph3DMapper
 
 from pulse import app
@@ -124,47 +122,47 @@ class TubeActor(vtkActor):
         length = element.length
 
         if cross_section.section_type_label in ["pipe", "bend", "arc_bend", "reducer"]:
-            d_out, t, offset_y, offset_z, *_ = element.cross_section.section_parameters
+            d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.pipe_data(length, d_out, t, offset_y, offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "rectangular_beam":
-            b, h, b_in, h_in, offset_y, offset_z, *_ = element.cross_section.section_parameters
+            b, h, b_in, h_in, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.rectangular_beam_data(length, b, h, b_in, h_in, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "circular_beam":
-            d_out, t, offset_y, offset_z, *_ = element.cross_section.section_parameters
+            d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.circular_beam_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "c_beam":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.cross_section.section_parameters
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "i_beam":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.cross_section.section_parameters
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "t_beam":
-            h, w1, t1, tw, offset_y, offset_z, *_ = element.cross_section.section_parameters
+            h, w1, t1, tw, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "expansion_joint":
-
-            plot_key, d_eff, *args = element.section_parameters_render
+            d_eff, offset_y, offset_z, plot_key = element.section_parameters_render
 
             if plot_key == "major":
                 d_out = d_eff * 1.25
             elif plot_key == "minor":
-                d_out = d_eff * 1.1            
+                d_out = d_eff * 1.1
             else:
                 d_out = d_eff * 1.4
 
-            if args:
-                d_in = args[0]
-                t = (d_out - d_in) / 2
-            else:
-                t = (d_out - d_eff) / 2
+            t = (d_out - d_eff) / 2
+            # if args:
+            #     d_in = args[0]
+            #     t = (d_out - d_in) / 2
+            # else:
+            #     t = (d_out - d_eff) / 2
 
-            return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
+            return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "valve":
             d_out, t, *_ = element.section_parameters_render

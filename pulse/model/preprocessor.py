@@ -846,7 +846,14 @@ class Preprocessor:
             if structural_element_type != "beam_1":
                 element.volumetric_flow_rate = volumetric_flow_rate
 
-    def set_cross_section_by_elements(self, elements, cross_section, **kwargs):
+    def set_cross_section_by_elements(
+            self, 
+            elements: list[AcousticElement | StructuralElement], 
+            cross_section: CrossSection | list[CrossSection],
+            update_properties: bool = False,
+            sections_mapping: bool = False,
+            variable_section: bool = False,
+            ):
         """
         This method attributes cross section object to a list of acoustic and structural elements.
 
@@ -863,10 +870,6 @@ class Preprocessor:
             Default is False.
         """
 
-        update_properties = kwargs.get("update_properties", False)
-        sections_mapping = kwargs.get("sections_mapping", False)
-        variable_section = kwargs.get("variable_section", False)
-
         if cross_section is None:
             return
 
@@ -876,15 +879,19 @@ class Preprocessor:
         if isinstance(cross_section, list):
             for i, element in enumerate(elements):
 
-                _element = [element]
                 _cross_section = cross_section[i]
+                if not isinstance(_cross_section, CrossSection):
+                    continue
 
+                _element = [element]
                 for element in slicer(self.structural_elements, _element):
                     element.cross_section = _cross_section
                     element.variable_section = variable_section
                     if not sections_mapping:
-                        pass
-                    #     element.section_parameters_render = _cross_section.section_parameters
+                        if _cross_section.section_type_label == "expansion_joint":
+                            element.section_parameters_render = _cross_section.expansion_joint_info._as_list()
+                        elif _cross_section.section_type_label == "valve":
+                            element.section_parameters_render = _cross_section.section_parameters
 
                 for element in slicer(self.acoustic_elements, _element):
                     element.cross_section = _cross_section
@@ -894,8 +901,7 @@ class Preprocessor:
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
                 element.variable_section = variable_section
-                if not sections_mapping:
-                    pass
+                # if not sections_mapping:
                 #     element.section_parameters_render = cross_section.section_parameters
 
             for element in slicer(self.acoustic_elements, elements):
@@ -1094,17 +1100,17 @@ class Preprocessor:
 
         joint_elements = self.mesh.elements_from_line[line_id]
 
-        if isinstance(expansion_joint_info, dict):
-            if "effective_diameter" in expansion_joint_info.keys():
+        if not isinstance(expansion_joint_info, dict):
+            return
 
-                effective_diameter = expansion_joint_info["effective_diameter"]
+        cross_sections = get_cross_sections_to_plot_expansion_joint(
+            joint_elements,
+            expansion_joint_info["effective_diameter"],
+            expansion_joint_info["offset_y"],
+            expansion_joint_info["offset_z"],
+        )
 
-                cross_sections = get_cross_sections_to_plot_expansion_joint(
-                                                                            joint_elements, 
-                                                                            effective_diameter
-                                                                            )
-
-                self.set_cross_section_by_elements(joint_elements, cross_sections)
+        self.set_cross_section_by_elements(joint_elements, cross_sections)
 
     def set_structural_element_type_by_lines(self, line_ids: int | list, element_type: str):
         """

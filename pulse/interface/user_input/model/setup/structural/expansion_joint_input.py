@@ -18,6 +18,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
 
 
 class TabIndex(IntEnum):
@@ -63,6 +64,10 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         general_validator = StrictDoubleValidator(0, 1e8, 6)
         self.lineEdit_effective_diameter.setValidator(general_validator)
         self.lineEdit_joint_mass.setValidator(general_validator)
+
+        offsets_validator = StrictDoubleValidator(-1e8, 1e8, 6)
+        self.lineEdit_offset_y.setValidator(offsets_validator)
+        self.lineEdit_offset_z.setValidator(offsets_validator)
 
         self.lineEdit_axial_locking_criteria.setValidator(StrictDoubleValidator(0, 10, 6))
 
@@ -171,6 +176,17 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         self.lineEdit_axial_locking_criteria.setText(str(joint_data["axial_locking_criteria"]))
         self.comboBox_axial_stop_rod.setCurrentIndex(int(joint_data["rods"]))
 
+        self.lineEdit_offset_y.clear()
+        self.lineEdit_offset_z.clear()
+        offset_y = joint_data.get("offset_y")
+        offset_z = joint_data.get("offset_z")
+
+        if isinstance(offset_y, float):
+            self.lineEdit_offset_y.setText(f"{offset_y}")
+
+        if isinstance(offset_z, float):
+            self.lineEdit_offset_z.setText(f"{offset_z}")
+
         if "table_paths" in joint_data.keys():
             Kx_path, Kyz_path, Krx_path, Kryz_path = joint_data["table_paths"]
             self.tabWidget_inputs.setCurrentIndex(DataType.TABULAR_VALUES)
@@ -251,6 +267,8 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         line_edits = [
             self.lineEdit_effective_diameter,
+            self.lineEdit_offset_y,
+            self.lineEdit_offset_z,
             self.lineEdit_joint_mass,
         ]
 
@@ -258,14 +276,14 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             line_edits.append(self.lineEdit_axial_locking_criteria)
 
         for line_edit in line_edits:
-            if line_edit.text() == "":
+            obj_name = line_edit.objectName()
+            text_value = line_edit.text()
+            if "offset" not in obj_name and text_value == "":
                 line_edit.setFocus()
                 return True
-
-            obj_name = line_edit.objectName()
+ 
             var_name = obj_name.split("lineEdit_")[1]
-
-            self.expansion_joint_info[var_name] = float(line_edit.text())
+            self.expansion_joint_info[var_name] = float(text_value) if text_value != "" else 0
 
         self.expansion_joint_info["rods"] = axial_stop_rod
 
@@ -429,6 +447,8 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                 cross_sections = get_cross_sections_to_plot_expansion_joint(
                     self.joint_elements, 
                     self.expansion_joint_info["effective_diameter"],
+                    self.expansion_joint_info["offset_y"],
+                    self.expansion_joint_info["offset_z"],
                     )
 
                 self.properties._remove_line_property("valve_info", line_id)
@@ -650,7 +670,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
 
 def get_cross_sections_to_plot_expansion_joint(
-    joint_elements: list, effective_diameter: float
+    joint_elements: list, effective_diameter: float, offset_y: float, offset_z: float
 ):
     """ "
     This auxiliary function returns a list of cross-sections
@@ -674,7 +694,12 @@ def get_cross_sections_to_plot_expansion_joint(
             else:
                 plot_key = "major"
 
-        expansion_joint_info = ["expansion_joint", plot_key, effective_diameter]
+        expansion_joint_info = ExpansionJointCrossSection(
+            effective_diameter, 
+            offset_y, 
+            offset_z, 
+            plot_key,
+        )
 
         cross = CrossSection(expansion_joint_info=expansion_joint_info)
         cross_sections.append(cross)

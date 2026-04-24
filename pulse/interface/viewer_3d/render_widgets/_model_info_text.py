@@ -8,6 +8,7 @@ from molde.utils import TreeInfo, format_long_sequence
 from pulse import app
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
 from pulse.model import AnalysisID, RadiationImpedanceType
+from pulse.model.cross_section import CrossSection
 
 
 def nodes_info_text() -> str:
@@ -206,6 +207,7 @@ def lines_info_text() -> str:
             info_text += fluid_info_text(fluid)
 
         cross_section = properties._get_property("cross_section", line_id=line_id)
+        expansion_joint_info = properties._get_property("expansion_joint_info", line_id=line_id)
         structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
         beam_xaxis_rotation = properties._get_property("beam_xaxis_rotation", line_id=line_id)
 
@@ -217,7 +219,8 @@ def lines_info_text() -> str:
         info_text += cross_section_info_text(
             cross_section, 
             structural_element_type, 
-            beam_xaxis_rotation, 
+            beam_xaxis_rotation,
+            expansion_joint_info, 
             valve_name,
             )
 
@@ -264,23 +267,36 @@ def fluid_info_text(fluid) -> str:
         tree.add_item("Molar mass", round(fluid.molar_mass, 4), "kg/kmol")
     return str(tree)
 
-def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_rotation, valve_name) -> str:
+def cross_section_info_text(
+        cross_section: CrossSection | None, 
+        structural_element_type: str, 
+        beam_xaxis_rotation: float | None, 
+        expansion_joint: dict | None, 
+        valve_name: str | None
+        ) -> str:
 
     info_text = ""
 
-    if cross_section is None:
-        tree = TreeInfo("cross section")
-        tree.add_item("Info", "Undefined")
-        info_text += str(tree)
+    if structural_element_type == "expansion_joint":
+        if isinstance(expansion_joint, dict):
+            effective_diameter = expansion_joint.get("effective_diameter")
+            offset_y = expansion_joint.get("offset_y")
+            offset_z = expansion_joint.get("offset_z")
+
+            tree = TreeInfo("cross section (expansion joint)")
+            tree.add_item("Effective diameter", round(effective_diameter, 6), "m")
+            tree.add_item("Offset y", round(offset_y, 6), "m")
+            tree.add_item("Offset z", round(offset_z, 6), "m")
+
+            info_text += str(tree)
 
     elif structural_element_type == "beam_1":
-        tree = TreeInfo("cross section")
-
         area = cross_section.area
         I_yy = cross_section.second_moment_area_y
         I_zz = cross_section.second_moment_area_z
         I_yz = cross_section.second_moment_area_yz
 
+        tree = TreeInfo("cross section")
         tree.add_item("Section type", cross_section.section_type_label, "")
         tree.add_item("Area", f"{area : .6e}", "m²")
         tree.add_item("Iyy", f"{I_yy : .6e}", "m⁴")
@@ -300,12 +316,12 @@ def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_r
             tree.add_item("Valve name", valve_name, "")
 
         tree.add_item("Outer diameter", round(cross_section.outer_diameter, 4), "m")
-        tree.add_item("Thickness", round(cross_section.thickness, 4), "m")
+        tree.add_item("Thickness", round(cross_section.thickness, 6), "m")
         tree.add_separator()
 
         if cross_section.offset_y or cross_section.offset_z:
-            tree.add_item("Offset y", round(cross_section.offset_y, 4), "m")
-            tree.add_item("Offset z", round(cross_section.offset_z, 4), "m")
+            tree.add_item("Offset y", round(cross_section.offset_y, 6), "m")
+            tree.add_item("Offset z", round(cross_section.offset_z, 6), "m")
             tree.add_separator()
 
         if cross_section.insulation_thickness or cross_section.insulation_density:
@@ -313,6 +329,13 @@ def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_r
             tree.add_item("Insulation density", round(cross_section.insulation_density, 4), "kg/m³")
 
         info_text += str(tree)
+
+    else:
+
+        if cross_section is None:
+            tree = TreeInfo("cross section")
+            tree.add_item("Info", "Undefined")
+            info_text += str(tree)
 
     return info_text
 
@@ -385,7 +408,7 @@ def analysis_info_text(frequency_index: int):
             frequencies = list(project.natural_frequencies_structural)
 
         if project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-            is_complex = len(project.complex_natural_frequencies_acoustic) > 0
+            is_complex = isinstance(project.complex_natural_frequencies_acoustic, np.ndarray)
             if is_complex:
                 frequencies = list(project.complex_natural_frequencies_acoustic)
             else:

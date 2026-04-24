@@ -11,6 +11,7 @@ from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
 from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
 from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
+from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
 
 
 rows, cols = 4, 2
@@ -200,7 +201,7 @@ class CrossSection:
         # Input cluster data for pipe and beam sections 
         self.pipe_section_info = kwargs.get('pipe_section_info', None)
         self.beam_section_info = kwargs.get('beam_section_info', None)
-        self.expansion_joint_info: dict = kwargs.get('expansion_joint_info', None)
+        self.expansion_joint_info: ExpansionJointCrossSection = kwargs.get('expansion_joint_info', None)
         self.valve_section_info: dict = kwargs.get('valve_section_info', None)
 
         self.section_type_label: str = kwargs.get('section_label', None)
@@ -218,12 +219,6 @@ class CrossSection:
         self.offset_z = 0
         self.insulation_thickness = 0
         self.insulation_density = 0
-
-        # if isinstance(self.pipe_section_info, dict):
-        #     self.load_pipe_section_data()
-
-        # if isinstance(self.beam_section_info, dict):
-        #     self.load_beam_section_data()
 
         if isinstance(self.pipe_section_info, PipeCrossSection):
             self.load_pipe_section_data()
@@ -318,12 +313,10 @@ class CrossSection:
         self.section_info = self.valve_section_info
 
     def load_expansion_joint_data(self):
-        self.section_type_label = self.expansion_joint_info[0]
-        self.outer_diameter = self.expansion_joint_info[2]
-        self.section_parameters = [ 
-            self.expansion_joint_info[1], 
-            self.expansion_joint_info[2],
-            ]
+        if isinstance(self.expansion_joint_info, ExpansionJointCrossSection):
+            self.section_type_label = self.expansion_joint_info.section_type_label
+            self.section_parameters = self.expansion_joint_info.section_parameters
+            self.outer_diameter = self.section_parameters[0]
 
     def set_section_parameters(self, parameters):
         self.outer_diameter, self.thickness = parameters

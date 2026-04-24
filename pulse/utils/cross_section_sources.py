@@ -347,20 +347,20 @@ def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offs
 
     return append_polydata.GetOutput()
 
-def expansion_joint_data(length, outside_diameter, thickness):
+def expansion_joint_data(length, outside_diameter, thickness, offset_y=0, offset_z=0):
     append_polydata = vtkAppendPolyData()
 
     width = 0.15 * outside_diameter
     pipe = pipe_data(length, outside_diameter, thickness)
-    start_flange = flange_data(width, outside_diameter + width, width)
+    start_flange = flange_data(width, outside_diameter + 3*width, width)
 
     # I just wanted to move the flange to the end of the structure
     # but that is the only way vtk let me do it.
     transform = vtkTransform()
-    transform.Translate(0, length - width, 0)
+    transform.Translate(length - width, 0, 0)
     transform.Update()
     transform_filter = vtkTransformFilter()
-    transform_filter.SetInputData(flange_data(width, outside_diameter + width, width))
+    transform_filter.SetInputData(flange_data(width, outside_diameter + 3*width, width))
     transform_filter.SetTransform(transform)
     transform_filter.Update()
     end_flange = transform_filter.GetOutput()
@@ -379,40 +379,44 @@ def expansion_joint_data(length, outside_diameter, thickness):
         ring.SetCenter(0, position + width / 2, 0)
         ring.SetResolution(15)
         ring.Update()
-        append_polydata.AddInputData(ring.GetOutput())
+        ring_data = apply_transform(ring.GetOutput(), rz=-90)
+        append_polydata.AddInputData(ring_data)
 
     tie_rods = 2
     for i in range(tie_rods):
         angle = i * 2 * np.pi / tie_rods
-        x = (3 * width + outside_diameter) / 2 * np.sin(angle)
-        z = (3 * width + outside_diameter) / 2 * np.cos(angle)
+        x = (4 * width + outside_diameter) / 2 * np.sin(angle)
+        z = (4 * width + outside_diameter) / 2 * np.cos(angle)
 
         tie_rod = vtkCylinderSource()
         tie_rod.SetHeight(length)
         tie_rod.SetRadius(width / 2)
         tie_rod.SetCenter(x, length / 2, z)
         tie_rod.Update()
-        append_polydata.AddInputData(tie_rod.GetOutput())
+        tie_rod_data = apply_transform(tie_rod.GetOutput(), rz=-90)
+        append_polydata.AddInputData(tie_rod_data)
 
         initial_nut = vtkCubeSource()
         initial_nut.SetCenter(x, width / 2, z)
         initial_nut.SetXLength(2 * width)
         initial_nut.SetYLength(width)
-        initial_nut.SetZLength(2 * width)
+        initial_nut.SetZLength(2.5 * width)
         initial_nut.Update()
-        append_polydata.AddInputData(initial_nut.GetOutput())
+        initial_nut_data = apply_transform(initial_nut.GetOutput(), rz=-90)
+        append_polydata.AddInputData(initial_nut_data)
 
         final_nut = vtkCubeSource()
         final_nut.SetCenter(x, length - width / 2, z)
         final_nut.SetXLength(2 * width)
         final_nut.SetYLength(width)
-        final_nut.SetZLength(2 * width)
+        final_nut.SetZLength(2.5 * width)
         final_nut.Update()
-        append_polydata.AddInputData(final_nut.GetOutput())
+        final_nut_data = apply_transform(final_nut.GetOutput(), rz=-90)
+        append_polydata.AddInputData(final_nut_data)
 
     append_polydata.Update()
 
-    return apply_transform(append_polydata.GetOutput(), rz=-90)
+    return apply_transform(append_polydata.GetOutput(), dy=offset_y, dz=offset_z)
 
 def valve_data(length, outside_diameter, thickness, flange_diameter, flange_length):
     append_polydata = vtkAppendPolyData()
