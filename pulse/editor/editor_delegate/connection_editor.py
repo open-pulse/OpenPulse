@@ -2,6 +2,7 @@ from itertools import pairwise
 from typing import TypeVar
 
 from pulse.editor.structures import (
+    Arc,
     CBeam,
     CircularBeam,
     ExpansionJoint,
@@ -10,9 +11,9 @@ from pulse.editor.structures import (
     Pipe,
     RectangularBeam,
     Reducer,
+    Structure,
     TBeam,
     Valve,
-    Structure
 )
 
 from .editor import Editor
@@ -27,6 +28,10 @@ class ConnectionEditor(Editor):
                 self.connect_bent_pipes(**kwargs)
             else:
                 self.connect_pipes(**kwargs)
+
+        elif issubclass(structure_type, Arc):
+            self._generic_arc_connection(structure_type, **kwargs)
+
         else:
             self._generic_structure_connection(structure_type, **kwargs)
 
@@ -69,6 +74,25 @@ class ConnectionEditor(Editor):
         structures = []
         for point_a, point_b in pairwise(self.pipeline.selected_points):
             structure = structure_type(point_a, point_b, **kwargs)
+            self.pipeline.add_structure(structure)
+            structures.append(structure)
+        return structures
+
+    def _generic_arc_connection(self, structure_type, **kwargs):
+        structures = []
+        for point_a, point_b in pairwise(self.pipeline.selected_points):
+            tangencies = self.pipeline.main_editor.get_point_tangency(point_a)
+
+            # If no tangencies try the same thing but in reverse
+            if not tangencies:
+                point_a, point_b = point_b, point_a
+                tangencies = self.pipeline.main_editor.get_point_tangency(point_a)
+
+            if not tangencies:
+                continue
+
+            tangency = tangencies[0]
+            structure = structure_type.from_tangency(point_a, point_b, tangency, **kwargs)
             self.pipeline.add_structure(structure)
             structures.append(structure)
         return structures
