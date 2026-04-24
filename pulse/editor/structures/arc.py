@@ -92,6 +92,10 @@ class Arc(Structure):
 
     @property
     def arc_length(self):
+        if self.center is None:
+            v = self.start.coords() - self.end.coords()
+            return np.linalg.norm(v)
+
         u = self.start.coords() - self.center.coords()
         v = self.end.coords() - self.center.coords()
 
