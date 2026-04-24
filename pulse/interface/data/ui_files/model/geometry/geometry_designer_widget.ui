@@ -58,7 +58,7 @@
         <x>0</x>
         <y>0</y>
         <width>467</width>
-        <height>754</height>
+        <height>761</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
@@ -789,6 +789,9 @@
                <property name="text">
                 <string>+/-</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item row="4" column="5">
@@ -807,6 +810,9 @@
                </property>
                <property name="text">
                 <string>+/-</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -852,6 +858,9 @@
                </property>
                <property name="text">
                 <string>+/-</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
