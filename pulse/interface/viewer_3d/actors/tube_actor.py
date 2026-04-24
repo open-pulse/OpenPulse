@@ -124,27 +124,27 @@ class TubeActor(vtkActor):
         length = element.length
 
         if cross_section.section_type_label in ["pipe", "bend", "arc_bend", "reducer"]:
-            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            d_out, t, offset_y, offset_z, *_ = element.cross_section.section_parameters
             return cross_section_sources.pipe_data(length, d_out, t, offset_y, offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "rectangular_beam":
-            b, h, b_in, h_in, offset_y, offset_z, *_ = element.section_parameters_render
+            b, h, b_in, h_in, offset_y, offset_z, *_ = element.cross_section.section_parameters
             return cross_section_sources.rectangular_beam_data(length, b, h, b_in, h_in, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "circular_beam":
-            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            d_out, t, offset_y, offset_z, *_ = element.cross_section.section_parameters
             return cross_section_sources.circular_beam_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "c_beam":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.cross_section.section_parameters
             return cross_section_sources.c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "i_beam":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.cross_section.section_parameters
             return cross_section_sources.i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "t_beam":
-            h, w1, t1, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            h, w1, t1, tw, offset_y, offset_z, *_ = element.cross_section.section_parameters
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "expansion_joint":
@@ -303,13 +303,17 @@ class TubeActor(vtkActor):
     def disable_cut(self):
         self.GetMapper().RemoveAllClippingPlanes()
 
-    def _hash_element_section(self, element):
+    def _hash_element_section(self, element: AcousticElement | StructuralElement):
 
         if element.cross_section is None:
             return 0
 
         section_label = element.cross_section.section_type_label
-        section_parameters = element.section_parameters_render
+
+        if element.section_parameters_render is None:
+            section_parameters = element.cross_section.section_parameters
+        else:
+            section_parameters = element.section_parameters_render
 
         if section_parameters is not None:
             section_parameters = tuple(section_parameters)
