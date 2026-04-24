@@ -1,9 +1,11 @@
 
 from pulse import TEMP_PROJECT_DIR
-from pulse.model.cross_section import CrossSection, get_beam_section_properties
+from pulse.model.cross_section import CrossSection
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 
 import numpy as np
 
@@ -34,14 +36,11 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     end_coords = [length/(3**(1/2)), length/(3**(1/2)), length/(3**(1/2))]
 
     geometry_info = {
-                     "structure_name" : section_label ,
-                     "start_coords": [0.0, 0.0, 0.0],
-                     "end_coords": end_coords,
-                     "section_type_label": section_label,
-                     "section_parameters" : section_parameters,
-                     "section_properties" : get_beam_section_properties(section_label, section_parameters),
-                     "structural_element_type" : "beam_1"
-                     }
+        "structure_name" : section_label ,
+        "start_coords": [0.0, 0.0, 0.0],
+        "end_coords": end_coords,
+        "structural_element_type" : "beam_1",
+    }
 
     model.properties._set_multiple_line_properties(geometry_info, line_id)
 
@@ -78,21 +77,14 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     ## Create the model cross-sections
 
     # section_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
-    # section_info = {
-    #                 "section_type_label" : "i_beam" ,
-    #                 "section_parameters" : section_parameters,
-    #                 "section_properties" : get_beam_section_properties("i_beam", section_parameters)
-    #                 }
+    # section_info = IBeamCrossSection(*section_parameters)
 
     section_parameters = [0.06, 0.10, 0.0, 0.0, 0.0, 0.0]
-    section_info = {
-                    "section_type_label" : "rectangular_beam" ,
-                    "section_parameters" : section_parameters,
-                    "section_properties" : get_beam_section_properties("rectangular_beam", section_parameters)
-                    }
+    section_info = RectangularBeamCrossSection(*section_parameters)
 
     cross_section = CrossSection(beam_section_info = section_info)
     model.properties._set_line_property("cross_section", cross_section, line_id)
+    model.properties._set_multiple_line_properties(section_info._as_dict(), line_id)
 
     preprocessor.set_cross_section_by_lines(line_id, cross_section)
     preprocessor.set_structural_element_type_by_lines(line_id, "beam_1")

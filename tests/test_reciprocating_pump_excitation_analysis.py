@@ -6,6 +6,7 @@ from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 import os
 import pytest
@@ -78,24 +79,27 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
     ## Create the model cross-sections
 
-    main_section_info = {"section_type_label" : "pipe" ,
-                        "section_parameters" : [0.219075, 0.015088, 0, 0, 0, 0]}
+    main_parameters = [0.219075, 0.015088, 0, 0, 0, 0]
+    header_parameters = [0.32385, 0.015088, 0, 0, 0, 0]
+    neck_parameters = [0.060325, 0.015088, 0, 0, 0, 0]
+    volume_parameters = [0.250, 0.015088, 0, 0, 0, 0]
 
-    header_section_info = {"section_type_label" : "pipe" ,
-                           "section_parameters" : [0.32385, 0.015088, 0, 0, 0, 0]}
+    main_section_info = PipeCrossSection(*main_parameters)
+    header_section_info = PipeCrossSection(*header_parameters)
+    neck_section_info = PipeCrossSection(*neck_parameters)
+    volume_section_info = PipeCrossSection(*volume_parameters)
 
-    neck_section_info = {"section_type_label" : "pipe" ,
-                         "section_parameters" : [0.060325, 0.015088, 0, 0, 0, 0]}
+    sections_info = [
+        main_section_info,
+        header_section_info,
+        neck_section_info,
+        volume_section_info,
+    ]
 
-    volume_section_info = {"section_type_label" : "pipe" ,
-                           "section_parameters" : [0.250, 0.015088, 0, 0, 0, 0]}
-
-    sections_info = [main_section_info, header_section_info, neck_section_info, volume_section_info]
-
-    cross_section_main = CrossSection(pipe_section_info = main_section_info)
-    cross_section_header = CrossSection(pipe_section_info = header_section_info)
-    cross_section_neck = CrossSection(pipe_section_info = neck_section_info)
-    cross_section_volume = CrossSection(pipe_section_info = volume_section_info)
+    cross_section_main = CrossSection(pipe_section_info=main_section_info)
+    cross_section_header = CrossSection(pipe_section_info=header_section_info)
+    cross_section_neck = CrossSection(pipe_section_info=neck_section_info)
+    cross_section_volume = CrossSection(pipe_section_info=volume_section_info)
 
     cross_sections = [cross_section_main, cross_section_header, cross_section_neck, cross_section_volume]
 
