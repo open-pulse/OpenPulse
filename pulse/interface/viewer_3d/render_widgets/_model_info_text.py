@@ -380,11 +380,13 @@ def analysis_info_text(frequency_index: int):
         AnalysisID.ACOUSTIC_MODAL,
         ]:
 
+        is_complex = False
         if project.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             frequencies = list(project.natural_frequencies_structural)
 
         if project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-            if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
+            is_complex = len(project.complex_natural_frequencies_acoustic) > 0
+            if is_complex:
                 frequencies = list(project.complex_natural_frequencies_acoustic)
             else:
                 frequencies = list(project.natural_frequencies_acoustic)
@@ -398,7 +400,7 @@ def analysis_info_text(frequency_index: int):
         mode = frequency_index + 1
         tree.add_item("Mode", mode)
 
-        if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
+        if is_complex:
             value = frequencies[frequency_index]
             damping_ratio = -np.real(value) / np.abs(value)
             damped_frequency = np.abs(value) * np.sqrt(1 - damping_ratio**2)
