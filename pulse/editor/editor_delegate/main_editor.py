@@ -2,6 +2,7 @@ from typing import TypeVar
 
 import numpy as np
 
+from pulse import app
 from pulse.editor.structures import (
     Arc,
     Bend,
@@ -100,6 +101,10 @@ class MainEditor(Editor):
             self.pipeline.select_last_point()
 
         for point in self.pipeline.selected_points:
+            for structure in self.pipeline.get_structures_of_point(point):
+                if "psd_label" in structure.extra_info or "pulsation_damper_label" in structure.extra_info:
+                    return bends
+
             vec_a, vec_b, dangling = self._get_bend_vectors(point)
             if dangling and not allow_dangling:
                 continue
