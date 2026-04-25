@@ -1253,7 +1253,7 @@ class StructuralElement:
             return R.T @ aux
 
 
-    def force_vector_stress_stiffening(self, vector_gcs=True):
+    def force_vector_stress_stiffening(self, vector_gcs: bool = True):
         """
         This method returns description
         Returns
@@ -1264,7 +1264,7 @@ class StructuralElement:
 
         rows = DOF_PER_ELEMENT
         aux = np.zeros([rows, 1])
-        
+
         D_out = self.cross_section.outer_diameter
         D_in = self.cross_section.inner_diameter
         A = self.cross_section.area
@@ -1272,18 +1272,18 @@ class StructuralElement:
 
         P_in = self.internal_pressure
         P_out = self.external_pressure
-        
+
         if self.element_type in ['pipe_1', 'valve']:
             axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
         else:
             return aux
-        
+
         if self.capped_end:
             capped_end = 1
         else:
             capped_end = 0
 
-        if self.element_type == 'pipe_1':
+        if self.element_type in ['pipe_1', 'valve']:
             principal_axis = self.cross_section.principal_axis
         else:
             raise TypeError(f'Invalid element type: {self.element_type}')
@@ -1306,7 +1306,7 @@ class StructuralElement:
             return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
         else:
             raise TypeError('Only thin and thick wall formulation types are allowable.')
-    
+
 
     def get_self_weighted_load(self, gravity_vector):
         """
