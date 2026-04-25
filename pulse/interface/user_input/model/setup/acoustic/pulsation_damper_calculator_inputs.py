@@ -129,7 +129,7 @@ class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
     def configure_static_validators(self):
 
         # configure validator for volume-related parameters
-        volume_validator = StrictDoubleValidator(1e-6, 1e8, 8)
+        volume_validator = StrictDoubleValidator(0, 1e8, 8)
         self.lineEdit_fluctuating_volume.setValidator(volume_validator)
         self.lineEdit_effective_volume.setValidator(volume_validator)
         self.lineEdit_volume_at_average_pressure.setValidator(volume_validator)

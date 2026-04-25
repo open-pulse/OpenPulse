@@ -42,20 +42,20 @@ class SectionPlaneActor(vtkActor):
         self.SetOrientation(orientation)
         self.SetScale(size)
 
-    def calculate_normal_vector(self, rotation_angles_deg: tuple | list):
+    def calculate_normal_vector(self, rot_angles_deg: tuple | list):
 
         # # angles yxz
         # angles_yxz = np.array([
-        #     rotation_angles_deg[1], 
-        #     rotation_angles_deg[0], 
-        #     rotation_angles_deg[2],
+        #     rot_angles_deg[1], 
+        #     rot_angles_deg[0], 
+        #     rot_angles_deg[2],
         #     ], dtype=float)
 
         # convert degrees to radians
-        rotation_angles = np.array(rotation_angles_deg) * np.pi / 180
+        rot_angles = np.array(rot_angles_deg) * np.pi / 180
 
         # compute the rotation matrices
-        rot_x, rot_y, rot_z = rotation_matrices(*rotation_angles)
+        rot_x, rot_y, rot_z = rotation_matrices(*rot_angles)
 
         # rotation matriz in order yxz
         rotation_matrix = rot_z @ rot_x @ rot_y

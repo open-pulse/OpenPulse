@@ -17,7 +17,7 @@ from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.ui_generated.model.editor.pulsation_suppression_device_input_ui import (
     PulsationSuppressionDeviceInput_UI,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
