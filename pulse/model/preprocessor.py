@@ -66,7 +66,7 @@ class Preprocessor:
         self.nodal_coordinates_matrix = np.array([], dtype=int)
 
         self.neighbors = defaultdict(list)
-        self.structural_elements_connected_to_node = defaultdict(list)
+        self.structural_elements_connected_to_node: defaultdict[int, list[StructuralElement]] = defaultdict(list)
         self.acoustic_elements_connected_to_node = defaultdict(list)
 
         # if isinstance(self.mesh, Mesh):

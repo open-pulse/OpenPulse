@@ -255,11 +255,12 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self.load_nodal_coordinates_of_selected_point(node)
 
             elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
-            if elements:
-                material = elements[0].material
+            if not elements:
+                return
 
-                if isinstance(material, Material):
-                    self.selected_material = material
+            material = elements[0].material
+            if isinstance(material, Material):
+                self.selected_material = material
 
         elif len(selected_points) == 1:
             point = selected_points[0]
