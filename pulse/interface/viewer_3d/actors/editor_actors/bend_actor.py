@@ -4,8 +4,8 @@ from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
 from pulse.editor.structures import Bend
 from pulse.utils.cell_utils import paint_data
-from pulse.utils.cross_section_sources import apply_transform
-from pulse.utils.rotations import get_rotation_matrix
+# from pulse.utils.cross_section_sources import apply_transform
+from pulse.utils.rotations import transformation_matrix_3x3
 
 import numpy as np
 
@@ -26,7 +26,15 @@ class BendActor(vtkActor):
         #TODO: compute the unity normal vector of the cross-section at 
         # the start point and use this vector to rotate the offsets
         normal_vector = (1, 0, 0)
-        rot_matrix = get_rotation_matrix(normal_vector, angle=0.)
+
+        # compute the transformation matrix
+        rot_matrix = transformation_matrix_3x3( 
+            normal_vector[0],
+            normal_vector[1],
+            normal_vector[2],
+            gamma = 0.,
+            )
+
         shift = rot_matrix.T @ offsets
 
         start = self.bend.start.coords() + shift
