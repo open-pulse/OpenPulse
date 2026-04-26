@@ -145,7 +145,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.lineEdit_connecting_coord_z.setValidator(coords_validator)
 
         # configure validator for geometry-related inputs
-        geom_validator = StrictDoubleValidator(1e-6, 1e8, 8)
+        geom_validator = StrictDoubleValidator(0, 1e8, 8)
         self.lineEdit_gas_volume.setValidator(geom_validator)
         self.lineEdit_damper_volume.setValidator(geom_validator)
         self.lineEdit_outside_diameter_liquid.setValidator(geom_validator)
@@ -255,8 +255,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self.load_nodal_coordinates_of_selected_point(node)
 
             elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
-            material = elements[0].material
+            if not elements:
+                return
 
+            material = elements[0].material
             if isinstance(material, Material):
                 self.selected_material = material
 

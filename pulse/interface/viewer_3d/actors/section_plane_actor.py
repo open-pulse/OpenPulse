@@ -4,6 +4,7 @@ import numpy as np
 
 from pulse.utils.rotations import rotation_matrices
 from pulse.utils.math_utils import lerp
+# from scipy.spatial.transform import Rotation
 
 
 class SectionPlaneActor(vtkActor):
@@ -41,14 +42,32 @@ class SectionPlaneActor(vtkActor):
         self.SetOrientation(orientation)
         self.SetScale(size)
 
-    def calculate_normal_vector(self, orientation):
-        # https://forum.gamemaker.io/index.php?threads/solved-3d-rotations-with-a-shader-matrix-or-a-matrix-glsl-es.61064/
+    def calculate_normal_vector(self, rot_angles_deg: tuple | list):
 
-        orientation = np.array(orientation) * np.pi / 180
-        rx, ry, rz = rotation_matrices(*orientation)
+        # # angles yxz
+        # angles_yxz = np.array([
+        #     rot_angles_deg[1], 
+        #     rot_angles_deg[0], 
+        #     rot_angles_deg[2],
+        #     ], dtype=float)
 
-        normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
-        return normal[:3]
+        # convert degrees to radians
+        rot_angles = np.array(rot_angles_deg) * np.pi / 180
+
+        # compute the rotation matrices
+        rot_x, rot_y, rot_z = rotation_matrices(*rot_angles)
+
+        # rotation matriz in order yxz
+        rotation_matrix = rot_z @ rot_x @ rot_y
+        # rotation_matrix = Rotation.from_euler('yxz', angles_yxz, degrees=True).as_matrix()
+
+        # unit vector in x-axis direction
+        e_x = np.array([1, 0, 0], dtype=float)
+
+        # rotate the unit x-axis vector to compute the normal plane vector
+        normal_vector = rotation_matrix @ e_x
+
+        return normal_vector
 
     def calculate_xyz_position(self, position):
         x = lerp(self._bounds[0], self._bounds[1], position[0] / 100)

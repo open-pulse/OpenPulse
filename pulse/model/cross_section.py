@@ -246,26 +246,26 @@ class CrossSection:
         self.insulation_density = self.section_info.insulation_density
 
     def load_beam_section_data(self):
-        self.section_type_label = self.beam_section_info.section_type_label
-        self.section_parameters = self.beam_section_info.section_parameters
-        self.section_properties = self.beam_section_info.section_properties
+        self.section_info = self.beam_section_info
+        self.section_type_label = self.section_info.section_type_label
+        self.section_parameters = self.section_info.section_parameters
+        self.section_properties = self.section_info.section_properties
 
         self.area = self.section_properties['area']
         self.second_moment_area_y = self.section_properties['Iyy']
         self.second_moment_area_z = self.section_properties['Izz']
         self.second_moment_area_yz = self.section_properties['Iyz']
         
-        if isinstance(self.beam_section_info, GenericBeamCrossSection):
-            self.shear_coefficient = self.beam_section_info.shear_coefficient
+        if isinstance(self.section_info, GenericBeamCrossSection):
+            self.shear_coefficient = self.section_info.shear_coefficient
         else:
             self.offset_y = self.section_parameters[-2]
             self.offset_z = self.section_parameters[-1]
 
-        self.section_info = self.beam_section_info
-
     def load_expansion_joint_data(self):
-        self.section_type_label = self.expansion_joint_info.section_type_label
-        self.section_parameters = self.expansion_joint_info.section_parameters
+        self.section_info = self.expansion_joint_info
+        self.section_type_label = self.section_info.section_type_label
+        self.section_parameters = self.section_info.section_parameters
         self.outer_diameter = self.section_parameters[0]
 
     def load_valve_section_data(self):

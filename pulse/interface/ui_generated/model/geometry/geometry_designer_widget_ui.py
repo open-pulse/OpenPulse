@@ -42,7 +42,7 @@ class Ui_Form(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 467, 754))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 467, 761))
         self.gridLayout_4 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(4, 4, 4, 4)
@@ -304,6 +304,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.invert_y_sign.sizePolicy().hasHeightForWidth())
         self.invert_y_sign.setSizePolicy(sizePolicy)
         self.invert_y_sign.setMaximumSize(QSize(40, 16777215))
+        self.invert_y_sign.setAutoDefault(False)
 
         self.gridLayout_10.addWidget(self.invert_y_sign, 3, 5, 1, 1)
 
@@ -312,6 +313,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.invert_z_sign.sizePolicy().hasHeightForWidth())
         self.invert_z_sign.setSizePolicy(sizePolicy)
         self.invert_z_sign.setMaximumSize(QSize(40, 16777215))
+        self.invert_z_sign.setAutoDefault(False)
 
         self.gridLayout_10.addWidget(self.invert_z_sign, 4, 5, 1, 1)
 
@@ -328,6 +330,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.invert_x_sign.sizePolicy().hasHeightForWidth())
         self.invert_x_sign.setSizePolicy(sizePolicy)
         self.invert_x_sign.setMaximumSize(QSize(40, 16777215))
+        self.invert_x_sign.setAutoDefault(False)
 
         self.gridLayout_10.addWidget(self.invert_x_sign, 2, 5, 1, 1)
 

@@ -52,6 +52,8 @@ class IBeamOptions(StructureOptions):
             return
 
         self.structure_info = self.cross_section_widget.beam_section_info.as_dict()
+        self.cross_section_dialog.reset()
+
         self.configure_section_of_selected()
         self.update_permissions()
 

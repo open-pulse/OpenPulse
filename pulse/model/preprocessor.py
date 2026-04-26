@@ -6,10 +6,15 @@ from pulse.interface.user_input.model.setup.structural.expansion_joint_input imp
 from pulse.interface.user_input.model.setup.structural.valves_input import (
     get_V_linear_distribution,
 )
-from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit, convert_pressure_unit
+from pulse.interface.user_input.numeric_checks.unit_utilities import (
+    convert_length_unit,
+    convert_pressure_unit,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.acoustic_element import NODES_PER_ELEMENT, AcousticElement
 from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
 from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
@@ -18,12 +23,11 @@ from pulse.utils.common_utils import (
     get_linear_distribution_for_variable_section,
     slicer,
     split_sequence,
-    transformation_matrix_3x3xN,
-    transformation_matrix_Nx3x3_by_angles,
 )
-
-from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
-from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
+from pulse.utils.rotations import (
+    transformation_matrix_3x3_by_angles,
+    transformation_matrix_3x3xN,
+)
 
 if TYPE_CHECKING:
     from pulse.model.mesh import Mesh
@@ -62,7 +66,7 @@ class Preprocessor:
         self.nodal_coordinates_matrix = np.array([], dtype=int)
 
         self.neighbors = defaultdict(list)
-        self.structural_elements_connected_to_node = defaultdict(list)
+        self.structural_elements_connected_to_node: defaultdict[int, list[StructuralElement]] = defaultdict(list)
         self.acoustic_elements_connected_to_node = defaultdict(list)
 
         # if isinstance(self.mesh, Mesh):
@@ -2089,9 +2093,11 @@ class Preprocessor:
             if element.decoupling_info is None:
                 rotation_data[index,:] = element.mean_rotations_at_local_coordinate_system()   
             else:
-                rotation_data[index,:] = element.rotations_at_local_coordinate_system_decoupled() 
+                rotation_data[index,:] = element.rotations_at_local_coordinate_system_decoupled()
 
-        rotation_results_matrices = transformation_matrix_Nx3x3_by_angles(rotation_data[:, 0], rotation_data[:, 1], rotation_data[:, 2])  
+        rotation_results_matrices = transformation_matrix_3x3_by_angles(
+            rotation_data[:, 0], rotation_data[:, 1], rotation_data[:, 2]
+        )
         matrix_resultant = rotation_results_matrices@self.transformation_matrices 
         r = Rotation.from_matrix(matrix_resultant)
         angles = -r.as_euler('zxy', degrees=True)

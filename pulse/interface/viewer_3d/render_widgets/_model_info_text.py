@@ -11,16 +11,51 @@ from pulse.model import AnalysisID, RadiationImpedanceType
 from pulse.model.cross_section import CrossSection
 
 
+def _unit_abreviation(length_unit: str):
+    if length_unit == "meter":
+        return "m"
+
+    elif length_unit == "milimeter":
+        return "mm"
+
+    elif length_unit == "inch":
+        return "in"
+
+    else:
+        return None
+
 def nodes_info_text() -> str:
 
     nodes = app().main_window.list_selected_nodes()
     preprocessor = app().project.model.preprocessor
     properties = app().project.model.properties
+    length_unit = preprocessor.mesh.length_unit
 
     info_text = ""
 
     if len(nodes) > 1:
-        info_text += (f"{len(nodes)} NODES IN SELECTION\n" f"{format_long_sequence(nodes)}\n\n")
+        if len(nodes) == 2:
+            unit = _unit_abreviation(length_unit)
+            node_A = preprocessor.nodes[nodes[0]]
+            node_B = preprocessor.nodes[nodes[1]]
+
+            tree_selection = TreeInfo(f"{len(nodes)} NODES IN SELECTION")
+            tree_selection.add_item(f"Position (node {nodes[0]})", "[{:.6f}, {:.6f}, {:.6f}]".format(*node_A.coordinates), "m")
+            tree_selection.add_item(f"Position (node {nodes[1]})", "[{:.6f}, {:.6f}, {:.6f}]".format(*node_B.coordinates), "m")
+            info_text += str(tree_selection)
+
+            dx, dy, dz = np.round(np.abs(node_B.coordinates - node_A.coordinates), 6)
+            distance = np.round(np.linalg.norm(node_B.coordinates - node_A.coordinates), 6)
+
+            tree = TreeInfo("DISTANCE")
+            tree.add_item("Total", distance, unit)
+            tree.add_item("dx", dx, unit)
+            tree.add_item("dy", dy, unit)
+            tree.add_item("dz", dz, unit)
+            info_text += str(tree)
+
+        else:
+            info_text += (f"{len(nodes)} NODES IN SELECTION\n" f"{format_long_sequence(nodes)}\n\n")
 
     elif len(nodes) == 1:
 

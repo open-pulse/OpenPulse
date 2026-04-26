@@ -24,9 +24,9 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(480, 460)
-        Dialog.setMinimumSize(QSize(480, 460))
-        Dialog.setMaximumSize(QSize(480, 460))
+        Dialog.resize(520, 460)
+        Dialog.setMinimumSize(QSize(520, 460))
+        Dialog.setMaximumSize(QSize(520, 460))
         self.gridLayout = QGridLayout(Dialog)
         self.gridLayout.setSpacing(4)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -398,8 +398,8 @@ class Ui_Dialog(object):
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         ___qtreewidgetitem = self.treeWidget_lines_info.headerItem()
         ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Pressure units", None))
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Internal pressure [Pa]", None))
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"External pressure [Pa]", None))
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Internal pressure", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"External pressure", None))
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Lines", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_lines_info.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p><span style=\" font-weight:400; font-style:normal;\">Select a group to remove the capped end attributed to lines</span></p></body></html>", None))
