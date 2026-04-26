@@ -25,8 +25,8 @@ from pulse.utils.common_utils import (
     split_sequence,
 )
 from pulse.utils.rotations import (
-    transformation_matrix_3x3_by_angles,
-    transformation_matrix_3x3xN,
+    rotation_matrix_3x3_by_angles,
+    rotation_matrix_3x3_by_deltas,
 )
 
 if TYPE_CHECKING:
@@ -75,7 +75,7 @@ class Preprocessor:
         self.number_structural_elements = 0
         self.number_acoustic_elements = 0
 
-        self.transformation_matrices = None
+        self.rotation_matrix_gcs_to_lcs = None
         self.section_rotations_xyz = None
 
         self.element_type = "pipe_1" # defined as default
@@ -2095,10 +2095,10 @@ class Preprocessor:
             else:
                 rotation_data[index,:] = element.rotations_at_local_coordinate_system_decoupled()
 
-        rotation_results_matrices = transformation_matrix_3x3_by_angles(
+        rotation_results_matrices = rotation_matrix_3x3_by_angles(
             rotation_data[:, 0], rotation_data[:, 1], rotation_data[:, 2]
         )
-        matrix_resultant = rotation_results_matrices@self.transformation_matrices 
+        matrix_resultant = rotation_results_matrices@self.rotation_matrix_gcs_to_lcs 
         r = Rotation.from_matrix(matrix_resultant)
         angles = -r.as_euler('zxy', degrees=True)
         
@@ -2107,30 +2107,38 @@ class Preprocessor:
 
     def process_all_rotation_matrices(self):
         """
-        This method ???????
+        This method processes the element and cross-section rotations. 
         """
         delta_data = np.zeros((self.number_structural_elements, 3), dtype=float)
         xaxis_rotation_angle = np.zeros(self.number_structural_elements, dtype=float)
         for index, element in enumerate(self.structural_elements.values()):
             delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
-            xaxis_rotation_angle[index] = element.beam_xaxis_rotation 
+            xaxis_rotation_angle[index] = element.beam_xaxis_rotation
 
-        self.transformation_matrices = transformation_matrix_3x3xN( delta_data[:,0], 
-                                                                    delta_data[:,1], 
-                                                                    delta_data[:,2], 
-                                                                    gamma = xaxis_rotation_angle)
+        self.rotation_matrix_gcs_to_lcs = rotation_matrix_3x3_by_deltas(
+            delta_data[:,0],
+            delta_data[:,1],
+            delta_data[:,2],
+            gamma = xaxis_rotation_angle,
+            )
 
-        # output_data = inverse_matrix_Nx3x3(self.transformation_matrices)
-        r = Rotation.from_matrix(self.transformation_matrices)
-        rotations = -r.as_euler('zxy', degrees=True)
-        rotations_xyz = np.array([rotations[:,1], rotations[:,2], rotations[:,0]]).T
+        # output_data = inverse_matrix_Nx3x3(self.rotation_matrix_gcs_to_lcs)
+        rot = Rotation.from_matrix(self.rotation_matrix_gcs_to_lcs.transpose((0, 2, 1)))
+        rot_angles = rot.as_euler('zxy', degrees=True)
+
+        rotations_xyz = np.array([
+            rot_angles[:, 1], 
+            rot_angles[:, 2], 
+            rot_angles[:, 0]
+            ], dtype=float).T
+
         self.section_rotations_xyz = rotations_xyz.copy()
-        
+
         for index, element in enumerate(self.structural_elements.values()):
-            element.sub_transformation_matrix = self.transformation_matrices[index, :, :]
-            element.section_directional_vectors = self.transformation_matrices[index, :, :]
-            element.section_rotation_xyz_undeformed = self.section_rotations_xyz[index,:]
-   
+            element.sub_transformation_matrix = self.rotation_matrix_gcs_to_lcs[index, :, :]
+            element.section_directional_vectors = self.rotation_matrix_gcs_to_lcs[index, :, :]
+            element.section_rotation_xyz_undeformed = self.section_rotations_xyz[index, :]
+
 
     def deformed_amplitude_control_in_expansion_joints(self):
         """This method evaluates the deformed amplitudes in expansion joints nodes

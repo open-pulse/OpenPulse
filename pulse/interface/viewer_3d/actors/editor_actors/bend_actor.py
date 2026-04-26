@@ -4,8 +4,7 @@ from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
 from pulse.editor.structures import Bend
 from pulse.utils.cell_utils import paint_data
-# from pulse.utils.cross_section_sources import apply_transform
-from pulse.utils.rotations import transformation_matrix_3x3
+from pulse.utils.rotations import rotation_matrix_3x3_by_deltas
 
 import numpy as np
 
@@ -28,7 +27,7 @@ class BendActor(vtkActor):
         normal_vector = (1, 0, 0)
 
         # compute the transformation matrix
-        rot_matrix = transformation_matrix_3x3( 
+        rot_matrix = rotation_matrix_3x3_by_deltas( 
             normal_vector[0],
             normal_vector[1],
             normal_vector[2],

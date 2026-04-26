@@ -1,124 +1,101 @@
 import numpy as np
-from scipy.spatial.transform import Rotation
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 
 
-def transformation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
+def rotation_matrix_3x3_by_deltas(delta_x: np.ndarray, delta_y: np.ndarray, delta_z: np.ndarray, gamma: float=0):
     '''    
-    This method returns the rotation matrix of an element 
-    based on its spatial position. 
-    
+    This method returns the rotation matrix of an element (or structure) based on 
+    the delta x, y and z lengths from the start node, beyond the x-axis rotation 
+    angle (twist angle). This rotation matrix transforms the global coordinate system 
+    into the local coordinate system.
+
     Parameters
     ----------
-    delta_x: int, float
-        value in meters
-    
-    delta_y: int, float
-        value in meters
+    delta_x: float | np.ndarray
+        Angle value(s) in radians
 
-    delta_z: int, float
-        value in meters
+    delta_y: float | np.ndarray
+        Angle value(s) in radians
+
+    delta_z: float | np.ndarray
+        Angle value(s) in radians
+
+    gamma: float
+        X-axis rotation angle.
 
     Returns
     -------
-    out: numpy.ndarray(3,3)
-        rotation matrix
+    data_rot: numpy.ndarray
+        The rotation matrix having dimension 3x3 if if the arguments are float numbers
+        or Nx3x3 if they are np.ndarrays (N=len(delta_x)=len(delta_y)=len(delta_z))
 
     '''
 
     L_ = np.sqrt(delta_x**2 + delta_y**2)
     L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
 
-    cossine_epsilon = L_ / L
-    sine_epsilon = - delta_z / L
-    
-    if L_ > 0.0001*L:
-        sine_delta = delta_y/L_
-        cossine_delta = delta_x/L_
+    cossine_gamma = np.cos(gamma)
+    sine_gamma = np.sin(gamma)
+
+    mask = L_ > 0.0001 * L
+
+    if isinstance(L, np.ndarray):
+        number_elements = len(delta_x)
+        indexes = np.arange(number_elements, dtype=int)
+        sine_delta = np.zeros(number_elements, dtype=float)
+        cossine_delta = np.ones(number_elements, dtype=float)
+
+        mask_ind = indexes[mask]
+        sine_delta[mask_ind] = delta_y[mask_ind] / L_[mask_ind]
+        cossine_delta[mask_ind] = delta_x[mask_ind] / L_[mask_ind]
+
     else:
-        sine_delta = 0
-        cossine_delta = 1
-    
-    cossine_gamma = np.cos(gamma)
-    sine_gamma = np.sin(gamma)
 
-    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
-    rotation_matrix = np.array([    [   cossine_delta * cossine_epsilon, 
-                                       sine_delta * cossine_epsilon, 
-                                        -sine_epsilon   ], 
-                                    [   cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
-                                        sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
-                                        cossine_epsilon * sine_gamma    ],
-                                    [   cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
-                                        sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
-                                        cossine_epsilon * cossine_gamma ]    ]) 
-
-    return rotation_matrix
-
-
-def transformation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
-    '''    
-    This method returns the rotation matrices to a set of N elements 
-    based on their spatial positions. 
-    
-    Parameters
-    ----------
-    delta_x: numpy.ndarray
-        values in meters
-    
-    delta_y: numpy.ndarray
-        values in meters
-
-    delta_z: numpy.ndarray
-        values in meters
-
-    Returns
-    -------
-    out: numpy.ndarray(N,3,3)
-        rotation matrix
-
-    '''
-
-    number_elements = len(delta_x)
-    L_ = np.sqrt(delta_x**2 + delta_y**2)
-    L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
-    
-    cossine_gamma = np.cos(gamma)
-    sine_gamma = np.sin(gamma)
-
-    sine_delta = np.zeros(number_elements, dtype=float)
-    cossine_delta = np.zeros(number_elements, dtype=float)
-
-    for i in range(number_elements):
-
-        if L_[i] > 0.0001*L[i]:
-            sine_delta[i] = delta_y[i]/L_[i]
-            cossine_delta[i] = delta_x[i]/L_[i]
+        if mask:
+            sine_delta = delta_y / L_
+            cossine_delta = delta_x / L_
 
         else:
-            sine_delta[i] = 0
-            cossine_delta[i] = 1
+            sine_delta = 0
+            cossine_delta = 1
+
+    # for i in range(number_elements):
+
+    #     if L_[i] > 0.0001*L[i]:
+    #         sine_delta[i] = delta_y[i]/L_[i]
+    #         cossine_delta[i] = delta_x[i]/L_[i]
+
+    #     else:
+    #         sine_delta[i] = 0
+    #         cossine_delta[i] = 1
 
     cossine_epsilon = L_ / L
     sine_epsilon = - delta_z / L
-    
-    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
-    data_rot = np.array([   cossine_delta * cossine_epsilon, 
-                            sine_delta * cossine_epsilon, 
-                            -sine_epsilon, 
-                            cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
-                            sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
-                            cossine_epsilon * sine_gamma,
-                            cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
-                            sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
-                            cossine_epsilon * cossine_gamma   ])
 
-    return data_rot.T.reshape(-1,3,3)
+    # Matrices product order - Rx@Ry@Rz 
+    # Reference: Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677
+
+    data_rot = np.array([   
+        cossine_delta * cossine_epsilon, 
+        sine_delta * cossine_epsilon, 
+        -sine_epsilon, 
+        cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
+        sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
+        cossine_epsilon * sine_gamma,
+        cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
+        sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
+        cossine_epsilon * cossine_gamma,
+        ], dtype=float)
+
+    if isinstance(delta_x, np.ndarray):
+        return data_rot.T.reshape(-1, 3, 3)
+    else:
+        return data_rot.reshape(3, 3)
 
 
-def transformation_matrix_3x3_by_angles(gamma: float | np.ndarray, epsilon: float | np.ndarray, delta: float | np.ndarray):
+def rotation_matrix_3x3_by_angles(gamma: float | np.ndarray, epsilon: float | np.ndarray, delta: float | np.ndarray):
     '''    
     This method returns the rotation matrix of an element based on 
     the angles of rotations gamma, epsilon and delta. 
@@ -171,28 +148,35 @@ def transformation_matrix_3x3_by_angles(gamma: float | np.ndarray, epsilon: floa
         return data_rot.reshape(3, 3)
 
 
-def align_vtk_geometry(geometry: vtkPolyData, start: np.ndarray, vector: np.ndarray, angle: float = 0):
-    x, y, z = start
+def align_vtk_geometry(geometry: vtkPolyData, start_coords: np.ndarray, vector: np.ndarray, angle: float = 0):
 
     # compute the transformation matrix
-    transformation_matrices = transformation_matrix_3x3( 
+    rotation_matrix = rotation_matrix_3x3_by_deltas( 
         vector[0],
         vector[1],
         vector[2],
         gamma = angle,
     )
 
-    # compute the rotation matrix
-    rot_matrix = Rotation.from_matrix(transformation_matrices)
 
-    # compute the rotation angles rz, rx and ry in degrees
-    rz, rx, ry = -rot_matrix.as_euler('zxy', degrees=True)
+    """
+    The transformation matrix M combines the rotation and translation.
+    
+    #    M = | R_00 R_01 R_02 T_x |
+    #        | R_10 R_11 R_12 T_y |
+    #        | R_20 R_21 R_22 T_z |
+    #        |  0    0    0    1  |
+
+
+    """
+
+    # define the transformation matrix M
+    transformation_matrix = np.eye(4, dtype=float)
+    transformation_matrix[:3, :3] = rotation_matrix.T
+    transformation_matrix[:3, -1] = start_coords
 
     transform = vtkTransform()
-    transform.Translate(x, y, z)
-    transform.RotateZ(rz)
-    transform.RotateX(rx)
-    transform.RotateY(ry)
+    transform.SetMatrix(transformation_matrix.flatten())
     transform.Update()
 
     transform_filter = vtkTransformFilter()
@@ -239,7 +223,7 @@ def rotation_matrices(theta_x: float, theta_y: float, theta_z: float):
         [1, 0, 0],
         [0, cos[0], -sin[0]],
         [0, sin[0], cos[0]],
-        ]
+        ], dtype=float
     )
 
     # rotation about y-axis
@@ -248,7 +232,7 @@ def rotation_matrices(theta_x: float, theta_y: float, theta_z: float):
         [cos[1], 0, sin[1]],
         [0, 1, 0],
         [-sin[1], 0, cos[1]],
-        ]
+        ], dtype=float
     )
 
     # rotation about x-axis
@@ -257,7 +241,64 @@ def rotation_matrices(theta_x: float, theta_y: float, theta_z: float):
         [cos[2], -sin[2], 0],
         [sin[2], cos[2], 0],
         [0, 0, 1],
-        ]
+        ], dtype=float
     )
 
     return rot_x, rot_y, rot_z
+
+## TODO: to be removed
+# def rotation_matrix_3x3_by_deltas(delta_x, delta_y, delta_z, gamma=0):
+#     '''    
+#     This method returns the rotation matrix of an element 
+#     based on its spatial position. 
+    
+#     Parameters
+#     ----------
+#     delta_x: int, float
+#         value in meters
+    
+#     delta_y: int, float
+#         value in meters
+
+#     delta_z: int, float
+#         value in meters
+
+#     Returns
+#     -------
+#     out: numpy.ndarray(3,3)
+#         rotation matrix
+
+#     '''
+
+#     L_ = np.sqrt(delta_x**2 + delta_y**2)
+#     L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
+
+#     cossine_epsilon = L_ / L
+#     sine_epsilon = - delta_z / L
+
+#     if L_ > 0.0001*L:
+#         sine_delta = delta_y/L_
+#         cossine_delta = delta_x/L_
+
+#     else:
+#         sine_delta = 0
+#         cossine_delta = 1
+
+#     cossine_gamma = np.cos(gamma)
+#     sine_gamma = np.sin(gamma)
+
+#     # Matrices product order - Rx@Ry@Rz 
+#     # Reference: Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677
+#     rotation_matrix = np.array([
+#         cossine_delta * cossine_epsilon, 
+#         sine_delta * cossine_epsilon, 
+#         -sine_epsilon, 
+#         cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
+#         sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
+#         cossine_epsilon * sine_gamma,
+#         cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
+#         sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
+#         cossine_epsilon * cossine_gamma,
+#         ], dtype=float) 
+
+#     return rotation_matrix.reshape(3, 3)
