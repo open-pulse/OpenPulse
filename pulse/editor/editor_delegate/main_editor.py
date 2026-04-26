@@ -78,6 +78,7 @@ class MainEditor(Editor):
 
             vector = tangent_vectors[0]
             deltas = vector * length
+
             structure = self._add_generic_linear_structure_to_point(
                 structure_type,
                 deltas,
@@ -278,7 +279,9 @@ class MainEditor(Editor):
             v = normalize(structure.mid.coords() - structure.center.coords())
             n = np.cross(v, u)
             tangency = np.cross(n, u)
-            directions.append(tangency)
+            size = np.linalg.norm(tangency)
+            if size:
+                directions.append(tangency / size)
 
         for structure in self.pipeline.structures_of_type(Fillet):
             if structure.is_colapsed():
