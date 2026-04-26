@@ -5,8 +5,8 @@ from functools import partial
 from pathlib import Path
 from shutil import rmtree
 from sys import argv
-from time import time
 
+# from time import time
 from molde import stylesheets
 from molde.colors import color_names
 from molde.render_widgets import CommonRenderWidget
@@ -19,8 +19,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 
-# TODO: remove this import
-# TODO: remove this import
 from pulse import (
     QSS_DIR,
     TEMP_PROJECT_DIR,
@@ -189,38 +187,38 @@ class MainWindow(MainWindow_UI):
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
 
     def configure_window(self):
-        t0 = time()
+        # t0 = time()
         # self._load_stylesheets()
         self._config_window()
         self._connect_actions()
         app().splash.update_progress(30)
         self._load_section_plane()
-        dt = time() - t0
+        # dt = time() - t0
         # print(f"Time to process A: {round(dt, 6)} [s]")
 
-        t1 = time()
+        # t1 = time()
         self._create_layout()
         self._create_status_bar()
         self._update_recent_projects()
         self._add_toolbars()
         app().splash.update_progress(70)
-        dt = time() - t1
+        # dt = time() - t1
         # print(f"Time to process B: {round(dt, 6)} [s]")
 
-        t2 = time()
+        # t2 = time()
         self.plot_lines_with_cross_sections()
         self.configure_welcome_widget()
         self.load_user_preferences()
         self.create_temporary_folder()
         app().splash.update_progress(98)
-        dt = time() - t2
+        # dt = time() - t2
         # print(f"Time to process C: {round(dt, 6)} [s]")
 
         app().splash.close()
         self.showMaximized()
 
         app().processEvents()
-        dt = time() - t0
+        # dt = time() - t0
         # print(f"Time to process D: {round(dt, 6)} [s]")
 
         if not self.is_temporary_folder_empty():
@@ -326,7 +324,7 @@ class MainWindow(MainWindow_UI):
     # public
     def update_plots(self, reset_camera=True):
         self.model_setup_widget.model_setup_items.update_items_apperence()
-        self.project.enhance_pipe_sections_appearance()
+        self.project.model.enhance_pipe_sections_appearance()
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)
         self.results_widget.update_plot(reset_camera)
