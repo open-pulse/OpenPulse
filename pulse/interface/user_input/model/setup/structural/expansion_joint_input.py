@@ -12,7 +12,7 @@ from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_u
 from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
     StructuralLinesInput,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -61,7 +61,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
     def _configure_validators(self):
 
-        general_validator = StrictDoubleValidator(0, 1e8, 6)
+        general_validator = StrictDoubleValidator(1e-6, 1e8, 6)
         self.lineEdit_effective_diameter.setValidator(general_validator)
         self.lineEdit_joint_mass.setValidator(general_validator)
 

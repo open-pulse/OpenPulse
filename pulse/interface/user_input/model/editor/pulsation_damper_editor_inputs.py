@@ -33,7 +33,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     temperature_units_labels,
     volume_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -145,7 +145,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.lineEdit_connecting_coord_z.setValidator(coords_validator)
 
         # configure validator for geometry-related inputs
-        geom_validator = StrictDoubleValidator(0, 1e8, 8)
+        geom_validator = StrictDoubleValidator(1e-6, 1e8, 8)
         self.lineEdit_gas_volume.setValidator(geom_validator)
         self.lineEdit_damper_volume.setValidator(geom_validator)
         self.lineEdit_outside_diameter_liquid.setValidator(geom_validator)

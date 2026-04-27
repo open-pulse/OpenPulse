@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar, QWidget
 
 from pulse import app
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.utils.interface_utils import check_inputs
 
 
@@ -72,8 +72,8 @@ class MeshToolbar(QToolBar):
         self.pushButton_generate_mesh.setFixedSize(120, 30)
 
     def  _configure_validators(self):
-        self.lineEdit_element_size.setValidator(StrictDoubleValidator(0, 1e6, 8))
-        self.lineEdit_geometry_tolerance.setValidator(StrictDoubleValidator(0, 10, 8))
+        self.lineEdit_element_size.setValidator(StrictDoubleValidator(1e-8, 1e6, 8))
+        self.lineEdit_geometry_tolerance.setValidator(StrictDoubleValidator(1e-12, 10, 8))
 
     def get_spacer(self):
         spacer = QWidget()

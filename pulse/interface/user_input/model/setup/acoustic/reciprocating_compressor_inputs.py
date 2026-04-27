@@ -22,7 +22,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
@@ -151,7 +151,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
     def configure_static_validators(self):
 
         # configure validator for geometric parameters
-        geom_validator = StrictDoubleValidator(0, 1e8, 8)
+        geom_validator = StrictDoubleValidator(1e-6, 1e8, 8)
         self.lineEdit_bore_diameter.setValidator(geom_validator)
         self.lineEdit_stroke.setValidator(geom_validator)
         self.lineEdit_connecting_rod_length.setValidator(geom_validator)

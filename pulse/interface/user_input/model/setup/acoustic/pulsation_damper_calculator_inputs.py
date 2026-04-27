@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt
 from pulse import app
 from pulse.interface.ui_generated.model.setup.acoustic.pulsation_damper_calculator_inputs_ui import PulsationDamperCalculatorInputs_UI
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
     convert_pressure_unit,
     convert_temperature_unit,
@@ -129,7 +129,7 @@ class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
     def configure_static_validators(self):
 
         # configure validator for volume-related parameters
-        volume_validator = StrictDoubleValidator(0, 1e8, 8)
+        volume_validator = StrictDoubleValidator(1e-6, 1e8, 8)
         self.lineEdit_fluctuating_volume.setValidator(volume_validator)
         self.lineEdit_effective_volume.setValidator(volume_validator)
         self.lineEdit_volume_at_average_pressure.setValidator(volume_validator)
