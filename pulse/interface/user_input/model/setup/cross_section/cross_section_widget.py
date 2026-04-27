@@ -14,7 +14,7 @@ from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter 
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import (
     GetStandardCrossSection,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
 from pulse.model.cross_sections.circular_beam_cross_section import (
