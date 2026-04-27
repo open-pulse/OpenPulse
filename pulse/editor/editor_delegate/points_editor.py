@@ -6,7 +6,7 @@ from .editor import Editor
 
 
 class PointsEditor(Editor):
-    def attatch_point(self, point: Point):
+    def attach_point(self, point: Point):
         replaced_points = []
 
         for structure in self.pipeline.structures:

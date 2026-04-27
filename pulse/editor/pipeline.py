@@ -305,7 +305,7 @@ class Pipeline:
 
     # Points Editor
     def attach_point(self, point: Point):
-        self.points_editor.attatch_point(point)
+        self.points_editor.attach_point(point)
 
     def detatch_point(self, point: Point):
         return self.points_editor.dettatch_point(point)
