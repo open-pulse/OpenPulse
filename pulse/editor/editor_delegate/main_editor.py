@@ -72,7 +72,7 @@ class MainEditor(Editor):
 
             if len(tangent_vectors) != 1:
                 continue
-        
+
             if length == 0:
                 continue
 
@@ -105,6 +105,10 @@ class MainEditor(Editor):
             for structure in self.pipeline.get_structures_of_point(point):
                 if "psd_label" in structure.extra_info or "pulsation_damper_label" in structure.extra_info:
                     return bends
+
+            # do not allow adding Bends in more than two connections
+            if len(self.get_point_tangency(point)) > 2:
+                continue
 
             vec_a, vec_b, dangling = self._get_bend_vectors(point)
             if dangling and not allow_dangling:
