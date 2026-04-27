@@ -12,7 +12,7 @@ from pulse.editor.editor_delegate import (
 from pulse.editor.structures import Bend, Elbow, Pipe, Point, Structure, TBeam
 
 # only to help the editor, ignore it
-generic_type = TypeVar("generic_type")
+GenericStructure = TypeVar("GenericStructure")
 
 
 class Pipeline:
@@ -51,7 +51,7 @@ class Pipeline:
     def all_structures(self):
         return chain(self.structures, self.staged_structures)
 
-    def structures_of_type(self, structure_type: generic_type) -> Generator[generic_type, None, None]:
+    def structures_of_type(self, structure_type: type[GenericStructure]) -> Generator[GenericStructure, None, None]:
         for structure in self.all_structures():
             if isinstance(structure, structure_type):
                 yield structure
@@ -126,7 +126,7 @@ class Pipeline:
             self.structures.pop(i)
 
         if rejoin and isinstance(structure, Bend | Elbow):
-            self.attatch_point(structure.corner)
+            self.attach_point(structure.corner)
 
         self.remove_structures(neighbours_to_remove)
 
@@ -304,7 +304,7 @@ class Pipeline:
         return self.replace_editor.replace_selection_by(TBeam, **kwargs)
 
     # Points Editor
-    def attatch_point(self, point: Point):
+    def attach_point(self, point: Point):
         self.points_editor.attatch_point(point)
 
     def detatch_point(self, point: Point):
