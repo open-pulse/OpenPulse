@@ -47,12 +47,12 @@ class IBeamOptions(StructureOptions):
         if not self.cross_section_dialog.complete:
             return
 
+        self.cross_section_dialog.reset()
         if self.cross_section_widget.get_beam_section_parameters():
-            self.configure_structure()  # if it is invalid try again
+            self.configure_structure()
             return
 
         self.structure_info = self.cross_section_widget.beam_section_info.as_dict()
-        self.cross_section_dialog.reset()
 
         self.configure_section_of_selected()
         self.update_permissions()
