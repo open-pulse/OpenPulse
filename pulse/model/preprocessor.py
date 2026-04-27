@@ -76,7 +76,6 @@ class Preprocessor:
         self.number_acoustic_elements = 0
 
         self.rotation_matrix_gcs_to_lcs = None
-        self.section_rotations_xyz = None
 
         self.element_type = "pipe_1" # defined as default
         self.flag_fluid_mass_effect = False
@@ -2122,27 +2121,24 @@ class Preprocessor:
             gamma = xaxis_rotation_angle,
             )
 
-        # output_data = inverse_matrix_Nx3x3(self.rotation_matrix_gcs_to_lcs)
-        rot = Rotation.from_matrix(self.rotation_matrix_gcs_to_lcs)
-        rot_angles = -rot.as_euler('zxy', degrees=True)
+        # # old version to compute the normal vector rotation angles
+        # rot = Rotation.from_matrix(self.rotation_matrix_gcs_to_lcs)
+        # rot_angles = -rot.as_euler('zxy', degrees=True)
 
-        # TODO: review this
-        # rot = Rotation.from_matrix(self.rotation_matrix_gcs_to_lcs.transpose((0, 2, 1)))
-        # rot_angles = rot.as_euler('zxy', degrees=True)
+        # new version to compute the normal vector rotation angles
+        rot = Rotation.from_matrix(self.rotation_matrix_gcs_to_lcs.transpose(0, 2, 1))
+        rot_angles = rot.as_euler('yxz', degrees=True)
 
         rotations_xyz = np.array([
             rot_angles[:, 1], 
-            rot_angles[:, 2], 
-            rot_angles[:, 0]
+            rot_angles[:, 0], 
+            rot_angles[:, 2]
             ], dtype=float).T
-
-        self.section_rotations_xyz = rotations_xyz.copy()
 
         for index, element in enumerate(self.structural_elements.values()):
             element.sub_transformation_matrix = self.rotation_matrix_gcs_to_lcs[index, :, :]
             element.section_directional_vectors = self.rotation_matrix_gcs_to_lcs[index, :, :]
-            element.section_rotation_xyz_undeformed = self.section_rotations_xyz[index, :]
-
+            element.section_rotation_xyz_undeformed = rotations_xyz[index, :]
 
     def deformed_amplitude_control_in_expansion_joints(self):
         """This method evaluates the deformed amplitudes in expansion joints nodes

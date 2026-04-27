@@ -159,7 +159,7 @@ class Project:
         self.loader.load_mesh_dependent_properties()
 
         logging.info("Finalizing model data loading [75%]")
-        self.model.preprocessor.process_all_rotation_matrices()
+        # self.model.preprocessor.process_all_rotation_matrices()
         self.model.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
