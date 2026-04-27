@@ -150,7 +150,7 @@ def rotation_matrix_3x3_by_angles(gamma: float | np.ndarray, epsilon: float | np
 
 def align_vtk_geometry(geometry: vtkPolyData, start_coords: np.ndarray, vector: np.ndarray, angle: float = 0):
 
-    # compute the transformation matrix
+    # compute the rotation matrix
     rotation_matrix = rotation_matrix_3x3_by_deltas( 
         vector[0],
         vector[1],
