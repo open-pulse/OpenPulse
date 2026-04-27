@@ -12,7 +12,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     PressureUnits,
     pressure_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )

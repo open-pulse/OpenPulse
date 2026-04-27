@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QLineEdit
 from PySide6.QtGui import QCloseEvent
 
 from pulse import app
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import (
     InertialLoadInput_UI,
 )

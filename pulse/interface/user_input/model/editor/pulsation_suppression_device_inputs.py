@@ -17,7 +17,7 @@ from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.ui_generated.model.editor.pulsation_suppression_device_input_ui import (
     PulsationSuppressionDeviceInput_UI,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -153,7 +153,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
 
 
     def configure_static_validators(self):
-        geometric_data_validator = StrictDoubleValidator(0, 1e8, 8)
+        geometric_data_validator = StrictDoubleValidator(1e-6, 1e8, 8)
 
         part_key_map = {
             "volume1": "volume #1 parameters",

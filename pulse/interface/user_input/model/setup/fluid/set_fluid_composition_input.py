@@ -25,7 +25,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validators import is_numeric, StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import is_numeric, StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )

@@ -1,3 +1,4 @@
+from PySide6.QtCore import QLocale
 from PySide6.QtGui import QDoubleValidator
 
 
@@ -5,6 +6,7 @@ class StrictDoubleValidator(QDoubleValidator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._last_acceptable = None
+        self.setLocale(QLocale.c())
 
     def fixup(self, string: str):
         if self._last_acceptable is None:

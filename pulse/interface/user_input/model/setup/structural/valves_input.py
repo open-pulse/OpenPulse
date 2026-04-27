@@ -15,7 +15,7 @@ from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input impo
 from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
     StructuralLinesInput,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -67,7 +67,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
     def _configure_validators(self):
 
-        validator = StrictDoubleValidator(0, 1e10, 6)
+        validator = StrictDoubleValidator(1e-6, 1e10, 6)
 
         for line_edit in self.findChildren(QLineEdit):
             obj_name = line_edit.objectName()
