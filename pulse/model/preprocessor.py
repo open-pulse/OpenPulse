@@ -2116,15 +2116,19 @@ class Preprocessor:
             xaxis_rotation_angle[index] = element.beam_xaxis_rotation
 
         self.rotation_matrix_gcs_to_lcs = rotation_matrix_3x3_by_deltas(
-            delta_data[:,0],
-            delta_data[:,1],
-            delta_data[:,2],
+            delta_data[:, 0],
+            delta_data[:, 1],
+            delta_data[:, 2],
             gamma = xaxis_rotation_angle,
             )
 
         # output_data = inverse_matrix_Nx3x3(self.rotation_matrix_gcs_to_lcs)
-        rot = Rotation.from_matrix(self.rotation_matrix_gcs_to_lcs.transpose((0, 2, 1)))
-        rot_angles = rot.as_euler('zxy', degrees=True)
+        rot = Rotation.from_matrix(self.rotation_matrix_gcs_to_lcs)
+        rot_angles = -rot.as_euler('zxy', degrees=True)
+
+        # TODO: review this
+        # rot = Rotation.from_matrix(self.rotation_matrix_gcs_to_lcs.transpose((0, 2, 1)))
+        # rot_angles = rot.as_euler('zxy', degrees=True)
 
         rotations_xyz = np.array([
             rot_angles[:, 1], 
