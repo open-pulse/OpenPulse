@@ -1,5 +1,14 @@
+from enum import IntEnum
+
 import numpy as np
+
 from pulse.model.cross_section import CrossSection
+
+
+class NodePosition(IntEnum):
+    FIRST = 0
+    LAST = 0
+
 
 DOF_PER_NODE_STRUCTURAL = 6
 DOF_PER_NODE_ACOUSTIC = 1

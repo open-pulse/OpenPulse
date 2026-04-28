@@ -15,7 +15,7 @@ from pulse.model.acoustic_element import NODES_PER_ELEMENT, AcousticElement
 from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
-from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node, NodePosition
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 from pulse.model.structural_element import StructuralElement  #, NODES_PER_ELEMENT
@@ -1218,73 +1218,58 @@ class Preprocessor:
             Default is [False, False, False]
 
         """
-        DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
-        N = DOF_PER_NODE_STRUCTURAL
-        mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 
         coords = np.array(data["coords"], dtype=float)
         node_id = self.get_node_id_by_coordinates(coords)
         if node_id is None:
             return
 
-        decoupled_rotations = data["decoupled_rotations"]
+        decoupled_rotations: list = data.get("decoupled_rotations")
+        if decoupled_rotations is None:
+            return
+
         neighboor_elements = self.structural_elements_connected_to_node[node_id]
 
         if len(neighboor_elements) < 3:
-            return mat_ones
+            return
         
-        mat_base = np.array([[1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-                             [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
-                             [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
-                             [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
-                             [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-                             [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
-                             [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-                             [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
-                             [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
-                             [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
-                             [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-                             [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]], dtype=float)
+        mat_base = np.array([
+            [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+            [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+            [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
+            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+            [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+            [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+            [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
+            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+            ], dtype=float)
 
         node = self.nodes[node_id]
         element = self.structural_elements[element_id]
+        local_dofs = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
 
-        if decoupled_rotations.count(False) == 3:
-            mat_out = mat_ones
-
-        elif decoupled_rotations.count(True) == 3:  
-            mat_out = mat_base
-
-        elif node in [element.first_node]:
-  
-            temp = mat_base[:int(N/2), :int(N/2)].copy()
-            mat_base[:N,:N] = np.zeros((N,N), dtype=int)
-            mat_base[:int(N/2), :int(N/2)] = temp
-
-            for index, value in enumerate(decoupled_rotations):
-                if not value:
-                    ij = index + int(N/2)
-                    mat_base[:, [ij, ij+N]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
-                    mat_base[[ij, ij+N], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
-            mat_out = mat_base
+        if node in [element.first_node]:
+            node_position = NodePosition.FIRST
+            indexes = local_dofs[3:]
 
         elif node in [element.last_node]:
-   
-            temp = mat_base[N:int(3*N/2), N:int(3*N/2)].copy()
-            mat_base[N:,N:] = np.zeros((N,N), dtype=int)
-            mat_base[N:int(3*N/2), N:int(3*N/2)] = temp
+            node_position = NodePosition.LAST
+            indexes = local_dofs[3:] + DOF_PER_NODE_STRUCTURAL
 
-            for index, value in enumerate(decoupled_rotations):
-                if not value:
-                    ij = index + int(3*N/2)
-                    mat_base[:, [ij-N, ij]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
-                    mat_base[[ij-N, ij], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
-            mat_out = mat_base
+        else:
+            return
 
-        element.decoupling_matrix = mat_out
-        element.decoupling_info = [element_id, node_id, decoupled_rotations]
-                
-        return mat_out  
+        ij = indexes[decoupled_rotations]
+
+        mat_base[ij, :] = 0
+        mat_base[:, ij] = 0
+
+        element.decoupling_matrix = mat_base
+        element.decoupling_info = [element_id, node_id, node_position, decoupled_rotations]
 
     def enable_fluid_mass_adding_effect(self, reset=False):
         """

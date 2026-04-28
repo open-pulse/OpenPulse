@@ -1,9 +1,10 @@
+
 import numpy as np
 
 from pulse.model.cross_section import CrossSection
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node, NodePosition, distance
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.model.node import distance, DOF_PER_NODE_STRUCTURAL, Node
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
@@ -330,7 +331,7 @@ class StructuralElement:
     def rotations_at_local_coordinate_system_decoupled(self):
 
         results_lcs = self.element_results_lcs()
-        [_, node_id, decoupled_rotations] = self.decoupling_info
+        [_, node_id, _, decoupled_rotations] = self.decoupling_info
 
         for index, value in enumerate(decoupled_rotations):
             if index == 0:
@@ -1433,18 +1434,20 @@ class StructuralElement:
 
         # stiffness matrix diagonal construction
         rows, cols = np.diag_indices(DOF_PER_ELEMENT)
-        ke[[rows], [cols]] = np.array([ E * A / L               ,
-                                        12 * beta_12_a / L**3   ,
-                                        12 * beta_13_a / L**3   ,
-                                        G * J / L               ,
-                                        beta_13_b / L           ,
-                                        beta_12_b / L           ,
-                                        E * A / L               ,
-                                        12 * beta_12_a / L**3   ,
-                                        12 * beta_13_a / L**3   ,
-                                        G * J / L               ,
-                                        beta_13_b / L           ,
-                                        beta_12_b / L           ])
+        ke[[rows], [cols]] = np.array([ 
+            E * A / L               ,
+            12 * beta_12_a / L**3   ,
+            12 * beta_13_a / L**3   ,
+            G * J / L               ,
+            beta_13_b / L           ,
+            beta_12_b / L           ,
+            E * A / L               ,
+            12 * beta_12_a / L**3   ,
+            12 * beta_13_a / L**3   ,
+            G * J / L               ,
+            beta_13_b / L           ,
+            beta_12_b / L           ,
+            ], dtype=float)
 
         # stiffness matrix out diagonal construction
         ke[ 6   , 0 ] = - E * A / L
@@ -1460,14 +1463,70 @@ class StructuralElement:
         ke[[4,10],[2,2]] = - 6 * beta_13_a / L**2
         ke[[8,10],[4,8]] =   6 * beta_13_a / L**2
 
-        # if decoupling_matrix is None:
-        #     Ke = self.symmetrize(me)
-        # else:
-        #     Ke = self.symmetrize(me)*decoupling_matrix
+        if self.decoupling_info is None:
+            Ke = symmetrize(ke)
 
-        Ke = symmetrize(ke) * self.decoupling_matrix
+        else:
+            print(self.index, self.decoupling_info)
+            [_, _, node_position, decouple_mask] = self.decoupling_info
+            Ke_decoup = self.decouple_rotations(ke, node_position, decouple_mask)
+            Ke = symmetrize(Ke_decoup)
+
+        # Ke = symmetrize(ke) * self.decoupling_matrix
 
         return principal_axis.T @ Ke @ principal_axis
+
+    def decouple_rotations(self, Ke: np.ndarray, node_position: NodePosition, decouple_mask: list[bool, bool, bool]):
+        """
+        This method processes the modified elementary stiffness matrix considering the rotation dofs decoupling.
+
+        Parameters
+        ----------
+        Ke: np.ndarray
+            The elementary stiffness matrix.
+
+        node_position: NodePosition | int
+            An integer used to represent the node position (use 0 for first node and 1 for last node).
+        
+        decouple_mask: list[bool]
+            A list of three boolean values used to decouple rotations x, y, and z, respectively.
+            If the value is True, the corresponding rotation will be decoupled.
+        
+        Return
+        ------
+        K_mod: np.ndarray
+            The modified elementary stiffness matrix.
+
+        """
+
+        first_node = node_position == NodePosition.FIRST
+        rotation_indices = [3, 4, 5] if first_node else [9, 10, 11]
+
+        decouple_indices = list()
+        for i, ind in enumerate(rotation_indices):
+            if decouple_mask[i]:
+                decouple_indices.append(ind)
+
+        all_indices = np.arange(DOF_PER_ELEMENT, dtype=int)
+        kept_indices = np.delete(all_indices, decouple_indices)
+
+        K_aa = Ke[np.ix_(kept_indices, kept_indices)]
+        K_ab = Ke[np.ix_(kept_indices, decouple_indices)]
+        K_ba = Ke[np.ix_(decouple_indices, kept_indices)]
+        K_bb = Ke[np.ix_(decouple_indices, decouple_indices)]
+
+        # compute the condensed matrix
+        K_cond = K_aa - K_ab @ np.linalg.inv(K_bb) @ K_ba
+
+        # initialize the modified elementary stiffness matrix
+        K_mod = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+        # fill out the modified elementary stiffness matrix
+        K_mod[np.ix_(kept_indices, kept_indices)] = K_cond
+
+        # np.savetxt("K_mod_matrix.dat", K_mod, delimiter=",")
+
+        return K_mod
 
     def mass_matrix_beam(self):
         """
