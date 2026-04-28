@@ -185,6 +185,14 @@
    <property name="windowTitle">
     <string>Main toolbar</string>
    </property>
+   <property name="styleSheet">
+    <string notr="true">QToolBar {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888888;
+}
+</string>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -219,6 +227,14 @@
   <widget class="QToolBar" name="workspaces_toolbar">
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QToolBar {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888888;
+}
+</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>

@@ -367,9 +367,21 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.tool_bar = QToolBar(MainWindow)
         self.tool_bar.setObjectName(u"tool_bar")
+        self.tool_bar.setStyleSheet(u"QToolBar {\n"
+"    border-style: solid;\n"
+"    border-width: 1px;\n"
+"    border-color: #888888;\n"
+"}\n"
+"")
         MainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.tool_bar)
         self.workspaces_toolbar = QToolBar(MainWindow)
         self.workspaces_toolbar.setObjectName(u"workspaces_toolbar")
+        self.workspaces_toolbar.setStyleSheet(u"QToolBar {\n"
+"    border-style: solid;\n"
+"    border-width: 1px;\n"
+"    border-color: #888888;\n"
+"}\n"
+"")
         self.workspaces_toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         MainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.workspaces_toolbar)
 
