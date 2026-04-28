@@ -1467,12 +1467,12 @@ class StructuralElement:
             Ke = symmetrize(ke)
 
         else:
-            print(self.index, self.decoupling_info)
-            [_, _, node_position, decouple_mask] = self.decoupling_info
-            Ke_decoup = self.decouple_rotations(ke, node_position, decouple_mask)
-            Ke = symmetrize(Ke_decoup)
+            # print(self.index, self.decoupling_info)
+            # [_, _, node_position, decouple_mask] = self.decoupling_info
+            # Ke_decoup = self.decouple_rotations(ke, node_position, decouple_mask)
+            # Ke = symmetrize(Ke_decoup)
 
-        # Ke = symmetrize(ke) * self.decoupling_matrix
+            Ke = symmetrize(ke) * self.decoupling_matrix
 
         return principal_axis.T @ Ke @ principal_axis
 
