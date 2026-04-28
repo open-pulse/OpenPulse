@@ -221,9 +221,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 self.current_phase_step = phase_step
 
                 self.update_plot()
-                cached = vtkPolyData()
-                cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
-                self._animation_cached_data[frame] = cached
+                cached_tubes = vtkPolyData()
+                cached_lines = vtkPolyData()
+                cached_tubes.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+                cached_lines.DeepCopy(self.lines_actor.GetMapper().GetInput())
+                self._animation_cached_data[frame] = (cached_tubes, cached_lines)
                 
                 if not self.is_complex_result:
                     mirrored_frame = self._animation_total_frames - frame - 1
@@ -258,8 +260,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if frame in self._animation_cached_data:
             logging.info(f"Rendering animation frame [{frame}/{self._animation_total_frames}]")
-            cached = self._animation_cached_data[frame]
-            self.tubes_actor.GetMapper().SetInputData(cached)
+            cached_tubes, cached_lines = self._animation_cached_data[frame]
+            self.tubes_actor.GetMapper().SetInputData(cached_tubes)
+            self.lines_actor.GetMapper().SetInputData(cached_lines)
             self.update()
         else:
             # It will only enter here if something wrong happened
@@ -270,9 +273,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.current_phase_step = phase_step
 
             self.update_plot()
-            cached = vtkPolyData()
-            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
-            self._animation_cached_data[frame] = cached
+            cached_tubes = vtkPolyData()
+            cached_lines = vtkPolyData()
+            cached_tubes.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+            cached_lines.DeepCopy(self.lines_actor.GetMapper().GetInput())
+            self._animation_cached_data[frame] = (cached_tubes, cached_lines)
 
     def visualization_changed_callback(self, update=True):
         if not self._actor_exists():
