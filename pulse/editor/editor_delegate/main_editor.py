@@ -44,6 +44,9 @@ class MainEditor(Editor):
         if not issubclass(structure_type, Structure):
             return list()
 
+        if deltas == (0, 0, 0):
+            return list()
+
         if issubclass(structure_type, Pipe):
             if self.is_bend_allowed(self.pipeline.selected_points):
                 return self.add_bent_pipe(deltas, **kwargs)
