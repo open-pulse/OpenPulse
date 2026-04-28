@@ -570,7 +570,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             self.pipeline.divide_structures(value / 100)
 
         elif index == 1:
-            value = self.division_slider.value()
+            value = self.division_amount_spinbox.value()
             self.pipeline.divide_structures_evenly(value)
 
         elif index == 2:
