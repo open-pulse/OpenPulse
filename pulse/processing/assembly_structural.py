@@ -269,15 +269,14 @@ class AssemblyStructural:
 
         flag_Clump = False
 
-        _properties = [  
-                        "lumped_masses",
-                        "lumped_stiffness",
-                        "lumped_dampings",
-                        "psd_structural_links",
-                        "stiffness_elastic_links",
-                        "damping_nodal_links",
-                       ]
-
+        _properties = [
+            "lumped_masses",
+            "lumped_stiffness",
+            "lumped_dampings",
+            "psd_structural_links",
+            "stiffness_nodal_links",
+            "damping_nodal_links",
+        ]
 
         for (_property, *args), data in self.model.properties.nodal_properties.items():
 
