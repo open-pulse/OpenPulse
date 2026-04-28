@@ -185,15 +185,6 @@
    <property name="windowTitle">
     <string>Main toolbar</string>
    </property>
-   <property name="styleSheet">
-    <string notr="true"> QToolBar {
- 	border-style: solid;
- 	border-width: 1px;
-	border-color: #888888;
-}
-            
- </string>
-   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -225,7 +216,7 @@
    <addaction name="action_show_transparent"/>
    <addaction name="separator"/>
   </widget>
-  <widget class="QToolBar" name="workspaces_tool_bar">
+  <widget class="QToolBar" name="workspaces_toolbar">
    <property name="windowTitle">
     <string>toolBar</string>
    </property>

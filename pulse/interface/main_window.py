@@ -400,7 +400,7 @@ class MainWindow(MainWindow_UI):
         self.analysis_toolbar.setDisabled(True)
         self.mesh_toolbar.setDisabled(True)
         self.tool_bar.setDisabled(True)
-        self.workspaces_tool_bar.setDisabled(True)
+        self.workspaces_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
 
     def plot_lines(self):
@@ -560,7 +560,7 @@ class MainWindow(MainWindow_UI):
         )
         self.close_dialogs()
         self.tool_bar.setDisabled(False)
-        self.workspaces_tool_bar.setDisabled(False)
+        self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
@@ -584,7 +584,7 @@ class MainWindow(MainWindow_UI):
 
         self.mesh_toolbar.setDisabled(False)
         self.tool_bar.setDisabled(False)
-        self.workspaces_tool_bar.setDisabled(False)
+        self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.animation_toolbar.setDisabled(True)
         self.render_tools_toolbar.enable_selection_tool()
