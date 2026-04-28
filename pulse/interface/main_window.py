@@ -1050,7 +1050,7 @@ class MainWindow(MainWindow_UI):
         file_path = FileDialogService.save_file(extensions, "Save As", last_path)
 
         if file_path is None:
-            return obj.complete
+            return False
 
         if obj.ignore_results_data:
             app().project.file.remove_results_data_from_project_file()
