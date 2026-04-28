@@ -74,7 +74,7 @@ class UserInput(QDialog):
                 if dof_label != "":
                     caption += f" ({dof_label})"
                 
-                extensions = ["csv", "dat", "txt"]
+                extensions = ["xls", "xlsx", "csv", "dat", "txt"]
 
                 table_path = FileDialogService.open_file(extensions, caption, last_path)
 
