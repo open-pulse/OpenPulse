@@ -1060,7 +1060,7 @@ class MainWindow(MainWindow_UI):
 
         self.save_project_as(file_path)
 
-        return obj.complete
+        return True
 
     def save_project_as(self, path):
 
