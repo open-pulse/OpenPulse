@@ -198,6 +198,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         app().config.update_config_file()
         self.update_plot()
 
+    def actors_to_cache(self):
+        return (
+            self.tubes_actor,
+            self.lines_actor,
+            self.nodes_actor,
+            self.points_actor,
+        )
+
     def cache_animation_frames(self):
         self._animation_current_frequency = self.current_frequency_index
         self._animation_color_map = self.colormap
@@ -213,11 +221,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 self.current_phase_step = phase_step
 
                 self.update_plot()
-                cached_tubes = vtkPolyData()
-                cached_lines = vtkPolyData()
-                cached_tubes.DeepCopy(self.tubes_actor.GetMapper().GetInput())
-                cached_lines.DeepCopy(self.lines_actor.GetMapper().GetInput())
-                self._animation_cached_data[frame] = (cached_tubes, cached_lines)
+                cached = []
+                for actor in self.actors_to_cache():
+                    pd = vtkPolyData()
+                    pd.DeepCopy(actor.GetMapper().GetInput())
+                    cached.append(pd)
+                self._animation_cached_data[frame] = tuple(cached)
 
                 if not self.is_complex_result:
                     mirrored_frame = self._animation_total_frames - frame - 1
@@ -252,9 +261,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if frame in self._animation_cached_data:
             logging.info(f"Rendering animation frame [{frame}/{self._animation_total_frames}]")
-            cached_tubes, cached_lines = self._animation_cached_data[frame]
-            self.tubes_actor.GetMapper().SetInputData(cached_tubes)
-            self.lines_actor.GetMapper().SetInputData(cached_lines)
+
+            cached = self._animation_cached_data[frame]
+            for actor, cache in zip(self.actors_to_cache(), cached):
+                actor.GetMapper().SetInputData(cache)
             self.update()
         else:
             # It will only enter here if something wrong happened
@@ -265,11 +275,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.current_phase_step = phase_step
 
             self.update_plot()
-            cached_tubes = vtkPolyData()
-            cached_lines = vtkPolyData()
-            cached_tubes.DeepCopy(self.tubes_actor.GetMapper().GetInput())
-            cached_lines.DeepCopy(self.lines_actor.GetMapper().GetInput())
-            self._animation_cached_data[frame] = (cached_tubes, cached_lines)
+            cached = []
+            for actor in self.actors_to_cache():
+                pd = vtkPolyData()
+                pd.DeepCopy(actor.GetMapper().GetInput())
+                cached.append(pd)
+            self._animation_cached_data[frame] = tuple(cached)
 
     def visualization_changed_callback(self, update=True):
         if not self._actor_exists():
