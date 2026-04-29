@@ -262,13 +262,14 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
 
     def update_bending_radius_visibility(self):
         index = self.bending_options_combobox.currentIndex()
+        self.bending_radius_line_edit.blockSignals(True)
+
         if index == 2:
             self.bending_radius_line_edit.setEnabled(True)
             if self.bending_radius_line_edit.text() in ["1.5*D", "1.0*D"]:
                 self.bending_radius_line_edit.clear()
 
         else:
-            self.bending_radius_line_edit.blockSignals(True)
             self.bending_radius_line_edit.setEnabled(False)
             d = self.get_pipe_diameter()
 
@@ -289,7 +290,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             else:
                 self.bending_radius_line_edit.clear()
 
-            self.bending_radius_line_edit.blockSignals(False)
+        self.bending_radius_line_edit.blockSignals(False)
 
     def get_pipe_diameter(self):
         try:
@@ -306,11 +307,13 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         return diameter
 
     def bending_options_changed_callback(self):
+        self.update_bending_radius_visibility()
+
         if self.pipeline.selected_structures:
             self._update_bending_radius_of_selected_structures()
-            self.update_bending_radius_visibility()
             self._update_permissions()
             self.render_widget.update_plot(reset_camera=False)
+
         else:
             self.xyz_changed_callback()
 
@@ -327,7 +330,6 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             return
 
         try:
-            self.update_bending_radius_visibility()
             xyz = self._get_xyz()
         except ValueError:
             return
@@ -854,6 +856,18 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             structure.curvature_radius = bending_radius
 
         self.pipeline.recalculate_curvatures()
+
+    def _add_bending_on_selected_points(self):
+        if not isinstance(self.current_options, PipeOptions):
+            return
+
+        d = self.get_pipe_diameter()
+        if d is None:
+            return
+
+        pipe_options: PipeOptions = self.structure_options[PipeOptions.name()]
+        bending_radius = pipe_options._get_bending_radius(d)
+        self.pipeline.add_bend(bending_radius)
 
     def _unit_abreviation(self, unit):
         if self.length_unit == "meter":
