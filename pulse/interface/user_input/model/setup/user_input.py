@@ -99,14 +99,14 @@ class UserInput(QDialog):
                 imported_data = imported_file.data
 
             else:
-                self.parent().hide()
+                self.hide()
                 message = "The imported table file extension is not supported. "
                 PrintMessageInput([error_title, title, message])
                 line_edit.setFocus()
                 return None, None
 
             if imported_data.shape[1] < 3:
-                self.parent().hide()
+                self.hide()
                 message = "The imported table has an insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([error_title, title, message])
@@ -114,7 +114,7 @@ class UserInput(QDialog):
                 return None, None
            
             if self._check_table_frequency_vector(imported_data[:, 0]):
-                self.parent().hide()
+                self.hide()
                 message = "The frequencies vector from imported table has a non-uniform frequency "
                 message += "spacing. The frequencies vector must be equally spaced."
                 PrintMessageInput([error_title, title, message])
