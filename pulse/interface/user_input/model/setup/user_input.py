@@ -8,6 +8,7 @@ from PySide6.QtGui import QCloseEvent, QColor, Qt
 from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QWidget
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.data_handler.file_dialog_service import (
     FileDialogService,
@@ -62,7 +63,6 @@ class UserInput(QDialog):
     
     def load_table(self, line_edit: QLineEdit, bc_label: str, dof_label: str = "", direct_load: bool = False):
 
-        error_title = "Error"
         title = "Error while loading table"
 
         try:

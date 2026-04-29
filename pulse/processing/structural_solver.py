@@ -1,16 +1,14 @@
-# fmt: off
-
 import logging
 
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import eigs, spsolve
 
+from pulse.interface import error_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.model import Model
 from pulse.processing.assembly_structural import AssemblyStructural
 
-error_title = "Error"
 
 class StructuralSolver:
     """ This class creates a Structural Solution object from input data.
@@ -741,5 +739,3 @@ class StructuralSolver:
         if self.model.preprocessor.stop_processing:
             print("\nProcessing interruption was requested by the user. \nSolution interruped.")
             return True
-
-# fmt: on

@@ -1,14 +1,17 @@
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_ui import GetAcousticFrequencyResponse_UI
+from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_ui import (
+    GetAcousticFrequencyResponse_UI,
+)
+from pulse.interface.user_input.data_handler.export_model_results import (
+    ExportModelResults,
+)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
     def __init__(self, *args, **kwargs):

@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QLineEdit
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.ui_generated.model.setup.cross_section.cross_section_widget_ui import (
     CrossSectionWidget_UI,
 )
@@ -14,7 +15,9 @@ from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter 
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import (
     GetStandardCrossSection,
 )
-from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
 from pulse.model.cross_sections.circular_beam_cross_section import (
@@ -48,8 +51,6 @@ class BeamType(IntEnum):
     I_BEAM = 3
     T_BEAM = 4
     GENERIC_BEAM = 5
-
-error_title = "Error"
 
 
 class CrossSectionWidget(CrossSectionWidget_UI):

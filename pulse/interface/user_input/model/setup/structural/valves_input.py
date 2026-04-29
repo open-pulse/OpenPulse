@@ -38,8 +38,6 @@ class AcousticBehavior(IntEnum):
     CLOSED = 2
 
 
-error_title = "Error"
-
 
 class ValvesInput(StructuralLinesInput, ValveInput_UI):
     def __init__(self, *args, **kwargs):

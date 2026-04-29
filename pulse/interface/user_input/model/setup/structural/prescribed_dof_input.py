@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.structural.prescribed_dof_input_ui import (
     PrescribedDofInput_UI,
 )
@@ -14,14 +15,13 @@ from pulse.interface.user_input.model.setup.general.get_information_of_group imp
 from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
     StructuralNodesInput,
 )
-from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class DOFSetup(IntEnum):

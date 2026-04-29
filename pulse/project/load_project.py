@@ -1,19 +1,25 @@
 from typing import TYPE_CHECKING
 
 from pulse import version
+from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import (
+    CircularBeamCrossSection,
+)
+from pulse.model.cross_sections.generic_beam_cross_section import (
+    GenericBeamCrossSection,
+)
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import (
+    RectangularBeamCrossSection,
+)
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-
-from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
-from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
-from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
-from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
-from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
-from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
-from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
 
 if TYPE_CHECKING:
     from pulse.project.project import Project
@@ -23,9 +29,6 @@ from collections import defaultdict
 
 import numpy as np
 from packaging.version import Version
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class LoadProject:

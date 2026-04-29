@@ -8,9 +8,6 @@ from pathlib import Path
 from scipy.spatial.transform import Rotation
 
 
-error_title = "Error"
-warning_title = "Warning"
-
 def split_sequence(sequence, size):
     ''' 
     This function breaks a sequence in equal sized blocks of choosen size.

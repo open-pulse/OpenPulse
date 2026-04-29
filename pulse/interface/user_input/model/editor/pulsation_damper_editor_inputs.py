@@ -15,12 +15,16 @@ from PySide6.QtWidgets import (
 from pulse import app
 from pulse.editor.pulsation_damper import PulsationDamper
 from pulse.editor.structures.point import Point
+from pulse.interface import error_title, warning_title
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui import (
     PulsationDamperEditorInputs_UI,
 )
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
     SetFluidInputSimplified,
+)
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
 )
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
     PressureUnits,
@@ -33,7 +37,6 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     temperature_units_labels,
     volume_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -49,10 +52,6 @@ from pulse.model.properties.material import Material
 class VolumeSections(IntEnum):
     EQUAL = 0
     DISTINCT = 1
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):

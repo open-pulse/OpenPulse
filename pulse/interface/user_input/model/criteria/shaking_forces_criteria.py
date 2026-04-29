@@ -1,17 +1,19 @@
+import logging
+
+import numpy as np
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.plot_shaking_forces_ui import PlotShakingForces_UI
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface import error_title
+from pulse.interface.ui_generated.plots.results.acoustic.plot_shaking_forces_ui import (
+    PlotShakingForces_UI,
+)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-
-import logging
-import numpy as np
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class ShakingForcesCriteriaInput(PlotShakingForces_UI):
     def __init__(self, *args, **kwargs):
@@ -139,7 +141,7 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
             else:
                 title = "Invalid selection"
                 message = "Select at least one force component to proceed with the shaking forces calculation."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
 
     def call_plotter(self):
 

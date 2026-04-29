@@ -1,14 +1,11 @@
-from PySide6.QtGui import QCloseEvent, QDesktopServices
 from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QCloseEvent, QDesktopServices
 
-from pulse import app, version, release_date
+from pulse import app, release_date, version
+from pulse.interface import error_title
 from pulse.interface.ui_generated.project.about_open_pulse_ui import AboutOpenPulse_UI
-
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class AboutOpenPulseInput(AboutOpenPulse_UI):
     def __init__(self, *args, **kwargs):
@@ -79,11 +76,11 @@ class AboutOpenPulseInput(AboutOpenPulse_UI):
             if not QDesktopServices.openUrl(url):
                 message = "The OpenPulse repository at the GitHub's site cannot be accessed.\n"
                 message += "We reccomend trying again later."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([error_title, title, message])
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
         self.close()
 

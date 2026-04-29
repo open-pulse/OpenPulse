@@ -1,33 +1,35 @@
-from PySide6.QtGui import QCloseEvent
+from enum import IntEnum
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.pulsation_damper_calculator_inputs_ui import PulsationDamperCalculatorInputs_UI
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
-from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
+from pulse.interface.ui_generated.model.setup.acoustic.pulsation_damper_calculator_inputs_ui import (
+    PulsationDamperCalculatorInputs_UI,
+)
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
+    SetFluidInputSimplified,
+)
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
+    PressureUnits,
+    TemperatureUnits,
+    VolumeUnits,
     convert_pressure_unit,
     convert_temperature_unit,
     convert_volume_unit,
-    PressureUnits, 
-    TemperatureUnits,
-    VolumeUnits,
     pressure_units_labels,
     temperature_units_labels,
     volume_units_labels,
 )
-
 from pulse.model.properties.fluid import Fluid
-
-from enum import IntEnum
 
 
 class CompressionType(IntEnum):
     ISENTROPIC = 0
     ISOTHERMAL = 1
-
-
-error_title = "Error"
 
 
 class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):

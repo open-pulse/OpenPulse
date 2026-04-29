@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.ui_generated.model.setup.structural.b2p_decoupling_rotation_dofs_input_ui import (
     B2pDecouplingRotationDofsInput_UI,
 )
@@ -19,9 +20,6 @@ from pulse.model.structural_element import decoupling_matrix
 class TabIndex(IntEnum):
     SETUP = 0
     LIST = 1
-
-
-error_title = "Error"
 
 
 class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_UI):

@@ -1,5 +1,3 @@
-# fmt: off
-
 from pulse.model import RadiationImpedanceType
 from pulse.model.node import Node, distance
 from pulse.model.perforated_plate import Foks_function, PerforatedPlateFormulation
@@ -1056,5 +1054,3 @@ class AcousticElement:
 
         elif impedance_type == RadiationImpedanceType.UNFLANGED:
             return self.unflanged_termination_impedance(kappa_complex, impedance_complex)
-
-# fmt: on

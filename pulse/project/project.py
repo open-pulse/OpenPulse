@@ -1,4 +1,3 @@
-# fmt: off
 
 import logging
 from collections import defaultdict
@@ -6,6 +5,7 @@ from pathlib import Path
 
 from pulse import TEMP_PROJECT_DIR, app
 from pulse.editor import Pipeline
+from pulse.interface import error_title, warning_title
 from pulse.interface.file.project_file import ProjectFile
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -17,9 +17,6 @@ from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.project.load_project import LoadProject
 
-
-error_title = "Error"
-warning_title = "Warning"
 
 class Project:
     def __init__(self):
@@ -661,5 +658,3 @@ class Project:
 
         self.after_run = self.get_post_solution_model_checks()
         self.after_run.check_all_acoustic_criterias()
-
-# fmt: on

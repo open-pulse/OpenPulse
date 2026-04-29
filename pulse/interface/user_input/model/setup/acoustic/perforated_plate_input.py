@@ -1,23 +1,28 @@
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import PerforatedPlateInput_UI
-from pulse.interface.ui_generated.model.info.get_perforated_plate_info_ui import GetPerforatedPlateInfo_UI
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface import error_title, warning_title
+from pulse.interface.ui_generated.model.info.get_perforated_plate_info_ui import (
+    GetPerforatedPlateInfo_UI,
+)
+from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import (
+    PerforatedPlateInput_UI,
+)
 from pulse.interface.user_input.model.setup.elements_input import ElementsInput
-
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.perforated_plate import PerforatedPlate, PerforatedPlateFormulation
-
-from pulse.postprocessing.plot_acoustic_data import get_perforated_plate_acoustic_absortion, get_perforated_plate_impedance
-
-import numpy as np
-
-
-error_title = "Error"
-warning_title = "Warning"
+from pulse.postprocessing.plot_acoustic_data import (
+    get_perforated_plate_acoustic_absortion,
+    get_perforated_plate_impedance,
+)
 
 
 class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):

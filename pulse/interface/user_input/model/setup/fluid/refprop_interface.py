@@ -6,12 +6,9 @@ import numpy as np
 from PySide6.QtWidgets import QFileDialog
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.utils.common_utils import get_new_path
-
-error_title = "Error"
-warning_title = "Warning"
 
 IS_ERROR_REGEX = re.compile(r"\[\w+\s+error")
 IS_WARNING_REGEX = re.compile(r"\[\w+\s+warning")

@@ -1,16 +1,10 @@
-# fmt: off
-
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 
-from pulse import app, TEMP_PROJECT_DIR
-from pulse.interface.ui_generated.project.save_project_data_selector_ui import SaveProjectDataSelector_UI
-
-
-import os
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from pulse import TEMP_PROJECT_DIR, app
+from pulse.interface.ui_generated.project.save_project_data_selector_ui import (
+    SaveProjectDataSelector_UI,
+)
 
 
 class SaveProjectDataSelector(SaveProjectDataSelector_UI):
@@ -78,5 +72,3 @@ class SaveProjectDataSelector(SaveProjectDataSelector_UI):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         return super().closeEvent(a0)
-
-# fmt: on

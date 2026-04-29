@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import (
     NodalLoadsInput_UI,
 )
@@ -14,7 +15,9 @@ from pulse.interface.user_input.model.setup.general.get_information_of_group imp
 from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
     StructuralNodesInput,
 )
-from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -25,10 +28,6 @@ class TabIndex(IntEnum):
     CONSTANT = 0
     TABULAR = 1
     LIST = 2
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):

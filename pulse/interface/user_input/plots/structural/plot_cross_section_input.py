@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.plots.model.plot_section_ui import PlotSection_UI
 from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter import (
     CrossSectionPlotter,
@@ -15,10 +16,6 @@ from pulse.model.cross_section import CrossSection
 class SelectionType(IntEnum):
     LINES = 0
     ELEMENTS = 1
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class PlotCrossSectionInput(PlotSection_UI):

@@ -1,16 +1,17 @@
-# fmt: off
-
-from PySide6.QtCore import Qt, QEvent, QObject, Signal
+from PySide6.QtCore import QEvent, QObject, Qt, Signal
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_function_ui import GetAcousticFrequencyResponseFunction_UI
+from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_function_ui import (
+    GetAcousticFrequencyResponseFunction_UI,
+)
+from pulse.interface.user_input.data_handler.export_model_results import (
+    ExportModelResults,
+)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction_UI):
     def __init__(self, *args, **kwargs):
@@ -156,18 +157,18 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
 
         key = ("nodes", (self.input_node_id, self.output_node_id))
 
-        self.model_results[key] = {  
-                                    "x_data" : self.frequencies,
-                                    "y_data" : self.get_response(),
-                                    "x_label" : "Frequency [Hz]",
-                                    "y_label" : y_label,
-                                    "title" : self.title,
-                                    "data_information" : legend_label,
-                                    "legend" : legend_label,
-                                    "unit" : unit_label,
-                                    "color" : [0,0,1],
-                                    "linestyle" : "-"  
-                                    }
+        self.model_results[key] = {
+            "x_data": self.frequencies,
+            "y_data": self.get_response(),
+            "x_label": "Frequency [Hz]",
+            "y_label": y_label,
+            "title": self.title,
+            "data_information": legend_label,
+            "legend": legend_label,
+            "unit": unit_label,
+            "color": [0, 0, 1],
+            "linestyle": "-",
+        }
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -175,5 +176,3 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
 
         if event.key() in [Qt.Key_Up, Qt.Key_Down]:
             self.alternate_node_id_input_fields()
-
-# fmt: on

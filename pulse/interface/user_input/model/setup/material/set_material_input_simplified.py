@@ -1,13 +1,13 @@
-from PySide6.QtWidgets import QGridLayout
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGridLayout
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.material.set_material_simplified_ui import SetMaterialSimplified_UI
-from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
-
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from pulse.interface.ui_generated.model.setup.material.set_material_simplified_ui import (
+    SetMaterialSimplified_UI,
+)
+from pulse.interface.user_input.model.setup.material.material_widget import (
+    MaterialWidget,
+)
 
 
 class SetMaterialSimplified(SetMaterialSimplified_UI):

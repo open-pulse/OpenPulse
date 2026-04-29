@@ -1,17 +1,15 @@
-from PySide6.QtWidgets import QLabel, QFileDialog, QPushButton, QSlider, QSpinBox, QToolBar, QWidget
-from PySide6.QtCore import QSize, Qt 
-from PySide6.QtGui import  QIcon, QFont
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QFont, QIcon
+from PySide6.QtWidgets import QLabel, QPushButton, QSlider, QSpinBox, QToolBar, QWidget
 
-from pulse import app, ICON_DIR
+from pulse import ICON_DIR, app
+from pulse.interface import error_title
 from pulse.interface.formatters import icons
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-
-from pathlib import Path
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 
 class AnimationToolbar(QToolBar):
@@ -227,4 +225,4 @@ class AnimationToolbar(QToolBar):
             title = "Error while exporting animation"
             message = "An error has occured while exporting the animation file.\n"
             message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])

@@ -1,19 +1,20 @@
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLineEdit
 from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QLineEdit
 
 from pulse import app
-from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import (
     InertialLoadInput_UI,
 )
 from pulse.interface.user_input.model.setup.user_input import UserInput
+
+# from pulse.interface import warning_title
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.model.structural_element import DOF_PER_NODE_STRUCTURAL
 
-
-error_title = "Error"
-warning_title = "Warning"
 
 class SetInertialLoad(UserInput, InertialLoadInput_UI):
     def __init__(self, *args, **kwargs):

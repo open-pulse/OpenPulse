@@ -3,6 +3,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_pressure_unit, convert_temperature_unit
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -18,8 +19,6 @@ from copy import deepcopy
 from itertools import count
 
 import re
-
-error_title = "Error"
 
 
 class FluidWidget(FluidInputWidget_UI):

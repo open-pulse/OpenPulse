@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_ui import (
     ExpansionJointInput_UI,
@@ -12,13 +13,17 @@ from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_u
 from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
     StructuralLinesInput,
 )
-from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
-from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
+from pulse.model.cross_sections.expansion_joint_cross_section import (
+    ExpansionJointCrossSection,
+)
 
 
 class TabIndex(IntEnum):
@@ -34,9 +39,6 @@ class DataType(IntEnum):
 class AxialStopRod(IntEnum):
     NOT_INCLUDED = 0
     INCLUDED = 1
-
-
-error_title = "Error"
 
 
 class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):

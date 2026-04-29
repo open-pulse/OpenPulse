@@ -1,11 +1,9 @@
-# fmt: off
-
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL
-from pulse.model.model import Model
-from pulse.model.structural_element import DOF_PER_ELEMENT
-
 import numpy as np
 from scipy.sparse import csr_matrix
+
+from pulse.model.model import Model
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
+from pulse.model.structural_element import DOF_PER_ELEMENT
 
 
 class AssemblyStructural:
