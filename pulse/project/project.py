@@ -167,6 +167,8 @@ class Project:
         self.reset(reset_all = True)
         self.file.remove_element_properties_from_project_file()
         self.file.remove_nodal_properties_from_project_file()
+        self.file.remove_results_data_from_project_file()
+        self.file.write_imported_table_data_in_file()
 
         if self.file.check_pipeline_data():
             if self.loader.load_project_data():

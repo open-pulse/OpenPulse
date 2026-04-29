@@ -919,18 +919,18 @@ class MainWindow(MainWindow_UI):
 
         self.close_dialogs()
 
-        close = QMessageBox.question(   
-                                        self, 
-                                        "Quit", 
-                                        "Would you like to save the project data before exit?", 
-                                        QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
-                                    )
+        message_box = QMessageBox.question(   
+            self, 
+            "Quit", 
+            "Would you like to save the project data before exit?", 
+            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
+        )
 
-        if close == QMessageBox.Cancel:
+        if message_box == QMessageBox.Cancel:
             self.force_close = False
             return True
 
-        elif close == QMessageBox.Save:
+        elif message_box == QMessageBox.Save:
             if not self.save_project_dialog():
                 return True
 
@@ -949,9 +949,11 @@ class MainWindow(MainWindow_UI):
             if self.save_project_data():
                 return
 
-            self.reset_temporary_folder()
-            self.project.reset(reset_all = True)
-            self.project.model.properties._reset_variables()
+        self.reset_temporary_folder()
+        self.project.reset(reset_all = True)
+        self.project.model.properties._reset_variables()
+        self.project.reset_project(reset_all = True)
+        self.update_plots()
 
         self.reset_geometry_render()
         obj = NewProjectInput()
@@ -1048,7 +1050,7 @@ class MainWindow(MainWindow_UI):
         file_path = FileDialogService.save_file(extensions, "Save As", last_path)
 
         if file_path is None:
-            return obj.complete
+            return False
 
         if obj.ignore_results_data:
             app().project.file.remove_results_data_from_project_file()
@@ -1058,7 +1060,7 @@ class MainWindow(MainWindow_UI):
 
         self.save_project_as(file_path)
 
-        return obj.complete
+        return True
 
     def save_project_as(self, path):
 
