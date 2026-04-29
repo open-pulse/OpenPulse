@@ -343,7 +343,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1044, 33))
+        self.menubar.setGeometry(QRect(0, 0, 1044, 24))
         self.menu_project = QMenu(self.menubar)
         self.menu_project.setObjectName(u"menu_project")
         self.menu_recent = QMenu(self.menu_project)
@@ -367,14 +367,23 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.tool_bar = QToolBar(MainWindow)
         self.tool_bar.setObjectName(u"tool_bar")
-        self.tool_bar.setStyleSheet(u" QToolBar {\n"
-" 	border-style: solid;\n"
-" 	border-width: 1px;\n"
-"	border-color: #888888;\n"
+        self.tool_bar.setStyleSheet(u"QToolBar {\n"
+"    border-style: solid;\n"
+"    border-width: 1px;\n"
+"    border-color: #888888;\n"
 "}\n"
-"            \n"
-" ")
+"")
         MainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.tool_bar)
+        self.workspaces_toolbar = QToolBar(MainWindow)
+        self.workspaces_toolbar.setObjectName(u"workspaces_toolbar")
+        self.workspaces_toolbar.setStyleSheet(u"QToolBar {\n"
+"    border-style: solid;\n"
+"    border-width: 1px;\n"
+"    border-color: #888888;\n"
+"}\n"
+"")
+        self.workspaces_toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        MainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.workspaces_toolbar)
 
         self.menubar.addAction(self.menu_project.menuAction())
         self.menubar.addAction(self.menu_general_settings.menuAction())
@@ -440,9 +449,9 @@ class Ui_MainWindow(object):
         self.tool_bar.addAction(self.action_section_plane)
         self.tool_bar.addAction(self.action_show_transparent)
         self.tool_bar.addSeparator()
-        self.tool_bar.addAction(self.action_geometry_editor_workspace)
-        self.tool_bar.addAction(self.action_model_setup_workspace)
-        self.tool_bar.addAction(self.action_results_workspace)
+        self.workspaces_toolbar.addAction(self.action_geometry_editor_workspace)
+        self.workspaces_toolbar.addAction(self.action_model_setup_workspace)
+        self.workspaces_toolbar.addAction(self.action_results_workspace)
 
         self.retranslateUi(MainWindow)
 
@@ -600,15 +609,15 @@ class Ui_MainWindow(object):
         self.action_show_geometry_data.setToolTip(QCoreApplication.translate("MainWindow", u"Show Geometry Data", None))
 #endif // QT_CONFIG(tooltip)
         self.action_plot_default_color.setText(QCoreApplication.translate("MainWindow", u"Plot Default Color", None))
-        self.action_geometry_editor_workspace.setText(QCoreApplication.translate("MainWindow", u"Geometry Editor Workspace Action", None))
+        self.action_geometry_editor_workspace.setText(QCoreApplication.translate("MainWindow", u"Geometry", None))
 #if QT_CONFIG(tooltip)
         self.action_geometry_editor_workspace.setToolTip(QCoreApplication.translate("MainWindow", u"Geometry editor workspace", None))
 #endif // QT_CONFIG(tooltip)
-        self.action_model_setup_workspace.setText(QCoreApplication.translate("MainWindow", u"Geometry Model Setup Workspace Action", None))
+        self.action_model_setup_workspace.setText(QCoreApplication.translate("MainWindow", u"Model", None))
 #if QT_CONFIG(tooltip)
         self.action_model_setup_workspace.setToolTip(QCoreApplication.translate("MainWindow", u"Model setup workspace", None))
 #endif // QT_CONFIG(tooltip)
-        self.action_results_workspace.setText(QCoreApplication.translate("MainWindow", u"Results Workspace Action", None))
+        self.action_results_workspace.setText(QCoreApplication.translate("MainWindow", u"Results", None))
 #if QT_CONFIG(tooltip)
         self.action_results_workspace.setToolTip(QCoreApplication.translate("MainWindow", u"Results workspace", None))
 #endif // QT_CONFIG(tooltip)
@@ -623,6 +632,7 @@ class Ui_MainWindow(object):
         self.menu_general_settings.setTitle(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.menuTools.setTitle(QCoreApplication.translate("MainWindow", u"Tools", None))
         self.tool_bar.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main toolbar", None))
+        self.workspaces_toolbar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 
 
@@ -650,6 +660,7 @@ class MainWindow_UI(QMainWindow, Ui_MainWindow):
             - menuTools: QMenu
         - statusbar: QStatusBar
         - tool_bar: QToolBar
+        - workspaces_toolbar: QToolBar
     """
 
     def __init__(self, *args, **kwargs):
