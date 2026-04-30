@@ -57,8 +57,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>467</width>
-        <height>761</height>
+        <width>464</width>
+        <height>762</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
@@ -1021,7 +1021,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Postion:</string>
+                 <string>Postion [%]:</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1487,7 +1487,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>[m]</string>
+                <string/>
                </property>
               </widget>
              </item>
