@@ -1,4 +1,4 @@
-from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray, vtkUnsignedLongArray
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 
@@ -16,7 +16,7 @@ def paint_data(data: vtkPolyData, color: tuple):
 
 def fill_cell_identifier(data: vtkPolyData, identifier: int):
     n_cells = data.GetNumberOfCells()
-    cell_identifier = vtkUnsignedCharArray()
+    cell_identifier = vtkUnsignedLongArray()
     cell_identifier.SetName("cell_identifier")
     cell_identifier.SetNumberOfTuples(n_cells)
     cell_identifier.Fill(identifier)
