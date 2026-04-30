@@ -150,6 +150,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback(PipeOptions.name())
         self.division_type_changed_callback()
+        self.update_bending_radius_visibility()
 
     def save_tmp_camera(self):
         camera = self.render_widget.renderer.GetActiveCamera()
