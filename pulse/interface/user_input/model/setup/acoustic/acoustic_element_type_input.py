@@ -2,7 +2,7 @@ from collections import defaultdict
 from enum import IntEnum
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHeaderView, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
 from pulse.interface import error_title, warning_title
@@ -23,7 +23,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
 
 class ElemenType(IntEnum):
     UNDAMPED = 0
@@ -83,7 +82,11 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
 
     def _config_widgets(self):
         self.comboBox_element_type.setFixedSize(160, 26)
-        self.treeWidget_element_type.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        #
+        for i, width in enumerate([80, 140]):
+            self.treeWidget_element_type.setColumnWidth(i, width)
+        #
+        # self.treeWidget_element_type.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
     def _configure_validators(self):
         self.lineEdit_proportional_damping.setValidator(StrictDoubleValidator(0, 1, 6))
@@ -237,14 +240,14 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
 
         proportional_damping = None
         if etype_index == ElemenType.PROPORTIONAL:
-            if self.lineEdit_proportional_damping.text().isnumeric():
+            if self.lineEdit_proportional_damping.text():
                 proportional_damping = float(self.lineEdit_proportional_damping.text())
             if proportional_damping is None:
                 return True
 
         volumetric_flow_rate = None
         if etype_index in [ElemenType.DAMPED_LIQUID, ElemenType.UNDAMPED_MEAN_FLOW, ElemenType.PETERS, ElemenType.HOWE]:
-            if self.lineEdit_volumetric_flow_rate.text().isnumeric():
+            if self.lineEdit_volumetric_flow_rate.text():
                 volumetric_flow_rate = float(self.lineEdit_volumetric_flow_rate.text())
             if volumetric_flow_rate is None:
                 return True
@@ -384,7 +387,7 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
 
         self.treeWidget_element_type.clear()
 
-        aux = defaultdict(list)
+        elements_map = defaultdict(list)
         for line_id in self.properties.line_properties.keys():
             element_type = self.properties._get_property(
                 "acoustic_element_type", line_id=line_id
@@ -395,15 +398,19 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
             volumetric_flow_rate = self.properties._get_property(
                 "volumetric_flow_rate", line_id=line_id
             )
-            if volumetric_flow_rate is None:
-                volumetric_flow_rate = "---"
 
-            aux[(element_type, volumetric_flow_rate)].append(line_id)
+            proportional_damping = self.properties._get_property(
+                "proportional_damping", line_id=line_id
+            )
+            
+            elements_map[(element_type, proportional_damping, volumetric_flow_rate)].append(line_id)
 
-        for key, line_ids in aux.items():
-            element_type, volumetric_flow_rate = key
+        group_id = 0
+        for key, line_ids in elements_map.items():
+            group_id += 1
+            element_type, _, _ = key
             item = QTreeWidgetItem(
-                [element_type, str(volumetric_flow_rate), str(line_ids)[1:-1]]
+                [str(group_id), element_type, str(line_ids)[1:-1]]
             )
 
             for col in range(3):
@@ -428,7 +435,7 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
                     return
 
                 self.close()
-                key = item.text(0)
+                key = item.text(1)
                 header_labels = ["Line ID", "Element type"]
 
                 if key == "proportional":
@@ -445,26 +452,28 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
                     if element_type is None:
                         continue
 
-                    if key == element_type:
-                        element_data = [key]
+                    if key != element_type:
+                        continue
+                
+                    element_data = [key]
 
-                        if key == "proportional":
-                            damping = self.properties._get_property(
-                                "proportional_damping", line_id=line_id
-                            )
-                            if damping is None:
-                                continue
-                            element_data.append(damping)
+                    if key == "proportional":
+                        damping = self.properties._get_property(
+                            "proportional_damping", line_id=line_id
+                        )
+                        if damping is None:
+                            continue
+                        element_data.append(damping)
 
-                        elif key in ["undamped_mean_flow", "peters", "howe"]:
-                            volumetric_flow_rate = self.properties._get_property(
-                                "volumetric_flow_rate", line_id=line_id
-                            )
-                            if volumetric_flow_rate is None:
-                                continue
-                            element_data.append(volumetric_flow_rate)
+                    elif key in ["undamped_mean_flow", "peters", "howe"]:
+                        volumetric_flow_rate = self.properties._get_property(
+                            "volumetric_flow_rate", line_id=line_id
+                        )
+                        if volumetric_flow_rate is None:
+                            continue
+                        element_data.append(volumetric_flow_rate)
 
-                        data[line_id] = element_data
+                    data[line_id] = element_data
 
                 GetInformationOfGroup(
                     group_label="Element type",
