@@ -405,7 +405,7 @@
           <number>2</number>
          </property>
          <property name="topMargin">
-          <number>2</number>
+          <number>8</number>
          </property>
          <property name="rightMargin">
           <number>2</number>
@@ -414,7 +414,7 @@
           <number>2</number>
          </property>
          <property name="spacing">
-          <number>6</number>
+          <number>8</number>
          </property>
          <item row="0" column="4">
           <spacer name="horizontalSpacer_7">
@@ -694,7 +694,7 @@
             </font>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;f&lt;span style=&quot; vertical-align:sub;&quot;&gt;c&lt;/span&gt; = 1.8412 x C&lt;span style=&quot; vertical-align:sub;&quot;&gt;o &lt;/span&gt;/ (π * D&lt;span style=&quot; vertical-align:sub;&quot;&gt;in&lt;/span&gt;), &lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;where the C&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt; is the speed of sound in m/s and D&lt;span style=&quot; vertical-align:sub;&quot;&gt;in&lt;/span&gt; is the internal diameter in m.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;f&lt;span style=&quot; vertical-align:sub;&quot;&gt;c&lt;/span&gt; = 1.8412 x C&lt;span style=&quot; vertical-align:sub;&quot;&gt;o &lt;/span&gt;/ (π * D&lt;span style=&quot; vertical-align:sub;&quot;&gt;in&lt;/span&gt;), &lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;where C&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt; is the fluid speed of sound in m/s, and D&lt;span style=&quot; vertical-align:sub;&quot;&gt;in&lt;/span&gt; is the pipe's internal diameter in m.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="layoutDirection">
             <enum>Qt::LayoutDirection::LeftToRight</enum>

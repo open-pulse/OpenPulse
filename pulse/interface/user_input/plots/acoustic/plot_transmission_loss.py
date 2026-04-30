@@ -30,7 +30,6 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         self._config_window()
         self._initialize()
         self._configure_validator()
-        self._define_qt_variables()
         self._create_connections()
 
         app().main_window.set_selection()
@@ -50,14 +49,13 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         self.elements = self.preprocessor.acoustic_elements
         self.analysis_method = self.project.analysis_method
 
+        self.current_line_edit = None
+
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-        self.current_line_edit = self.lineEdit_input_node_id
 
     def _configure_validator(self):
         self.lineEdit_cutoff_frequency.setValidator(StrictDoubleValidator(0, 1e8, 6))
@@ -75,6 +73,8 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         self.clickable(self.lineEdit_output_node_id).connect(self.output_line_edit_clicked)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        #
+        self.output_line_edit_clicked()
 
     def selection_callback(self):
 
