@@ -36,6 +36,7 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
         self._layout = None
         self.x_data = None
         self.y_data = None
+        self.f_cut = None
 
         self.importer = None
         self.exporter = None
@@ -309,10 +310,7 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
                     self.plots.append(_plot)
 
         if self.plots:
-
-            if self.checkBox_legends.isChecked():
-                self.ax.legend(handles=self.plots, labels=self.legends)
-                
+               
             self.call_cursor()
             self.ax.set_xlabel(self.x_label, fontsize = 11, fontweight = self.font_weight)
             self.ax.set_ylabel(self.y_label, fontsize = 11, fontweight = self.font_weight)
@@ -323,41 +321,33 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
             if self.checkBox_grid.isChecked():
                 self.ax.grid()
 
+            if isinstance(self.f_cut, float):
+                _plot = self.ax.axvline(x=self.f_cut, color=(0.9, 0.4, 0), visible=True, linestyle="--", linewidth=1)
+                self.plots.append(_plot)
+                self.legends.append('Pipe cut-off frequency')
+
+            if self.checkBox_legends.isChecked():
+                self.ax.legend(handles=self.plots, labels=self.legends)
+
             self.mpl_canvas_frequency_plot.draw()
             return
 
     def call_semilog_y_plot(self, first_index=0):
-        _plot, = self.ax.semilogy(  self.x_data[first_index:], 
-                                    self.y_data[first_index:], 
-                                    linewidth = 1,
-                                    color = self.color, 
-                                    linestyle = self.linestyle  )
+        (_plot,) = self.ax.semilogy(self.x_data[first_index:], self.y_data[first_index:], linewidth=1, color=self.color, linestyle=self.linestyle)
         return _plot
-    
+
     def call_semilog_x_plot(self, first_index=0):
-        _plot, = self.ax.semilogx(  self.x_data[first_index:], 
-                                    self.y_data[first_index:], 
-                                    linewidth = 1,
-                                    color = self.color, 
-                                    linestyle = self.linestyle  )
+        (_plot,) = self.ax.semilogx(self.x_data[first_index:], self.y_data[first_index:], linewidth=1, color=self.color, linestyle=self.linestyle)
         return _plot
 
     def call_lin_lin_plot(self):
-        _plot, = self.ax.plot(  self.x_data, 
-                                self.y_data, 
-                                linewidth = 1,
-                                color = self.color, 
-                                linestyle = self.linestyle  )
+        (_plot,) = self.ax.plot(self.x_data, self.y_data, linewidth=1, color=self.color, linestyle=self.linestyle)
         return _plot
 
     def call_log_log_plot(self, first_index=0):
-        _plot, = self.ax.loglog(self.x_data[first_index:], 
-                                self.y_data[first_index:], 
-                                linewidth = 1,
-                                color = self.color, 
-                                linestyle = self.linestyle  )
+        (_plot,) = self.ax.loglog(self.x_data[first_index:], self.y_data[first_index:], linewidth=1, color=self.color, linestyle=self.linestyle)
         return _plot
-    
+
     def get_plot_considering_invalid_log_values(self):
         
         if "log-log" in self.plot_type:
@@ -406,12 +396,7 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
         else:
             number_vertLines = 1
 
-        self.cursor = AdvancedCursor(   self.ax, 
-                                        self.x_data, 
-                                        self.y_data, 
-                                        show_cursor,
-                                        show_legend,
-                                        number_vertLines = number_vertLines   )
+        self.cursor = AdvancedCursor(self.ax, self.x_data, self.y_data, show_cursor, show_legend, number_vertLines=number_vertLines)
 
         self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
@@ -426,6 +411,9 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
         if isinstance(data, dict):
             self.imported_results_data = data
             self.plot_data_in_freq_domain()
+
+    def set_cutoff_frequency(self, f_cut: float):
+        self.f_cut = f_cut
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
 
