@@ -324,7 +324,7 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
             if isinstance(self.f_cut, float):
                 _plot = self.ax.axvline(x=self.f_cut, color=(0.9, 0.4, 0), visible=True, linestyle="--", linewidth=1)
                 self.plots.append(_plot)
-                self.legends.append('Pipe cut-off frequency')
+                self.legends.append(f'Pipe cut-off frequency $f_c$ = {self.f_cut : .4f} [Hz]')
 
             if self.checkBox_legends.isChecked():
                 self.ax.legend(handles=self.plots, labels=self.legends)
