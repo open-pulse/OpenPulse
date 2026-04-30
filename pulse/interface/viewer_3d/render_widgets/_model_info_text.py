@@ -254,12 +254,12 @@ def lines_info_text() -> str:
             valve_info,
             )
 
-        info_text += structural_element_info_text()
+        info_text += structural_element_info_text(line_id)
+        info_text += acoutic_element_info_text(line_id)
 
         stress_stiffening = properties._get_property("stress_stiffening", line_id=line_id)
         if isinstance(stress_stiffening, dict):
             info_text += stress_stiffening_info_text(stress_stiffening)
-
 
     return info_text
 
@@ -394,42 +394,76 @@ def cross_section_info_text(
 
     return info_text
 
-def structural_element_info_text():
+def structural_element_info_text(line_id: int):
 
-    line_ids = app().main_window.list_selected_lines()
-    if len(line_ids) == 1:
+    if not isinstance(line_id, int):
+        return ""
 
-        tree = TreeInfo("structural element")
+    tree = TreeInfo("structural element")
+    properties = app().project.model.properties
 
-        structural_element_type = app().project.model.properties._get_property("structural_element_type", line_id=line_ids[0])
-        if structural_element_type is None:
-            label = "Pipe_1"
+    structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
+    if structural_element_type is None:
+        label = "Pipe_1"
+    else:
+        label = structural_element_type
+
+    tree.add_item("Structural element type", label)
+
+    if structural_element_type in ["Pipe_1", "pipe_1"]:
+
+        capped_end = properties._get_property("capped_end", line_id=line_id)
+        if capped_end is not None:
+            label = "Active" if capped_end else "Inactive"
         else:
-            label = structural_element_type
-        tree.add_item("Structural element type", label)
+            label = "Active"
 
-        if structural_element_type in ["Pipe_1", "pipe_1"]:
+        tree.add_item("Capped end", label)
 
-            capped_end = app().project.model.properties._get_property("capped_end", line_id=line_ids[0])
-            if capped_end is not None:
-                label = "Active" if capped_end else "Inactive"
-            else:
-                label = "Active"
-            tree.add_item("Capped end", label)
+        force_offset = properties._get_property("force_offset", line_id=line_id)
+        if force_offset is not None:
+            label = "Active" if force_offset else "Inactive"
+        else:
+            label = "Active"
 
-            force_offset = app().project.model.properties._get_property("force_offset", line_id=line_ids[0])
-            if force_offset is not None:
-                label = "Active" if force_offset else "Inactive"
-            else:
-                label = "Active"
-            tree.add_item("Force offset", label)
+        tree.add_item("Force offset", label)
 
-            wall_formulation = app().project.model.properties._get_property("wall_formulation", line_id=line_ids[0])
-            if wall_formulation is not None:
-                label = wall_formulation.replace("_", " ").capitalize()
-            else:
-                label = "Thin wall"
-            tree.add_item("Wall formulation", label)
+        wall_formulation = properties._get_property("wall_formulation", line_id=line_id)
+        if wall_formulation is not None:
+            label = wall_formulation.replace("_", " ").capitalize()
+        else:
+            label = "Thin wall"
+
+        tree.add_item("Wall formulation", label)
+
+    return str(tree)
+
+def acoutic_element_info_text(line_id: int):
+    if not isinstance(line_id, int):
+        return ""
+
+    tree = TreeInfo("acoustic element")
+    properties = app().project.model.properties
+
+    acoustic_element_type = properties._get_property("acoustic_element_type", line_id=line_id)
+    if acoustic_element_type is None:
+        label = "undamped"
+    else:
+        label = acoustic_element_type
+
+    tree.add_item("Acoustic element type", label)    
+
+    if acoustic_element_type == "proportional":
+        proportional_damping = properties._get_property("proportional_damping", line_id=line_id)
+        tree.add_item("Proportional_damping", proportional_damping)
+
+    elif acoustic_element_type in [                
+        "damped_liquid",
+        "undamped_mean_flow",
+        "peters",
+        "howe",]:
+        volumetric_flow_rate = properties._get_property("volumetric_flow_rate", line_id=line_id)
+        tree.add_item("Volumetric_flow_rate", volumetric_flow_rate, "m³/s")
 
     return str(tree)
 
