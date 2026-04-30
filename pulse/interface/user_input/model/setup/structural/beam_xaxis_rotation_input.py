@@ -4,13 +4,16 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import warning_title
 from pulse.interface.ui_generated.model.setup.structural.xaxis_beam_rotation_input_ui import (
     XaxisBeamRotationInput_UI,
 )
 from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
     StructuralLinesInput,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -25,10 +28,6 @@ class TabIndex(IntEnum):
 class AssignmentType(IntEnum):
     ALL_LINES = 0
     SELECTED_LINES = 1
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):

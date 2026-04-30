@@ -6,9 +6,6 @@ from pulse import app, UI_DIR
 from molde import load_ui
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
 class NomeDaClasse(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

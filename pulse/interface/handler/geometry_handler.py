@@ -1,38 +1,33 @@
-# fmt: off
+from typing import TYPE_CHECKING
+
 from pulse import app
 from pulse.editor import Pipeline
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
-
-
 from pulse.editor.structures import (
-    Pipe,
-    Bend,
-    Point,
-    Flange,
-    Valve,
+    ALL_STRUCTURE_TYPES,
+    Arc,
     Beam,
-    Reducer,
+    Bend,
     ExpansionJoint,
     Fillet,
+    Flange,
+    Pipe,
+    Point,
+    Reducer,
     Structure,
-    Arc,
-    ALL_STRUCTURE_TYPES,
+    Valve,
 )
+from pulse.interface import error_title, warning_title
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.project.project import Project
-
-import gmsh
-import numpy as np
 
 # from math import dist
 from collections import defaultdict
 
-
-error_title = "Error"
-warning_title = "Warning"
+import gmsh
+import numpy as np
 
 
 def get_data(data):
@@ -726,5 +721,3 @@ def get_arc_length(coords_A, coords_B, coords_C):
     arc_length = np.arccos(cos_alpha) * average_radius
 
     return arc_length
-
-# fmt: on

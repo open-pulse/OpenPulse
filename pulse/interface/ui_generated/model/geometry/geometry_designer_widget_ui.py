@@ -42,7 +42,7 @@ class Ui_Form(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 467, 754))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 464, 762))
         self.gridLayout_4 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(4, 4, 4, 4)
@@ -304,6 +304,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.invert_y_sign.sizePolicy().hasHeightForWidth())
         self.invert_y_sign.setSizePolicy(sizePolicy)
         self.invert_y_sign.setMaximumSize(QSize(40, 16777215))
+        self.invert_y_sign.setAutoDefault(False)
 
         self.gridLayout_10.addWidget(self.invert_y_sign, 3, 5, 1, 1)
 
@@ -312,6 +313,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.invert_z_sign.sizePolicy().hasHeightForWidth())
         self.invert_z_sign.setSizePolicy(sizePolicy)
         self.invert_z_sign.setMaximumSize(QSize(40, 16777215))
+        self.invert_z_sign.setAutoDefault(False)
 
         self.gridLayout_10.addWidget(self.invert_z_sign, 4, 5, 1, 1)
 
@@ -328,6 +330,7 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.invert_x_sign.sizePolicy().hasHeightForWidth())
         self.invert_x_sign.setSizePolicy(sizePolicy)
         self.invert_x_sign.setMaximumSize(QSize(40, 16777215))
+        self.invert_x_sign.setAutoDefault(False)
 
         self.gridLayout_10.addWidget(self.invert_x_sign, 2, 5, 1, 1)
 
@@ -849,7 +852,7 @@ class Ui_Form(object):
         self.invert_x_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
         self.cancel_division_button.setText(QCoreApplication.translate("Form", u"Cancel", None))
         self.apply_division_button.setText(QCoreApplication.translate("Form", u"Divide", None))
-        self.position_slider_label.setText(QCoreApplication.translate("Form", u"Postion:", None))
+        self.position_slider_label.setText(QCoreApplication.translate("Form", u"Postion [%]:", None))
         self.division_slider_label.setText(QCoreApplication.translate("Form", u"Divisions:", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"Selected point:", None))
         self.selected_point_combo_box.setItemText(0, QCoreApplication.translate("Form", u"Start point", None))
@@ -870,7 +873,7 @@ class Ui_Form(object):
         self.division_combobox.setItemText(2, QCoreApplication.translate("Form", u"Distance from Point", None))
 
         self.general_options_label_3.setText(QCoreApplication.translate("Form", u"Division Options", None))
-        self.unity_x_label_2.setText(QCoreApplication.translate("Form", u"[m]", None))
+        self.unity_x_label_2.setText("")
         self.unit_label.setText(QCoreApplication.translate("Form", u"Unit length:", None))
         self.set_material_button.setText(QCoreApplication.translate("Form", u"Set material", None))
         self.structure_type_label_2.setText(QCoreApplication.translate("Form", u"Structure settings:", None))

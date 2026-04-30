@@ -1,12 +1,10 @@
-from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.info.get_group_information_ui import GetGroupInformation_UI
-
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from pulse.interface.ui_generated.model.info.get_group_information_ui import (
+    GetGroupInformation_UI,
+)
 
 
 class GetInformationOfGroup(GetGroupInformation_UI):
@@ -82,7 +80,7 @@ class GetInformationOfGroup(GetGroupInformation_UI):
                     self.pushButton_remove.setDisabled(False)
                 else:
                     self.pushButton_remove.setDisabled(True)
-            except:
+            except Exception:
                 pass
 
     def check_remove(self):

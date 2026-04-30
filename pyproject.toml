@@ -48,8 +48,6 @@ pulse = "pulse.launch:main"
 
 [dependency-groups]
 dev = [
-    "black>=24.3.0,<25",
-    "isort>=5.12.0,<6",
     "pytest>=7.4.1,<8",
     "pytest-datadir>=1.7.2,<2",
     "pytest-regressions>=2.5.0,<3",
@@ -72,7 +70,5 @@ build-backend = "hatchling.build"
 profile = "black"
 
 [tool.ruff]
-exclude = [
-    "__pycache__",
-    "pulse/interface/ui_generated",
-]
+exclude = ["__pycache__", "pulse/interface/ui_generated"]
+line-length = 150

@@ -6,11 +6,11 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-
 from pulse import app
 from pulse.editor.structures import Valve
 from pulse.interface.user_input.model.setup.structural.valves_input import ValvesInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 from .structure_options import StructureOptions
 
@@ -48,17 +48,20 @@ class ValveOptions(StructureOptions):
         self.update_permissions()
 
     def load_data_from_pipe_section(self):
-        outside_diameter = self.cross_section_widget.lineEdit_outside_diameter.text()
-        wall_thickness = self.cross_section_widget.lineEdit_wall_thickness.text()
 
         try:
-            section_parameters = self.cross_section_widget.pipe_section_info["section_parameters"]
-            outside_diameter = section_parameters[0]
-            wall_thickness = section_parameters[1]
+
+            pipe_section_info = self.cross_section_widget.pipe_section_info
+            if not isinstance(pipe_section_info, PipeCrossSection):
+                return
+            
+            outside_diameter, wall_thickness, offset_y, offset_z, *_ = pipe_section_info.section_parameters
             effective_diameter = outside_diameter - 2 * wall_thickness
 
             self.valve_input.lineEdit_valve_effective_diameter.setText(f"{round(effective_diameter, 6)}")
             self.valve_input.lineEdit_valve_wall_thickness.setText(f"{round(wall_thickness, 6)}")
+            self.valve_input.lineEdit_offset_y.setText(f"{round(offset_y, 6)}")
+            self.valve_input.lineEdit_offset_z.setText(f"{round(offset_z, 6)}")
 
         except Exception as error_log:
             title = "Error while tranfering pipe data"

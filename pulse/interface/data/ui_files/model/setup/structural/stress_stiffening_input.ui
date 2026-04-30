@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
+    <width>520</width>
     <height>460</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>480</width>
+    <width>520</width>
     <height>460</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>480</width>
+    <width>520</width>
     <height>460</height>
    </size>
   </property>
@@ -823,7 +823,7 @@
             </column>
             <column>
              <property name="text">
-              <string>External pressure [Pa]</string>
+              <string>External pressure</string>
              </property>
              <property name="textAlignment">
               <set>AlignCenter</set>
@@ -831,7 +831,7 @@
             </column>
             <column>
              <property name="text">
-              <string>Internal pressure [Pa]</string>
+              <string>Internal pressure</string>
              </property>
              <property name="textAlignment">
               <set>AlignCenter</set>

@@ -6,6 +6,7 @@ from PySide6.QtCore import QEvent, QObject, Qt, Signal
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element_input_ui import (
     AcousticTransferElementInput_UI,
 )
@@ -25,10 +26,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 class TabIndex(IntEnum):
     SETUP = 0
     LIST = 1
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI):

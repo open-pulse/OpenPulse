@@ -46,7 +46,7 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.pipeline = app().project.pipeline
 
         self._config_window()
-        self._initialize()
+        self.reset()
         self._define_qt_variables()
         self._create_connections()
 
@@ -59,7 +59,7 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Configure the cross-section")
 
-    def _initialize(self):
+    def reset(self):
         self.selected_column = None
         self.complete = False
         self.keep_window_open = True

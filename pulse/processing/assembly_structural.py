@@ -1,11 +1,9 @@
-# fmt: off
-
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL
-from pulse.model.model import Model
-from pulse.model.structural_element import DOF_PER_ELEMENT
-
 import numpy as np
 from scipy.sparse import csr_matrix
+
+from pulse.model.model import Model
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
+from pulse.model.structural_element import DOF_PER_ELEMENT
 
 
 class AssemblyStructural:
@@ -269,15 +267,14 @@ class AssemblyStructural:
 
         flag_Clump = False
 
-        _properties = [  
-                        "lumped_masses",
-                        "lumped_stiffness",
-                        "lumped_dampings",
-                        "psd_structural_links",
-                        "stiffness_elastic_links",
-                        "damping_nodal_links",
-                       ]
-
+        _properties = [
+            "lumped_masses",
+            "lumped_stiffness",
+            "lumped_dampings",
+            "psd_structural_links",
+            "stiffness_nodal_links",
+            "damping_nodal_links",
+        ]
 
         for (_property, *args), data in self.model.properties.nodal_properties.items():
 

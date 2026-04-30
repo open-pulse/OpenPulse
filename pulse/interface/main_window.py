@@ -5,8 +5,8 @@ from functools import partial
 from pathlib import Path
 from shutil import rmtree
 from sys import argv
-from time import time
 
+# from time import time
 from molde import stylesheets
 from molde.colors import color_names
 from molde.render_widgets import CommonRenderWidget
@@ -19,8 +19,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 
-# TODO: remove this import
-# TODO: remove this import
 from pulse import (
     QSS_DIR,
     TEMP_PROJECT_DIR,
@@ -189,38 +187,38 @@ class MainWindow(MainWindow_UI):
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
 
     def configure_window(self):
-        t0 = time()
+        # t0 = time()
         # self._load_stylesheets()
         self._config_window()
         self._connect_actions()
         app().splash.update_progress(30)
         self._load_section_plane()
-        dt = time() - t0
+        # dt = time() - t0
         # print(f"Time to process A: {round(dt, 6)} [s]")
 
-        t1 = time()
+        # t1 = time()
         self._create_layout()
         self._create_status_bar()
         self._update_recent_projects()
         self._add_toolbars()
         app().splash.update_progress(70)
-        dt = time() - t1
+        # dt = time() - t1
         # print(f"Time to process B: {round(dt, 6)} [s]")
 
-        t2 = time()
+        # t2 = time()
         self.plot_lines_with_cross_sections()
         self.configure_welcome_widget()
         self.load_user_preferences()
         self.create_temporary_folder()
         app().splash.update_progress(98)
-        dt = time() - t2
+        # dt = time() - t2
         # print(f"Time to process C: {round(dt, 6)} [s]")
 
         app().splash.close()
         self.showMaximized()
 
         app().processEvents()
-        dt = time() - t0
+        # dt = time() - t0
         # print(f"Time to process D: {round(dt, 6)} [s]")
 
         if not self.is_temporary_folder_empty():
@@ -326,7 +324,7 @@ class MainWindow(MainWindow_UI):
     # public
     def update_plots(self, reset_camera=True):
         self.model_setup_widget.model_setup_items.update_items_apperence()
-        self.project.enhance_pipe_sections_appearance()
+        self.project.model.enhance_pipe_sections_appearance()
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)
         self.results_widget.update_plot(reset_camera)
@@ -402,6 +400,7 @@ class MainWindow(MainWindow_UI):
         self.analysis_toolbar.setDisabled(True)
         self.mesh_toolbar.setDisabled(True)
         self.tool_bar.setDisabled(True)
+        self.workspaces_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
 
     def plot_lines(self):
@@ -561,6 +560,7 @@ class MainWindow(MainWindow_UI):
         )
         self.close_dialogs()
         self.tool_bar.setDisabled(False)
+        self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
@@ -584,6 +584,7 @@ class MainWindow(MainWindow_UI):
 
         self.mesh_toolbar.setDisabled(False)
         self.tool_bar.setDisabled(False)
+        self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.animation_toolbar.setDisabled(True)
         self.render_tools_toolbar.enable_selection_tool()
@@ -921,18 +922,18 @@ class MainWindow(MainWindow_UI):
 
         self.close_dialogs()
 
-        close = QMessageBox.question(   
-                                        self, 
-                                        "Quit", 
-                                        "Would you like to save the project data before exit?", 
-                                        QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
-                                    )
+        message_box = QMessageBox.question(   
+            self, 
+            "Quit", 
+            "Would you like to save the project data before exit?", 
+            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
+        )
 
-        if close == QMessageBox.Cancel:
+        if message_box == QMessageBox.Cancel:
             self.force_close = False
             return True
 
-        elif close == QMessageBox.Save:
+        elif message_box == QMessageBox.Save:
             if not self.save_project_dialog():
                 return True
 
@@ -951,9 +952,11 @@ class MainWindow(MainWindow_UI):
             if self.save_project_data():
                 return
 
-            self.reset_temporary_folder()
-            self.project.reset(reset_all = True)
-            self.project.model.properties._reset_variables()
+        self.reset_temporary_folder()
+        self.project.reset(reset_all = True)
+        self.project.model.properties._reset_variables()
+        self.project.reset_project(reset_all = True)
+        self.update_plots()
 
         self.reset_geometry_render()
         obj = NewProjectInput()
@@ -1050,7 +1053,7 @@ class MainWindow(MainWindow_UI):
         file_path = FileDialogService.save_file(extensions, "Save As", last_path)
 
         if file_path is None:
-            return obj.complete
+            return False
 
         if obj.ignore_results_data:
             app().project.file.remove_results_data_from_project_file()
@@ -1060,7 +1063,7 @@ class MainWindow(MainWindow_UI):
 
         self.save_project_as(file_path)
 
-        return obj.complete
+        return True
 
     def save_project_as(self, path):
 

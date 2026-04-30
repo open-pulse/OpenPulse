@@ -10,7 +10,8 @@ from pulse.model.properties.material import Material
 from pulse.model.model import Model
 from pulse.model.preprocessor import Preprocessor
 from pulse.project.project import Project
-from pulse.processing.assembly_structural import AssemblyStructural 
+from pulse.processing.assembly_structural import AssemblyStructural
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 # Setting up model
 @pytest.fixture
@@ -26,8 +27,7 @@ def model():
         )
 
     section_parameters = [0.05, 0.008, 0, 0, 0, 0]
-    pipe_section_info = {  "section_type_label" : "pipe" ,
-                            "section_parameters" : section_parameters  }
+    pipe_section_info = PipeCrossSection(*section_parameters)
 
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()

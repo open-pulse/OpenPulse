@@ -5,13 +5,16 @@ from PySide6.QtCore import QEvent, QObject, Qt, Signal
 from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.structural.elastic_nodal_links_input_ui import (
     ElasticNodalLinksInput_UI,
 )
 from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
     StructuralNodesInput,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -33,10 +36,6 @@ class TabList(IntEnum):
 class NodalLinkType(IntEnum):
     STIFFNESS = 0
     DAMPING = 1
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):

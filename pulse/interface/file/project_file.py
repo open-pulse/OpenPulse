@@ -61,7 +61,7 @@ class ProjectFile:
     def _read_file(self, filename: str):
         """Read a file from the project directory. Returns a Python object."""
         path = self._file_path(filename)
-        if not path.exists():
+        if not path.exists() or path.stat().st_size == 0:
             return None
 
         suffix = path.suffix.lower()
@@ -162,7 +162,7 @@ class ProjectFile:
 
             try:
                 self._remove_file("geometry_file")
-            except:
+            except Exception:
                 pass
 
             self._copy_to_dir(internal_path, geometry_path)
@@ -413,13 +413,13 @@ class ProjectFile:
 
                             try:
                                 aux[key] = np.array(values)
-                            except:
+                            except Exception:
                                 continue
 
                         if aux:
                             tables_data[group] = aux
 
-        except:
+        except Exception:
             return dict()
 
         return tables_data
@@ -503,13 +503,13 @@ class ProjectFile:
 
                             try:
                                 aux[key] = np.array(values)
-                            except:
+                            except Exception:
                                 continue
 
                         if aux:
                             results_data[group] = aux
 
-        except:
+        except Exception:
             return dict()
 
         return results_data

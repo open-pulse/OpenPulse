@@ -1,21 +1,23 @@
-from PySide6.QtWidgets import QDialog, QTableWidgetItem, QHeaderView
-from PySide6.QtGui import QColor
-from PySide6.QtCore import Qt, QSize
-
-from pulse import app
-from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.ui_generated.model.setup.material.material_input_widget_ui import MaterialInputWidget_UI
-from pulse.libraries.default_libraries import default_material_library
-from pulse.interface.formatters.icons import change_icon_color_for_widgets
-from pulse.model.properties.material import Material
-
 from copy import deepcopy
 from itertools import count
 
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QDialog, QHeaderView, QTableWidgetItem
 
-error_title = "Error"
+from pulse import app
+from pulse.interface import error_title
+from pulse.interface.formatters.icons import change_icon_color_for_widgets
+from pulse.interface.ui_generated.model.setup.material.material_input_widget_ui import (
+    MaterialInputWidget_UI,
+)
+from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.libraries.default_libraries import default_material_library
+from pulse.model.properties.material import Material
 
 
 class MaterialWidget(MaterialInputWidget_UI):
@@ -77,7 +79,7 @@ class MaterialWidget(MaterialInputWidget_UI):
     def _paint_icons(self):
         icon_color = None
         theme = app().config.user_preferences.interface_theme
-        from pulse import LIGHT_ICON_COLOR, DARK_ICON_COLOR
+        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
         if theme == "dark":
             icon_color = DARK_ICON_COLOR.to_qt()
         else:

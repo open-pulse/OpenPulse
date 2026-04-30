@@ -38,8 +38,23 @@ class PipeOptions(StructureOptions):
             extra_info=self._get_extra_info(),
         )
 
-    def configure_structure(self):
+    def attach_callback(self):
+        kwargs = self.get_kwargs()
+        if kwargs is None:
+            return
 
+        if self._can_add_bend():
+            self.pipeline.add_bend(**kwargs)
+        else:
+            self.pipeline.connect_structures(Pipe, **kwargs)
+            self.pipeline.commit()
+
+    def update_permissions(self):
+        super().update_permissions()
+        if self.structure_info and self._can_add_bend():
+            self.geometry_designer_widget.attach_button.setEnabled(True)
+
+    def configure_structure(self):
         self.cross_section_widget.set_inputs_to_geometry_creator()
         self.cross_section_widget.hide_all_tabs()
         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
@@ -52,11 +67,13 @@ class PipeOptions(StructureOptions):
         if not self.cross_section_dialog.complete:
             return
 
+        self.cross_section_dialog.reset()
         if self.cross_section_widget.get_constant_section_pipe_parameters():
-            self.configure_structure()  # if it is invalid try again
+            self.configure_structure()
             return
 
-        self.structure_info = self.cross_section_widget.pipe_section_info
+        self.structure_info = self.cross_section_widget.pipe_section_info.as_dict()
+
         self.configure_section_of_selected()
         self.update_permissions()
 
@@ -122,3 +139,11 @@ class PipeOptions(StructureOptions):
             cross_section_info=deepcopy(self.structure_info),
             material_id=self.geometry_designer_widget.current_material_id,
         )
+
+    def _can_add_bend(self) -> bool:
+        if len(self.pipeline.selected_points) != 1:
+            return False
+
+        point = self.pipeline.selected_points[0]
+        tangencies = self.pipeline.main_editor.get_point_tangency(point)
+        return len(tangencies) == 2

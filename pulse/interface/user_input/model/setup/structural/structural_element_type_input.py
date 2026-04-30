@@ -6,6 +6,7 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.structural.structural_element_type_input_ui import (
     StructuralElementTypeInput_UI,
 )
@@ -47,10 +48,6 @@ class WallFormulation(IntEnum):
     THIN = 0
     THICK = 1
     NONE = 2
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class StructuralElementTypeInput(StructuralElementTypeInput_UI):

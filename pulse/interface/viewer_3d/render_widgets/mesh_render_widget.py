@@ -1,30 +1,22 @@
-# fmt: off
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
-
-from molde.interactor_styles import BoxSelectionInteractorStyle
-from molde.render_widgets import CommonRenderWidget
-
-from pulse import app, ICON_DIR
-from pulse.interface.viewer_3d.actors import SectionPlaneActor, ElementAxesActor, ElementLinesActor, NodesActor, PointsActor, TubeActor
-from pulse.utils.image_functions import removes_image_background
-
 from molde.colors import Color
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
 
 from pulse import ICON_DIR, app
 from pulse.interface.viewer_3d.actors import (
     ElementAxesActor,
     ElementLinesActor,
+    FixedSymbolsActor,
     NodesActor,
     PointsActor,
     SectionPlaneActor,
-    VariableSymbolsActor,
-    FixedSymbolsActor,
     TubeActor,
+    VariableSymbolsActor,
 )
 from pulse.interface.viewer_3d.render_tools import SelectionTool
+from pulse.utils.image_functions import removes_image_background
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text

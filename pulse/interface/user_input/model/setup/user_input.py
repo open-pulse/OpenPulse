@@ -1,17 +1,26 @@
 from abc import abstractmethod
 from functools import partial
+from pathlib import Path
 
+import numpy as np
 from molde.colors import color_names
 from PySide6.QtGui import QCloseEvent, QColor, Qt
-from PySide6.QtWidgets import QDialog, QWidget, QLineEdit, QPushButton
+from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QWidget
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.formatters import icons
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.data_handler.file_handlers.file_handler import (
+    FileHandler,
+)
+from pulse.interface.user_input.data_handler.imported_data import (
+    SpreadsheetData,
+    TextData,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
-from pathlib import Path
-import numpy as np
 
 
 class UserInput(QDialog):
@@ -54,7 +63,6 @@ class UserInput(QDialog):
     
     def load_table(self, line_edit: QLineEdit, bc_label: str, dof_label: str = "", direct_load: bool = False):
 
-        error_title = "Error"
         title = "Error while loading table"
 
         try:
@@ -74,7 +82,7 @@ class UserInput(QDialog):
                 if dof_label != "":
                     caption += f" ({dof_label})"
                 
-                extensions = ["csv", "dat", "txt"]
+                extensions = ["xls", "xlsx", "csv", "dat", "txt"]
 
                 table_path = FileDialogService.open_file(extensions, caption, last_path)
 
@@ -82,11 +90,23 @@ class UserInput(QDialog):
                     return None, None
 
             line_edit.setText(str(table_path))
-            imported_file = FileHandler().read(table_path)         
-            imported_data = imported_file.data
+            imported_file = FileHandler().read(table_path)
+   
+            if isinstance(imported_file, SpreadsheetData):
+                imported_data = imported_file.sheets[0].data
+
+            elif isinstance(imported_file, TextData):
+                imported_data = imported_file.data
+
+            else:
+                self.hide()
+                message = "The imported table file extension is not supported. "
+                PrintMessageInput([error_title, title, message])
+                line_edit.setFocus()
+                return None, None
 
             if imported_data.shape[1] < 3:
-                self.parent().hide()
+                self.hide()
                 message = "The imported table has an insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([error_title, title, message])
@@ -94,7 +114,7 @@ class UserInput(QDialog):
                 return None, None
            
             if self._check_table_frequency_vector(imported_data[:, 0]):
-                self.parent().hide()
+                self.hide()
                 message = "The frequencies vector from imported table has a non-uniform frequency "
                 message += "spacing. The frequencies vector must be equally spaced."
                 PrintMessageInput([error_title, title, message])

@@ -48,7 +48,7 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
 
         icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
 
-    def plot_cross_section(self, plot_data: list, section_type_label: str, section_type: str):
+    def plot_cross_section(self, plot_data: list, section_type_label: str):
 
         if len(plot_data) == 6:
             Zp, Yp, Zp_ins, Yp_ins, Zc, Yc = plot_data
