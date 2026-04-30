@@ -59,8 +59,6 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
         self._configure_validators()
         self._create_connections()
 
-        # self.attribution_type_callback()
-
         self.load_element_type_info()
 
         while self.keep_window_open:
@@ -117,6 +115,7 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
         #
         app().main_window.selection_changed.connect(self.selection_callback)
         #
+        self.attribution_type_callback()
         self.selection_callback()
         self.element_type_change_callback()
 
