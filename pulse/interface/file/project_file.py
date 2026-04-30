@@ -61,7 +61,7 @@ class ProjectFile:
     def _read_file(self, filename: str):
         """Read a file from the project directory. Returns a Python object."""
         path = self._file_path(filename)
-        if not path.exists():
+        if not path.exists() or path.stat().st_size == 0:
             return None
 
         suffix = path.suffix.lower()
