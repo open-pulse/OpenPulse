@@ -483,8 +483,8 @@ class FrequencyResponsePlotter(FrequencyResponsePlotter_UI):
                     if self.linear_plot:
                         _plot = self.call_lin_lin_plot()
 
-                    elif True in (self.mask_x + self.mask_y):
-                        _plot = self.get_plot_considering_invalid_log_values()
+                    # elif True in (self.mask_x + self.mask_y):
+                    #     _plot = self.get_plot_considering_invalid_log_values()
 
                     elif self.plot_type_index == PlotType.LOG_LOG:
                         _plot = self.call_log_log_plot()
