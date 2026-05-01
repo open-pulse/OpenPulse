@@ -354,7 +354,8 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
 
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter.imported_dB_data()
+        # self.plotter.imported_dB_data()
+        self.plotter.imported_real_data(decibel_data=True)
 
         f_cut = None
         if self.comboBox_cutoff_frequency_options.currentIndex() != CutoffFrequency.DISABLED:
