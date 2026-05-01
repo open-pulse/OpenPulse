@@ -713,9 +713,6 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
         if item.text(0) == "":
             return
 
-        if not item.text(0).isnumeric():
-            return
-
         element_id = int(item.text(0))
         data = self.properties._get_property("perforated_plate", element_id=element_id)
 

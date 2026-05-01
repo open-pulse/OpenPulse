@@ -660,7 +660,7 @@ class CrossSection:
 
             if avg_data:
                 self.y_centroid, self.z_centroid, self.y_shear, self.z_shear = avg_data
-            
+
             y_c = self.y_centroid
             z_c = self.z_centroid
             y_s = self.y_shear
@@ -675,13 +675,16 @@ class CrossSection:
             Iz = self.second_moment_area_z
             Iyz = self.second_moment_area_yz
 
-            if Iz==Iy:
+            if Iz == Iy:
                 if Iyz > 0:
-                    angle = pi/2
+                    angle = pi / 2
                 elif Iyz < 0:
-                    angle = -pi/2
+                    angle = -pi / 2
+                else:
+                    angle = 0
+
             else:
-                angle = atan(2*Iyz/(Iz-Iy))/2
+                angle = atan((2 * Iyz) / (Iz - Iy)) / 2
 
             # rotational part of transformation matrix
             rotation = np.array([
