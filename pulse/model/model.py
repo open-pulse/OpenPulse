@@ -73,6 +73,8 @@ class Model:
             return "Acoustic Modal Analysis"
         elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
             return "Structural Static Analysis"
+        elif self.analysis_id == AnalysisID.COUPLED_HARMONIC:
+            return "Coupled Harmonic Analysis"
         else:
             return "Analysis not identified"
 
