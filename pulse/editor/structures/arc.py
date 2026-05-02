@@ -46,14 +46,15 @@ class Arc(Structure):
 
         v = v / np.linalg.norm(v)
         theta = np.arccos(np.dot(v, strucutre_vector) / norm_structure_vector)
+        sin_theta = np.sin(theta)
 
-        if theta == 0:
+        if np.allclose(theta, 0) or np.allclose(theta, sin_theta):
             r = norm_structure_vector / 2
             center = _start + v * r
             mid_coords = center + tangency * r
 
         else:
-            r = norm_structure_vector * np.sin(theta) / np.sin(np.pi - 2 * theta)
+            r = norm_structure_vector * sin_theta / np.sin(np.pi - 2 * theta)
             m = strucutre_vector / 2 + _start
             center = _start + v * r
             mid_point_direction = normalize(m - center)
