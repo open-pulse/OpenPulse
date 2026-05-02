@@ -677,7 +677,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.current_options.attach_callback()
         self.pipeline.commit()
         self._update_permissions()
-        self.render_widget.update_plot(reset_camera=True)
+        self.render_widget.update_plot(reset_camera=False)
         self.modified = True
         self._reset_xyz()
         self._update_permissions()
