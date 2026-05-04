@@ -86,9 +86,9 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         #
         app().main_window.selection_changed.connect(self.selection_callback)
         #
+        self.output_line_edit_clicked()
         self.selection_callback()
         self.update_flip_buttons()
-        self.output_line_edit_clicked()
 
     def selection_callback(self):
 
