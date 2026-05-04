@@ -2,10 +2,9 @@ import numpy as np
 from PySide6.QtWidgets import QLineEdit
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.user_input.model.setup.nodes_input import NodesInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-error_title = "Error"
 
 
 class StructuralNodesInput(NodesInput):

@@ -1,15 +1,14 @@
-from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.criterias.beam_criteria_assistant_ui import BeamCriteriaAssistant_UI
-from pulse.model.before_run import BeforeRun
+from pulse.interface import error_title, warning_title
+from pulse.interface.ui_generated.criterias.beam_criteria_assistant_ui import (
+    BeamCriteriaAssistant_UI,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from pulse.model.before_run import BeforeRun
 
 
 class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
@@ -139,7 +138,7 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
                 title = "No branches out of user-defined criteria"
                 message = "The all piping branches from current structure meets "
                 message += "the user-defined 'L/d' beam validity criteria."
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([warning_title, title, message])
 
     def on_click_non_beam_segments(self, item):
         section_id = item.text(0)
@@ -177,7 +176,7 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
                     
                             message = f"Insert a positive value to the {label}."
                             message += "\n\nZero value is allowed."
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput([error_title, title, message])
                             self.stop = True
                             return None
                     else:
@@ -185,14 +184,14 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
                     
                             message = f"Insert a positive value to the {label}."
                             message += "\n\nZero value is not allowed."
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput([error_title, title, message])
                             self.stop = True
                             return None
             except Exception as _err:
         
                 message = f"Wrong input for {label}.\n\n"
                 message += "Error details: " + str(_err)
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 self.stop = True
                 return None
         else:
@@ -201,7 +200,7 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
             else: 
         
                 message = f"Insert some value at the {label} input field."
-                PrintMessageInput([window_title_1, title, message])                   
+                PrintMessageInput([error_title, title, message])                   
                 self.stop = True
                 return None
         return out
@@ -227,7 +226,7 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
         message += "but to provide an additional filter to focus on segments that could lead to physically "
         message += "non-representative results."
         #
-        PrintMessageInput([window_title_1, title, message], alignment=Qt.AlignJustify)
+        PrintMessageInput([error_title, title, message], alignment=Qt.AlignJustify)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:

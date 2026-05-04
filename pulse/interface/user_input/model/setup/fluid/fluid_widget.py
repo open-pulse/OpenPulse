@@ -1,25 +1,35 @@
-from PySide6.QtWidgets import QDialog, QHeaderView, QTableWidgetItem
-from PySide6.QtGui import QColor
-from PySide6.QtCore import Qt, QSize
-
-from pulse import app
-from pulse.interface.user_input.numeric_checks.unit_utilities import convert_pressure_unit, convert_temperature_unit
-from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
-from pulse.interface.ui_generated.model.setup.fluid.fluid_input_widget_ui import FluidInputWidget_UI
-
-from pulse.model.properties.fluid import Fluid
-from pulse.libraries.default_libraries import default_fluid_library
-from pulse.interface.formatters.icons import change_icon_color_for_widgets
-
+import re
 from copy import deepcopy
 from itertools import count
+from pathlib import Path
 
-import re
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QColor, QIcon
+from PySide6.QtWidgets import QDialog, QHeaderView, QMenu, QTableWidgetItem
 
-error_title = "Error"
+from pulse import app, ICON_DIR
+from pulse.interface import error_title
+from pulse.interface.formatters.icons import change_icon_color_for_widgets
+from pulse.interface.ui_generated.model.setup.fluid.fluid_input_widget_ui import (
+    FluidInputWidget_UI,
+)
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import (
+    SetFluidCompositionInput,
+)
+from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
+from pulse.interface.user_input.numeric_checks.unit_utilities import (
+    convert_pressure_unit,
+    convert_temperature_unit,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.libraries.default_libraries import default_fluid_library
+from pulse.model.properties.fluid import Fluid
 
 
 class FluidWidget(FluidInputWidget_UI):
@@ -85,6 +95,9 @@ class FluidWidget(FluidInputWidget_UI):
         self.tableWidget_fluid_data.cellClicked.connect(self.cell_clicked_callback)
         self.tableWidget_fluid_data.itemChanged.connect(self.item_changed_callback)
         self.tableWidget_fluid_data.cellDoubleClicked.connect(self.cell_double_clicked_callback)
+        #
+        self.tableWidget_fluid_data.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tableWidget_fluid_data.customContextMenuRequested.connect(self.right_click_callback)
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
@@ -104,7 +117,7 @@ class FluidWidget(FluidInputWidget_UI):
     def _paint_icons(self):
         icon_color = None
         theme = app().config.user_preferences.interface_theme
-        from pulse import LIGHT_ICON_COLOR, DARK_ICON_COLOR
+        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
         if theme == "dark":
             icon_color = DARK_ICON_COLOR.to_qt()
         else:
@@ -667,6 +680,60 @@ class FluidWidget(FluidInputWidget_UI):
 
         self.tableWidget_fluid_data.selectColumn(col)
         self.tableWidget_fluid_data.blockSignals(False)
+
+    def right_click_callback(self, pos):
+        menu = QMenu(self)
+        export_action = menu.addAction("Export fluid")
+        export_icon = QIcon(str(ICON_DIR / "common/save_as.png"))
+        export_action.setIcon(export_icon)
+
+        font = export_action.font()
+        font.setPointSize(10)
+
+        menu.setStyleSheet("""
+            QMenu {
+            border-radius: 4px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 1px;
+            }
+            QMenu::item {
+            margin-top: 6px;
+            margin-right: 10px;
+            margin-bottom: 6px;
+            margin-left: 10px;
+            }
+            """)
+
+        action = menu.exec_(self.tableWidget_fluid_data.viewport().mapToGlobal(pos))
+        if action != export_action:
+            return
+
+        item = self.tableWidget_fluid_data.itemAt(pos)
+        if not item:
+            return
+
+        col = item.column()
+        self.tableWidget_fluid_data.selectColumn(col)
+
+        _fluid_id = self.tableWidget_fluid_data.item(1, col).text()
+        if _fluid_id != "":
+            fluid_id = int(_fluid_id)
+
+        fluid_data = self.properties.fluids_library.get(fluid_id)
+        if not isinstance(fluid_data, Fluid):
+            return
+
+        extensions = ["json"]
+
+        path = app().config.get_last_folder_for("export_data_folder")
+        if path is None:
+            last_path = Path().home()
+        else:
+            last_path = path
+
+        file_path = FileDialogService.save_file(extensions, "Export fluid data", last_path)
+        if file_path is None:
+            return False
+
+        app().project.file._write_file(file_path, fluid_data.as_dict())
 
     def get_new_identifiers(self, N: int):
 

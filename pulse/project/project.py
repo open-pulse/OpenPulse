@@ -1,13 +1,11 @@
-# fmt: off
 
 import logging
 from collections import defaultdict
 from pathlib import Path
 
-import numpy as np
-
 from pulse import TEMP_PROJECT_DIR, app
 from pulse.editor import Pipeline
+from pulse.interface import error_title, warning_title
 from pulse.interface.file.project_file import ProjectFile
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -19,8 +17,6 @@ from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.project.load_project import LoadProject
 
-error_title = "Error"
-warning_title = "Warning"
 
 class Project:
     def __init__(self):
@@ -41,9 +37,9 @@ class Project:
 
     def _initialize(self):
         self.structural_reactions = dict()
-        self.natural_frequencies_acoustic = np.ndarray([])
-        self.natural_frequencies_structural = np.ndarray([])
-        self.complex_natural_frequencies_acoustic = np.ndarray([])
+        self.natural_frequencies_acoustic = None
+        self.natural_frequencies_structural = None
+        self.complex_natural_frequencies_acoustic = None
 
         self.preferences = dict()
         self.color_scale_setup = dict()
@@ -78,9 +74,9 @@ class Project:
         self.structural_solution = None
         self.acoustic_solution = None
 
-        self.natural_frequencies_acoustic = np.ndarray([])
-        self.natural_frequencies_structural = np.ndarray([])
-        self.complex_natural_frequencies_acoustic = np.ndarray([])
+        self.natural_frequencies_acoustic = None
+        self.natural_frequencies_structural = None
+        self.complex_natural_frequencies_acoustic = None
         self.structural_reactions.clear()
 
         if self.acoustic_solver is not None:
@@ -160,7 +156,7 @@ class Project:
         self.loader.load_mesh_dependent_properties()
 
         logging.info("Finalizing model data loading [75%]")
-        self.model.preprocessor.process_all_rotation_matrices()
+        # self.model.preprocessor.process_all_rotation_matrices()
         self.model.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
@@ -168,6 +164,8 @@ class Project:
         self.reset(reset_all = True)
         self.file.remove_element_properties_from_project_file()
         self.file.remove_nodal_properties_from_project_file()
+        self.file.remove_results_data_from_project_file()
+        self.file.write_imported_table_data_in_file()
 
         if self.file.check_pipeline_data():
             if self.loader.load_project_data():
@@ -185,110 +183,6 @@ class Project:
         app().main_window.update_status_bar_info()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
-
-    def enhance_pipe_sections_appearance(self):
-        """ 
-        This method adds lids to cross-section variations and terminations.
-        """
-        for elements in self.model.preprocessor.structural_elements_connected_to_node.values():
-
-            element = None
-            if len(elements) == 2:
-                first_element, last_element = elements
-                
-                if 'beam_1' not in [first_element.element_type, last_element.element_type]:
-                    first_cross = first_element.cross_section
-                    last_cross = last_element.cross_section
-                    
-                    if not (first_cross and last_cross):
-                        continue
-
-                    first_outer_diameter = first_cross.outer_diameter
-                    first_inner_diameter = first_cross.inner_diameter
-                    last_outer_diameter = last_cross.outer_diameter
-                    last_inner_diameter = last_cross.inner_diameter
-
-                    if first_outer_diameter < last_inner_diameter:
-                        inner_diameter = first_inner_diameter 
-                        element = last_element
-
-                    if last_outer_diameter < first_inner_diameter:
-                        inner_diameter = last_inner_diameter 
-                        element = first_element
-
-            elif len(elements) == 1: 
-
-                element = elements[0]   
-                if element.element_type == 'beam_1':
-                    continue  
-
-                first_node = element.first_node
-                last_node = element.last_node  
-
-                if element.cross_section is None:
-                    continue
-
-                inner_diameter = element.cross_section.inner_diameter 
-
-                if len(self.model.preprocessor.neighbors[first_node]) == 1:
-                    first_node_id = first_node.external_index
-                    if self.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
-                        inner_diameter = 0
-
-                elif len(self.model.preprocessor.neighbors[last_node]) == 1:
-                    last_node_id = last_node.external_index
-                    if self.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
-                        inner_diameter = 0
-
-            if element:
-
-                if element.element_type == 'expansion_joint':
-
-                    d_eff = element.cross_section.section_parameters[1]
-                    plot_key = element.cross_section.section_parameters[0]
-
-                    # thickness = (outer_diameter - inner_diameter) / 2
-                    parameters = [plot_key, d_eff, inner_diameter]
-
-                    element.section_parameters_render = parameters
-
-                else:
-
-                    cross = element.cross_section
-                    outer_diameter = cross.outer_diameter
-                    offset_y = cross.offset_y
-                    offset_z = cross.offset_z
-                    insulation_thickness = cross.insulation_thickness
-
-                    thickness = (outer_diameter - inner_diameter) / 2
-                    parameters = [  
-                                    outer_diameter, 
-                                    thickness, 
-                                    offset_y, 
-                                    offset_z, 
-                                    insulation_thickness
-                                  ]
-
-                    element.section_parameters_render = parameters
-
-    def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
-
-        acoustic_properties = [
-                                "acoustic_pressure", 
-                                "volume_velocity", 
-                                "specific_impedance", 
-                                "radiation_impedance", 
-                                "reciprocating_compressor_excitation",
-                                "reciprocating_pump_excitation",
-                                "psd_acoustic_link",
-                                "acoustic_transfer_element"
-                                ]
-
-        for (property, *args) in self.model.properties.nodal_properties.keys():
-            if property in acoustic_properties and node_id in args:
-                    return True
-
-        return False
 
     def is_analysis_setup_complete(self):
 
@@ -764,5 +658,3 @@ class Project:
 
         self.after_run = self.get_post_solution_model_checks()
         self.after_run.check_all_acoustic_criterias()
-
-# fmt: on

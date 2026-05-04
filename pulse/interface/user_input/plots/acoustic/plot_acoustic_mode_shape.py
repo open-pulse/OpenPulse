@@ -1,15 +1,13 @@
-from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QFont
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.acoustic_mode_shape_ui import AcousticModeShape_UI
+from pulse.interface.ui_generated.plots.results.acoustic.acoustic_mode_shape_ui import (
+    AcousticModeShape_UI,
+)
 
-
-import numpy as np
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class PlotAcousticModeShape(AcousticModeShape_UI):
     def __init__(self, *args, **kwargs):
@@ -22,18 +20,19 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
        
     def _initialize(self):
         self.mode_index = None
-        self.colormaps = ["jet",
-                          "viridis",
-                          "inferno",
-                          "magma",
-                          "plasma",
-                          "bwr",
-                          "PiYG",
-                          "PRGn",
-                          "BrBG",
-                          "PuOR",
-                          "grayscale",
-                          ]
+        self.colormaps = [
+            "jet",
+            "viridis",
+            "inferno",
+            "magma",
+            "plasma",
+            "bwr",
+            "PiYG",
+            "PRGn",
+            "BrBG",
+            "PuOR",
+            "grayscale",
+        ]
 
     def _create_connections(self):
         #
@@ -87,7 +86,7 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)
                 self.comboBox_colormaps.setCurrentIndex(index)
-        except:
+        except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):

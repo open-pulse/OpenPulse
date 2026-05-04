@@ -19,8 +19,8 @@ class RectangularBeamActor(vtkActor):
             length,
             self.beam.width,
             self.beam.height, 
-            self.beam.thickness_width,
-            self.beam.thickness_width,
+            self.beam.width_internal,
+            self.beam.height_internal,
             offset_y=self.beam.offset_y,
             offset_z=self.beam.offset_z,
         )

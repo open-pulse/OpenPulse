@@ -1,21 +1,21 @@
-from PySide6.QtWidgets import QGridLayout
-from PySide6.QtGui import QCloseEvent
+from enum import IntEnum
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QGridLayout
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.fluid.set_fluid_input_ui import SetFluidInput_UI
+from pulse.interface import error_title
+from pulse.interface.ui_generated.model.setup.fluid.set_fluid_input_ui import (
+    SetFluidInput_UI,
+)
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-from enum import IntEnum
-
 class AssignmentType(IntEnum):
     ALL_LINES = 0
     SELECTED_LINES = 1
-
-
-error_title = "Error"
 
 
 class SetFluidInput(SetFluidInput_UI):

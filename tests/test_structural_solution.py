@@ -8,13 +8,13 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.project.project import Project
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 # Setting up model
 @pytest.fixture
 def current_model(datadir: Path):
     section_parameters = [0.01, 0.001, 0, 0, 0, 0]
-    pipe_section_info = {  "section_type_label" : "pipe" ,
-                            "section_parameters" : section_parameters  }
+    pipe_section_info = PipeCrossSection(*section_parameters)
 
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()

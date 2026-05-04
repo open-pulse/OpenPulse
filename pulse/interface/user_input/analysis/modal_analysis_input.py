@@ -2,12 +2,12 @@
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.analysis.structural.modal_analysis_ui import ModalAnalysis_UI
-from pulse.model import AnalysisID
+from pulse.interface import error_title
+from pulse.interface.ui_generated.analysis.structural.modal_analysis_ui import (
+    ModalAnalysis_UI,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-
-error_title = "Error"
+from pulse.model import AnalysisID
 
 
 class ModalAnalysisInput(ModalAnalysis_UI):

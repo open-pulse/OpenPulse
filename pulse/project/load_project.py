@@ -1,8 +1,22 @@
 from typing import TYPE_CHECKING
 
 from pulse import version
+from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import (
+    CircularBeamCrossSection,
+)
+from pulse.model.cross_sections.generic_beam_cross_section import (
+    GenericBeamCrossSection,
+)
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import (
+    RectangularBeamCrossSection,
+)
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
@@ -15,9 +29,6 @@ from collections import defaultdict
 
 import numpy as np
 from packaging.version import Version
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class LoadProject:
@@ -129,18 +140,37 @@ class LoadProject:
                 section_type_label = self.fix_data_for_backwards_compatibility(data)
 
                 if data.get("structure_name") in ["pipe", "bend", "arc_bend", "flange"]:
-                    pipe_section_info = {   "section_type_label" : section_type_label,
-                                            "section_parameters" : data["section_parameters"]   }
 
-                    self.cross_sections[line_id] = CrossSection(pipe_section_info=pipe_section_info) 
+                    pipe_section_info = PipeCrossSection(*data["section_parameters"])
+
+                    self.cross_sections[line_id] = CrossSection(
+                        element_type = "pipe_1",
+                        pipe_section_info = pipe_section_info,
+                    )
 
                 elif "section_properties" in data.keys():
-                    beam_section_info = {   "section_type_label" : section_type_label,
-                                            "section_parameters" : data["section_parameters"],
-                                            "section_properties" : data["section_properties"]   }
 
-                    self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
+                    section_parameters = data["section_parameters"]
+                    match section_type_label:
+                        case "circular_beam":
+                            beam_section_info = CircularBeamCrossSection(*section_parameters)
+                        case "rectangular_beam":
+                            beam_section_info = RectangularBeamCrossSection(*section_parameters)
+                        case "c_beam":
+                            beam_section_info = CBeamCrossSection(*section_parameters)
+                        case "i_beam":
+                            beam_section_info = IBeamCrossSection(*section_parameters)
+                        case "t_beam":
+                            beam_section_info = TBeamCrossSection(*section_parameters)
+                        case "generic_beam":
+                            beam_section_info = GenericBeamCrossSection(*section_parameters)
+                        case _:
+                            continue
 
+                    self.cross_sections[line_id] = CrossSection(
+                        element_type = "beam_1",
+                        beam_section_info = beam_section_info,
+                    )
 
     def fix_data_for_backwards_compatibility(self, data: dict):
 

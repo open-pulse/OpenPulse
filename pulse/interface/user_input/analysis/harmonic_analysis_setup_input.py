@@ -1,13 +1,13 @@
-from PySide6.QtWidgets import QLineEdit
 from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QLineEdit
 
 from pulse import app
-from pulse.interface.ui_generated.analysis.harmonic_analysis_setup_input_ui import HarmonicAnalysisSetupInput_UI
-from pulse.model import AnalysisID
+from pulse.interface import error_title
+from pulse.interface.ui_generated.analysis.harmonic_analysis_setup_input_ui import (
+    HarmonicAnalysisSetupInput_UI,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-
-error_title = "Error"
+from pulse.model import AnalysisID
 
 
 class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
@@ -68,7 +68,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
                 modes_to_expand = analysis_setup.get("number_of_modes")
                 self.lineEdit_modes_to_expand.setText(f"{modes_to_expand}")
         else:
-            self.lineEdit_modes_to_expand.setText(f"")
+            self.lineEdit_modes_to_expand.clear()
 
     def _update_fmin(self):
         df = self.lineEdit_fstep.text()
@@ -111,7 +111,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         if not sum(global_damping):
             return
 
-        if not self.model.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+        if self.model.analysis_id not in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
             return
 
         if global_damping[0]:

@@ -1,22 +1,24 @@
-from PySide6.QtWidgets import QGridLayout
-from PySide6.QtGui import QCloseEvent
+from enum import IntEnum
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QGridLayout
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.material.set_material_ui import SetMaterial_UI
-from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
+from pulse.interface import error_title
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.ui_generated.model.setup.material.set_material_ui import (
+    SetMaterial_UI,
+)
+from pulse.interface.user_input.model.setup.material.material_widget import (
+    MaterialWidget,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-
-from enum import IntEnum
 
 class AssignmentType(IntEnum):
     ALL_LINES = 0
     SELECTED_LINES = 1
-
-
-error_title = "Error"
 
 
 class SetMaterialInput(SetMaterial_UI):

@@ -12,6 +12,7 @@ from pulse.interface.user_input.model.setup.structural.expansion_joint_input imp
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from .structure_options import StructureOptions
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 window_title = "Error"
 
@@ -48,16 +49,16 @@ class ExpansionJointOptions(StructureOptions):
 
         try:
 
-            section_parameters = self.cross_section_widget.pipe_section_info.get("section_parameters")
-            if section_parameters is None:
+            pipe_section_info = self.cross_section_widget.pipe_section_info
+            if not isinstance(pipe_section_info, PipeCrossSection):
                 return
 
-            outside_diameter = section_parameters[0]
-            wall_thickness = section_parameters[1]
+            outside_diameter, wall_thickness, offset_y, offset_z, *_ = pipe_section_info.section_parameters
             effective_diameter = outside_diameter - 2 * wall_thickness
 
             self.expansion_joint_input.lineEdit_effective_diameter.setText(f"{round(effective_diameter, 6)}")
-            # self.expansion_joint_input.lineEdit_wall_thickness.setText(f"{round(wall_thickness, 6)}")
+            self.expansion_joint_input.lineEdit_offset_y.setText(f"{round(offset_y, 6)}")
+            self.expansion_joint_input.lineEdit_offset_z.setText(f"{round(offset_z, 6)}")
 
         except Exception as error_log:
             title = "Error while tranfering pipe data"

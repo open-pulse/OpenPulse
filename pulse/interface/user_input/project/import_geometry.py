@@ -1,5 +1,3 @@
-# fmt: off
-
 from pulse import app
 from pathlib import Path
 
@@ -58,5 +56,3 @@ class ImportGeometry():
         app().main_window.use_model_setup_workspace()
         app().main_window.update_plots()
         self.complete = True
-
-# fmt: on

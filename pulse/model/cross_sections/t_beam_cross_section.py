@@ -12,6 +12,7 @@ class TBeamCrossSection:
     tw: float
     offset_y: float = 0.
     offset_z: float = 0.
+    section_type_label: str = "t_beam"
 
     @property
     def section_parameters(self):
@@ -63,8 +64,8 @@ class TBeamCrossSection:
             "Iyy" : Iyy, 
             "Izz" : Izz, 
             "Iyz" : Iyz, 
-            "Zc" : Zc,
             "Yc" : Yc, 
+            "Zc" : Zc,
             }
 
     @property
@@ -88,3 +89,10 @@ class TBeamCrossSection:
         Yc_offset = Yc + offset_y
 
         return Zp, Yp, Zc_offset, Yc_offset
+
+    def as_dict(self):
+        return {
+            "section_type_label" : self.section_type_label,
+            "section_parameters" : self.section_parameters,
+            "section_properties" : self.section_properties,
+        }

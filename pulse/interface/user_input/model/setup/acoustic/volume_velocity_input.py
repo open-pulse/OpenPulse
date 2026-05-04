@@ -5,13 +5,16 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import warning_title
 from pulse.interface.ui_generated.model.setup.acoustic.acoustic_property_input_ui import (
     AcousticPropertyInput_UI,
 )
 from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
     AcousticNodesInput,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -27,10 +30,6 @@ class TabIndex(IntEnum):
     CONSTANT = 0
     TABULAR = 1
     LIST = 2
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class VolumeVelocityInput(AcousticNodesInput, AcousticPropertyInput_UI):

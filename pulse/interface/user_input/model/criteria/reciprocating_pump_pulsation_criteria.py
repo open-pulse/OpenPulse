@@ -1,18 +1,15 @@
+import numpy as np
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.criterias.reciprocating_pump_pulsation_criteria_widget_ui import ReciprocatingPumpPulsationCriteriaWidget_UI
+from pulse.interface.ui_generated.criterias.reciprocating_pump_pulsation_criteria_widget_ui import (
+    ReciprocatingPumpPulsationCriteriaWidget_UI,
+)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-
-import numpy as np
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
-kgf_cm2_to_Pa = 9.80665e4
 
 class ReciprocatingPumpPulsationCriteriaInput(ReciprocatingPumpPulsationCriteriaWidget_UI):
     def __init__(self, *args, **kwargs):

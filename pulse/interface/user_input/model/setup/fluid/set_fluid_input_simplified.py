@@ -1,14 +1,13 @@
-from PySide6.QtWidgets import QGridLayout
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QGridLayout
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.fluid.set_fluid_input_simplified_ui import SetFluidInputSimplified_UI
+from pulse.interface.ui_generated.model.setup.fluid.set_fluid_input_simplified_ui import (
+    SetFluidInputSimplified_UI,
+)
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
 
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 def getColorRGB(color):
     color = color.replace(" ", "")

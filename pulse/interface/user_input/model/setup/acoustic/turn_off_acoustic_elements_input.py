@@ -11,9 +11,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
 
 class TurnOffAcousticElementsInput(ElementsInput, TurnOffAcousticElementsInput_UI):
     def __init__(self, *args, **kwargs):

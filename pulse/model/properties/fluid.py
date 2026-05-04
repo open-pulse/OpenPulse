@@ -1,5 +1,5 @@
 from numpy import allclose
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -90,3 +90,13 @@ class Fluid:
         self_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
         other_parameters = [v for v in other.__dict__.values() if isinstance(v, (float, int))]
         return allclose(self_parameters, other_parameters)
+
+    def as_dict(self) -> dict:
+
+        data = dict()
+        for key, value in self.__dict__.items():
+            if value is None:
+                continue
+            data[key] = value
+
+        return data

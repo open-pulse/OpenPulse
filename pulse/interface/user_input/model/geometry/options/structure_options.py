@@ -113,14 +113,14 @@ class StructureOptions:
         enable_attach = len(self.pipeline.selected_points) >= 2
         enable_add = len(self.pipeline.selected_structures) + len(self.pipeline.staged_structures) + len(self.pipeline.staged_points) >= 1
         enable_delete = len(self.pipeline.selected_structures) + len(self.pipeline.selected_points) >= 1
+        enable_length = self.pipeline.main_editor.can_add_structure_length()
+
         self.geometry_designer_widget.attach_button.setEnabled(enable_attach and enable)
         self.geometry_designer_widget.add_button.setEnabled(enable_add and enable)
         self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
         self.geometry_designer_widget.configure_button.setEnabled(True)
         self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
-
-        enable_length = self.pipeline.main_editor.can_add_structure_length()
-        self.geometry_designer_widget.length_line_edit.setEnabled(enable_length)
+        self.geometry_designer_widget.length_line_edit.setEnabled(enable_length and enable)
 
     def get_kwargs(self) -> dict:
         raise NotImplementedError(f"Method get_kwargs not implemented on {self.__class__.__name__}")

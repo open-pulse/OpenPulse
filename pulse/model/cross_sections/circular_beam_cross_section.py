@@ -10,6 +10,7 @@ class CircularBeamCrossSection:
     t: float
     offset_y: float = 0.
     offset_z: float = 0.
+    section_type_label: str = "circular_beam"
 
     @property
     def section_parameters(self):
@@ -41,8 +42,8 @@ class CircularBeamCrossSection:
             "Iyy" : Iyy,
             "Izz" : Izz,
             "Iyz" : Iyz,
-            "Zc" : Zc,
             "Yc" : Yc,
+            "Zc" : Zc,
             }
     
     @property
@@ -82,3 +83,10 @@ class CircularBeamCrossSection:
         Yc_offset = Yc + offset_y
 
         return Zp, Yp, Zc_offset, Yc_offset
+
+    def as_dict(self):
+        return {
+            "section_type_label" : self.section_type_label,
+            "section_parameters" : self.section_parameters,
+            "section_properties" : self.section_properties,
+        }
