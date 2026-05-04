@@ -231,7 +231,7 @@ class AssemblyAcoustic:
         diameters_first = np.array(self.neighbor_diameters[first])
         diameters_last = np.array(self.neighbor_diameters[last])
 
-        def get_element_correction(di_actual: float, di: float):
+        def get_element_correction(di_actual: float, di: float, diameters: list):
 
             correction = None
             if correction_type in [ElementLengthCorrection.EXPANSION, ElementLengthCorrection.LOOP]:
@@ -239,7 +239,7 @@ class AssemblyAcoustic:
 
             elif correction_type == ElementLengthCorrection.SIDE_BRANCH:
                 correction = length_correction_branch(di_actual, di)
-                if len(diameters_first) == 2:
+                if len(diameters) == 2:
                     message = "Warning: Expansion identified in acoustic "
                     message += "domain is being corrected as side branch."
                     print(message)
@@ -255,7 +255,7 @@ class AssemblyAcoustic:
             if di_actual >= di:
                 continue
 
-            correction = get_element_correction(di_actual, di)
+            correction = get_element_correction(di_actual, di, diameters_first)
             if correction is None:
                 continue
 
@@ -267,7 +267,7 @@ class AssemblyAcoustic:
             if di_actual >= di:
                 continue
 
-            correction = get_element_correction(di_actual, di)
+            correction = get_element_correction(di_actual, di, diameters_last)
             if correction is None:
                 continue
 
