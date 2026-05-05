@@ -15,7 +15,7 @@ def _unit_abreviation(length_unit: str):
     if length_unit == "meter":
         return "m"
 
-    elif length_unit == "milimeter":
+    elif length_unit == "millimeter":
         return "mm"
 
     elif length_unit == "inch":

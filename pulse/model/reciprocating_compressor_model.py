@@ -66,7 +66,7 @@ class ReciprocatingCompressorModel:
 
     # geometric parameters
     bore_diameter : float = 0.                                              # Cylinder bore diameter [m]
-    stroke : float = 0.                                                     # Stoke lenght [m]
+    stroke : float = 0.                                                     # Stoke length [m]
     connecting_rod_length : float = 0.                                      # Connecting rod length [m]
     rod_diameter : float = 0.                                               # Rod diameter [m]
     clearance_HE : float = 0.                                               # Clearance HE volume as percentage of HE full volume (%)

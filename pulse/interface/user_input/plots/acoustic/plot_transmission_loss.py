@@ -4,6 +4,7 @@ import numpy as np
 from PySide6.QtCore import QEvent, QObject, Qt, Signal
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.ui_generated.plots.results.acoustic.plot_transmission_loss_ui import PlotTransmissionLoss_UI
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
@@ -12,6 +13,11 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model import RadiationImpedanceType
 from pulse.model.properties.fluid import Fluid
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
+
+
+class DataType(IntEnum):
+    TRANSMISSION_LOSS = 0
+    NOISE_REDUCTION = 1
 
 
 class CutoffFrequency(IntEnum):
@@ -24,32 +30,38 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
 
         self._config_window()
         self._initialize()
         self._configure_validator()
         self._create_connections()
+        self.load_nodes_ids()
 
-        app().main_window.set_selection()
-        self.selection_callback()
-        self.update_flip_buttons()
+    @property
+    def model(self):
+        return app().project.model
+
+    @property
+    def properties(self):
+        return app().project.model.properties
+
+    @property
+    def preprocessor(self):
+        return app().project.model.preprocessor
 
     def _initialize(self):
 
-        self.preprocessor = app().project.model.preprocessor
-        self.solution = self.project.get_acoustic_solution()
-        self.before_run = self.project.get_pre_solution_model_checks()
+        self.solution = app().project.get_acoustic_solution()
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self.diameters_from_node = self.preprocessor.neighbor_elements_diameter()
 
         self.unit_label = "dB"
+        self.current_line_edit = None
+
         self.frequencies = self.model.frequencies
         self.elements = self.preprocessor.acoustic_elements
-        self.analysis_method = self.project.analysis_method
-
-        self.current_line_edit = None
+        self.analysis_method = app().project.analysis_method
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -75,6 +87,8 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         app().main_window.selection_changed.connect(self.selection_callback)
         #
         self.output_line_edit_clicked()
+        self.selection_callback()
+        self.update_flip_buttons()
 
     def selection_callback(self):
 
@@ -82,6 +96,48 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
 
         if len(selected_nodes) == 1:
             self.current_line_edit.setText(str(selected_nodes[0]))
+
+    def load_nodes_ids(self):
+
+        input_node = list()
+        output_node = list()
+
+        for (property, node_id) in self.properties.nodal_properties.keys():
+
+            if property == "radiation_impedance":
+                volume_velocity = self.properties._get_property("volume_velocity", node_ids=node_id)
+                if volume_velocity is None:
+                    if node_id not in output_node:
+                        output_node.append(node_id)
+
+                elif node_id not in input_node:
+                    input_node.append(node_id)
+
+        if len(input_node) == 1:
+            self.lineEdit_input_node_id.setText(str(input_node[0]))
+
+        if len(output_node) == 1:
+            self.lineEdit_output_node_id.setText(str(output_node[0]))
+
+        if input_node and output_node:
+            return False
+
+        elif not input_node:
+            self.lineEdit_input_node_id.setFocus()
+
+        elif not output_node:
+            self.lineEdit_input_node_id.setFocus()
+
+        self.close()
+        title = "Invalid inputs detected"
+        message = "The transmission loss calculation requires only one active excitation source "
+        message += "at the input surface, commonly in the form of a incident plane wave with and a "
+        message += "specific impedance at the output surface. Analogous results are obtained whether "
+        message += "a surface velocity, combined with specific impedances in both input and output "
+        message += "surfaces, is adopted. Any mismatch in these requirements will make the transmission "
+        message += "loss calculation unfeasible."
+        PrintMessageInput([error_title, title, message])
+        return True
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -129,14 +185,14 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
 
     def update_flip_buttons(self):
         index = self.comboBox_processing_selector.currentIndex()
-        if index == 0:
+        if index == DataType.TRANSMISSION_LOSS:
             self.pushButton_flip_nodes.setDisabled(True)
         else:
             self.pushButton_flip_nodes.setDisabled(False)
 
     def call_help(self):
         window_title = "Help"
-        if self.comboBox_processing_selector.currentIndex() == 0:
+        if self.comboBox_processing_selector.currentIndex() == DataType.TRANSMISSION_LOSS:
             title = "Required data to process the Transmission Loss"
             message = "Dear user, to determine the Transmission Loss (TL) of a filter or duct it is necessary to "
             message += "select the input node ID where the indicent wave is applied (usually by a volume velocity "
@@ -144,6 +200,7 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
             message += "should be applied at the input node ID to avoid wave reflections caused by the source itself."
             message += "\n\nInput node ID: incident plane wave (volume velocity + anechoic impedance)"
             message += "\nOutput node ID: outlet of filter or duct with an anechoic impedance\n"
+
         else:
             title = "Required data to process the Noise Reduction"
             message = "Dear user, to determine the Noise Reduction (NR) it is necessary to select the input "
@@ -155,11 +212,11 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
 
     def check_nodes_information(self):
 
-        if self.comboBox_processing_selector.currentIndex() == 0:
+        if self.comboBox_processing_selector.currentIndex() == DataType.TRANSMISSION_LOSS:
 
-            vv_data = app().project.model.properties._get_property("volume_velocity", node_ids=self.input_node_id)
-            input_impedance = app().project.model.properties._get_property("radiation_impedance", node_ids=self.input_node_id)
-            output_impedance = app().project.model.properties._get_property("radiation_impedance", node_ids=self.output_node_id)
+            vv_data = self.properties._get_property("volume_velocity", node_ids=self.input_node_id)
+            input_impedance = self.properties._get_property("radiation_impedance", node_ids=self.input_node_id)
+            output_impedance = self.properties._get_property("radiation_impedance", node_ids=self.output_node_id)
             
             if (vv_data, input_impedance).count(None):
                 self.input_node_id = None
@@ -216,32 +273,43 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
                 line_edit.setFocus()
                 return True
 
-        if self.comboBox_processing_selector.currentIndex() == 0:
-            self.y_label = "Transmission loss"
+    def get_minor_inner_diameter_from_node(self, node: int):
 
-        if self.comboBox_processing_selector.currentIndex() == 1:
-            self.y_label = "Noise reduction"
+        data = self.diameters_from_node.get(node)
+        if data is None:
+            return None, None, None
 
-    def get_minor_outer_diameter_from_node(self, node):
-
-        data = self.diameters_from_node[node]
         density = list()
         speed_of_sound = list()
         inner_diameter = list()
 
         for (index, _, int_dia) in data:
+            element = self.elements[index]
+            fluid = element.fluid
+
             inner_diameter.append(int_dia)
-            density.append(self.elements[index].fluid.density)
-            speed_of_sound.append(self.elements[index].speed_of_sound_corrected())
+            density.append(fluid.density)
+            speed_of_sound.append(element.speed_of_sound_corrected())
+
+        if not inner_diameter:
+            return None, None, None
+
         ind = inner_diameter.index(min(inner_diameter))
+
         return inner_diameter[ind], density[ind], speed_of_sound[ind]
 
-    def get_TL_NR(self):
+    def compute_TL_or_NR(self):
 
         P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
 
-        d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_id)
-        d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_id)
+        d_in, rho_in, c0_in = self.get_minor_inner_diameter_from_node(self.input_node_id)
+        if (d_in, rho_in, c0_in).count(None):
+            return None
+
+        d_out, rho_out, c0_out = self.get_minor_inner_diameter_from_node(self.output_node_id)
+        if (d_out, rho_out, c0_out).count(None):
+            return None
+
         A_in = np.pi * (d_in**2) / 4
         A_out = np.pi * (d_out**2) / 4
 
@@ -266,8 +334,6 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
             W_out = 10 * np.log10(I_out * A_out)
 
             TL = W_in - W_out
-
-            # TL = 20*np.log10(P_in/P_out) + 20*np.log10(A_in/A_out)
 
             return TL
 
@@ -297,7 +363,7 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
     def compute_pipe_cutoff_frequency(self):
 
         d_in = 0.
-        for line_id, data in app().project.model.properties.line_properties.items():
+        for line_id, data in self.properties.line_properties.items():
             if not isinstance(data, dict):
                 continue
 
@@ -325,21 +391,29 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         return f_cut
 
     def join_model_data(self):
+
         self.model_results = dict()
         self.title = f"Acoustic frequency response - {self.analysis_method} method"
+
+        if self.comboBox_processing_selector.currentIndex() == DataType.TRANSMISSION_LOSS:
+            y_label = "Transmission loss"
+
+        else:
+            y_label = "Noise reduction"
+
         legend_label = "{} between nodes {} and {}".format(
-            self.y_label,
-            self.input_node_id, 
+            y_label,
+            self.input_node_id,
             self.output_node_id,
-            )
+        )
 
         key = ("nodes", (self.input_node_id, self.output_node_id))
 
         self.model_results[key] = {
             "x_data": self.frequencies,
-            "y_data": self.get_TL_NR(),
+            "y_data": self.compute_TL_or_NR(),
             "x_label": "Frequency [Hz]",
-            "y_label": self.y_label,
+            "y_label": y_label,
             "title": self.title,
             "data_information": legend_label,
             "legend": legend_label,
@@ -354,7 +428,8 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
 
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter.imported_dB_data()
+        # self.plotter.imported_dB_data()
+        self.plotter.imported_real_data(decibel_data=True)
 
         f_cut = None
         if self.comboBox_cutoff_frequency_options.currentIndex() != CutoffFrequency.DISABLED:
