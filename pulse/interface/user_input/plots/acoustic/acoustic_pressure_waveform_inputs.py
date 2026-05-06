@@ -4,7 +4,7 @@ from PySide6.QtGui import QCloseEvent
 from pulse import app
 from pulse.interface.ui_generated.plots.results.acoustic.acoustic_pressure_waveform_inputs_ui import AcousticPressureWaveformInputs_UI
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.plots.general.frequency_response_plotter import DataFormat, FrequencyResponsePlotter
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 from pulse.utils.signal_processing import process_ifft_from_one_sided_spectrum_signal
@@ -66,8 +66,10 @@ class AcousticPressureWaveformInputs(AcousticPressureWaveformInputs_UI):
 
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter.radioButton_real.setChecked(True)
-        self.plotter._update_comboBox()
+        self.plotter = FrequencyResponsePlotter(close_dialogs=True)
+        self.plotter.comboBox_data_format.setCurrentIndex(DataFormat.REAL)
+        self.plotter.data_format_changed_callback()
+        self.plotter.frame_hlines_main.setDisabled(True)
         self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def export_data_callback(self):

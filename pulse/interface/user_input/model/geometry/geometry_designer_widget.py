@@ -794,8 +794,8 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.y_line_edit.setText(str(y))
         self.z_line_edit.setText(str(z))
 
-    def _set_length(self, lenght: float):
-        self.length_line_edit.setText(str(lenght))
+    def _set_length(self, length: float):
+        self.length_line_edit.setText(str(length))
 
     def _reset_xyz(self):
         self._set_xyz("", "", "")
@@ -875,7 +875,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         if self.length_unit == "meter":
             return "m"
 
-        elif self.length_unit == "milimeter":
+        elif self.length_unit == "millimeter":
             return "mm"
 
         elif self.length_unit == "inch":

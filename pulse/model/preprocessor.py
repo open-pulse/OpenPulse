@@ -890,11 +890,11 @@ class Preprocessor:
                 _element = [element]
                 for element in slicer(self.structural_elements, _element):
                     # reset the section parameters for rendering
-                    element.section_parameters_render = None
                     element.cross_section = _cross_section
                     element.variable_section = variable_section
 
                     if not sections_mapping:
+                        element.section_parameters_render = None
                         if _cross_section.section_type_label == "expansion_joint":
                             element.section_parameters_render = _cross_section.expansion_joint_info._as_list()
                         elif _cross_section.section_type_label == "valve":
@@ -906,13 +906,12 @@ class Preprocessor:
         else:
 
             for element in slicer(self.structural_elements, elements):
-                # reset the section parameters for rendering
-                element.section_parameters_render = None
                 element.cross_section = cross_section
                 element.variable_section = variable_section
 
-                # if not sections_mapping:
-                #     element.section_parameters_render = cross_section.section_parameters
+                if not sections_mapping:
+                    # reset the section parameters for rendering
+                    element.section_parameters_render = None
 
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section

@@ -51,6 +51,7 @@
         <file>common/rotation_icon.png</file>
         <file>common/save.png</file>
         <file>common/save_as.png</file>
+        <file>common/save_as_2.png</file>
         <file>common/section_plane_icon.png</file>
         <file>common/selection_icon.png</file>
         <file>common/settings.png</file>
@@ -67,6 +68,8 @@
         <file>common/top.png</file>
         <file>common/tube_cut.png</file>
         <file>common/user_preferences_icon.png</file>
+        <file>common/visibility.png</file>
+        <file>common/visibility_off.png</file>
         <file>common/zoom_icon copy.png</file>
         <file>common/zoom_icon.png</file>
         <file>cursors/pan_cursor.png</file>
