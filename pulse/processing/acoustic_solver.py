@@ -157,7 +157,7 @@ class AcousticSolver:
                 # volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
                 volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i] + Tr_link[i]) * self.array_prescribed_values[:,i], axis=1)
 
-        volume_velocity_combined = volume_velocity.T - volume_velocity_eq
+        volume_velocity_combined = -volume_velocity.T - volume_velocity_eq
 
         return volume_velocity_combined
 
