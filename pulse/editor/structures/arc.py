@@ -176,10 +176,17 @@ class Arc(Structure):
     ) -> list[int]:
 
         point_0 = cad.add_point(*convert_unit(self.interpolate(0).coords()))
-        point_25 = cad.add_point(*convert_unit(self.interpolate(0.25).coords()))
         point_50 = cad.add_point(*convert_unit(self.interpolate(0.5).coords()))
-        point_75 = cad.add_point(*convert_unit(self.interpolate(0.75).coords()))
         point_100 = cad.add_point(*convert_unit(self.interpolate(1).coords()))
+
+        if self.center is None:
+            return [
+                cad.add_line(point_0, point_50),
+                cad.add_line(point_50, point_100),
+            ]
+
+        point_25 = cad.add_point(*convert_unit(self.interpolate(0.25).coords()))
+        point_75 = cad.add_point(*convert_unit(self.interpolate(0.75).coords()))
 
         return [
             cad.add_circle_arc(point_0, point_25, point_50, center=False),
