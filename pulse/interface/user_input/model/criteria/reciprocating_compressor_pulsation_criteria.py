@@ -171,7 +171,7 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
             if not isinstance(section_info, PipeCrossSection):
                 continue
 
-            diameter = round(convert_length_unit(section_info.d_out, "m", "mm"), 6)
+            diameter = round(convert_length_unit(section_info.inside_diameter, "m", "mm"), 6)
             if diameter in diameters:
                 continue
 
@@ -216,7 +216,7 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
         time_vector, acoustic_pressure = process_ifft_from_one_sided_spectrum_signal(self.frequencies, Xf)
 
         # convert the pressure units
-        acoustic_pressure_conv = convert_pressure_unit(acoustic_pressure, "Pa (a)", pressure_unit)
+        acoustic_pressure_conv = convert_pressure_unit(acoustic_pressure, "Pa (a)", "bar (a)")
 
         key = ("acoustic_pressure", (node_id))
         legend_label = "Acoustic pressure at node {}".format(node_id)
@@ -230,13 +230,13 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
             "title" : self.title,
             "data_information" : legend_label,
             "legend" : legend_label,
-            "unit" : pressure_unit,
+            "unit" : "bar (a)",
             "color" : [0, 0, 1],
             "linestyle" : "-",
         }
 
         # mean line fluid pressure
-        P_L = acoustic_pressure_conv = convert_pressure_unit(fluid.pressure, "Pa (a)", pressure_unit)
+        P_L = acoustic_pressure_conv = convert_pressure_unit(fluid.pressure, "Pa (a)", "bar (a)")
 
         # NOTE: P_cf is the maximum allowable unfiltered peak-to-peak pulsation level, as a 
         # percentage of average absolute line pressure at the compressor cylinder flange.
@@ -256,7 +256,7 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
             "title" : self.title,
             "data_information" : legend_label_upper,
             "legend" : legend_label_upper,
-            "unit" : pressure_unit,
+            "unit" : "bar (a)",
             "color" : [0.7, 0, 0],
             "linestyle" : "-",
         }
@@ -272,7 +272,7 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
             "title" : self.title,
             "data_information" : legend_label_lower,
             "legend" : legend_label_lower,
-            "unit" : pressure_unit,
+            "unit" : "bar (a)",
             "color" : [1, 0, 0],
             "linestyle" : "-",
         }
@@ -320,7 +320,6 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
         acoustic_pressure_pp_conv = convert_pressure_unit(acoustic_pressure_pp, "Pa (a)", "bar (a)")
 
         key = ("acoustic_pressure", (node_id))
-        yaxis_unit = f"{pressure_unit} (peak-to-peak)"
         legend_label = "Acoustic pressure at node {}".format(node_id)
         self.title = "Allowable Pulsation Levels at and Beyond Line-side \nConnections of Pulsation Suppression Devices"      
 
@@ -332,14 +331,10 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
             "title" : self.title,
             "data_information" : legend_label,
             "legend" : legend_label,
-            "unit" : yaxis_unit,
-            "color" : [0,0,1],
+            "unit" : "bar (a) (peak-to-peak)",
+            "color" : [0, 0, 1],
             "linestyle" : "-",
         }
-
-        df = 0.2
-        f_max = self.frequencies[-1]
-        freq = np.arange(df, f_max + df, df)
 
         # absolute average line pressure P_L in bar(a)
         P_L = convert_pressure_unit(fluid.pressure, "Pa (a)", "bar (a)")
@@ -350,8 +345,13 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
         # pipe inside diameter in mm
         D_in = diameters[0]
 
+        # define the frequency vector for filtered pulsation criteria
+        df = 0.5
+        f_max = self.frequencies[-1]
+        freq = np.arange(df, f_max + df, df)
+
         # allowable peak-to-peak pulsation levels in bar(a) as percentage of the average mean line pressure
-        pulsation_criterion = 400 * ((C_0 / (350 * P_L * D_in * freq))**(1/2))
+        P_1 = 400 * ((C_0 / (350 * P_L * D_in * freq))**(1/2))
 
         # the prestudy factor to penalize the allowable pulsation levels
         factor = 0.7 if self.checkBox_prestudy_analysis.isChecked() else 1.0
@@ -361,42 +361,16 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
 
         self.model_results[key] = { 
             "x_data" : freq,
-            "y_data" : factor * pulsation_criterion * (P_L / 100),
+            "y_data" : factor * P_1 * (P_L / 100),
             "x_label" : "Frequency [Hz]",
             "y_label" : "Cylinder acoustic pressure",
             "title" : self.title,
             "data_information" : legend_label,
             "legend" : legend_label,
-            "unit" : yaxis_unit,
-            "color" : [1,0,0],
+            "unit" : "bar (a) (peak-to-peak)",
+            "color" : [1, 0, 0],
             "linestyle" : "-",
         }
 
         self.plotter = FrequencyResponsePlotter()
         self.plotter._set_model_results_data_to_plot(self.model_results)
-
-    # def get_line_properties(self):
-
-    #     line_id = int(self.comboBox_line_ids.currentText().replace(" ", ""))
-    #     fluid = self.model.properties._get_property("fluid", line_id=line_id)
-    #     if fluid is None:
-    #         return None, None, None
-        
-    #     cross_section = self.model.properties._get_property("cross_section", line_id=line_id)
-    #     if cross_section is None:
-    #         return None, None, None
-
-    #     speed_of_sound = fluid.speed_of_sound
-    #     line_pressure = fluid.pressure
-    #     inner_diameter = cross_section.inner_diameter
-
-    #     return speed_of_sound, line_pressure/1e5, 1000*inner_diameter
-    
-    def get_line_pressure(self):
-        if len(self.line_ids) == 1:
-            fluid = self.model.properties._get_property("fluid", line_id=self.line_ids[0])
-            if fluid is None:
-                return None
-            return fluid.pressure
-        else:
-            return None
