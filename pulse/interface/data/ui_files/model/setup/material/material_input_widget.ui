@@ -175,6 +175,9 @@
       </property>
       <item row="1" column="0">
        <widget class="QTableWidget" name="tableWidget_material_data">
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectionBehavior::SelectColumns</enum>
+        </property>
         <attribute name="horizontalHeaderVisible">
          <bool>false</bool>
         </attribute>

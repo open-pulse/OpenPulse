@@ -173,8 +173,8 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         f_min = f_max = f_step = 0.
 
         if analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC, 
-            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.ACOUSTIC_HARMONIC,
             AnalysisID.COUPLED_HARMONIC,
             ]:
 
