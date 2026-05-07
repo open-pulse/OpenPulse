@@ -29,7 +29,7 @@ from pulse.interface.user_input.model.setup.acoustic.reciprocating_pump_inputs i
 #
 from pulse.interface.user_input.model.editor.pulsation_damper_editor_inputs import PulsationDamperEditorInputs
 from pulse.interface.user_input.model.editor.pulsation_suppression_device_inputs import PulsationSuppressionDeviceInputs
-from pulse.interface.user_input.model.criteria.reciprocating_compressor_pulsation_criteria import ReciprocatingCompressorPulsationCriteriaInput
+from pulse.interface.user_input.model.criteria.reciprocating_compressor_pulsation_criteria import AllowablePulsationsForReciprocatingCompressorInputs
 from pulse.interface.user_input.model.criteria.reciprocating_pump_pulsation_criteria import ReciprocatingPumpPulsationCriteriaInput
 from pulse.interface.user_input.model.criteria.reciprocating_pump_inlet_pressure_criteria import ReciprocatingPumpInletPressureCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
@@ -378,7 +378,7 @@ class InputUi:
             return self.process_input(PlotTransmissionLoss)
 
     def reciprocating_compressor_pulsation_criteria(self):
-        return self.process_input(ReciprocatingCompressorPulsationCriteriaInput)
+        return self.process_input(AllowablePulsationsForReciprocatingCompressorInputs)
 
     def reciprocating_pump_pulsation_criteria(self):
         return self.process_input(ReciprocatingPumpPulsationCriteriaInput)
