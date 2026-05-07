@@ -44,13 +44,12 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_acoustic_delta_pressures = self.add_item("Plot acoustic delta pressures")
         self.item_child_plot_transmission_loss = self.add_item("Plot transmission loss")
         self.item_child_plot_perforated_plate_convergence_data = self.add_item("Plot perforated plate convergence data")
-        self.item_child_reciprocating_compressor_pulsation_criteria = self.add_item("Reciprocating compressor pulsation criteria")
-        self.item_child_reciprocating_pump_pulsation_criteria = self.add_item("Reciprocating pump pulsation criteria")
-        self.item_child_reciprocating_pump_inlet_pressure_criteria = self.add_item("Reciprocating pump inlet pressure criteria")
+        self.item_child_allowable_pulsations_for_reciprocating_compressor = self.add_item("Allowable Pulsation (Reciprocating Compressor)")
+        self.item_child_reciprocating_pump_pulsation_criteria = self.add_item("Allowable Pulsation (Reciprocating Pump)")
+        self.item_child_reciprocating_pump_inlet_pressure_criteria = self.add_item("Allowable inlet pressure (Reciprocating Pump)")
         self.item_child_shaking_forces = self.add_item("Shaking forces")
 
-        self.top_level_items = [self.item_top_results_viewer_acoustic,
-                                self.item_top_results_viewer_structural]
+        self.top_level_items = [self.item_top_results_viewer_acoustic, self.item_top_results_viewer_structural]
 
     def _update_items(self):
         """Enables and disables the Child Items on the menu after the solution is done."""
@@ -70,7 +69,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
         self.item_child_plot_acoustic_pressure_field.setDisabled(True)
         self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
-        self.item_child_reciprocating_compressor_pulsation_criteria.setDisabled(True)
+        self.item_child_allowable_pulsations_for_reciprocating_compressor.setDisabled(True)
         self.item_child_reciprocating_pump_pulsation_criteria.setDisabled(True)
         self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(True)
         self.item_child_shaking_forces.setDisabled(True)
@@ -147,7 +146,7 @@ class ResultsViewerItems(CommonMenuItems):
 
                 for (property, *_), data in app().project.model.properties.nodal_properties.items():
                     if property == "reciprocating_compressor_excitation":
-                        self.item_child_reciprocating_compressor_pulsation_criteria.setDisabled(False)
+                        self.item_child_allowable_pulsations_for_reciprocating_compressor.setDisabled(False)
                         self.item_child_plot_acoustic_pressure_waveform.setDisabled(False)
 
                     elif property == "reciprocating_pump_excitation":

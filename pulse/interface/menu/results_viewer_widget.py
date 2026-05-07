@@ -42,7 +42,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         items.item_child_plot_acoustic_delta_pressures.clicked.connect(self.add_acoustic_delta_pressures_widget)
         items.item_child_plot_transmission_loss.clicked.connect(self.add_transmission_loss_widget)
         items.item_child_plot_perforated_plate_convergence_data.clicked.connect(self.plot_perforated_plate_convergence_data)
-        items.item_child_reciprocating_compressor_pulsation_criteria.clicked.connect(self.add_reciprocating_compressor_pulsation_criteria_widget)
+        items.item_child_allowable_pulsations_for_reciprocating_compressor.clicked.connect(self.add_allowable_pulsations_for_reciprocating_compressor_widget)
         items.item_child_reciprocating_pump_pulsation_criteria.clicked.connect(self.add_reciprocating_pump_pulsation_criteria_widget)
         items.item_child_reciprocating_pump_inlet_pressure_criteria.clicked.connect(self.add_reciprocating_pump_inlet_pressure_criteria_widget)
         items.item_child_shaking_forces.clicked.connect(self.add_shaking_forces_criteria_widget)
@@ -119,9 +119,9 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
     def plot_perforated_plate_convergence_data(self):
         app().project.acoustic_solver.plot_2d.show()
 
-    def add_reciprocating_compressor_pulsation_criteria_widget(self):
+    def add_allowable_pulsations_for_reciprocating_compressor_widget(self):
         self.configure_render_according_to_plot_type("nodes")
-        widget = app().main_window.input_ui.reciprocating_compressor_pulsation_criteria()
+        widget = app().main_window.input_ui.allowable_pulsations_for_reciprocating_compressor()
         self.add_widget(widget)
 
     def add_reciprocating_pump_pulsation_criteria_widget(self):
