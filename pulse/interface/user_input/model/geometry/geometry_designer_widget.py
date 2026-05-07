@@ -168,6 +168,8 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.tmp_camera = None
 
     def selection_callback(self):
+        self._reset_xyz()
+
         if issubclass(self.current_structure_type, Point):
             self._set_xyz_to_selected_point()
 
@@ -175,7 +177,6 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             self.pipeline.main_editor.remove_collapsed_bends()
             self.cancel_division_callback()
 
-        self._reset_xyz()
         self._reset_length()
         self._update_permissions()
         self._update_information_text()
@@ -676,7 +677,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.current_options.attach_callback()
         self.pipeline.commit()
         self._update_permissions()
-        self.render_widget.update_plot(reset_camera=True)
+        self.render_widget.update_plot(reset_camera=False)
         self.modified = True
         self._reset_xyz()
         self._update_permissions()
