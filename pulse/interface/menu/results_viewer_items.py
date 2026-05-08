@@ -65,16 +65,17 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_top_results_viewer_acoustic.setHidden(True)
         self.item_child_plot_acoustic_mode_shapes.setDisabled(True)
         self.item_child_plot_acoustic_frequency_response.setDisabled(True)
-        self.item_child_plot_acoustic_pressure_waveform.setDisabled(True)
         self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
         self.item_child_plot_acoustic_pressure_field.setDisabled(True)
         self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
-        self.item_child_allowable_pulsations_for_reciprocating_compressor.setDisabled(True)
-        self.item_child_reciprocating_pump_pulsation_criteria.setDisabled(True)
-        self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(True)
         self.item_child_shaking_forces.setDisabled(True)
         self.item_child_plot_transmission_loss.setDisabled(True)
         self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
+
+        self.item_child_plot_acoustic_pressure_waveform.setHidden(True)
+        self.item_child_allowable_pulsations_for_reciprocating_compressor.setHidden(True)
+        self.item_child_reciprocating_pump_pulsation_criteria.setHidden(True)
+        self.item_child_reciprocating_pump_inlet_pressure_criteria.setHidden(True)
         self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
 
         acoustic_solution = self.project.get_acoustic_solution()
@@ -144,16 +145,21 @@ class ResultsViewerItems(CommonMenuItems):
                 self.item_child_plot_transmission_loss.setDisabled(False)
                 self.item_child_shaking_forces.setDisabled(False)
 
+                table_exists = app().project.model.properties.check_if_there_are_tables_at_the_model()
+                self.item_child_plot_acoustic_pressure_waveform.setHidden(not table_exists)
+
                 for (property, *_), data in app().project.model.properties.nodal_properties.items():
                     if property == "reciprocating_compressor_excitation":
-                        self.item_child_allowable_pulsations_for_reciprocating_compressor.setDisabled(False)
-                        self.item_child_plot_acoustic_pressure_waveform.setDisabled(False)
+                        self.item_child_allowable_pulsations_for_reciprocating_compressor.setHidden(False)
+                        # self.item_child_allowable_pulsations_for_reciprocating_compressor.setDisabled(False)
+                        # self.item_child_plot_acoustic_pressure_waveform.setDisabled(False)
 
                     elif property == "reciprocating_pump_excitation":
-                        self.item_child_reciprocating_pump_pulsation_criteria.setDisabled(False)
+                        self.item_child_reciprocating_pump_pulsation_criteria.setHidden(False)
                         if isinstance(data, dict) and data.get("connection_type") == "suction":
-                            self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(False)
-                            self.item_child_plot_acoustic_pressure_waveform.setDisabled(False)
+                            self.item_child_reciprocating_pump_inlet_pressure_criteria.setHidden(False)
+                            # self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(False)
+                            # self.item_child_plot_acoustic_pressure_waveform.setDisabled(False)
 
             elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
                 self.item_child_plot_displacement_field.setDisabled(False)
