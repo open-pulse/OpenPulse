@@ -3,7 +3,7 @@
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*v2.0.12 June 20th 2025*
+*v2.1.0 May 10th 2025*
 
 OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to create or/and import the geometry of the pipe system, insert materials properties, set standardized or customized sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time-harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Matrix Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time-harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
@@ -46,7 +46,83 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 ## Installing through an executable
 
 - Install OpenPulse for Windows and Linux downloading the executables [here](https://github.com/open-pulse/OpenPulse/releases).
-      
+
+## Installing through your Python IDE
+
+- **Install Python 3.9.0 or later** ([download](https://www.python.org/downloads/release/python-390/)).
+
+- **Install OpenPulse**.
+Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (preferably, **use PowerShell as administrator**). Start by installing the
+uv module using the command:
+```
+pip install uv
+```
+
+then enter the following command to install all dependencies:
+
+```
+uv sync
+```
+
+Note: if some warning was logged repeat the command 'uv sync' before trying to run OpenPulse.
+
+
+- **Run OpenPulse**.
+In the same folder, enter the following command in the terminal:
+```
+uv run pulse
+```
+
+## Conda environment
+
+Download and install the conda-forge ([conda-forge](https://conda-forge.org/download/)).
+It is recommended to check the option *Add Miniforge3 to my PATH environment variable* in the program installation setup.
+Once conda-forge was installed, it is possible to enable the MUMPS solver in Vibra. To enable this solver we need to use conda instead of poetry.
+To generate the conda environment, just run:
+```
+conda env create -f environment.yml
+```
+
+If you are using Windows, the following commands will only work on `cmd`, and not on `powershell`.
+To make this work propperly on powershell too, you need to run
+```
+conda init powershell
+```
+And then restart the `powershell` window.
+
+After environment generation, we can activate and run Vibra by running the following commands:
+```
+conda activate pulse
+```
+
+Finally, enter the following command to execute the application:
+```
+python -m pulse
+```
+
+If some package changed since the generation, the environment can be updated using the following command:
+```
+conda env update --f environment.yml --prune
+```
+
+
+## Creating a Windows installer (for maintainers)
+
+First you need to install InnoSetup with the following command:
+```
+winget install -e --id JRSoftware.InnoSetup
+```
+You may also need to add it to your Windows path.
+
+Then, run the following commands (these may take a while):
+```
+poetry run pyinstaller pulse.spec --noconfirm
+ISCC.exe /O"dist" /F"open-pulse-setup-x64" "pulse.iss"
+```
+Your installer will appear inside the `dist` folder, named as `open-pulse-setup-x64`.
+
+
+
 ## Documentation
 - You can read the API reference [here](https://open-pulse.readthedocs.io/en/latest/index.html).
 
@@ -109,7 +185,9 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Gildean Almeida](https://www.linkedin.com/in/gildean-almeida-708862298/) - Validation;
    - [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation (Former Member);
    - [Gustavo C. Martins](https://www.linkedin.com/in/gustavo-martins/) - Engineer;
-   - [Vinicius H. Ribeiro](linkedin.com/in/vinícius-henrique-ribeiro-385b67218) - Computer Scientist.
+   - [Vinicius H. Ribeiro](linkedin.com/in/vinícius-henrique-ribeiro-385b67218) - Computer Scientist;
+   - [Guilherme Pierri](https://www.linkedin.com/in/guilherme-pierri-4487a4271/) - Computer Scientist;
+   - [Taiana Barbosa Farias](https://www.linkedin.com/in/taiana-barbosa-farias-82740339a/) - Front-end.
 
 <p align="center">
    <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/MOPT4.PNG?raw=true" alt="MOPT logo" width="1100"/>

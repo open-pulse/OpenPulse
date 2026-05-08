@@ -39,7 +39,10 @@ class ElementLinesActor(GhostActor):
                 x1, y1, z1 = element.last_node.coordinates
 
             lines.append((x0, y0, z0, x1, y1, z1))
-            entity = self.preprocessor.mesh.line_from_element[i]
+            entity = self.preprocessor.mesh.line_from_element.get(i)
+            if entity is None:
+                continue
+
             entity_index.InsertNextTuple1(entity)
             element_index.InsertNextTuple1(i)
 
@@ -61,8 +64,10 @@ class ElementLinesActor(GhostActor):
         self.make_ghost()
 
     def clear_colors(self):
+        lines_color = self.user_preferences.lines_color.to_rgb()
+
         data = self.GetMapper().GetInput()
-        set_polydata_colors(data, (90, 90, 90))
+        set_polydata_colors(data, lines_color)
 
     def set_color(self, color, elements=None, lines=None):
         mapper = self.GetMapper()

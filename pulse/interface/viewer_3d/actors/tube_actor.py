@@ -8,14 +8,15 @@ from vtkmodules.vtkCommonCore import (
     vtkUnsignedCharArray,
 )
 from vtkmodules.vtkCommonDataModel import vtkPlane, vtkPolyData
-from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
-from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkRenderingCore import vtkActor, vtkGlyph3DMapper
 
 from pulse import app
 from pulse.utils.interface_utils import ColorMode
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
+from pulse.model.acoustic_element import AcousticElement
+from pulse.model.structural_element import StructuralElement
+from pulse.model.cross_section import CrossSection
 
 
 class TubeActor(vtkActor):
@@ -68,7 +69,6 @@ class TubeActor(vtkActor):
         colors.Fill(255)
         colors.SetName("colors")
 
-
         section_index = dict()
         for element in visible_elements.values():
             points.InsertNextPoint(self.get_element_coordinates(element))
@@ -107,69 +107,73 @@ class TubeActor(vtkActor):
         
         self.clear_colors()
 
-    def get_element_coordinates(self, element) -> tuple[float, float, float]:
+    def get_element_coordinates(self, element: AcousticElement | StructuralElement) -> tuple[float, float, float]:
         return element.first_node.coordinates
 
-    def get_element_rotations(self, element) -> tuple[float, float, float]:
+    def get_element_rotations(self, element: AcousticElement | StructuralElement) -> tuple[float, float, float]:
         return element.section_rotation_xyz_undeformed
 
-    def create_element_data(self, element):
+    def create_element_data(self, element: AcousticElement | StructuralElement):
         cross_section = element.cross_section
-        if cross_section is None:
+        if not isinstance(cross_section, CrossSection):
             return vtkPolyData()
-        
+
         tube_sides = self._get_tube_sides()
         length = element.length
 
-        if cross_section.section_type_label in ["pipe", "reducer"]:
-            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+        if cross_section.section_type_label in ["pipe", "bend", "arc_bend", "reducer"]:
+            if element.section_parameters_render is None:
+                section_parameters = cross_section.section_parameters
+            else:
+                section_parameters = element.section_parameters_render
+
+            d_out, t, offset_y, offset_z, *_ = section_parameters
+
             return cross_section_sources.pipe_data(length, d_out, t, offset_y, offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "rectangular_beam":
-            b, h, b_in, h_in, offset_y, offset_z, *_ = element.section_parameters_render
-            t0 = (b - b_in) / 2
-            t1 = (h - h_in) / 2
-            return cross_section_sources.rectangular_beam_data(length, b, h, t0, t1, offset_y=offset_y, offset_z=offset_z)
+            b, h, b_in, h_in, offset_y, offset_z, *_ = cross_section.section_parameters
+            return cross_section_sources.rectangular_beam_data(length, b, h, b_in, h_in, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "circular_beam":
-            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.circular_beam_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "c_beam":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "i_beam":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "t_beam":
-            h, w1, t1, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            h, w1, t1, tw, offset_y, offset_z, *_ = cross_section.section_parameters
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "expansion_joint":
-
-            plot_key, d_eff, *args = element.section_parameters_render
+            d_eff, offset_y, offset_z, plot_key = element.section_parameters_render
 
             if plot_key == "major":
                 d_out = d_eff * 1.25
             elif plot_key == "minor":
-                d_out = d_eff * 1.1            
+                d_out = d_eff * 1.1
             else:
                 d_out = d_eff * 1.4
 
-            if args:
-                d_in = args[0]
-                t = (d_out - d_in) / 2
-            else:
-                t = (d_out - d_eff) / 2
+            t = (d_out - d_eff) / 2
+            # if args:
+            #     d_in = args[0]
+            #     t = (d_out - d_in) / 2
+            # else:
+            #     t = (d_out - d_eff) / 2
 
-            return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
+            return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "valve":
-            d_out, t, *_ = element.section_parameters_render
-            return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
-        
+            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
+
         else:
             logging.warn(f"Representation not found for section {cross_section.section_type_label}")
 
@@ -303,13 +307,17 @@ class TubeActor(vtkActor):
     def disable_cut(self):
         self.GetMapper().RemoveAllClippingPlanes()
 
-    def _hash_element_section(self, element):
+    def _hash_element_section(self, element: AcousticElement | StructuralElement):
 
         if element.cross_section is None:
             return 0
 
         section_label = element.cross_section.section_type_label
-        section_parameters = element.section_parameters_render
+
+        if element.section_parameters_render is None:
+            section_parameters = element.cross_section.section_parameters
+        else:
+            section_parameters = element.section_parameters_render
 
         if section_parameters is not None:
             section_parameters = tuple(section_parameters)
@@ -324,18 +332,8 @@ class TubeActor(vtkActor):
         if source is None:
             return vtkPolyData()
 
-        transform = vtkTransform()
-        transform.RotateZ(-90)
-        transform.RotateY(90)
-        transform.Update()
-
-        transform_filter = vtkTransformFilter()
-        transform_filter.SetInputData(source)
-        transform_filter.SetTransform(transform)
-        transform_filter.Update()
-
         normals_filter = vtkPolyDataNormals()
-        normals_filter.AddInputData(transform_filter.GetOutput())
+        normals_filter.AddInputData(source)
         normals_filter.Update()
 
         return normals_filter.GetOutput()

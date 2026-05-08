@@ -1,25 +1,35 @@
-# fmt: off
+from typing import TYPE_CHECKING
 
-from pulse import app, version
+from pulse import version
+from pulse.interface import error_title, warning_title
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import (
+    CircularBeamCrossSection,
+)
+from pulse.model.cross_sections.generic_beam_cross_section import (
+    GenericBeamCrossSection,
+)
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import (
+    RectangularBeamCrossSection,
+)
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
+from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.model.perforated_plate import PerforatedPlate
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.common_utils import get_color_rgb
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.project.project import Project
 
 import logging
-import numpy as np
-
 from collections import defaultdict
+
+import numpy as np
 from packaging.version import Version
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class LoadProject:
     def __init__(self, project: "Project"):
@@ -61,148 +71,48 @@ class LoadProject:
         self.load_element_properties()
         self.load_nodal_properties()
         #
-        self.load_analysis_file()
+        self.load_analysis_setup()
         self.load_inertia_load_setup()
 
 
-    def load_fluids_library(self):
+    def load_fluids_library(self) -> dict:
 
-        self.library_fluids = dict()
-        config = self.project.file.read_fluid_library_from_file()
+        self.fluids_library = dict()
+        fluid_library_data = self.project.file.read_fluid_library_from_file()
+        if fluid_library_data is None:
+            return dict()
 
-        if config is None:
-            return
+        for str_fluid_id, fluid_data in fluid_library_data.items():
+            if not isinstance(fluid_data, dict):
+                continue
 
-        for tag in config.sections():
+            fluid = Fluid(**fluid_data)
+            self.fluids_library[int(str_fluid_id)] = fluid
 
-            section = config[tag]
-            keys = section.keys()
+        self.properties.set_fluids_library(self.fluids_library)
 
-            name = section['name']
-            density =  float(section['density'])
-            speed_of_sound =  float(section['speed_of_sound'])
-            identifier =  int(section['identifier'])
-            color =  get_color_rgb(section['color'])
-
-            if len(color) == 4:
-                color = color[:3]
-
-            if 'isentropic_exponent' in keys:
-                isentropic_exponent = float(section['isentropic_exponent'])
-            else:
-                isentropic_exponent = ""
-
-            if 'thermal_conductivity' in keys:
-                thermal_conductivity = float(section['thermal_conductivity'])
-            else:
-                thermal_conductivity = ""
-
-            if 'specific_heat_Cp' in keys:
-                specific_heat_Cp = float(section['specific_heat_Cp'])
-            else:
-                specific_heat_Cp = ""
-
-            if 'dynamic_viscosity' in keys:
-                dynamic_viscosity = float(section['dynamic_viscosity'])
-            else:
-                dynamic_viscosity = ""
-            
-            if 'temperature' in keys:
-                temperature = float(section['temperature'])
-            else:
-                temperature = None
-
-            if 'pressure' in keys:
-                pressure = float(section['pressure'])
-            else:
-                pressure = None
-
-            # if 'key mixture' in keys:
-            #     key_mixture = section['key mixture']
-            # else:
-            #     key_mixture = None
-
-            # if 'molar fractions' in keys:
-            #     str_molar_fractions = section['molar fractions']
-            #     molar_fractions = get_list_of_values_from_string(str_molar_fractions, int_values=False)
-            # else:
-            #     molar_fractions = None
-
-            if "molar_mass" in keys:
-                if section["molar_mass"] == "None":
-                    molar_mass = None
-                else:
-                    molar_mass = float(section["molar_mass"])
-            else:
-                molar_mass = None
-
-            if 'adiabatic_bulk_modulus' in keys:
-                adiabatic_bulk_modulus = float(section['adiabatic_bulk_modulus'])
-            else:
-                adiabatic_bulk_modulus = None
-
-            if 'vapor_pressure' in keys:
-                vapor_pressure = float(section['vapor_pressure'])
-            else:
-                vapor_pressure = None
-
-            fluid = Fluid(  
-                            name = name,
-                            density = density,
-                            speed_of_sound = speed_of_sound,
-                            color =  color,
-                            identifier = identifier,
-                            isentropic_exponent = isentropic_exponent,
-                            thermal_conductivity = thermal_conductivity,
-                            specific_heat_Cp = specific_heat_Cp,
-                            dynamic_viscosity = dynamic_viscosity,
-                            temperature = temperature,
-                            pressure = pressure,
-                            molar_mass = molar_mass,
-                            adiabatic_bulk_modulus = adiabatic_bulk_modulus,
-                            vapor_pressure = vapor_pressure
-                          )
-
-            self.library_fluids[identifier] = fluid
+        return self.fluids_library
 
 
     def load_materials_library(self):
 
-        self.library_materials = dict()
-        config = self.project.file.read_material_library_from_file()
-
-        if config is None:
+        self.materials_library = dict()
+        material_library_data = self.project.file.read_material_library_from_file()
+        if material_library_data is None:
             return
 
-        for tag in config.sections():
+        for str_material_id, material_data in material_library_data.items():
+            if not isinstance(material_data, dict):
+                continue
 
-            section = config[tag]
-            # keys = section.keys()
+            material = Material(**material_data)
+            self.materials_library[int(str_material_id)] = material
 
-            name = section['name']
-            identifier = int(section['identifier'])
-            density = float(section['density'])
-            poisson_ratio = float(section['poisson_ratio'])
-            elasticity_modulus = float(section['elasticity_modulus']) * 1e9
-            thermal_expansion_coefficient = float(section['thermal_expansion_coefficient'])
-            color =  get_color_rgb(section['color'])
+        self.properties.set_materials_library(self.materials_library)
 
-            if len(color) == 4:
-                color = color[:3]
+        return self.materials_library
 
-            material = Material(
-                                name = name,
-                                identifier = identifier, 
-                                density = density,
-                                poisson_ratio = poisson_ratio,
-                                elasticity_modulus = elasticity_modulus,
-                                thermal_expansion_coefficient = thermal_expansion_coefficient, 
-                                color = color
-                                )
-            
-            self.library_materials[identifier] = material
 
-    
     def check_line_properties(self):
 
         line_properties = self.project.file.read_line_properties_from_file()
@@ -229,35 +139,54 @@ class LoadProject:
             if "section_type_label" in data.keys() and "section_parameters" in data.keys():
                 section_type_label = self.fix_data_for_backwards_compatibility(data)
 
-                if data.get("structure_name") in ["pipe", "bend", "flange"]:
-                    pipe_section_info = {   "section_type_label" : section_type_label,
-                                            "section_parameters" : data["section_parameters"]   }
+                if data.get("structure_name") in ["pipe", "bend", "arc_bend", "flange"]:
 
-                    self.cross_sections[line_id] = CrossSection(pipe_section_info=pipe_section_info) 
+                    pipe_section_info = PipeCrossSection(*data["section_parameters"])
+
+                    self.cross_sections[line_id] = CrossSection(
+                        element_type = "pipe_1",
+                        pipe_section_info = pipe_section_info,
+                    )
 
                 elif "section_properties" in data.keys():
-                    beam_section_info = {   "section_type_label" : section_type_label,
-                                            "section_parameters" : data["section_parameters"],
-                                            "section_properties" : data["section_properties"]   }
 
-                    self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
+                    section_parameters = data["section_parameters"]
+                    match section_type_label:
+                        case "circular_beam":
+                            beam_section_info = CircularBeamCrossSection(*section_parameters)
+                        case "rectangular_beam":
+                            beam_section_info = RectangularBeamCrossSection(*section_parameters)
+                        case "c_beam":
+                            beam_section_info = CBeamCrossSection(*section_parameters)
+                        case "i_beam":
+                            beam_section_info = IBeamCrossSection(*section_parameters)
+                        case "t_beam":
+                            beam_section_info = TBeamCrossSection(*section_parameters)
+                        case "generic_beam":
+                            beam_section_info = GenericBeamCrossSection(*section_parameters)
+                        case _:
+                            continue
 
+                    self.cross_sections[line_id] = CrossSection(
+                        element_type = "beam_1",
+                        beam_section_info = beam_section_info,
+                    )
 
     def fix_data_for_backwards_compatibility(self, data: dict):
 
         sections_types = [
-                          "Pipe", 
-                          "Rectangular section", 
-                          "Circular section", 
-                          "C-section", 
-                          "I-section", 
-                          "T-section", 
-                          "Generic section",
-                          "Valve",
-                          "Expansion joint",
-                          "Reducer",
-                          "Flange"
-                          ]
+            "Pipe", 
+            "Rectangular section", 
+            "Circular section", 
+            "C-section", 
+            "I-section", 
+            "T-section", 
+            "Generic section",
+            "Valve",
+            "Expansion joint",
+            "Reducer",
+            "Flange"
+            ]
 
         if data.get("section_type_label") in sections_types:
             type_label: str = data.get("section_type_label")
@@ -285,20 +214,20 @@ class LoadProject:
                         fluid_id = prop_data
                         self.properties._set_line_property(property, fluid_id, line_ids=int(line_id))
 
-                        if fluid_id not in self.library_fluids.keys():
+                        if fluid_id not in self.fluids_library.keys():
                             continue
 
-                        fluid = self.library_fluids[fluid_id]
+                        fluid = self.fluids_library[fluid_id]
                         self.properties._set_line_property("fluid", fluid, line_ids=int(line_id))
 
                     elif property == "material_id":
                         material_id = prop_data
                         self.properties._set_line_property(property, material_id, line_ids=int(line_id))
     
-                        if material_id not in self.library_materials.keys():
+                        if material_id not in self.materials_library.keys():
                             continue
 
-                        material = self.library_materials[material_id]
+                        material = self.materials_library[material_id]
                         self.properties._set_line_property("material", material, line_ids=int(line_id))
                     
                     else:
@@ -369,45 +298,45 @@ class LoadProject:
 
     def load_expansion_joints(self, line_id: int, data: dict):
 
-        expansion_joint = None
-        if "expansion_joint_info" in data.keys():
-            expansion_joint = data["expansion_joint_info"]
+        prop_data = data.get("expansion_joint_info")
+        if not isinstance(prop_data, dict):
+            return
 
-        if isinstance(expansion_joint, dict):
+        prop_data["joint_length"] = self.properties.get_line_length(line_id)
 
-            expansion_joint["joint_length"] = self.properties.get_line_length(line_id)
+        if "effective_diameter" not in prop_data.keys():
+            return
+    
+        self.preprocessor.add_expansion_joint_by_lines(
+            line_id, 
+            prop_data,
+            )
 
-            if "effective_diameter" in expansion_joint.keys():
-
-                self.preprocessor.add_expansion_joint_by_lines(
-                                                               line_id, 
-                                                               expansion_joint
-                                                               )
-
-                self.preprocessor.set_cross_sections_to_expansion_joint(
-                                                                        line_id, 
-                                                                        expansion_joint
-                                                                        )
+        self.preprocessor.set_cross_sections_to_expansion_joint(
+            line_id, 
+            prop_data,
+            )
 
 
     def load_valves(self, line_id: int, data: dict):
 
-        if "valve_info" in data.keys():
+        prop_data = data.get("valve_info")
+        if not isinstance(prop_data, dict):
+            return
 
-            valve_info = data["valve_info"]
-            valve_info["valve_length"] = self.properties.get_line_length(line_id)
+        prop_data["valve_length"] = self.properties.get_line_length(line_id)
 
-            self.preprocessor.add_valve_by_lines(line_id, valve_info)
-            self.preprocessor.set_cross_sections_to_valve_elements(line_id, data)
+        self.preprocessor.add_valve_by_lines(line_id, prop_data)
+        self.preprocessor.set_cross_sections_to_valve_elements(line_id, data)
 
 
     def load_stress_stiffening(self, line_id: list, data: dict):
 
-        if "stress_stiffening" in data.keys():
+        prop_data = data.get("stress_stiffening")
+        if not isinstance(prop_data, dict):
+            return
 
-            prop_data = data["stress_stiffening"]
-            if isinstance(prop_data, dict):
-                self.preprocessor.set_stress_stiffening_by_lines(line_id, prop_data)
+        self.preprocessor.set_stress_stiffening_by_lines(line_id, prop_data)
 
 
     def load_cross_sections(self, line_id: list, data: dict):
@@ -450,7 +379,7 @@ class LoadProject:
 
 
     def load_capped_ends(self, line_id: int, data: dict):
-        capped_end = data.get("capped_end")
+        capped_end = data.get("capped_end", True)
         self.preprocessor.set_capped_end_by_lines(line_id, capped_end)
 
 
@@ -484,7 +413,7 @@ class LoadProject:
             title = "There is something wrong with your project"
             message = "The project file is incompatible with the .pulse file structure. "
             message += "As a result, the project data loading will be canceled."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
         if "version" in project_setup.keys():
@@ -498,7 +427,7 @@ class LoadProject:
             title = "Incorrect file version"
             message = "The project file version is incompatible with the current OpenPulse version. "
             message += "As a result, the project data loading will be canceled."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
 
@@ -525,17 +454,10 @@ class LoadProject:
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
 
 
-    def load_analysis_file(self):
+    def load_analysis_setup(self):
         analysis_setup = self.project.file.load_analysis_file()
         if isinstance(analysis_setup, dict):
-            self.project.model.set_frequency_setup(analysis_setup)
-            self.project.model.set_global_damping(analysis_setup)
-
-
-    def load_analysis_id(self):
-        analysis_setup = self.project.file.load_analysis_file()
-        if isinstance(analysis_setup, dict):
-            self.project.set_analysis_id(analysis_setup.get("analysis_id", None))
+            self.project.model.set_analysis_setup(analysis_setup)
 
 
     def get_psd_related_lines(self):
@@ -544,21 +466,20 @@ class LoadProject:
         for line_id, data in self.properties.line_properties.items():
 
             data: dict
-            if "psd_name" in data.keys():
-                psd_name = data["psd_name"]
-                psd_lines[psd_name].append(line_id)
+            if "psd_label" in data.keys():
+                psd_label = data["psd_label"]
+                psd_lines[psd_label].append(line_id)
 
         return psd_lines
 
 
     def get_pulsation_damper_related_lines(self):
-
         pulsation_damper_lines = defaultdict(list)
         for line_id, data in self.properties.line_properties.items():
 
             data: dict
-            if "pulsation_damper_name" in data.keys():
-                pulsation_damper_name = data["pulsation_damper_name"]
+            if "pulsation_damper_label" in data.keys():
+                pulsation_damper_name = data["pulsation_damper_label"]
                 pulsation_damper_lines[pulsation_damper_name].append(line_id)
 
         return pulsation_damper_lines
@@ -621,7 +542,7 @@ class LoadProject:
             message = "Error detected while processing the 'get_cross_sections_from_file' method.\n\n"
             message += f"Last line id: {line_id}\n\n"
             message += f"Details: \n\n {str(error_log)}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
             return dict()
 
@@ -631,71 +552,104 @@ class LoadProject:
 
         aux_nodal = dict()
         non_mapped_nodes = list()
+        internal_impedances = list()
+        property_to_remove = dict()
 
         for key, data in self.properties.nodal_properties.items():
 
             (property, *args) = key
 
-            if "coords" in data.keys():
-                coords = np.array(data["coords"], dtype=float)
-                if len(coords) == 6:
-
-                    node_id1, node_id2 = args
-
-                    coords_1 = coords[:3]
-                    coords_2 = coords[3:]
-                    new_node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
-                    new_node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
-                    sorted_indexes = np.sort([new_node_id1, new_node_id2])
-
-                    new_key = (property, sorted_indexes[0], sorted_indexes[1])
-
-                    if new_node_id1 is None:
-                        if new_node_id1 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id1, coords))
-                        continue
-
-                    if new_node_id2 is None:
-                        if new_node_id2 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id2, coords))
-                        continue
-
-                elif len(coords) == 3:
-
-                    node_id = args
-                    new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                    new_key = (property, new_node_id)
-
-                    if new_node_id is None:
-                        if new_node_id not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id, coords))
-                        continue
-
-                aux_nodal[new_key] = data
+            if "coords" not in data.keys():
+                continue
         
-        if aux_nodal != self.properties.nodal_properties:
+            coords = np.array(data["coords"], dtype=float)
+            if len(coords) == 6:
 
-            self.properties.nodal_properties.clear()
+                node_id1, node_id2 = args
 
-            for new_key, data in aux_nodal.items():
-                (property, *args) = new_key
-                self.properties._set_nodal_property(property, data, args)
+                coords_1 = coords[:3]
+                coords_2 = coords[3:]
+                new_node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
+                new_node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
 
-            if aux_nodal:
-                self.project.file.write_nodal_properties_in_file()
+                if (new_node_id1, new_node_id2).count(None):
+                    property_to_remove[property] = args
 
-            if non_mapped_nodes:
+                if new_node_id1 is None:
+                    non_mapped_nodes.append((node_id1, coords))
+                    continue
 
-                title = "Nodal-related model attributions failed"
-                message = "Some nodal-related model attributions could not be mapped "
-                message += "after the meshing processing. The non-mapped nodes will be "
-                message += f"removed from nodal properties file. \n\nDetails:"
+                if new_node_id2 is None:
+                    non_mapped_nodes.append((node_id2, coords))
+                    continue
 
-                for (node_id, coords) in non_mapped_nodes:
-                    x, y, z = coords
-                    message += f"\nNode #{node_id} -> coordinates: ({x}, {y}, {z}) [m]"
+                sorted_indexes = np.sort([new_node_id1, new_node_id2])
+                new_key = (property, sorted_indexes[0], sorted_indexes[1])
 
-                PrintMessageInput([window_title_2, title, message])
+            elif len(coords) == 3:
+
+                node_id = args
+                new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+                new_key = (property, new_node_id)
+
+                if new_node_id is None:
+                    non_mapped_nodes.append((node_id, coords))
+                    continue
+
+                if property in ["radiation_impedance", "specific_impedance"]:        
+                    neigh_elements = self.preprocessor.structural_elements_connected_to_node.get(new_node_id)
+                    if isinstance(neigh_elements, list):
+                        if len(neigh_elements) != 1:
+                            internal_impedances.append((new_node_id, coords))
+                            property_to_remove[property] = args                 
+                            continue
+
+            aux_nodal[new_key] = data
+    
+        if aux_nodal == self.properties.nodal_properties:
+            return
+        
+        if property_to_remove:
+            for property, node_ids in property_to_remove.items():
+                self.properties._remove_nodal_property(property, node_ids)
+
+            self.project.file.write_imported_table_data_in_file()
+
+        # replace all nodal properties if anything has changed
+        self.properties.nodal_properties.clear()
+
+        for new_key, data in aux_nodal.items():
+            (property, *args) = new_key
+            self.properties._set_nodal_property(property, data, args)
+
+        if aux_nodal:
+            self.project.file.write_nodal_properties_in_file()
+
+        if non_mapped_nodes:
+            title = "Nodal-related model attributions failed"
+            message = "Some nodal-related model attributions could not be mapped "
+            message += "after the meshing processing. The non-mapped nodes will be "
+            message += "removed from nodal properties file."
+            message += "\n\nDetails:"
+
+            for (node_id, coords) in non_mapped_nodes:
+                x, y, z = coords
+                message += f"\nNode #{node_id} -> coordinates: ({x}, {y}, {z}) [m]"
+
+            PrintMessageInput([warning_title, title, message])
+
+        if internal_impedances:
+            title = "Internal impedances detected"
+            message = "Some acoustic impedances, whether radiation or specific, were detected in "
+            message += "internal nodes (outside of termination) after the geometry had been edited. "
+            message += "These impedances will be removed from nodal properties."
+            message += "\n\nDetails:"
+
+            for (node_id, coords) in internal_impedances:
+                x, y, z = coords
+                message += f"\nNode #{node_id} -> coordinates: ({x}, {y}, {z}) [m]"
+
+            PrintMessageInput([warning_title, title, message])
 
     def update_element_ids_after_mesh_changed(self):
 
@@ -781,8 +735,6 @@ class LoadProject:
                         new_key = (property, _elem_id)
                         aux_elements[new_key] = data
 
-                    # print(_elem_id, _element_node, data)
-
         if aux_elements != self.properties.element_properties:
 
             self.properties.element_properties.clear()
@@ -797,19 +749,19 @@ class LoadProject:
 
                 title = "Element-related model attributions failed"
                 message = "Some element-related model attributions could not be mapped "
-                message += f"after the meshing processing. \n\nDetails:"
+                message += "after the meshing processing. \n\nDetails:"
 
                 for (node_id, coords) in non_mapped_elements:
                     message += f"\n{node_id} - {coords}"
 
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([warning_title, title, message])
 
         if pp_removed:
             title = "Perforated plates removed"
             message = "Some perforated plates could not be mapped after the "
             message += "meshing processing, therefore, they were removed "
             message += "from both the project files and model setup."
-            PrintMessageInput([window_title_2, title, message])
+            PrintMessageInput([warning_title, title, message])
 
     def load_analysis_results(self):
     
@@ -817,7 +769,7 @@ class LoadProject:
         str_modal_analysis = False
         act_harmonic_analysis = False
         str_harmonic_analysis = False
-        str_static_analysis = False
+        # str_static_analysis = False
 
         results_data = self.project.file.read_results_data_from_file()
 
@@ -849,7 +801,7 @@ class LoadProject:
                     self.project.structural_solution = data["solution"]
 
                 if key == "static_structural":
-                    str_static_analysis = True
+                    # str_static_analysis = True
                     self.project.structural_solution = data["solution"]
 
             logging.info("Updating analysis render [75%]")
@@ -867,5 +819,3 @@ class LoadProject:
 
             else:
                 return
-
-# fmt: on

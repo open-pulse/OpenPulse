@@ -1,99 +1,156 @@
-from itertools import chain
-from typing import Iterator
+from functools import partial
 
 import numpy as np
-from molde.colors import Color, color_names
-from molde.utils import set_polydata_colors, read_obj_file, transform_polydata
-
-from vtkmodules.vtkCommonDataModel import vtkPolyData
+from molde.actors import CommonSymbolsActorFixedSize
+from molde.colors import color_names
+from molde.utils import read_obj_file, transform_polydata
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
 from vtkmodules.vtkFiltersSources import vtkLineSource
-from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
-from pulse import app, SYMBOLS_DIR
+from pulse import SYMBOLS_DIR, app
 from pulse.utils.cross_section_sources import valve_data
 from pulse.utils.rotations import align_vtk_geometry
 
+from ..polydata import (
+    create_compressor_discharge,
+    create_compressor_suction,
+    create_pump_discharge,
+    create_pump_suction,
+)
 
-class FixedSymbolsActor(vtkActor):
+
+class FixedSymbolsActor(CommonSymbolsActorFixedSize):
     def __init__(self):
         super().__init__()
         self.build()
         self.configure_appearance()
+        self.UseBoundsOff()
 
     def build(self):
         mapper = vtkPolyDataMapper()
         source = vtkAppendPolyData()
 
-        for symbol in chain(
-            self.create_structural_links(),
-            self.create_psd_structural_links(),
-            self.create_perforated_plates(),
-            self.create_valves(),
-        ):
-            source.AddInputData(symbol)
+        self.create_compressor_symbol()
+        self.create_reciprocating_pump_excitation()
+        self.create_structural_links()
+        self.create_psd_structural_links()
+        self.create_acoustic_transfer_element()
+        self.create_perforated_plates()
+        self.create_valves()
 
         source.Update()
         mapper.SetInputData(source.GetOutput())
         self.SetMapper(mapper)
 
-    def create_structural_links(self) -> Iterator[vtkPolyData]:
+        return super().build()
+
+    def create_compressor_symbol(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
-            if property_name not in ["structural_stiffness_links", "structural_damping_links"]:
+            if property_name == "reciprocating_compressor_excitation":
+                node_id = args[0]
+                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+
+                if len(elements) != 1:
+                    continue
+
+                node = app().project.model.preprocessor.nodes[node_id]
+                element = elements[0]
+                orientation = element.last_node.coordinates - element.first_node.coordinates
+
+                if node != element.first_node:
+                    orientation = -orientation
+
+                node_id = int(*args)
+                line_ids = app().project.model.mesh.lines_from_node[node_id]
+                outer_diameter = app().project.model.properties._get_property("cross_section", line_id=line_ids[0])
+                scale = outer_diameter.outer_diameter
+
+                if data["connection_type"] == "discharge":
+                    self.add_symbol(create_compressor_discharge, data["coords"], orientation, color=color_names.RED_2, scale=scale)
+
+                elif data["connection_type"] == "suction":
+                    self.add_symbol(create_compressor_suction, data["coords"], orientation, color=color_names.BLUE_2, scale=scale)
+
+    def create_reciprocating_pump_excitation(self):
+        nodal_properties = app().project.model.properties.nodal_properties
+
+        for (property_name, *args), data in nodal_properties.items():
+            if property_name == "reciprocating_pump_excitation":
+                node_id = args[0]
+                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+                if len(elements) != 1:
+                    continue
+
+                node = app().project.model.preprocessor.nodes[node_id]
+                element = elements[0]
+                orientation = element.last_node.coordinates - element.first_node.coordinates
+
+                if node != element.first_node:
+                    orientation = -orientation
+
+                if data["connection_type"] == "discharge":
+                    self.add_symbol(
+                        create_pump_discharge,
+                        data["coords"],
+                        orientation,
+                        color=color_names.RED,
+                    )
+
+                elif data["connection_type"] == "suction":
+                    self.add_symbol(
+                        create_pump_suction,
+                        data["coords"],
+                        orientation,
+                        color=color_names.BLUE,
+                    )
+
+    def create_structural_links(self):
+        nodal_properties = app().project.model.properties.nodal_properties
+
+        for (property_name, *args), data in nodal_properties.items():
+            if property_name not in ["stiffness_nodal_links", "damping_nodal_links"]:
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.GREEN,
-            )
+            func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
-    def create_psd_structural_links(self) -> Iterator[vtkPolyData]:
+    def create_psd_structural_links(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
             if property_name != "psd_structural_links":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.GREEN,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
-    def create_psd_acoustic_links(self) -> Iterator[vtkPolyData]:
+    def create_psd_acoustic_links(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
             if property_name != "psd_acoustic_link":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.BLUE,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
-    def create_acoustic_transfer_element(self) -> Iterator[vtkPolyData]:
+    def create_acoustic_transfer_element(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
             if property_name != "acoustic_transfer_element":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.BLUE,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
-    def create_perforated_plates(self) -> Iterator[vtkPolyData]:
+    def create_perforated_plates(self):
         element_properties = app().project.model.properties.element_properties
         perforated_plate_many_holes = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_many_holes.obj")
         perforated_plate_single_hole = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_single_hole.obj")
-
 
         for (property_name, element_id), data in element_properties.items():
             if property_name != "perforated_plate":
@@ -108,7 +165,7 @@ class FixedSymbolsActor(vtkActor):
             thickness = element.perforated_plate.thickness
             if element.valve_data:
                 d_in = element.valve_data["valve_effective_diameter"]
-                diameter = (d_in / 2)
+                diameter = d_in / 2
             else:
                 diameter = element.cross_section.inner_diameter
 
@@ -119,17 +176,17 @@ class FixedSymbolsActor(vtkActor):
             if element.perforated_plate.single_hole:
                 data = perforated_plate_single_hole
             else:
-                data = perforated_plate_many_holes    
+                data = perforated_plate_many_holes
 
             data = transform_polydata(
                 data,
-                scale=(diameter, thickness, diameter),
+                rotation=(0, 0, 90),
+                scale=(thickness, diameter, diameter),
             )
-            data = align_vtk_geometry(data, coord_a, vector)
-            set_polydata_colors(data, color_names.PINK_6.to_rgb())
-            yield data
 
-    def create_valves(self) -> Iterator[vtkPolyData]:
+            self.add_symbol(lambda: data, coord_a, vector, color_names.PINK_6)
+
+    def create_valves(self):
         line_properties = app().project.model.properties.line_properties
 
         for line_id, data in line_properties.items():
@@ -143,11 +200,11 @@ class FixedSymbolsActor(vtkActor):
 
             # this makes the valve handle always point up
             angle = 0
-            if vector[0] >= 0:
-                angle = np.pi
+            if vector[0] < 0:
+                angle = -np.pi
 
             valve_info = data["valve_info"]
-            outside_diameter, thickness, *_ = valve_info["body_section_parameters"]
+            outside_diameter, thickness, offset_y, offset_z, *_ = valve_info["body_section_parameters"]
             flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
             flange_length = valve_info["flange_length"]
 
@@ -157,16 +214,33 @@ class FixedSymbolsActor(vtkActor):
                 thickness,
                 flange_outer_diameter,
                 flange_length,
+                offset_y=offset_y,
+                offset_z=offset_z,
             )
 
-            data = align_vtk_geometry(source, coords_a, vector, angle)
-            set_polydata_colors(data, color_names.PINK_6.to_rgb())
-            yield data
+            # Every valve is different, thus we need a different function for each one.
+            # Since the position and rotation are already handled by the function, we
+            # pass the default values (0, 0, 0) and (1, 0, 0) for the add_symbol method.
+            func = partial(
+                align_vtk_geometry,
+                source,
+                coords_a,
+                vector,
+                angle,
+            )
+
+            self.add_symbol(
+                func,
+                (0, 0, 0),
+                (1, 0, 0),
+                color_names.PINK_6,
+            )
 
     def configure_appearance(self):
-        self.set_zbuffer_offsets(0, -6600)
+        self.set_zbuffer_offsets(1, -6600)
 
         self.GetProperty().SetLineWidth(4)
+        self.GetProperty().RenderLinesAsTubesOn()
         self.GetProperty().SetOpacity(0.7)
         self.GetProperty().SetAmbient(0.5)
         self.PickableOff()
@@ -184,7 +258,7 @@ class FixedSymbolsActor(vtkActor):
         mapper.SetRelativeCoincidentTopologyPointOffsetParameter(units)
         mapper.Update()
 
-    def _create_line(self, coords_a, coords_b, color: Color):
+    def _create_line(self, coords_a, coords_b):
         coords_a = np.array(coords_a)
         coords_b = np.array(coords_b)
 
@@ -193,6 +267,4 @@ class FixedSymbolsActor(vtkActor):
         source.SetPoint2(coords_b)
         source.Update()
 
-        output = source.GetOutput()
-        set_polydata_colors(output, color.to_rgb())
-        return output
+        return source.GetOutput()

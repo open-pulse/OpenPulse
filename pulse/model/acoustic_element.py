@@ -1,18 +1,28 @@
-# fmt: off
+from enum import IntEnum
 
-from pulse.model.perforated_plate import Foks_function
-from pulse.model.node import Node, distance
-
-from numpy import sqrt, pi
 import numpy as np
-from scipy.special import jv, hankel1
-from scipy.optimize import root, fsolve
+from numpy import pi, sqrt
+from scipy.optimize import fsolve, root
+from scipy.special import hankel1, jv
 
+from pulse.model import RadiationImpedanceType
+from pulse.model.node import Node, distance
+from pulse.model.perforated_plate import Foks_function, PerforatedPlateFormulation
+from pulse.model.properties.fluid import Fluid
+from pulse.model.properties.material import Material
+from pulse.model.cross_section import CrossSection
 
 DOF_PER_NODE = 1
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
+
+
+class ElementLengthCorrection(IntEnum):
+    EXPANSION = 0
+    SIDE_BRANCH = 1
+    LOOP = 2
+
 
 def f_function(x):
     return 1 - 2 * jv(1,x)/(x * jv(0,x))
@@ -44,7 +54,7 @@ def j2_j0(z):
     Auxiliary function to compute the ratio between the Bessel functions J2 and J0. When the 
     imaginary part of input z reaches 700, the following syntonic approximation is used:
     
-    ``j2/j0 = -1``, when ``z --> \infty.``
+    j2/j0 = -1, when z --> /infty.
 
     Parameters
     -------
@@ -112,9 +122,9 @@ class AcousticElement:
 
         self.element_type = kwargs.get('element_type', 'undamped')
         self.proportional_damping = kwargs.get('proportional_damping', None)
-        self.material = kwargs.get('material', None)
-        self.fluid = kwargs.get('fluid', None)   
-        self.cross_section = kwargs.get('cross_section', None)
+        self.material: Material = kwargs.get('material', None)
+        self.fluid: Fluid = kwargs.get('fluid', None)
+        self.cross_section: CrossSection = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.perforated_plate = kwargs.get('perforated_plate', None)
@@ -240,13 +250,19 @@ class AcousticElement:
             
         References
         ----------
-        .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
+        .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, 
+        Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
         """
-        if self.cross_section.section_type_label == 'Expansion joint':
+        if self.cross_section.section_type_label == 'expansion_joint':
             return self.fluid.speed_of_sound
+
         else:
-            factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.elasticity_modulus * self.cross_section.thickness)
-            return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
+            D_in = self.cross_section.inner_diameter
+            K_0 = self.fluid.bulk_modulus
+            E = self.material.elasticity_modulus
+            t = self.cross_section.thickness
+            factor = (D_in * K_0) / (E * t)
+            return (1 / sqrt(1 + factor)) * self.fluid.speed_of_sound
 
     def get_undamped_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
 
@@ -443,11 +459,11 @@ class AcousticElement:
         """
         self.area_fluid = self.cross_section.area_fluid
         if self.perforated_plate:
-            if self.perforated_plate.type in [0, 1]:
-                return self.perforated_plate_matrix(frequencies)
-            else:
+            if self.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2) / 4
+            else:
+                return self.perforated_plate_matrix(frequencies)
 
         self.reset()
         if self.element_type in ['undamped_mean_flow','peters','howe']:
@@ -603,7 +619,7 @@ class AcousticElement:
 
         self.area_fluid = self.cross_section.area_fluid
         if self.perforated_plate:
-            if self.perforated_plate.type in [2]:
+            if self.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
 
@@ -673,13 +689,16 @@ class AcousticElement:
 
         self.area_fluid = self.cross_section.area_fluid
         if self.perforated_plate:
-            if self.perforated_plate.type in [2]:
+            if self.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
 
-        Ke = self.area_fluid / (rho*length) * np.array([[1,-1],[-1,1]])
-        Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
-        
+        Ke = self.area_fluid / (rho*length) * np.array([[1, -1],
+                                                        [-1, 1]], dytpe=float)
+
+        Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2, 1],
+                                                                 [1, 2]], dtype=float) 
+
         return Ke.flatten(), Me.flatten()
 
     def get_fetm_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
@@ -747,7 +766,11 @@ class AcousticElement:
 
             # TODO: prt warning por p < 0.5
             prt = 0.87
-            transc = lambda x: (U/x - (2.44 * np.log(x * di/(2*nu)) + 2))**2
+
+            def transc(x):
+                return (U / x - (2.44 * np.log(x * di/(2*nu)) + 2))**2
+
+            # transc = lambda x: (U/x - (2.44 * np.log(x * di/(2*nu)) + 2))**2
             res = root(transc, 1e-4, method='hybr')
 
             ur = res.x[0]
@@ -846,6 +869,10 @@ class AcousticElement:
         if frequencies[0]==0:
             frequencies[0] = float(1e-4)
 
+        if not isinstance(self.fluid, Fluid):
+            self.pp_impedance = None
+            return
+
         rho = self.fluid.density
         mu = self.fluid.dynamic_viscosity
         gamma = self.fluid.isentropic_exponent
@@ -918,7 +945,13 @@ class AcousticElement:
             xi_nl = 4 * u_n * (1-sigma**2)/(3*pi*c*(sigma*c_l)**2)
             z_orif = - (xi_l + xi_nl) * z 
 
-        self.pp_impedance = z_orif
+        # Common pipe perforated plate impedance
+        if self.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
+            self.pp_impedance = self.impedance
+
+        # OpenPulse and Melling perforated plate impedance
+        else:
+            self.pp_impedance = z_orif
 
     def perforated_plate_matrix(self, frequencies):
         self.update_pp_impedance(frequencies)
@@ -994,12 +1027,12 @@ class AcousticElement:
 
         Parameters
         -------
-        impedance_type : int
-            Integer number relative to radiation impedance type.
+        impedance_type : str
+            A string or a integer number that represents radiation impedance type.
 
-            0 -> anechoic termination
-            1 -> flanged termination
-            2 -> unflanged termination
+            anechoic or 0 -> anechoic termination
+            flanged or 1 -> flanged termination
+            unflanged or 2 -> unflanged termination
 
         frequencies : float-array
             The frequencies vector of the harmonic analysis.
@@ -1023,13 +1056,12 @@ class AcousticElement:
         elif self.element_type == 'LRF full':
             kappa_complex, impedance_complex = self.get_fetm_thermoviscous_damping_data(frequencies)
 
-        if impedance_type == 0:
+        # the integer numbers ensure the backwards compatibility
+        if impedance_type == RadiationImpedanceType.ANECHOIC:
             return impedance_complex + 0j
 
-        elif impedance_type == 1:
+        elif impedance_type == RadiationImpedanceType.FLANGED:
             return self.flanged_termination_impedance(kappa_complex, impedance_complex)
 
-        elif impedance_type == 2:
+        elif impedance_type == RadiationImpedanceType.UNFLANGED:
             return self.unflanged_termination_impedance(kappa_complex, impedance_complex)
-
-# fmt: on

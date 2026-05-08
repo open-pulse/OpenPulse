@@ -1,17 +1,18 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
+    pass
 import numpy as np
+from molde.stylesheets import set_qproperty
 
 from pulse.editor.structures import Point
 
 from .structure_options import StructureOptions
-from molde.stylesheets import set_qproperty
 
 
 class PointOptions(StructureOptions):
     structure_type = Point
-    
+
     def xyz_callback(self, xyz):
         if len(self.pipeline.selected_points) == 1:
             # Edit selected point
@@ -38,7 +39,9 @@ class PointOptions(StructureOptions):
     def update_permissions(self):
         set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
         self.geometry_designer_widget.configure_button.setEnabled(False)
+        self.geometry_designer_widget.set_material_button.setEnabled(False)
         self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(True)
+        self.geometry_designer_widget.length_line_edit.setEnabled(False)
         self.geometry_designer_widget.attach_button.setEnabled(True)
         self.geometry_designer_widget.add_button.setEnabled(True)
         self.geometry_designer_widget.delete_button.setEnabled(True)

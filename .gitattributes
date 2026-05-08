@@ -1,0 +1,4 @@
+*_ui.py linguist-generated
+*_rc.py linguist-generated
+*.qrc linguist-generated
+*.lock -diff

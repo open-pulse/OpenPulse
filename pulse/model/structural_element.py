@@ -1,8 +1,10 @@
-from math import pi, sqrt, sin, cos
-from pulse.model.acoustic_element import DOF_PER_NODE
+
 import numpy as np
 
-from pulse.model.node import Node, distance, DOF_PER_NODE_STRUCTURAL
+from pulse.model.cross_section import CrossSection
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node, NodePosition, distance
+from pulse.model.properties.fluid import Fluid
+from pulse.model.properties.material import Material
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
@@ -37,10 +39,10 @@ def gauss_quadrature(integration_points):
         points = [0]
         weigths = [2]
     elif integration_points == 2:
-        points = [-1/sqrt(3), 1/sqrt(3)]
+        points = [-1/np.sqrt(3), 1/np.sqrt(3)]
         weigths = [1, 1]
     elif integration_points == 3:
-        points = [-sqrt(3/5), 0, sqrt(3/5)]
+        points = [-np.sqrt(3/5), 0, np.sqrt(3/5)]
         weigths = [5/9, 8/9, 5/9]
     else:
         raise TypeError('You must provide 1, 2, or 3 integration points')
@@ -116,28 +118,30 @@ class StructuralElement:
         Structural forces and moments on the nodes.
         Default is zeros(12).
     """
-    def __init__(self, first_node, last_node, index, **kwargs):
+    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
 
         self.first_node = first_node
         self.last_node = last_node
         self.index = index
 
-        self.element_type = kwargs.get('element_type', 'pipe_1')
-        self.wall_formulation = kwargs.get('wall_formulation', 'thin_wall')
+        self.element_type: str = kwargs.get('element_type', 'pipe_1')
+        self.wall_formulation: str = kwargs.get('wall_formulation', 'thin_wall')
 
-        self.material = kwargs.get('material', None)
-        self.cross_section = kwargs.get('cross_section', None)
+        self.material: Material = kwargs.get('material', None)
+        self.cross_section: CrossSection = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
-        self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
+        self.loaded_forces: np.ndarray = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
 
-        self.fluid = kwargs.get('fluid', None)
-        self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
-        self.decoupling_matrix = kwargs.get('decoupling_matrix', decoupling_matrix)
-        self.decoupling_info = kwargs.get('decoupling_info', None)
+        self.fluid: Fluid = kwargs.get('fluid', None)
+        self.adding_mass_effect: bool = kwargs.get('adding_mass_effect', False)
+        self.decoupling_matrix: np.ndarray = kwargs.get('decoupling_matrix', decoupling_matrix)
+        self.decoupling_info: list = kwargs.get('decoupling_info', None)
 
-        self.capped_end = kwargs.get('capped_end', True)
-        self.stress_intensification = kwargs.get('stress_intensification', True)
-        self.turned_off = kwargs.get("turned_off", False)
+        self.capped_end: bool = kwargs.get('capped_end', True)
+        self.stress_intensification: bool = kwargs.get('stress_intensification', True)
+        self.turned_off: bool = kwargs.get("turned_off", False)
+
+        self.section_parameters_render = None
 
         self._initialize()
 
@@ -200,13 +204,13 @@ class StructuralElement:
         if isinstance(data, dict):
 
             self.expansion_joint_data = data
-            self.joint_length = data["joint_length"]
-            self.joint_effective_diameter = data["effective_diameter"]
-            self.joint_mass = data["joint_mass"]
-            self.joint_axial_locking_criteria = data["axial_locking_criteria"]
-            self.joint_rods_included = data["rods"]
+            self.joint_length = data.get("joint_length")
+            self.joint_effective_diameter = data.get("effective_diameter")
+            self.joint_mass = data.get("joint_mass")
+            self.joint_rods_included = data.get("rods", False)
+            self.joint_axial_locking_criteria = data.get("axial_locking_criteria", 0)
 
-            stiffness_values = data["stiffness_values"]
+            stiffness_values = data["values"]
 
             self.joint_axial_stiffness = stiffness_values[0]
             self.joint_transversal_stiffness = stiffness_values[1]
@@ -327,7 +331,7 @@ class StructuralElement:
     def rotations_at_local_coordinate_system_decoupled(self):
 
         results_lcs = self.element_results_lcs()
-        [_, node_id, decoupled_rotations] = self.decoupling_info
+        [_, node_id, _, decoupled_rotations] = self.decoupling_info
 
         for index, value in enumerate(decoupled_rotations):
             if index == 0:
@@ -429,7 +433,7 @@ class StructuralElement:
             mass = Rt @ self.mass_matrix_valve() @ R
 
         # elif self.element_type == "expansion_joint":
-        #     stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
+        #     stiffness = Rt @ self.stiffness_matrix_expansion_joint_harmonic() @ R
         #     mass = Rt @ self.mass_matrix_expansion_joint() @ R
 
         return stiffness, mass
@@ -642,7 +646,7 @@ class StructuralElement:
 
         ## Numerical integration by Gauss quadrature
         integrations_points = 1
-        points, weigths = gauss_quadrature( integrations_points )
+        points, weigths = gauss_quadrature(integrations_points)
 
         Kabe = 0.
         Ktse = 0.
@@ -656,14 +660,8 @@ class StructuralElement:
             Ue = self.static_element_results_lcs()
             mat_K_geo = self.get_Te_matrix()
             Fp_x = self.force_vector_stress_stiffening(vector_gcs=False)
-            Te = (E*A/L)*(Ue[6] - Ue[0]) - Fp_x
-            K_geo = (Te/L)*mat_K_geo
-
-            # if self.index in [12, 13, 14, 15]:
-            #     print("\nElement 12:")
-            #     print(f"UX(first): {self.first_node.static_nodal_solution_gcs[0]}")
-            #     print(f"UX(last): {self.last_node.static_nodal_solution_gcs[0]}")
-            #     print(f"Te: {Te}")
+            Te = (E*A/L) * (Ue[6] - Ue[0]) - Fp_x
+            K_geo = (Te/L) * mat_K_geo
 
         for point, weigth in zip(points, weigths):
 
@@ -754,7 +752,7 @@ class StructuralElement:
 
         # Numerical integration by Gauss quadrature
         integrations_points = 2
-        points, weigths = gauss_quadrature( integrations_points )
+        points, weigths = gauss_quadrature(integrations_points)
 
         Me = 0
         N = np.zeros((DOF_PER_NODE_STRUCTURAL, 2 * DOF_PER_NODE_STRUCTURAL))
@@ -835,7 +833,7 @@ class StructuralElement:
                             
         ## Numerical integration by Gauss quadrature
         integrations_points = 1
-        points, weigths = gauss_quadrature( integrations_points )
+        points, weigths = gauss_quadrature(integrations_points)
 
         # Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -966,7 +964,7 @@ class StructuralElement:
 
         # Numerical integration by Gauss quadrature
         integrations_points = 2
-        points, weigths = gauss_quadrature( integrations_points )
+        points, weigths = gauss_quadrature(integrations_points)
         
         sections = [self.first_node.cross_section, self.last_node.cross_section]
         prop_1 = [sections[0].outer_diameter, sections[1].outer_diameter]
@@ -1048,13 +1046,13 @@ class StructuralElement:
         yc_1, zc_1, ys_1, zs_1 = cross_section_first.get_centroide_and_shear_center()
         yc_2, zc_2, ys_2, zs_2  = cross_section_last.get_centroide_and_shear_center()        
 
-        delta_yc = yc_2 - yc_1
-        delta_zc = zc_2 - zc_1
+        # delta_yc = yc_2 - yc_1
+        # delta_zc = zc_2 - zc_1
         delta_ys = ys_2 - ys_1
         delta_zs = zs_2 - zs_1
 
-        offset_first = cross_section_first.offset
-        offset_last = cross_section_last.offset
+        offset_first = cross_section_first.offsets
+        offset_last = cross_section_last.offsets
 
         y1_offset, z1_offset = offset_first
         y2_offset, z2_offset = offset_last
@@ -1100,8 +1098,8 @@ class StructuralElement:
                         [-delta_zo/L_N,            0,                        L_B/L_N] ])
         
         # delta_x = sqrt(Le**2 - delta_yo**2 - delta_zo**2)
-        # L_ = sqrt(delta_x**2 + delta_yo**2)
-        # L = sqrt(delta_x**2 + delta_yo**2 + delta_zo**2)
+        # L_ = np.sqrt(delta_x**2 + delta_yo**2)
+        # L = np.sqrt(delta_x**2 + delta_yo**2 + delta_zo**2)
 
         # sin_delta = delta_yo / L_
         # cos_delta = delta_x / L_
@@ -1256,7 +1254,7 @@ class StructuralElement:
             return R.T @ aux
 
 
-    def force_vector_stress_stiffening(self, vector_gcs=True):
+    def force_vector_stress_stiffening(self, vector_gcs: bool = True):
         """
         This method returns description
         Returns
@@ -1267,7 +1265,7 @@ class StructuralElement:
 
         rows = DOF_PER_ELEMENT
         aux = np.zeros([rows, 1])
-        
+
         D_out = self.cross_section.outer_diameter
         D_in = self.cross_section.inner_diameter
         A = self.cross_section.area
@@ -1275,18 +1273,18 @@ class StructuralElement:
 
         P_in = self.internal_pressure
         P_out = self.external_pressure
-        
+
         if self.element_type in ['pipe_1', 'valve']:
             axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
         else:
             return aux
-        
+
         if self.capped_end:
             capped_end = 1
         else:
             capped_end = 0
 
-        if self.element_type == 'pipe_1':
+        if self.element_type in ['pipe_1', 'valve']:
             principal_axis = self.cross_section.principal_axis
         else:
             raise TypeError(f'Invalid element type: {self.element_type}')
@@ -1309,7 +1307,7 @@ class StructuralElement:
             return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
         else:
             raise TypeError('Only thin and thick wall formulation types are allowable.')
-    
+
 
     def get_self_weighted_load(self, gravity_vector):
         """
@@ -1436,18 +1434,20 @@ class StructuralElement:
 
         # stiffness matrix diagonal construction
         rows, cols = np.diag_indices(DOF_PER_ELEMENT)
-        ke[[rows], [cols]] = np.array([ E * A / L               ,
-                                        12 * beta_12_a / L**3   ,
-                                        12 * beta_13_a / L**3   ,
-                                        G * J / L               ,
-                                        beta_13_b / L           ,
-                                        beta_12_b / L           ,
-                                        E * A / L               ,
-                                        12 * beta_12_a / L**3   ,
-                                        12 * beta_13_a / L**3   ,
-                                        G * J / L               ,
-                                        beta_13_b / L           ,
-                                        beta_12_b / L           ])
+        ke[[rows], [cols]] = np.array([ 
+            E * A / L               ,
+            12 * beta_12_a / L**3   ,
+            12 * beta_13_a / L**3   ,
+            G * J / L               ,
+            beta_13_b / L           ,
+            beta_12_b / L           ,
+            E * A / L               ,
+            12 * beta_12_a / L**3   ,
+            12 * beta_13_a / L**3   ,
+            G * J / L               ,
+            beta_13_b / L           ,
+            beta_12_b / L           ,
+            ], dtype=float)
 
         # stiffness matrix out diagonal construction
         ke[ 6   , 0 ] = - E * A / L
@@ -1463,14 +1463,70 @@ class StructuralElement:
         ke[[4,10],[2,2]] = - 6 * beta_13_a / L**2
         ke[[8,10],[4,8]] =   6 * beta_13_a / L**2
 
-        # if decoupling_matrix is None:
-        #     Ke = self.symmetrize(me)
-        # else:
-        #     Ke = self.symmetrize(me)*decoupling_matrix
+        if self.decoupling_info is None:
+            Ke = symmetrize(ke)
 
-        Ke = symmetrize(ke) * self.decoupling_matrix
+        else:
+            # print(self.index, self.decoupling_info)
+            # [_, _, node_position, decouple_mask] = self.decoupling_info
+            # Ke_decoup = self.decouple_rotations(ke, node_position, decouple_mask)
+            # Ke = symmetrize(Ke_decoup)
+
+            Ke = symmetrize(ke) * self.decoupling_matrix
 
         return principal_axis.T @ Ke @ principal_axis
+
+    def decouple_rotations(self, Ke: np.ndarray, node_position: NodePosition, decouple_mask: list[bool, bool, bool]):
+        """
+        This method processes the modified elementary stiffness matrix considering the rotation dofs decoupling.
+
+        Parameters
+        ----------
+        Ke: np.ndarray
+            The elementary stiffness matrix.
+
+        node_position: NodePosition | int
+            An integer used to represent the node position (use 0 for first node and 1 for last node).
+        
+        decouple_mask: list[bool]
+            A list of three boolean values used to decouple rotations x, y, and z, respectively.
+            If the value is True, the corresponding rotation will be decoupled.
+        
+        Return
+        ------
+        K_mod: np.ndarray
+            The modified elementary stiffness matrix.
+
+        """
+
+        first_node = node_position == NodePosition.FIRST
+        rotation_indices = [3, 4, 5] if first_node else [9, 10, 11]
+
+        decouple_indices = list()
+        for i, ind in enumerate(rotation_indices):
+            if decouple_mask[i]:
+                decouple_indices.append(ind)
+
+        all_indices = np.arange(DOF_PER_ELEMENT, dtype=int)
+        kept_indices = np.delete(all_indices, decouple_indices)
+
+        K_aa = Ke[np.ix_(kept_indices, kept_indices)]
+        K_ab = Ke[np.ix_(kept_indices, decouple_indices)]
+        K_ba = Ke[np.ix_(decouple_indices, kept_indices)]
+        K_bb = Ke[np.ix_(decouple_indices, decouple_indices)]
+
+        # compute the condensed matrix
+        K_cond = K_aa - K_ab @ np.linalg.inv(K_bb) @ K_ba
+
+        # initialize the modified elementary stiffness matrix
+        K_mod = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+        # fill out the modified elementary stiffness matrix
+        K_mod[np.ix_(kept_indices, kept_indices)] = K_cond
+
+        # np.savetxt("K_mod_matrix.dat", K_mod, delimiter=",")
+
+        return K_mod
 
     def mass_matrix_beam(self):
         """
@@ -1677,49 +1733,26 @@ class StructuralElement:
 
         return shear_coefficient
 
-    def stiffness_matrix_expansion_joint(self, frequencies=None):
+    def stiffness_matrix_expansion_joint_harmonic(self, frequencies: np.ndarray | None = None):
 
         L_e = self.joint_length / self.length
-        K_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        n_freq = 1 if frequencies is None else frequencies.size
 
-        K1 = self.joint_axial_stiffness*L_e
-        K2 = K3 = self.joint_transversal_stiffness/L_e
-        K4 = self.joint_torsional_stiffness*L_e
-        K5 = K6 = self.joint_angular_stiffness/L_e  
+        K_matrix = np.zeros((n_freq, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
 
-        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float)
-        indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
-        indexes_2 = indexes_1 + 6
+        K1 = self.joint_axial_stiffness * L_e
+        K2 = K3 = self.joint_transversal_stiffness / L_e
+        K4 = self.joint_torsional_stiffness * L_e
+        K5 = K6 = self.joint_angular_stiffness / L_e
 
-        K_matrix[indexes_1,indexes_1] = K_matrix[indexes_2,indexes_2] = Ks
-        K_matrix[indexes_1,indexes_2] = K_matrix[indexes_2,indexes_1] = -Ks
- 
-        return K_matrix
-
-    def stiffness_matrix_expansion_joint_harmonic(self, frequencies=None):
-
-        L_e = self.joint_length / self.length
-
-        if frequencies is None:
-            number_frequencies = 1
-        else:
-            number_frequencies = len(frequencies)
-
-        K_matrix = np.zeros((number_frequencies, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-
-        K1 = self.joint_axial_stiffness*L_e
-        K2 = K3 = self.joint_transversal_stiffness/L_e
-        K4 = self.joint_torsional_stiffness*L_e
-        K5 = K6 = self.joint_angular_stiffness/L_e  
-
-        K1 = self.get_array_values(K1, number_frequencies)
-        K2 = self.get_array_values(K2, number_frequencies)
+        K1 = self.get_array_values(K1, n_freq)
+        K2 = self.get_array_values(K2, n_freq)
         K3 = K2
-        K4 = self.get_array_values(K4, number_frequencies)
-        K5 = self.get_array_values(K5, number_frequencies)
+        K4 = self.get_array_values(K4, n_freq)
+        K5 = self.get_array_values(K5, n_freq)
         K6 = K5   
 
-        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float).T.reshape(number_frequencies, DOF_PER_NODE_STRUCTURAL)
+        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=complex).T.reshape(n_freq, DOF_PER_NODE_STRUCTURAL)
         indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
         indexes_2 = indexes_1 + DOF_PER_NODE_STRUCTURAL
 
@@ -1750,14 +1783,14 @@ class StructuralElement:
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
         return M_matrix
 
-    def get_array_values(self, value, number_frequencies):
+    def get_array_values(self, value: np.ndarray | float, number_frequencies: int):
         if isinstance(value, np.ndarray):
             if number_frequencies == 1:
                 return value[0]
             else:
                 return value
-        else:
-            return value*np.ones(number_frequencies)
+
+        return value * np.ones(number_frequencies)
 
     # def __str__(self):
     #     text = ''

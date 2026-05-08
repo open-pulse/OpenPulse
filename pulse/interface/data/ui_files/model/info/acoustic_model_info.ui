@@ -1178,6 +1178,6 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
   <tabstop>lineEdit_number_nodes</tabstop>
   <tabstop>lineEdit_number_elements</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

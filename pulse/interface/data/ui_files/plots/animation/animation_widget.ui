@@ -501,7 +501,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../icons/common/play_pause.png</normaloff>../../../icons/common/play_pause.png</iconset>
+             <normaloff>:/icons/common/play_pause.png</normaloff>:/icons/common/play_pause.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -569,6 +569,6 @@
   <tabstop>pushButton_export</tabstop>
   <tabstop>pushButton_animate</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

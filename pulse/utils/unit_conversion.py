@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def m_to_mm(value):
+def m_to_mm(value: float|int):
     """
     Converts meters to millimeters.
 
@@ -22,7 +22,7 @@ def m_to_mm(value):
     return float(value) * 1e3
 
 
-def in_to_mm(value):
+def in_to_mm(value: float|int):
     """
     Converts inches to millimeters.
 
@@ -43,7 +43,7 @@ def in_to_mm(value):
     return float(value) * 25.4
 
 
-def in_to_m(value):
+def in_to_m(value: float|int):
     """
     Converts inches to meters.
 
@@ -64,7 +64,7 @@ def in_to_m(value):
     return float(value) * 0.0254
 
 
-def um_to_m(value):
+def um_to_m(value: float|int):
     ''' 
     Converts millimeters to meters.
 
@@ -85,7 +85,7 @@ def um_to_m(value):
         return value * 1e-6
     return float(value) * 1e-6
 
-def mm_to_m(value):
+def mm_to_m(value: float|int):
     """
     Converts millimeters to meters.
 
@@ -106,8 +106,7 @@ def mm_to_m(value):
         return value * 1e-3
     return float(value) * 1e-3
 
-
-def mm_to_in(value):
+def mm_to_in(value: float|int):
     """
     Converts inches to millimeters.
 
@@ -127,3 +126,18 @@ def mm_to_in(value):
         return value / 25.4
     return float(value) / 25.4
 
+def lbft_to_kgm(value: float|int):
+    """
+    Converts the linear mass from pounds per foot to kilograms per meter.
+
+    Parameters
+    ----------
+    value: int, float
+        Input value in pounds per foot.
+
+    Returns
+    -------
+    out: float
+        Converted value in kilograms per meter.
+    """
+    return (0.45359237 / 0.3048) * value

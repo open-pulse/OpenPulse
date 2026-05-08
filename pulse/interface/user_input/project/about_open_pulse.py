@@ -1,23 +1,15 @@
-from PySide6.QtWidgets import QDialog, QLabel, QPushButton
-from PySide6.QtGui import QCloseEvent, QDesktopServices
 from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QCloseEvent, QDesktopServices
 
-from pulse import app, UI_DIR, version, release_date
-
+from pulse import app, release_date, version
+from pulse.interface import error_title
+from pulse.interface.ui_generated.project.about_open_pulse_ui import AboutOpenPulse_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-class AboutOpenPulseInput(QDialog):
+class AboutOpenPulseInput(AboutOpenPulse_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "project/about_open_pulse.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 
@@ -50,19 +42,9 @@ class AboutOpenPulseInput(QDialog):
         self.main_info += "solved in the current version. Further information is available in the OpenPulse repository at GitHub."
 
     def _define_qt_variables(self):
-
-        # QLabel
-        self.label_licensing_information: QLabel
-        self.label_main_info: QLabel
-        self.label_version_information: QLabel
-        self.logo_label: QLabel
-        #
         self.label_licensing_information.setText(self.licensing_info)
         self.label_main_info.setText(self.main_info)
         self.label_version_information.setText(self.version_info)
-
-        # QPushButton
-        self.pushButton_repository: QPushButton
 
     def _create_connections(self):
         self.pushButton_repository.clicked.connect(self.open_gitHub_repository)
@@ -94,11 +76,11 @@ class AboutOpenPulseInput(QDialog):
             if not QDesktopServices.openUrl(url):
                 message = "The OpenPulse repository at the GitHub's site cannot be accessed.\n"
                 message += "We reccomend trying again later."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([error_title, title, message])
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
         self.close()
 

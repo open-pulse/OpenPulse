@@ -1,4 +1,5 @@
 
+from pulse.model import AnalysisID
 from pulse.model.mesh import Mesh
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.preprocessor import Preprocessor
@@ -7,6 +8,10 @@ from pulse.model.properties.model_properties import ModelProperties
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.project.project import Project
+
+from pulse.model.acoustic_element import AcousticElement
+from pulse.model.structural_element import StructuralElement
+from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
 
 import numpy as np
 
@@ -37,8 +42,6 @@ class Model:
         self.frequencies = None
         self.list_frequencies = list()
 
-        self.global_damping = [0., 0., 0., 0.]
-
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
         self.weight_load = False
@@ -51,35 +54,82 @@ class Model:
     def set_gravity_vector(self, gravity_vector: np.ndarray):
         self.gravity_vector = gravity_vector
 
+    def reset_analysis_setup(self):
+        self.analysis_setup.clear()
+
+    @property
+    def analysis_id(self):
+        return self.analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+
+    @property
+    def analysis_type_label(self):
+        if self.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
+            return "Structural Harmonic Analysis"
+        elif self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
+            return "Acoustic Harmonic Analysis"
+        elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
+            return "Structural Modal Analysis"
+        elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
+            return "Acoustic Modal Analysis"
+        elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
+            return "Structural Static Analysis"
+        elif self.analysis_id == AnalysisID.COUPLED_HARMONIC:
+            return "Coupled Harmonic Analysis"
+        else:
+            return "Analysis not identified"
+
+    @property
+    def analysis_method(self):
+        return self.analysis_setup.get("analysis_method", "--")
+
+    @property
+    def number_of_modes(self):
+        return self.analysis_setup.get("number_of_modes", 40)
+
+    @property
+    def sigma_factor(self):
+        return self.analysis_setup.get("sigma_factor", 1e-2)
+
+    @property
+    def global_damping(self):
+        return self.analysis_setup.get("global_damping", (0., 0., 0.))
+
     def set_analysis_setup(self, analysis_setup: dict):
 
+        self.frequencies = None
         self.analysis_setup.update(analysis_setup)
-
-        if "f_min" in analysis_setup.keys():
-            self.set_frequency_setup(analysis_setup)
-
-        if "global_damping" in analysis_setup.keys():
-            self.set_global_damping(analysis_setup)
-
-        if "weight_load" in analysis_setup.keys():
-            self.set_static_analysis_setup(analysis_setup)
-
-    def set_frequency_setup(self, analysis_setup: dict):
 
         self.f_min = analysis_setup.get("f_min", None)
         self.f_max = analysis_setup.get("f_max", None)
         self.f_step = analysis_setup.get("f_step", None)
-        self.frequencies = analysis_setup.get("frequencies", None)
+        frequencies = analysis_setup.get("frequencies", None)
 
-        if "frequencies" in analysis_setup.keys():
-            self.frequencies = analysis_setup["frequencies"]
+        if isinstance(frequencies, list):
+            self.frequencies = np.round(np.array(frequencies, dtype=float), 14)
 
-        elif (self.f_min, self.f_max, self.f_step).count(None) != 3:
-            frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
-            self.frequencies = frequencies[frequencies <= self.f_max]
+        elif isinstance(frequencies, np.ndarray):
+            self.frequencies = frequencies
 
-    def set_global_damping(self, analysis_setup: dict):
-        self.global_damping = analysis_setup.get("global_damping", [0., 0., 0., 0.])
+        elif (self.f_min, self.f_max, self.f_step).count(None) == 0:
+
+            try:
+                frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step, dtype=float)
+                frequencies = np.round(frequencies, 14)
+
+                # filters the frequencies vector
+                mask = frequencies <= self.f_max + self.f_step / 20
+                _frequencies = frequencies[mask]
+
+            except Exception as error_log:
+                self.frequencies = None
+                print(str(error_log))
+                return
+
+            self.frequencies = _frequencies
+            self.analysis_setup["frequencies"] = list(_frequencies)
+
+        if "weight_load" in analysis_setup.keys():
+            self.set_static_analysis_setup(analysis_setup)
 
     def set_static_analysis_setup(self, analysis_setup: dict):
         self.static_analysis_setup = analysis_setup
@@ -103,20 +153,105 @@ class Model:
         condition_2 = not self.properties.check_if_there_are_tables_at_the_model()
 
         if condition_1 or condition_2:
-
-            f_min = frequencies[0]
-            f_max = frequencies[-1]
-            f_step = frequencies[1] - frequencies[0]
-
-            frequency_setup = { "f_min" : f_min,
-                                "f_max" : f_max,
-                                "f_step" : f_step }
-
-            self.set_frequency_setup(frequency_setup)
-
             self.list_frequencies = frequencies
-
             return False
 
         if self.list_frequencies != frequencies:
             return True
+
+        # if condition_1 or condition_2:
+
+        #     f_min = frequencies[0]
+        #     f_max = frequencies[-1]
+        #     f_step = frequencies[1] - frequencies[0]
+
+        #     frequency_setup = { 
+        #         "f_min" : f_min,
+        #         "f_max" : f_max,
+        #         "f_step" : f_step,
+        #         }
+
+        #     self.set_analysis_setup(frequency_setup)
+
+        #     self.list_frequencies = frequencies
+
+        #     return False
+
+        # if self.list_frequencies != frequencies:
+        #     return True
+
+    def enhance_pipe_sections_appearance(self):
+        """ 
+        This method adds lids to cross-section variations and terminations.
+        """
+        for elements in self.preprocessor.structural_elements_connected_to_node.values():
+
+            element = None
+            if len(elements) == 2:
+
+                first_element, last_element = elements
+                first_element: StructuralElement
+                last_element: StructuralElement
+
+                if 'beam_1' in [first_element.element_type, last_element.element_type]:
+                    continue
+
+                first_cross = first_element.cross_section
+                last_cross = last_element.cross_section
+                
+                if (first_cross, last_cross).count(None):
+                    continue
+
+                first_outer_diameter = first_cross.outer_diameter
+                first_inner_diameter = first_cross.inner_diameter
+                last_outer_diameter = last_cross.outer_diameter
+                last_inner_diameter = last_cross.inner_diameter
+
+                if first_outer_diameter < last_inner_diameter:
+                    inner_diameter = first_inner_diameter 
+                    element = last_element
+
+                if last_outer_diameter < first_inner_diameter:
+                    inner_diameter = last_inner_diameter 
+                    element = first_element
+
+            elif len(elements) == 1: 
+
+                element = elements[0]
+                element: StructuralElement
+ 
+                if element.element_type == 'beam_1':
+                    continue  
+
+                first_node = element.first_node
+                last_node = element.last_node  
+
+                if element.cross_section is None:
+                    continue
+
+                inner_diameter = element.cross_section.inner_diameter 
+
+                if len(self.preprocessor.neighbors[first_node]) == 1:
+                    first_node_id = first_node.external_index
+                    if self.properties.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
+                        inner_diameter = 0
+
+                elif len(self.preprocessor.neighbors[last_node]) == 1:
+                    last_node_id = last_node.external_index
+                    if self.properties.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
+                        inner_diameter = 0
+
+            if isinstance(element, AcousticElement | StructuralElement):
+
+                if element.element_type == 'expansion_joint':
+                    section_info = element.cross_section.section_info
+                    if isinstance(section_info, ExpansionJointCrossSection):
+                        element.section_parameters_render = section_info._as_list()
+
+                else:
+
+                    section_info = element.cross_section.section_info
+                    outer_diameter, _, offset_y, offset_z, t_ins, *_ = section_info.section_parameters
+
+                    thickness = (outer_diameter - inner_diameter) / 2
+                    element.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]

@@ -1,13 +1,13 @@
 import numpy as np
 
-from pulse.editor.structures import Bend, Point
+from pulse.editor.structures import Point
 
 from .editor import Editor
 
 
 class PointsEditor(Editor):
-    def attatch_point(self, point: Point):
-        replaced_points = []
+    def attach_point(self, point: Point):
+        points_to_remove = []
 
         for structure in self.pipeline.structures:
             for p in structure.get_points():
@@ -16,9 +16,16 @@ class PointsEditor(Editor):
 
                 if np.allclose(p.coords(), point.coords()):
                     structure.replace_point(p, point)
-                    replaced_points.append(p)
+                    points_to_remove.append(p)
 
-        for point in replaced_points:
+        for p in self.pipeline.points:
+            if id(p) == id(point):
+                continue
+
+            if np.allclose(p.coords(), point.coords()):
+                points_to_remove.append(p)
+
+        for point in points_to_remove:
             for i in self.pipeline.get_point_indexes(point):
                 self.pipeline.points.pop(i)
 

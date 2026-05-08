@@ -1,50 +1,48 @@
-# fmt: off
-
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt, QEvent, QObject, Signal
-
-from pulse import app, UI_DIR
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-
-from molde import load_ui
-
-import os
-import numpy as np
+from enum import IntEnum
 from pathlib import Path
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+import numpy as np
+from PySide6.QtCore import QEvent, QObject, Qt, Signal
+from PySide6.QtWidgets import QTreeWidgetItem
+
+from pulse import app
+from pulse.interface import error_title, warning_title
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element_input_ui import (
+    AcousticTransferElementInput_UI,
+)
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.data_handler.file_handlers.file_handler import (
+    FileHandler,
+)
+from pulse.interface.user_input.model.setup.nodes_input import UserInput
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-class AddAcousticTransferElementInput(QDialog):
+class TabIndex(IntEnum):
+    SETUP = 0
+    LIST = 1
+
+
+class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/acoustic/acoustic_transfer_element_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
-        app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
 
-        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        # self._config_widgets()
         self.load_nodal_info()
         self.selection_callback()
 
         while self.keep_window_open:
             self.exec()
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
 
@@ -54,39 +52,13 @@ class AddAcousticTransferElementInput(QDialog):
         self.before_run = app().project.get_pre_solution_model_checks()
     
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_data_type:  QComboBox
-
-        # QLabel
-        self.label_selection: QLabel
-
-        # QLineEdit
-        self.lineEdit_input_node_id: QLineEdit
-        self.lineEdit_output_node_id: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_spreadsheet_path: QLineEdit
-        self.current_lineEdit = self.lineEdit_output_node_id
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_invert_selection: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
+        self.current_line_edit = self.lineEdit_output_node_id
 
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_invert_selection.clicked.connect(self.invert_selection_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_search.clicked.connect(self.search_callback)
@@ -96,17 +68,19 @@ class AddAcousticTransferElementInput(QDialog):
         self.treeWidget_nodal_info.itemClicked.connect(self.on_click_item)
         self.treeWidget_nodal_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
-        self.clickable(self.lineEdit_input_node_id).connect(self.lineEdit_1_clicked)
-        self.clickable(self.lineEdit_output_node_id).connect(self.lineEdit_2_clicked)
+        self.clickable(self.lineEdit_input_node_id).connect(self.input_line_edit_clicked)
+        self.clickable(self.lineEdit_output_node_id).connect(self.output_line_edit_clicked)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
         selected_nodes = selected_nodes = app().main_window.list_selected_nodes()
         if selected_nodes:
-            if len(selected_nodes) == 1:
-                node_id = selected_nodes[0]
-                self.current_lineEdit.setText(str(node_id))                
+            if len(selected_nodes) != 1:
+                return
+
+            node_id = selected_nodes[0]
+            self.current_line_edit.setText(str(node_id))                
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -124,11 +98,28 @@ class AddAcousticTransferElementInput(QDialog):
 
         return filter.clicked
 
-    def lineEdit_1_clicked(self):
-        self.current_lineEdit = self.lineEdit_input_node_id
+    def input_line_edit_clicked(self):
+        self.current_line_edit = self.lineEdit_input_node_id
+        self.highlight_line_edit()
 
-    def lineEdit_2_clicked(self):
-        self.current_lineEdit = self.lineEdit_output_node_id
+    def output_line_edit_clicked(self):
+        self.current_line_edit = self.lineEdit_output_node_id
+        self.highlight_line_edit()
+
+    def highlight_line_edit(self):
+        self.current_line_edit.setStyleSheet("""border-color: rgb(32, 207, 255); border-width: 2px;""")
+        if self.current_line_edit == self.lineEdit_input_node_id:
+            self.lineEdit_output_node_id.setStyleSheet("")
+        elif self.current_line_edit == self.lineEdit_output_node_id:
+            self.lineEdit_input_node_id.setStyleSheet("")
+
+    def alternate_node_id_input_fields(self):
+        if self.current_line_edit == self.lineEdit_input_node_id:
+            self.output_line_edit_clicked()
+        else:
+            self.input_line_edit_clicked()
+
+        self.current_line_edit.setFocus()
 
     def invert_selection_callback(self):
         temp_text_input = self.lineEdit_input_node_id.text()
@@ -139,94 +130,90 @@ class AddAcousticTransferElementInput(QDialog):
     def attribute_callback(self):
 
         path = self.lineEdit_spreadsheet_path.text()
-
         if path == "":
             if self.search_callback():
                 return
-            
+
+            path = self.lineEdit_spreadsheet_path.text()
+
         if self.check_inputs():
             return
 
-        if os.path.exists(path):
+        if not Path(path).exists():
+            return
 
-            try:
+        try:
 
-                self.import_element_transfer_data(path)
+            self.import_element_transfer_data(Path(path))
 
-                if self.element_transfer_data:
-                    self.process_acoustic_element_transfer_data(path)
-                    self.actions_to_finalize()
-
-            except Exception as error_log:
-                self.hide()
-                title = "Invalid data imported"
-                message = "An invalid data has been imported to the acoustic transfer element. "
-                message += "Check the acoustic element transfer data type and modify it if necessary."
-                PrintMessageInput([window_title_1, title, message])
+            if not self.element_transfer_data:
                 return
 
-    def remove_table_files_from_nodes(self, node_id : list):
-        table_names = self.properties.get_nodal_related_table_names("acoustic_transfer_element", node_id)
-        self.process_table_file_removal(table_names)
+            self.process_acoustic_element_transfer_data(path)
 
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
+        except Exception:
+            self.hide()
+            title = "Invalid data imported"
+            message = "An invalid data has been imported to the acoustic transfer element. "
+            message += "Check the acoustic element transfer data type and modify it if necessary."
+            PrintMessageInput([error_title, title, message])
+            return
+
+        self.actions_to_finalize()
 
     def remove_callback(self):
 
-        if  self.lineEdit_selected_id.text() != "":
+        if  self.lineEdit_selected_id.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            linked_nodes = self.lineEdit_selected_id.text()
-            node_ids = [int(node_id) for node_id in linked_nodes.split("-")]
+        linked_nodes = self.lineEdit_selected_id.text()
+        node_ids = [int(node_id) for node_id in linked_nodes.split("-")]
 
-            self.remove_table_files_from_nodes(node_ids)
-            self.properties._remove_nodal_property("acoustic_transfer_element", node_ids)
-            self.actions_to_finalize()
+        self.properties._remove_nodal_property("acoustic_transfer_element", node_ids)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
-            self.hide()
+        self.hide()
 
-            title = f"Resetting of acoustic transfer element"
-            message = "Would you like to remove all acoustic transfer element from the acoustic model?"
+        title = "Resetting of acoustic transfer element"
+        message = "Would you like to remove all acoustic transfer element from the acoustic model?"
 
-            buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._cancel:
-                return
+        if read._cancel:
+            return
 
-            if read._continue:
+        if not read._continue:
+            return
 
-                for (property, *args) in self.properties.nodal_properties.keys():
-                    if property == "acoustic_transfer_element":
-                        self.remove_table_files_from_nodes(args)                    
-
-                self.properties._reset_nodal_property("acoustic_transfer_element")
-                self.actions_to_finalize()
+        self.properties._reset_nodal_property("acoustic_transfer_element")
+        self.actions_to_finalize()
 
     def search_callback(self):
-
-        last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
-        if last_path is None:
-            last_path = str(Path().home())
-
-        caption = f"Choose a file to import element transfer data"
-        path, check = app().main_window.file_dialog.get_open_file_name(
-                                                                        caption, 
-                                                                        last_path, 
-                                                                        'Table File (*.xls; *.xlsx;)'
-                                                                        )
-
-        if not check:
-            return True
-
-        self.lineEdit_spreadsheet_path.setText(path)
+        caption = "Choose a file to import element transfer data"
+        last_folder = app().config.get_last_folder_for("imported_table_folder")
+        file_extensions = ["xls", "xlsx"]
     
-        app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path)
+        imported_path = FileDialogService.open_file(file_extensions, caption=caption, last_folder=last_folder)
+
+        if not imported_path:
+            info_message = "Select the spreadsheet file to import "
+            info_message += "the acoustic transfer element data."
+            self.lineEdit_spreadsheet_path.setToolTip(info_message)
+            return True
+        
+        path = str(imported_path)
+        self.lineEdit_spreadsheet_path.setText(path)
+        self.lineEdit_spreadsheet_path.setToolTip(path)
+
+        app().config.write_last_folder_path_in_file("imported_table_folder", path)
 
     def check_inputs(self):
 
@@ -243,61 +230,31 @@ class AddAcousticTransferElementInput(QDialog):
             return True
 
     def import_element_transfer_data(self, imported_path: str):
-
-        from pandas import read_excel
-        from openpyxl import load_workbook
-
         self.element_transfer_data.clear()
-        sufix = Path(imported_path).suffix
+    
+        imported_file = FileHandler().read(imported_path)
 
-        if sufix in [".xls", ".xlsx"]:
-            wb = load_workbook(imported_path)
-            sheetnames = wb.sheetnames
+        for sheet in imported_file.sheets:
+            if sheet.name:
+                self.element_transfer_data[sheet.name] = sheet.data
 
-            if self.comboBox_data_type.currentIndex() == 0:
-                cols = list(np.arange(3))
-            else:
-                cols = list(np.arange(9))
+    def update_frequency_setup(self, frequencies: np.ndarray, path: Path):
 
-            for sheetname in sheetnames:
+        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
 
-                sheet_data = read_excel(
-                                        imported_path, 
-                                        sheet_name = sheetname, 
-                                        header = 0, 
-                                        usecols = cols
-                                        ).to_numpy()
-
-                self.element_transfer_data[sheetname] = sheet_data
-        
-    def update_frequency_setup(self, values: np.ndarray, path: str):
-
-        self.frequencies = values[:, 0]
-        f_min = self.frequencies[0]
-        f_max = self.frequencies[-1]
-        f_step = self.frequencies[1] - self.frequencies[0]
-
-        if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-            self.lineEdit_spreadsheet_path.setText("")
+            self.lineEdit_spreadsheet_path.clear()
 
             title = "Project frequency setup cannot be modified"
-            message = f"The following imported table of values has a frequency setup\n"
-            message += "different from the others already imported ones. The current\n"
-            message += "project frequency setup is not going to be modified."
-            message += f"\n\n{os.path.basename(path)}"
-            PrintMessageInput([window_title_1, title, message])
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported. The current "
+            message += "project frequency setup will not be modified."
+            message += f"\n\n{path.name}"
+            PrintMessageInput([error_title, title, message])
             return None, None
 
-        else:
+        self.update_analysis_setup_in_file(frequencies)
 
-            frequency_setup = { "f_min" : f_min,
-                                "f_max" : f_max,
-                                "f_step" : f_step }
-
-            app().project.model.set_frequency_setup(frequency_setup)
-
-    def process_acoustic_element_transfer_data(self, path):
+    def process_acoustic_element_transfer_data(self, path: str):
 
         aux = dict()
         table_names = list()
@@ -308,27 +265,39 @@ class AddAcousticTransferElementInput(QDialog):
 
         for k, (sheetname, et_data) in enumerate(self.element_transfer_data.items()):
 
+            if not isinstance(et_data, np.ndarray):
+                continue
+
+            freq_mask = et_data[:, 0] > 0
+            _et_data = et_data[freq_mask, :]
+
             if k == 0:
-                self.update_frequency_setup(et_data, path)
+                self.update_frequency_setup(_et_data[:, 0], path)
 
             if self.comboBox_data_type.currentIndex() == 1:                 
                 if et_data.shape[1] == 9:
                     for i, aij_label in enumerate(self.aij_labels):
-                        data_ij = np.array([et_data[:,0], et_data[:,2*i+1], et_data[:,2*i+2]], dtype=float).T
+
+                        data_ij = np.array([
+                            _et_data[:, 0], 
+                            _et_data[:, 2*i+1], 
+                            _et_data[:, 2*i+2]
+                            ], dtype=float).T
+
                         table_name = f"admittance_matrix_data_{aij_label}_nodes_{linked_nodes}"
                         aux[aij_label] = {
-                                          "values" : data_ij,
-                                          "table_name" : table_name
-                                          }
+                            "values" : data_ij,
+                            "table_name" : table_name,
+                            }
 
                 elif et_data.shape[1] in [3, 4]:
                     for aij_abel in self.aij_labels:
                         if aij_abel in sheetname:
                             table_name = f"admittance_matrix_data_{aij_abel}_nodes_{linked_nodes}"
                             aux[aij_abel] = {
-                                             "values" : data_ij,
-                                             "table_name" : table_name
-                                             }
+                                "values" : data_ij,
+                                "table_name" : table_name,
+                                }
                             break
 
             else:
@@ -337,9 +306,9 @@ class AddAcousticTransferElementInput(QDialog):
                     if hij_label in sheetname:
                         table_name = f"transfer_function_{hij_label}_nodes_{linked_nodes}"
                         aux[hij_label] = {
-                                          "values" : et_data,
-                                          "table_name" : table_name
-                                          }
+                            "values" : et_data,
+                            "table_name" : table_name,
+                            }
 
         for _data in aux.values():
             values = _data["values"]
@@ -365,11 +334,11 @@ class AddAcousticTransferElementInput(QDialog):
                 table_names.append(aux[key]["table_name"])
 
         data = {
-                "coords" : coords,
-                "table_names" : table_names,
-                "table_paths" : [path],
-                "element_transfer_data_source" : data_source
-                }
+            "coords" : coords,
+            "table_names" : table_names,
+            "table_paths" : [path],
+            "element_transfer_data_source" : data_source,
+            }
 
         self.properties._set_nodal_property("acoustic_transfer_element", data, node_ids)
 
@@ -378,7 +347,6 @@ class AddAcousticTransferElementInput(QDialog):
         app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodal_info()
-        self.pushButton_cancel.setText("Exit")
 
     def on_click_item(self, item):
         input_node_id = int(item.text(1))
@@ -391,12 +359,10 @@ class AddAcousticTransferElementInput(QDialog):
         self.on_click_item(item)
 
     def tab_event_callback(self):
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.clear()
         self.pushButton_remove.setDisabled(True)
-        # if self.tabWidget_main.currentIndex() == 1:
-        #     self.lineEdit_selected_id.setText("")
-        # else:
-        #     self.selection_callback()
+        setup_tab = self.tabWidget_main.currentIndex() == TabIndex.SETUP
+        self.pushButton_attribute.setEnabled(setup_tab)
 
     def load_nodal_info(self):
 
@@ -412,23 +378,25 @@ class AddAcousticTransferElementInput(QDialog):
                         new.setTextAlignment(i, Qt.AlignCenter)
                     self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.tabWidget_main.setTabVisible(1, False)
-        for (_property, *_) in self.properties.nodal_properties.keys():
-            if _property == "acoustic_transfer_element":
-                self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(1, True)
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
+        for property, *_ in self.properties.nodal_properties.keys():
+            if property == "acoustic_transfer_element":
+                self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+                self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
     def keyPressEvent(self, event):
+        if event.key() in [Qt.Key_Up, Qt.Key_Down]:
+            self.alternate_node_id_input_fields()
+        
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
+        
+        if event.key() == Qt.Key_Delete:
             self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
+        
+        if event.key() == Qt.Key_Escape:
             self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        return super().closeEvent(a0)
-
-# fmt: on

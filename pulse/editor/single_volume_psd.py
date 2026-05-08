@@ -1,5 +1,3 @@
-# fmt: off
-
 import numpy as np
 
 def translate_to_connection_point(points, connection_point):
@@ -225,5 +223,3 @@ class SingleVolumePSD:
 
         else:
             self.get_radial_radial_segment_data()
-
-# fmt: on

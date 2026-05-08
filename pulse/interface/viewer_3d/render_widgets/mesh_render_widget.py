@@ -1,29 +1,22 @@
-# fmt: off
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
-
-from molde.interactor_styles import BoxSelectionInteractorStyle
-from molde.render_widgets import CommonRenderWidget
-
-from pulse import app, ICON_DIR
-from pulse.interface.viewer_3d.actors import SectionPlaneActor, ElementAxesActor, ElementLinesActor, NodesActor, PointsActor, TubeActor
-from pulse.utils.image_functions import removes_image_background
-
 from molde.colors import Color
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
 
 from pulse import ICON_DIR, app
 from pulse.interface.viewer_3d.actors import (
     ElementAxesActor,
     ElementLinesActor,
+    FixedSymbolsActor,
     NodesActor,
     PointsActor,
     SectionPlaneActor,
-    VariableSymbolsActor,
-    FixedSymbolsActor,
     TubeActor,
+    VariableSymbolsActor,
 )
+from pulse.interface.viewer_3d.render_tools import SelectionTool
+from pulse.utils.image_functions import removes_image_background
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
@@ -47,6 +40,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.create_axes()
         self.create_logos()
         self.create_scale_bar()
+        self.set_default_render_tool()
+
         self.apply_user_preferences()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
@@ -56,6 +51,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.left_released.connect(self.selection_callback)
 
         app().main_window.theme_changed.connect(self.set_theme)
+        app().main_window.theme_changed.connect(self._apply_logo_theme)
         app().main_window.visualization_changed.connect(self.visualization_changed_callback)
         app().main_window.selection_changed.connect(self.update_selection)
         app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
@@ -182,17 +178,27 @@ class MeshRenderWidget(CommonRenderWidget):
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
 
     def create_logos(self):
+        if not hasattr(self, "_light_logo"):
+            self._light_logo = self.create_logo(ICON_DIR / "logos/op_light_theme.png")
+            self._light_logo.SetPosition(0.845, 0.89)
+            self._light_logo.SetPosition2(0.15, 0.15)
+
+        if not hasattr(self, "_dark_logo"):
+            self._dark_logo = self.create_logo(ICON_DIR / "logos/op_dark_theme.png")
+            self._dark_logo.SetPosition(0.845, 0.89)
+            self._dark_logo.SetPosition2(0.15, 0.15)
+
+        self._apply_logo_theme()
+
+    def _apply_logo_theme(self):
         if app().main_window.config.user_preferences.interface_theme == "light":
-            path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
+            self._light_logo.VisibilityOn()
+            self._dark_logo.VisibilityOff()
+            self.open_pulse_logo = self._light_logo
         else:
-            path = ICON_DIR / "logos/OpenPulse_logo_white.png"
-
-        if hasattr(self, "open_pulse_logo"):
-            self.renderer.RemoveViewProp(self.open_pulse_logo)
-
-        self.open_pulse_logo = self.create_logo(path)
-        self.open_pulse_logo.SetPosition(0.845, 0.89)
-        self.open_pulse_logo.SetPosition2(0.15, 0.15)
+            self._dark_logo.VisibilityOn()
+            self._light_logo.VisibilityOff()
+            self.open_pulse_logo = self._dark_logo
     
     def save_thumbnail(self):
         thumbnail = app().project.thumbnail
@@ -211,9 +217,12 @@ class MeshRenderWidget(CommonRenderWidget):
         self.disable_scale_bar()
         thumbnail = self.get_thumbnail()
         app().project.thumbnail = removes_image_background(thumbnail)
-        
+
         if app().config.user_preferences.show_reference_scale_bar:
             self.enable_scale_bar()
+
+        self.lines_actor.clear_colors()
+        self.tubes_actor.clear_colors()
 
         self.update_theme()
         self.render_interactor.GetRenderWindow().OffScreenRenderingOff()
@@ -268,6 +277,12 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def selection_callback(self, x1, y1):
         if not self._actor_exists():
+            return
+        
+        if not isinstance(self.interactor_style, SelectionTool):
+            return
+
+        if not self.interactor_style.is_selecting:
             return
 
         x0, y0 = self.mouse_click
@@ -403,3 +418,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
+
+    def set_default_render_tool(self):
+        tool = SelectionTool()
+        self.set_interactor_style(tool)
+        tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)

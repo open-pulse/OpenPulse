@@ -1,25 +1,18 @@
-from PySide6.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.plot_structural_mode_shape_ui import PlotStructuralModeShape_UI
 
-from molde import load_ui
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
-class PlotStructuralModeShape(QWidget):
+class PlotStructuralModeShape(PlotStructuralModeShape_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/plot_structural_mode_shape.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_natural_frequencies()
@@ -27,51 +20,25 @@ class PlotStructuralModeShape(QWidget):
 
     def _initialize(self):
         self.mode_index = None
-        self.colormaps = ["jet",
-                          "viridis",
-                          "inferno",
-                          "magma",
-                          "plasma",
-                          "bwr",
-                          "PiYG",
-                          "PRGn",
-                          "BrBG",
-                          "PuOR",
-                          "grayscale",
-                          ]
+        self.colormaps = [
+            "jet",
+            "viridis",
+            "inferno",
+            "magma",
+            "plasma",
+            "bwr",
+            "PiYG",
+            "PRGn",
+            "BrBG",
+            "PuOR",
+            "grayscale",
+        ]
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_colormaps : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
-
-        # QLineEdit
-        self.lineEdit_natural_frequency : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QLineEdit
-        self.lineEdit_selected_frequency : QLineEdit
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_frequencies : QTreeWidget
 
     def _create_connections(self):
         #
@@ -112,7 +79,7 @@ class PlotStructuralModeShape(QWidget):
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)
                 self.comboBox_colormaps.setCurrentIndex(index)
-        except:
+        except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):
@@ -127,7 +94,6 @@ class PlotStructuralModeShape(QWidget):
         if self.lineEdit_natural_frequency.text() == "":
             return
 
-        app().project.analysis_type_label = "Structural Modal Analysis"
         frequency = self.selected_natural_frequency
         self.mode_index = self.natural_frequencies.index(frequency)
         color_scale_setup = self.get_user_color_scale_setup()
@@ -142,66 +108,24 @@ class PlotStructuralModeShape(QWidget):
 
     def get_user_color_scale_setup(self):
 
-        absolute = False
-        ux_abs_values = False
-        uy_abs_values = False
-        uz_abs_values = False
-        ux_real_values = False
-        uy_real_values = False
-        uz_real_values = False
-        ux_imag_values = False
-        uy_imag_values = False
-        uz_imag_values = False
-        absolute_animation = False
-        ux_animation = False
-        uy_animation = False
-        uz_animation = False
+        color_scale = self.comboBox_color_scale.currentText()
 
-        index = self.comboBox_color_scale.currentIndex()
-
-        if index == 0:
-            absolute_animation = True
-        elif index == 1:
-            ux_animation = True
-        elif index == 2:
-            uy_animation = True
-        elif index == 3:
-            uz_animation = True
-        elif index == 4:
-            absolute = True
-        elif index == 5:
-            ux_abs_values = True
-        elif index == 6:
-            uy_abs_values = True
-        elif index == 7:
-            uz_abs_values = True
-        elif index == 8:
-            ux_real_values = True
-        elif index == 9:
-            uy_real_values = True
-        elif index == 10:
-            uz_real_values = True
-        elif index == 11:
-            ux_imag_values = True
-        elif index == 12:
-            uy_imag_values = True
-        elif index == 13:
-            uz_imag_values = True
-
-        color_scale_setup = {   "absolute" : absolute,
-                                "ux_abs_values" : ux_abs_values,
-                                "uy_abs_values" : uy_abs_values,
-                                "uz_abs_values" : uz_abs_values,
-                                "ux_real_values" : ux_real_values,
-                                "uy_real_values" : uy_real_values,
-                                "uz_real_values" : uz_real_values,
-                                "ux_imag_values" : ux_imag_values,
-                                "uy_imag_values" : uy_imag_values,
-                                "uz_imag_values" : uz_imag_values,
-                                "absolute_animation" : absolute_animation,
-                                "ux_animation" : ux_animation,
-                                "uy_animation" : uy_animation,
-                                "uz_animation" : uz_animation   }
+        color_scale_setup = {   
+            "absolute" : color_scale == "Absolute (resultant)",
+            "ux_abs_values" : color_scale == "Absolute (Ux)",
+            "uy_abs_values" : color_scale == "Absolute (Uy)",
+            "uz_abs_values" : color_scale == "Absolute (Uz)",
+            "ux_real_values" : color_scale == "Real - Ux",
+            "uy_real_values" : color_scale == "Real - Uy",
+            "uz_real_values" : color_scale == "Real - Uz",
+            "ux_imag_values" : color_scale == "Imaginary - Ux",
+            "uy_imag_values" : color_scale == "Imaginary - Uy",
+            "uz_imag_values" : color_scale == "Imaginary - Uz",
+            "absolute_animation" : color_scale == "Animation (absolute)",
+            "ux_animation" : color_scale == "Animation (Ux)",
+            "uy_animation" : color_scale == "Animation (Uy)",
+            "uz_animation" : color_scale == "Animation (Uz)",
+            }
 
         return color_scale_setup
 

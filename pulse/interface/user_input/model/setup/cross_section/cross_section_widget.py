@@ -1,32 +1,67 @@
-from PySide6.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget, QDialog
-from PySide6.QtCore import Qt
-
-from pulse import app, UI_DIR
-from pulse.model.cross_section import get_beam_section_properties, get_points_to_plot_section
-from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.interface_utils import check_inputs
-
-from molde import load_ui
+from enum import IntEnum
 
 import numpy as np
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QDialog, QLineEdit
 
-window_title = "Error"
-window_title2 = "Warning"
+from pulse import app
+from pulse.interface import error_title
+from pulse.interface.ui_generated.model.setup.cross_section.cross_section_widget_ui import (
+    CrossSectionWidget_UI,
+)
+from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter import (
+    CrossSectionPlotter,
+)
+from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import (
+    GetStandardCrossSection,
+)
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import (
+    CircularBeamCrossSection,
+)
+from pulse.model.cross_sections.generic_beam_cross_section import (
+    GenericBeamCrossSection,
+)
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import (
+    RectangularBeamCrossSection,
+)
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
+from pulse.model.cross_sections.variable_pipe_cross_section import (
+    VariablePipeCrossSection,
+)
+from pulse.utils.interface_utils import check_inputs
 
-class CrossSectionWidget(QWidget):
+
+class TabIndex(IntEnum):
+    PIPE = 0
+    BEAM = 1
+    ACTIVE_SECTIONS = 2
+
+
+class BeamType(IntEnum):
+    RECTANGULAR_BEAM = 0
+    CIRCULAR_BEAM = 1
+    C_BEAM = 2
+    I_BEAM = 3
+    T_BEAM = 4
+    GENERIC_BEAM = 5
+
+
+class CrossSectionWidget(CrossSectionWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/cross_section/cross_section_widget.ui"
-        load_ui(ui_path, self, ui_path.parent)
-
         self.dialog = kwargs.get("dialog", None)
 
         self._initialize()
-        self._define_qt_variables()
+        self._configure_validators()
         self._create_connections()
-        self.create_lists_of_entries()
+        self.create_list_of_line_edits()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
@@ -38,13 +73,15 @@ class CrossSectionWidget(QWidget):
         self._config_window()
 
     def _initialize(self):
+
+        self.nps = 0.
         
         self.section_type = None
         self.section_type_label = None
         self.section_parameters = None
         self.section_properties = None
         self.beam_section_info = None
-        self.pipe_section_info = dict()
+        self.pipe_section_info = None
 
         self.complete = False
  
@@ -52,103 +89,21 @@ class CrossSectionWidget(QWidget):
         self.section_data_elements = dict()
         self.variable_parameters = list()
 
-    def _define_qt_variables(self):
+    def _configure_validators(self):
 
-        # QFrame
-        self.bottom_frame: QFrame
-        self.top_frame: QFrame
-        self.selection_frame: QFrame
+        positive_validators = StrictDoubleValidator(0, 1e8, 6)
+        simetric_validators = StrictDoubleValidator(-1e8, 1e8, 6)
 
-        # QLabel
-        self.label_element_id: QLabel
-        
-        # QLineEdit
-        self.lineEdit_element_id_initial: QLineEdit
-        self.lineEdit_element_id_final: QLineEdit
-        
-        self.lineEdit_outside_diameter: QLineEdit
-        self.lineEdit_wall_thickness: QLineEdit
-        self.lineEdit_offset_y: QLineEdit
-        self.lineEdit_offset_z: QLineEdit
-        self.lineEdit_insulation_density: QLineEdit
-        self.lineEdit_insulation_thickness: QLineEdit
+        for line_edit in self.findChildren(QLineEdit):
 
-        self.lineEdit_outside_diameter_initial: QLineEdit
-        self.lineEdit_wall_thickness_initial: QLineEdit
-        self.lineEdit_offset_y_initial: QLineEdit
-        self.lineEdit_offset_z_initial: QLineEdit
+            obj_name = line_edit.objectName()
+            if "element_id" in obj_name:
+                continue
 
-        self.lineEdit_outside_diameter_final: QLineEdit
-        self.lineEdit_wall_thickness_final: QLineEdit
-        self.lineEdit_offset_y_final: QLineEdit
-        self.lineEdit_offset_z_final: QLineEdit
-
-        self.lineEdit_insulation_thickness_variable_section: QLineEdit
-        self.lineEdit_insulation_density_variable_section: QLineEdit
-
-        self.lineEdit_base_rectangular_section: QLineEdit
-        self.lineEdit_height_rectangular_section: QLineEdit
-        self.lineEdit_wall_thickness_rectangular_section: QLineEdit
-        self.lineEdit_offsety_rectangular_section: QLineEdit
-        self.lineEdit_offsetz_rectangular_section: QLineEdit
-
-        self.lineEdit_outside_diameter_circular_section: QLineEdit
-        self.lineEdit_wall_thickness_circular_section: QLineEdit
-        self.lineEdit_offsety_circular_section: QLineEdit
-        self.lineEdit_offsetz_circular_section: QLineEdit
-
-        self.lineEdit_height_C_section: QLineEdit
-        self.lineEdit_w1_C_section: QLineEdit
-        self.lineEdit_t1_C_section: QLineEdit
-        self.lineEdit_w2_C_section: QLineEdit
-        self.lineEdit_t2_C_section: QLineEdit 
-        self.lineEdit_tw_C_section: QLineEdit      
-        self.lineEdit_offsety_C_section: QLineEdit
-        self.lineEdit_offsetz_C_section: QLineEdit
-
-        self.lineEdit_height_I_section: QLineEdit
-        self.lineEdit_w1_I_section: QLineEdit
-        self.lineEdit_t1_I_section: QLineEdit
-        self.lineEdit_w2_I_section: QLineEdit
-        self.lineEdit_t2_I_section: QLineEdit  
-        self.lineEdit_tw_I_section: QLineEdit
-        self.lineEdit_offsety_I_section: QLineEdit
-        self.lineEdit_offsetz_I_section: QLineEdit
-
-        self.lineEdit_height_T_section: QLineEdit
-        self.lineEdit_w1_T_section: QLineEdit
-        self.lineEdit_t1_T_section: QLineEdit
-        self.lineEdit_tw_T_section: QLineEdit 
-        self.lineEdit_offsety_T_section: QLineEdit
-        self.lineEdit_offsetz_T_section: QLineEdit
-
-        self.lineEdit_area: QLineEdit
-        self.lineEdit_Iyy: QLineEdit
-        self.lineEdit_Izz: QLineEdit
-        self.lineEdit_Iyz: QLineEdit
-        self.lineEdit_shear_coefficient: QLineEdit
-
-        # QPushButton
-        self.pushButton_confirm_pipe: QPushButton
-        self.pushButton_confirm_beam: QPushButton
-        # self.pushButton_cancel: QPushButton
-        self.pushButton_invert_input_values: QPushButton
-        self.pushButton_load_section_info: QPushButton
-        self.pushButton_plot_pipe_cross_section: QPushButton
-        self.pushButton_plot_beam_cross_section: QPushButton
-        self.pushButton_select_standard_section: QPushButton
-        self.pushButton_select_standard_section_initial: QPushButton
-        self.pushButton_select_standard_section_final: QPushButton
-        self.pushButton_check_if_section_is_normalized: QPushButton
-
-        # QTabWidget
-        self.tabWidget_general: QTabWidget
-        self.tabWidget_pipe_section: QTabWidget
-        self.tabWidget_beam_section: QTabWidget
-        self.tabWidget_sections_data: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_sections_parameters_by_lines: QTreeWidget
+            if "offset" in obj_name:
+                line_edit.setValidator(simetric_validators)
+            else:
+                line_edit.setValidator(positive_validators)
 
     def _create_connections(self):
         #
@@ -162,110 +117,50 @@ class CrossSectionWidget(QWidget):
         #
         self.config_treeWidget()
 
-    def create_lists_of_entries(self):
-        self.list_pipe_section_entries = [  self.lineEdit_outside_diameter,
-                                            self.lineEdit_wall_thickness,
-                                            self.lineEdit_offset_y,
-                                            self.lineEdit_offset_z,
-                                            self.lineEdit_insulation_thickness,
-                                            self.lineEdit_insulation_density,
-                                            self.lineEdit_outside_diameter_initial,
-                                            self.lineEdit_wall_thickness_initial,
-                                            self.lineEdit_offset_y_initial,
-                                            self.lineEdit_offset_z_initial,
-                                            self.lineEdit_outside_diameter_final,
-                                            self.lineEdit_wall_thickness_final,
-                                            self.lineEdit_offset_y_final,
-                                            self.lineEdit_offset_z_final,
-                                            self.lineEdit_insulation_thickness_variable_section,
-                                            self.lineEdit_insulation_density_variable_section,
-                                            self.lineEdit_element_id_initial,
-                                            self.lineEdit_element_id_final  ] 
+    def create_list_of_line_edits(self):
 
-        self.list_beam_section_entries = [  self.lineEdit_base_rectangular_section,
-                                            self.lineEdit_height_rectangular_section,
-                                            self.lineEdit_wall_thickness_rectangular_section,
-                                            self.lineEdit_offsety_rectangular_section,
-                                            self.lineEdit_offsetz_rectangular_section,
-                                            self.lineEdit_outside_diameter_circular_section,
-                                            self.lineEdit_wall_thickness_circular_section,
-                                            self.lineEdit_offsety_circular_section,
-                                            self.lineEdit_offsetz_circular_section,
-                                            self.lineEdit_height_C_section,
-                                            self.lineEdit_w1_C_section,
-                                            self.lineEdit_t1_C_section,
-                                            self.lineEdit_w2_C_section,
-                                            self.lineEdit_t2_C_section,
-                                            self.lineEdit_tw_C_section,
-                                            self.lineEdit_offsety_C_section,
-                                            self.lineEdit_offsetz_C_section,
-                                            self.lineEdit_height_I_section,
-                                            self.lineEdit_w1_I_section,
-                                            self.lineEdit_t1_I_section,
-                                            self.lineEdit_w2_I_section,
-                                            self.lineEdit_t2_I_section,
-                                            self.lineEdit_tw_I_section,
-                                            self.lineEdit_offsety_I_section,
-                                            self.lineEdit_offsetz_I_section,
-                                            self.lineEdit_height_T_section,
-                                            self.lineEdit_w1_T_section,
-                                            self.lineEdit_t1_T_section,
-                                            self.lineEdit_tw_T_section,
-                                            self.lineEdit_offsety_T_section,
-                                            self.lineEdit_offsetz_T_section,
-                                            self.lineEdit_area,
-                                            self.lineEdit_Iyy,
-                                            self.lineEdit_Izz,
-                                            self.lineEdit_Iyz,
-                                            self.lineEdit_shear_coefficient  ]     
+        self.variable_pipe_entries_line_edits =   [   
+            self.lineEdit_outside_diameter_initial,
+            self.lineEdit_wall_thickness_initial,
+            self.lineEdit_offset_y_initial,
+            self.lineEdit_offset_z_initial,
+            self.lineEdit_outside_diameter_final,
+            self.lineEdit_wall_thickness_final,
+            self.lineEdit_offset_y_final,
+            self.lineEdit_offset_z_final,
+            self.lineEdit_insulation_thickness_variable_section,
+            self.lineEdit_insulation_density_variable_section,
+            ]
 
-        self.list_constant_pipe_entries =   [   self.lineEdit_outside_diameter,
-                                                self.lineEdit_wall_thickness,
-                                                self.lineEdit_offset_y,
-                                                self.lineEdit_offset_z,
-                                                self.lineEdit_insulation_thickness,
-                                                self.lineEdit_insulation_density    ]
-
-        self.list_variable_pipe_entries =   [   self.lineEdit_outside_diameter_initial,
-                                                self.lineEdit_wall_thickness_initial,
-                                                self.lineEdit_offset_y_initial,
-                                                self.lineEdit_offset_z_initial,
-                                                self.lineEdit_outside_diameter_final,
-                                                self.lineEdit_wall_thickness_final,
-                                                self.lineEdit_offset_y_final,
-                                                self.lineEdit_offset_z_final,
-                                                self.lineEdit_insulation_thickness_variable_section,
-                                                self.lineEdit_insulation_density_variable_section   ]
-        
         self.left_variable_pipe_lineEdits = [
-                                             self.lineEdit_outside_diameter_initial,
-                                             self.lineEdit_wall_thickness_initial,
-                                             self.lineEdit_offset_y_initial,
-                                             self.lineEdit_offset_z_initial
-                                             ]
+            self.lineEdit_outside_diameter_initial,
+            self.lineEdit_wall_thickness_initial,
+            self.lineEdit_offset_y_initial,
+            self.lineEdit_offset_z_initial,
+            ]
 
         self.right_variable_pipe_lineEdits = [
-                                              self.lineEdit_outside_diameter_final,
-                                              self.lineEdit_wall_thickness_final,
-                                              self.lineEdit_offset_y_final,
-                                              self.lineEdit_offset_z_final
-                                              ]
+            self.lineEdit_outside_diameter_final,
+            self.lineEdit_wall_thickness_final,
+            self.lineEdit_offset_y_final,
+            self.lineEdit_offset_z_final,
+            ]
 
     def reset_all_input_texts(self):
-        for lineEdit in self.list_pipe_section_entries:
-            lineEdit.setText("")
-        for lineEdit in self.list_beam_section_entries:
-            lineEdit.setText("")
+        for line_edit in self.findChildren(QLineEdit):
+            line_edit.clear()
 
     def config_treeWidget(self):
-        self.treeWidget_sections_parameters_by_lines.setColumnWidth(0, 40)
-        self.treeWidget_sections_parameters_by_lines.setColumnWidth(1, 120)
+        for i, width in enumerate([40, 120]):
+            self.treeWidget_lines_info.setColumnWidth(0, width)
+            self.treeWidget_lines_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def select_standard_section(self):
         read = GetStandardCrossSection()
         if read.complete:
             outside_diameter = round(read.outside_diameter, 6)
             thickness = round(read.wall_thickness, 6)
+            self.nps = round(read.nps, 6)
             self.lineEdit_outside_diameter.setText(str(outside_diameter))
             self.lineEdit_wall_thickness.setText(str(thickness))
 
@@ -287,7 +182,7 @@ class CrossSectionWidget(QWidget):
 
     def set_inputs_to_geometry_creator(self):
         self.complete = False
-        self.tabWidget_general.setTabVisible(2,False)
+        self.tabWidget_general.setTabVisible(TabIndex.ACTIVE_SECTIONS, False)
         self.label_element_id.setVisible(False)
         self.lineEdit_element_id_initial.setVisible(False)
         self.lineEdit_element_id_final.setVisible(False)
@@ -327,8 +222,8 @@ class CrossSectionWidget(QWidget):
     def get_constant_section_pipe_parameters(self):
 
         self.section_type_label = None
+        self.pipe_section_info = None
         self.section_parameters = list()
-        self.pipe_section_info = dict()
 
         outside_diameter = check_inputs(self.lineEdit_outside_diameter, 'outside diameter')
         if outside_diameter is None:
@@ -373,16 +268,21 @@ class CrossSectionWidget(QWidget):
 
         if message != "":
             title = "Input cross-section error"
-            PrintMessageInput([window_title, title, message]) 
+            PrintMessageInput([error_title, title, message]) 
             return True
 
         if len(self.section_parameters) == 6:
             
             self.section_type_label = "pipe"
-            self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
-                                        "section_parameters" : self.section_parameters  }
+            # self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
+            #                             "section_parameters" : self.section_parameters  }
+            
+            self.pipe_section_info = PipeCrossSection(*self.section_parameters)
 
     def get_variable_section_pipe_parameters(self):
+
+        self.section_type_label = None
+        self.pipe_section_info = None
 
         message = ""
 
@@ -414,7 +314,7 @@ class CrossSectionWidget(QWidget):
         
         if message != "":
             title = "Input cross-section error"
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
         offset_y_initial = check_inputs(self.lineEdit_offset_y_initial, 'offset y (initial)', only_positive=False, zero_included=True)
@@ -452,27 +352,32 @@ class CrossSectionWidget(QWidget):
             return True
 
         self.variable_parameters = [
-                                    outside_diameter_initial,
-                                    thickness_initial,
-                                    offset_y_initial,
-                                    offset_z_initial,
-                                    outside_diameter_final,
-                                    thickness_final,
-                                    offset_y_final,
-                                    offset_z_final,
-                                    insulation_thickness,
-                                    insulation_density
-                                    ]
+            outside_diameter_initial,
+            thickness_initial,
+            offset_y_initial,
+            offset_z_initial,
+            outside_diameter_final,
+            thickness_final,
+            offset_y_final,
+            offset_z_final,
+            insulation_thickness,
+            insulation_density,
+        ]
 
         self.section_type_label = "reducer"
-        self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
-                                    "section_parameters" : self.variable_parameters  }
+        # self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
+        #                             "section_parameters" : self.variable_parameters  }
+
+        self.pipe_section_info = VariablePipeCrossSection(*self.variable_parameters)
+
 
     def get_beam_section_parameters(self):
 
+        self.beam_section_info = None
+
         tab_index = self.tabWidget_beam_section.currentIndex()
 
-        if tab_index == 0: # rectangular-beam
+        if tab_index == BeamType.RECTANGULAR_BEAM:
 
             self.section_type_label = "rectangular_beam"
 
@@ -507,7 +412,7 @@ class CrossSectionWidget(QWidget):
                     title = "Invalid cross-section parameters"
                     message = "For a rectangular cross-section, the wall thickness must be simultaneously "
                     message += "greater than half of the base and height section parameters."
-                    PrintMessageInput([window_title, title, message])
+                    PrintMessageInput([error_title, title, message])
                     return True             
                 else:
                     base_in = base - 2*thickness
@@ -518,8 +423,9 @@ class CrossSectionWidget(QWidget):
                 height_in = 0
 
             self.section_parameters = [base, height, base_in, height_in, offset_y, offset_z]
+            self.beam_section_info = RectangularBeamCrossSection(*self.section_parameters)
 
-        elif tab_index == 1: # circular-beam
+        elif tab_index == BeamType.CIRCULAR_BEAM:
 
             self.section_type_label = "circular_beam"
 
@@ -548,12 +454,13 @@ class CrossSectionWidget(QWidget):
                 title = "Invalid cross-section parameters"
                 message = "For a circular cross-section, the wall thickness must be simultaneously "
                 message += "greater than half of the base and height section parameters."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True
 
             self.section_parameters = [outside_diameter_beam, thickness, offset_y, offset_z]
+            self.beam_section_info = CircularBeamCrossSection(*self.section_parameters)
 
-        elif tab_index == 2: # c-beam
+        elif tab_index == BeamType.C_BEAM:
 
             self.section_type_label = "c_beam"
 
@@ -600,12 +507,13 @@ class CrossSectionWidget(QWidget):
             if h < (t1 + t2):
                 title = "Input cross-section error"
                 message = "The height must be greater than t1+t2 summation."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
+            self.beam_section_info = CBeamCrossSection(*self.section_parameters)
 
-        elif tab_index == 3: # i-beam
+        elif tab_index == BeamType.I_BEAM:
 
             self.section_type_label = "i_beam"
 
@@ -652,12 +560,13 @@ class CrossSectionWidget(QWidget):
             if h < (t1 + t2):
                 title = "Input cross-section error"
                 message = "The height must be greater than t1+t2 summation."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
+            self.beam_section_info = IBeamCrossSection(*self.section_parameters)
             
-        elif tab_index == 4: # t-beam
+        elif tab_index == BeamType.T_BEAM:
 
             self.section_type_label = "t_beam"
 
@@ -694,12 +603,13 @@ class CrossSectionWidget(QWidget):
             if h < t1:
                 title = "Input cross-section error"
                 message = "The height must be greater than t1."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True
 
             self.section_parameters = [h, w1, t1, tw, offset_y, offset_z]
+            self.beam_section_info = TBeamCrossSection(*self.section_parameters)
 
-        elif tab_index == 5: # generic-section
+        elif tab_index == BeamType.GENERIC_BEAM:
 
             area = float(0)
             Iyy = float(0)
@@ -729,23 +639,15 @@ class CrossSectionWidget(QWidget):
             if shear_coefficient > 1:
                 title = "Input cross-section error"
                 message = "The shear factor must be less or equals to 1."
-                PrintMessageInput([window_title, title, message]) 
+                PrintMessageInput([error_title, title, message]) 
                 return True
-            else:  
+            else:
 
                 self.section_type_label = "generic_beam"
                 self.section_parameters = None
                 _section_properties = [area, Iyy, Izz, Iyz, shear_coefficient, 0, 0]
 
-        if tab_index == 5:
-            self.section_properties = get_beam_section_properties(self.section_type_label, _section_properties)
-            
-        else:
-            self.section_properties = get_beam_section_properties(self.section_type_label, self.section_parameters)
-
-        self.beam_section_info = {  "section_type_label" : self.section_type_label,
-                                    "section_parameters" : self.section_parameters,
-                                    "section_properties" : self.section_properties  }
+                self.beam_section_info = GenericBeamCrossSection(*_section_properties)
 
         return False
 
@@ -760,64 +662,52 @@ class CrossSectionWidget(QWidget):
         if thickness is None:
             self.lineEdit_wall_thickness.setFocus()
             return
-        
-        section_data = {"outside diameter" : outside_diameter,
-                        "wall thickness" : thickness}
 
-        read = GetStandardCrossSection(section_data=section_data)
+        section_data = {
+            "outside diameter" : outside_diameter,
+            "wall thickness" : thickness,
+            }
+
+        GetStandardCrossSection(section_data=section_data)
 
     def plot_section(self):
-        import matplotlib.pyplot as plt
+        
+        # hide the QDialog before showing the cross-section plotter
+        if isinstance(self.dialog, QDialog):
+            self.dialog.hide()
 
-        plt.ion()
+        plotter = CrossSectionPlotter()
 
-        plt.close()
-
-        if self.tabWidget_general.currentIndex() == 0:
+        if self.tabWidget_general.currentIndex() == TabIndex.PIPE:
             if self.get_constant_section_pipe_parameters():
+                self.show_dialog()
                 return
-        
-        elif self.tabWidget_general.currentIndex() == 1:
+
+        elif self.tabWidget_general.currentIndex() == TabIndex.BEAM:
             if self.get_beam_section_parameters():
+                self.show_dialog()
                 return
 
-        if self.section_type_label in ["pipe", "reducer"]:
-            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
+        if isinstance(self.pipe_section_info, PipeCrossSection):
+            points = self.pipe_section_info.section_points_to_draw
+            section_type_label = self.pipe_section_info.section_type_label
+
+        elif isinstance(self.beam_section_info, RectangularBeamCrossSection | CircularBeamCrossSection | CBeamCrossSection | IBeamCrossSection | TBeamCrossSection):
+            points = self.beam_section_info.section_points_to_draw
+            section_type_label = self.beam_section_info.section_type_label
+
         else:
-            Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
+            return
 
-        _max = np.max(np.abs(np.array([Yp, Zp])))
+        plotter.plot_cross_section(points, section_type_label)
+        plotter.exec()
 
-        fig = plt.figure(figsize=[8,8])
-        ax = fig.add_subplot(1,1,1)
+        self.show_dialog()
 
-        first_plot, = plt.fill(Yp, Zp, color=[0.2,0.2,0.2], linewidth=2, zorder=2)
-        second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
-        third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
-        
-        if self.section_type_label in ["pipe", "reducer"] and Yp_ins is not None:
-            fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
-            _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            fourth.set_label("Insulation material")
-            plt.legend(handles=[second_plot, fourth], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
-        else:
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            plt.legend(handles=[second_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
-
-        ax.set_title('CROSS-SECTION PLOT', fontsize = 18, fontweight = 'bold')
-        ax.set_xlabel('y [m]', fontsize = 16, fontweight = 'bold')
-        ax.set_ylabel('z [m]', fontsize = 16, fontweight = 'bold')
-        
-        f = 1.25
-        if self.section_type == 3:
-            plt.xlim(-(1/2)*_max, (3/2)*_max)
-        else:
-            plt.xlim(-_max*f, _max*f)
-
-        plt.ylim(-_max*f, _max*f)
-        plt.grid()
-        plt.show()
+    def show_dialog(self):
+        # show the QDialog after closing the cross-section plotter
+        if isinstance(self.dialog, QDialog):
+            self.dialog.show()
 
     def keyPressEvent(self, event):
         if isinstance(self.dialog, QDialog):

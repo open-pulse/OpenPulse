@@ -1,5 +1,4 @@
 import os
-import configparser
 import numpy as np
 from time import time
 from functools import wraps
@@ -8,10 +7,6 @@ from scipy.sparse import issparse
 from pathlib import Path
 from scipy.spatial.transform import Rotation
 
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 def split_sequence(sequence, size):
     ''' 
@@ -202,293 +197,6 @@ def inverse_matrix_3x3(A):
     
     return invA
 
-def transformation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
-    '''    
-    This method returns the rotation matrix of an element 
-    based on its spatial position. 
-    
-    Parameters
-    ----------
-    delta_x: int, float
-        value in meters
-    
-    delta_y: int, float
-        value in meters
-
-    delta_z: int, float
-        value in meters
-
-    Returns
-    -------
-    out: numpy.ndarray(3,3)
-        rotation matrix
-
-    '''
-
-    L_ = np.sqrt(delta_x**2 + delta_y**2)
-    L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
-
-    cossine_epsilon = L_ / L
-    sine_epsilon = - delta_z / L
-    
-    if L_ > 0.0001*L:
-        sine_delta = delta_y/L_
-        cossine_delta = delta_x/L_
-    else:
-        sine_delta = 0
-        cossine_delta = 1
-    
-    cossine_gamma = np.cos(gamma)
-    sine_gamma = np.sin(gamma)
-
-    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
-    rotation_matrix = np.array([    [   cossine_delta * cossine_epsilon, 
-                                       sine_delta * cossine_epsilon, 
-                                        -sine_epsilon   ], 
-                                    [   cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
-                                        sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
-                                        cossine_epsilon * sine_gamma    ],
-                                    [   cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
-                                        sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
-                                        cossine_epsilon * cossine_gamma ]    ]) 
-
-    return rotation_matrix
-
-
-def transformation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
-    '''    
-    This method returns the rotation matrices to a set of N elements 
-    based on their spatial positions. 
-    
-    Parameters
-    ----------
-    delta_x: numpy.ndarray
-        values in meters
-    
-    delta_y: numpy.ndarray
-        values in meters
-
-    delta_z: numpy.ndarray
-        values in meters
-
-    Returns
-    -------
-    out: numpy.ndarray(N,3,3)
-        rotation matrix
-
-    '''
-
-    number_elements = len(delta_x)
-    L_ = np.sqrt(delta_x**2 + delta_y**2)
-    L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
-    
-    cossine_gamma = np.cos(gamma)
-    sine_gamma = np.sin(gamma)
-
-    sine_delta = np.zeros(number_elements, dtype=float)
-    cossine_delta = np.zeros(number_elements, dtype=float)
-
-    for i in range(number_elements):
-
-        if L_[i] > 0.0001*L[i]:
-            sine_delta[i] = delta_y[i]/L_[i]
-            cossine_delta[i] = delta_x[i]/L_[i]
-        else:
-            sine_delta[i] = 0
-            cossine_delta[i] = 1
-
-    cossine_epsilon = L_ / L
-    sine_epsilon = - delta_z / L
-    
-    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
-    data_rot = np.array([   cossine_delta * cossine_epsilon, 
-                            sine_delta * cossine_epsilon, 
-                            -sine_epsilon, 
-                            cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
-                            sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
-                            cossine_epsilon * sine_gamma,
-                            cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
-                            sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
-                            cossine_epsilon * cossine_gamma   ])
-
-    return data_rot.T.reshape(-1,3,3)
-
-def transformation_matrix_3x3_by_angles(gamma, epsilon, delta):
-    '''    
-    This method returns the rotation matrix of an element based on 
-    the angles of rotations gamma, epsilon and delta. 
-    
-    Parameters
-    ----------
-    gamma: int, float
-        values in radians
-    
-    epsilon: int, float
-        values in radians
-
-    delta: int, float
-        values in radians
-
-    Returns
-    -------
-    out: numpy.ndarray(3,3)
-        rotation matrix
-
-    '''
-
-    sine_delta = np.sin(delta)
-    cossine_delta = np.cos(delta)
-
-    sine_epsilon = np.sin(epsilon)
-    cossine_epsilon = np.cos(epsilon)
-
-    sine_gamma = np.sin(gamma)
-    cossine_gamma = np.cos(gamma)
-
-    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
-    data_rot = np.array([   cossine_delta * cossine_epsilon, 
-                            sine_delta * cossine_epsilon, 
-                            -sine_epsilon, 
-                            cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
-                            sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
-                            cossine_epsilon * sine_gamma,
-                            cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
-                            sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
-                            cossine_epsilon * cossine_gamma   ])
-
-    return data_rot.reshape(3,3)
-
-def transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
-    '''    
-    This method returns the rotation matrices to a set of N elements 
-    based on the angles of rotations gamma, epsilon and delta. 
-    
-    Parameters
-    ----------
-    gamma: numpy.ndarray
-        values in radians
-    
-    epsilon: numpy.ndarray
-        values in radians
-
-    delta: numpy.ndarray
-        values in radians
-
-    Returns
-    -------
-    out: numpy.ndarray(N,3,3)
-        rotation matrix
-
-    '''
-
-    sine_delta = np.sin(delta)
-    cossine_delta = np.cos(delta)
-
-    sine_epsilon = np.sin(epsilon)
-    cossine_epsilon = np.cos(epsilon)
-
-    sine_gamma = np.sin(gamma)
-    cossine_gamma = np.cos(gamma)
-
-    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
-    data_rot = np.array([   cossine_delta * cossine_epsilon, 
-                            sine_delta * cossine_epsilon, 
-                            -sine_epsilon, 
-                            cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
-                            sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
-                            cossine_epsilon * sine_gamma,
-                            cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
-                            sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
-                            cossine_epsilon * cossine_gamma   ])
-
-    return data_rot.T.reshape(-1,3,3)
-
-
-# def error( msg, title = " ERROR "):
-#     '''
-#     PyQt5 error message.
-
-#     Parameters
-#     ----------
-#     msg: str
-#         text to be displayed.
-
-#     title: str
-#         window title.
-#     '''
-
-#     msg_box = QMessageBox()
-#     msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
-#     # msg_box.setWindowModality(Qt.WindowModal)
-#     msg_box.setIcon(QMessageBox.Critical)
-#     msg_box.setText(msg)
-#     msg_box.setWindowTitle(title)
-#     msg_box.exec_()
-
-
-# def info_messages(msg, title = " INFORMATION "):
-#     '''
-#     PyQt5 info message.
-
-#     Parameters
-#     ----------
-#     msg: str
-#         text to be displayed.
-
-#     title: str
-#         window title.
-#     '''
-
-#     msg_box = QMessageBox()
-#     msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
-#     # msg_box.setWindowModality(Qt.WindowModal)
-#     msg_box.setIcon(QMessageBox.Information)
-#     msg_box.setText(msg)
-#     msg_box.setWindowTitle(title)
-#     msg_box.exec_()
-
-
-def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys=False):
-    try:
-
-        if isinstance(typed_values, int):
-            typed_values = [typed_values]
-
-        bc_removed = False
-        config = configparser.ConfigParser()
-        config.read(path)
-        sections = config.sections()
-        for typed_value in typed_values: 
-            _typed_value = str(typed_value)
-            if _typed_value in sections:
-                keys = config[_typed_value].keys()
-                for key_to_remove in keys_to_remove:
-                    for key in keys:
-                        if key_to_remove in key:
-                            if equals_keys:
-                                if key_to_remove != key:
-                                    continue
-                            bc_removed = True
-                            config.remove_option(section=_typed_value, option=key)
-                            if list(config[_typed_value].keys()) == []:
-                                config.remove_section(section=_typed_value)
-                                        
-            if bc_removed:
-                if len(list(config.sections())):    
-                    with open(path, 'w') as config_file:
-                        config.write(config_file)
-                else:
-                    os.remove(path)
-
-        if message is not None and bc_removed:
-            title = "Removal of selected boundary condition"
-            PrintMessageInput([window_title_2, title, message])
-
-    except Exception as log_error:
-        title = "Error while removing BC from file"
-        PrintMessageInput([window_title_1, title, str(log_error)])
-
-
 def getColorRGB(color):
     temp = color[1:-1] #Remove "[ ]"
     tokens = temp.split(',')
@@ -640,7 +348,7 @@ def check_is_there_a_group_of_elements_inside_list_elements(input_list):
 def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
     """
     This method process the fillet parameters, respectiveliy, start point, center point and end point of the arc circle.
-    For a given two pair of points P1P2 and P2P3, P2 is the commom point.
+    For a given two pair of points P1P2 and P2P3, where P2 is the commom point.
 
     Inputs: np.ndarray(3x3)
     P1, P2, P3: 3d nodal coordinates of each point in which the P2 point is the common one of both lines
@@ -806,9 +514,9 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
 def get_angle_between_vectors(vect_1, vect_2):
     return np.arccos(np.linalg.norm(np.dot(vect_1,vect_2))/(np.linalg.norm(vect_1)*np.linalg.norm(vect_2)))
 
-def get_color_rgb(color):
+def get_color_rgb(color) -> tuple:
     color = color.replace(" ", "")
     if ("[" or "(") in color:
         color = color[1:-1]
     tokens = color.split(',')
-    return list(map(int, tokens))
+    return tuple(map(int, tokens))

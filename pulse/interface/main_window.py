@@ -1,68 +1,76 @@
 
-from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
-from PySide6.QtCore import Qt, Signal, QEvent, QPoint
-from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
+import logging
+import os
+from functools import partial
+from pathlib import Path
+from shutil import rmtree
+from sys import argv
 
-from molde.render_widgets import CommonRenderWidget
+# from time import time
 from molde import stylesheets
 from molde.colors import color_names
-from molde import load_ui
-
-# TODO: remove this import
-from pulse import (
-    app,
-    UI_DIR,
-    QSS_DIR,
-    USER_PATH,
-    TEMP_PROJECT_DIR,
-    TEMP_PROJECT_FILE,
+from molde.render_widgets import CommonRenderWidget
+from PySide6.QtCore import QEvent, QPoint, Qt, Signal
+from PySide6.QtGui import QAction, QCloseEvent, QColor, QCursor
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QDialog,
+    QMessageBox,
 )
 
+from pulse import (
+    QSS_DIR,
+    TEMP_PROJECT_DIR,
+    UI_DIR,
+    USER_PATH,
+    app,
+)
 from pulse.interface.formatters import icons
-from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.handler.pcf_file_io import PCFFileIO
-from pulse.interface.welcome_widget import WelcomeWidget
 from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.others.status_bar import StatusBar
-from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
 from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
+from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
+from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
+from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
 from pulse.interface.user_input.input_ui import InputUi
-from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-from pulse.interface.user_input.project.get_started import GetStartedInput
+from pulse.interface.user_input.model.geometry.geometry_designer_widget import (
+    GeometryDesignerWidget,
+)
+from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
+from pulse.interface.user_input.project.import_geometry import ImportGeometry
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
-from pulse.interface.user_input.project.import_geometry import ImportGeometry
-from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
-from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
-from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
-from pulse.interface.user_input.project.loading_window import LoadingWindow
-from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
-from pulse.utils.interface_utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
-
-import logging
-import os
-
-from functools import partial
-from pathlib import Path
-from shutil import copy, rmtree
-from sys import argv
-from time import time
+from pulse.interface.user_input.project.save_project_data_selector import (
+    SaveProjectDataSelector,
+)
+from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
+from pulse.interface.viewer_3d.render_widgets import (
+    GeometryRenderWidget,
+    MeshRenderWidget,
+    ResultsRenderWidget,
+)
+from pulse.interface.welcome_widget import WelcomeWidget
+from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter
 
 
-class MainWindow(QMainWindow):
+class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
     visualization_changed = Signal()
     selection_changed = Signal()
+    analysis_changed = Signal()
 
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / 'main_window.ui'
-        load_ui(ui_path, self, UI_DIR)
 
         self.selected_nodes = set()
         self.selected_lines = set()
@@ -90,6 +98,8 @@ class MainWindow(QMainWindow):
         self.interface_theme = None
         self.last_index = None
         self.last_render_index = None
+
+        self.use_base_render_tool = False
 
         self.project_data_modified = False
 
@@ -119,68 +129,6 @@ class MainWindow(QMainWindow):
         self.installEventFilter(self)
         self.pulse_icon = icons.get_openpulse_icon()
         self.setWindowIcon(self.pulse_icon)
-
-    def _define_qt_variables(self):
-        '''
-        This function is doing nothing. Every variable was
-        already defined in the UI file.
-
-        Despite that, it is nice to list the variables to
-        help future maintainers and the code editor with
-        type inference.
-        '''
-        
-        # QAction
-        self.action_open_project: QAction
-        self.action_geometry_editor_workspace: QAction
-        self.action_model_setup_workspace: QAction
-        self.action_analysis_setup_workspace: QAction
-        self.action_results_workspace: QAction
-        self.action_check_refprop: QAction
-        self.action_export_geometry: QAction
-        self.action_import_geometry: QAction
-        self.action_export_pcf: QAction
-        self.action_import_pcf: QAction
-        self.action_set_dark_theme: QAction
-        self.action_set_light_theme: QAction
-        self.action_save_project: QAction
-        self.action_save_project_as: QAction
-        self.action_capture_image: QAction
-        self.action_show_mesh_data: QAction
-        self.action_show_geometry_data: QAction
-        self.action_show_lines: QAction
-        self.action_show_tubes: QAction
-        self.action_show_symbols: QAction
-        self.action_show_transparent: QAction
-        self.action_select_elements: QAction
-        self.action_plot_geometry_editor: QAction
-        self.action_plot_lines: QAction
-        self.action_plot_lines_with_cross_section: QAction
-        self.action_plot_mesh: QAction
-        self.action_export_piping: QAction
-        self.action_user_preferences: QAction
-        self.action_pulsation_suppression_device_editor: QAction
-        self.action_pulsation_damper_editor: QAction
-        self.action_section_plane: QAction
-        self.action_exit: QAction
-
-        # QMenu
-        self.menu_recent: QMenu
-        self.menu_project: QMenu
-        self.menu_plots: QMenu
-        self.menu_settings: QMenu
-        self.menu_model_info: QMenu
-        self.menu_help: QMenu
-
-        # QSplitter
-        self.splitter: QSplitter
-
-        # QStackedWidget
-        self.setup_widgets_stack: QStackedWidget
-        self.render_widgets_stack: QStackedWidget
-
-        # QToolBar
-        self.tool_bar: QToolBar
 
     def _connect_actions(self):
         '''
@@ -238,44 +186,39 @@ class MainWindow(QMainWindow):
 
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
 
-    def create_file_dialog(self):
-        self.file_dialog = FileDialog()
-
     def configure_window(self):
-        t0 = time()
+        # t0 = time()
         # self._load_stylesheets()
         self._config_window()
-        self._define_qt_variables()
         self._connect_actions()
         app().splash.update_progress(30)
         self._load_section_plane()
-        dt = time() - t0
+        # dt = time() - t0
         # print(f"Time to process A: {round(dt, 6)} [s]")
 
-        t1 = time()
+        # t1 = time()
         self._create_layout()
         self._create_status_bar()
         self._update_recent_projects()
         self._add_toolbars()
         app().splash.update_progress(70)
-        dt = time() - t1
+        # dt = time() - t1
         # print(f"Time to process B: {round(dt, 6)} [s]")
 
-        t2 = time()
+        # t2 = time()
         self.plot_lines_with_cross_sections()
         self.configure_welcome_widget()
         self.load_user_preferences()
         self.create_temporary_folder()
         app().splash.update_progress(98)
-        dt = time() - t2
+        # dt = time() - t2
         # print(f"Time to process C: {round(dt, 6)} [s]")
 
         app().splash.close()
         self.showMaximized()
 
         app().processEvents()
-        self.create_file_dialog()
-        dt = time() - t0
+        # dt = time() - t0
         # print(f"Time to process D: {round(dt, 6)} [s]")
 
         if not self.is_temporary_folder_empty():
@@ -325,8 +268,8 @@ class MainWindow(QMainWindow):
         return True
     
     def filter_tab_scroll_by_wheel(self):
+        from PySide6.QtCore import QEvent, QObject
         from PySide6.QtWidgets import QTabBar
-        from PySide6.QtCore import QObject, QEvent
 
         class Filter(QObject):
             def eventFilter(self, obj, event):
@@ -369,13 +312,10 @@ class MainWindow(QMainWindow):
         if last_path is None:
             last_path = str(Path().home())
 
-        path, check = self.file_dialog.get_save_file_name(
-                                                            'Export geometry file', 
-                                                            last_path, 
-                                                            'Geometry File (*.step)'
-                                                          )
-
-        if not check:
+        extensions = ["step"]
+        path = FileDialogService.save_file(extensions, "Export geometry file", last_path)
+    
+        if path is None:
             return
 
         geometry_handler = GeometryHandler(app().project)
@@ -383,7 +323,8 @@ class MainWindow(QMainWindow):
 
     # public
     def update_plots(self, reset_camera=True):
-        self.project.enhance_pipe_sections_appearance()
+        self.model_setup_widget.model_setup_items.update_items_apperence()
+        self.project.model.enhance_pipe_sections_appearance()
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)
         self.results_widget.update_plot(reset_camera)
@@ -459,6 +400,7 @@ class MainWindow(QMainWindow):
         self.analysis_toolbar.setDisabled(True)
         self.mesh_toolbar.setDisabled(True)
         self.tool_bar.setDisabled(True)
+        self.workspaces_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
 
     def plot_lines(self):
@@ -488,6 +430,16 @@ class MainWindow(QMainWindow):
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
 
+    def reset_solution(self):
+        self.project.reset_solutions()
+        self.project.file.remove_results_data_from_project_file()
+
+        self.analysis_toolbar.pushButton_reset_solution.setDisabled(True)
+        self.project_data_modified = True
+        self.results_widget.show_empty()
+        self.use_model_setup_workspace()
+        self.update_results_workspace_button_accessibility()
+
     def set_window_title(self, msg=""):
         title = "OpenPulse"
         if (msg != ""):
@@ -511,9 +463,8 @@ class MainWindow(QMainWindow):
                 # dt = time() - t0
                 # print(f"initial_project_action: {round(dt, 6)} s")
                 return True
-            else:
-                self.model_and_analysis_items.modify_geometry_item_access(False)
-                return True
+
+            return True
 
         self.project.none_project_action = True
         return False
@@ -609,9 +560,11 @@ class MainWindow(QMainWindow):
         )
         self.close_dialogs()
         self.tool_bar.setDisabled(False)
+        self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
+        self.render_tools_toolbar.enable_selection_tool()
 
         self.action_geometry_editor_workspace.setEnabled(False)
         if not self.action_model_setup_workspace.isEnabled():
@@ -631,9 +584,11 @@ class MainWindow(QMainWindow):
 
         self.mesh_toolbar.setDisabled(False)
         self.tool_bar.setDisabled(False)
+        self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.animation_toolbar.setDisabled(True)
-        
+        self.render_tools_toolbar.enable_selection_tool()
+
         self.action_model_setup_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
             self.action_geometry_editor_workspace.setEnabled(True)
@@ -647,22 +602,31 @@ class MainWindow(QMainWindow):
 
     def action_results_workspace_callback(self):
 
-        if self.project.is_the_solution_finished():
+        if not self.project.is_the_solution_finished():
+            return
 
-            self.results_widget.update_selection()
-            self.results_viewer_widget.update_visibility_items()
-            self.animation_toolbar.setEnabled(False)    
+        self.results_widget.update_selection()
+        self.results_viewer_widget.update_visibility_items()
+        self.animation_toolbar.setEnabled(False)    
+        self.render_tools_toolbar.disable_selection_tool()
 
-            self.action_results_workspace.setEnabled(False)
-            if not self.action_geometry_editor_workspace.isEnabled():
-                self.action_geometry_editor_workspace.setEnabled(True)
-            elif not self.action_model_setup_workspace.isEnabled():
-                self.action_model_setup_workspace.setEnabled(True)
+        self.action_results_workspace.setEnabled(False)
+        if not self.action_geometry_editor_workspace.isEnabled():
+            self.action_geometry_editor_workspace.setEnabled(True)
+        elif not self.action_model_setup_workspace.isEnabled():
+            self.action_model_setup_workspace.setEnabled(True)
 
-            self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
-            self.render_widgets_stack.setCurrentWidget(self.results_widget)
-            self.results_viewer_widget.update_visibility_items()
-            self._configure_visualization(tubes=True)
+        self.geometry_input_wigdet.setVisible(False)
+        self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
+        self.render_widgets_stack.setCurrentWidget(self.results_widget)
+        self.results_viewer_widget.update_visibility_items()
+        self._configure_visualization(tubes=True)
+
+    def update_results_workspace_button_accessibility(self, solution_exists: bool | None = None):
+        if solution_exists is None:
+            solution_exists = self.project.is_the_solution_finished()
+
+        self.action_results_workspace.setEnabled(solution_exists)
 
     def render_changed_callback(self, new_index):
         if self.last_render_index is None:
@@ -843,15 +807,36 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.analysis_toolbar)
         self.analysis_toolbar.setDisabled(True)
 
+        if hasattr(self.analysis_toolbar, "domain_changed"):
+            self.analysis_toolbar.domain_changed.connect(self.analysis_changed)
+
     def _add_animation_toolbar(self):
         self.animation_toolbar = AnimationToolbar()
         self.addToolBar(self.animation_toolbar)
         self.insertToolBarBreak(self.animation_toolbar)
+    
+    def _add_render_tools_toolbar(self):
+        self.render_tools_toolbar = RenderToolsToolbar()
+        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.render_tools_toolbar)
+        self.render_tools_toolbar.setVisible(False)
+
+        for render in self.get_renderer_widgets():
+            self.render_tools_toolbar.render_tool_changed.connect(render.add_render_tool)
 
     def _add_toolbars(self):
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
         self._add_animation_toolbar()
+        self._add_render_tools_toolbar()
+
+    def show_render_tools_toolbar(self):
+        self.render_tools_toolbar.setVisible(True)
+    
+    def get_renderer_widgets(self):
+        return [
+            self.geometry_widget, 
+            self.mesh_widget,
+            self.results_widget]
 
     def _create_status_bar(self):
         self.status_bar = StatusBar(self)
@@ -895,7 +880,7 @@ class MainWindow(QMainWindow):
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            self.icon_color = QColor(color_names.BLUE_6.to_hex())
+            self.icon_color = QColor(color_names.BLUE_7.to_hex())
 
         elif theme == "light":
             self.icon_color = QColor(color_names.BLUE_4.to_hex())
@@ -919,13 +904,10 @@ class MainWindow(QMainWindow):
         if last_path is None:
             last_path = str(Path().home())
 
-        path, check = self.file_dialog.get_save_file_name(
-                                                          'Save Captured Image', 
-                                                          last_path, 
-                                                          'PNG File (*.png)'
-                                                          )
+        extensions = ["png"]
+        path = FileDialogService.save_file(extensions, "Save Captured Image", last_path)
 
-        if not check:
+        if path is None:
             return
 
         # TODO: reimplement this
@@ -940,18 +922,18 @@ class MainWindow(QMainWindow):
 
         self.close_dialogs()
 
-        close = QMessageBox.question(   
-                                        self, 
-                                        "Quit", 
-                                        "Would you like to save the project data before exit?", 
-                                        QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
-                                    )
+        message_box = QMessageBox.question(   
+            self, 
+            "Quit", 
+            "Would you like to save the project data before exit?", 
+            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
+        )
 
-        if close == QMessageBox.Cancel:
+        if message_box == QMessageBox.Cancel:
             self.force_close = False
             return True
 
-        elif close == QMessageBox.Save:
+        elif message_box == QMessageBox.Save:
             if not self.save_project_dialog():
                 return True
 
@@ -960,7 +942,7 @@ class MainWindow(QMainWindow):
     def new_project(self):
 
         none_save_path = self.project.save_path is None
-        temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
+        temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
         data_modified = self.project_data_modified
 
         condition = (none_save_path and temp_file_exists) or data_modified
@@ -970,9 +952,11 @@ class MainWindow(QMainWindow):
             if self.save_project_data():
                 return
 
-            self.reset_temporary_folder()
-            self.project.reset(reset_all = True)
-            self.project.model.properties._reset_variables()
+        self.reset_temporary_folder()
+        self.project.reset(reset_all = True)
+        self.project.model.properties._reset_variables()
+        self.project.reset_project(reset_all = True)
+        self.update_plots()
 
         self.reset_geometry_render()
         obj = NewProjectInput()
@@ -981,6 +965,9 @@ class MainWindow(QMainWindow):
             return
 
         self.action_geometry_editor_workspace_callback()
+        self.show_render_tools_toolbar()
+        self.update_results_workspace_button_accessibility()
+
         return obj.complete
 
     def open_project(self, project_path: str | Path | None = None):
@@ -990,11 +977,13 @@ class MainWindow(QMainWindow):
             self.reset_geometry_render()
 
             if project_path is not None:
-            
-                copy(project_path, TEMP_PROJECT_FILE)
+
+                app().project.file.extract_from_file(project_path)
 
                 if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
+                    self.project.reset(reset_all = True)
+                    self.project.model.properties._reset_variables()
 
                     if app().config.remove_path_from_config_file(project_path):
                         self.welcome_widget.update_recent_projects()
@@ -1022,6 +1011,8 @@ class MainWindow(QMainWindow):
 
             logging.info("Configuring visualization [95%]")
             self.action_model_setup_workspace_callback()
+            self.show_render_tools_toolbar()
+            self.update_results_workspace_button_accessibility()
             self.update_plots()
 
         LoadingWindow(tmp).run()
@@ -1033,16 +1024,14 @@ class MainWindow(QMainWindow):
         if last_path is None:
             last_path = str(Path().home())
 
-        project_path, check = self.file_dialog.get_open_file_name(
-                                                                  "Open Project", 
-                                                                  last_path, 
-                                                                  filter = "Pulse File (*.pulse)"
-                                                                  )
+        extensions = ["pulse"]
+        project_path = FileDialogService.open_file(extensions, "Open Project", last_path)
 
-        if not check:
+        if project_path is None:
             return True
 
         self.open_project(project_path)
+        self.show_render_tools_toolbar()
 
     def save_project_dialog(self):
         if self.project.save_path is None:
@@ -1053,30 +1042,28 @@ class MainWindow(QMainWindow):
 
     def save_project_as_dialog(self):
         obj = SaveProjectDataSelector()
-        if obj.complete:
+        if not obj.complete:
+            return obj.complete
 
-            last_path = self.config.get_last_folder_for("project_folder")
-            if last_path is None:
-                last_path = str(Path.home())
+        last_path = self.config.get_last_folder_for("project_folder")
+        if last_path is None:
+            last_path = str(Path.home())
 
-            file_path, check = self.file_dialog.get_save_file_name(
-                                                                   "Save As",
-                                                                   last_path,
-                                                                   filter = "Pulse File (*.pulse)",
-                                                                   )
+        extensions = ["pulse"]
+        file_path = FileDialogService.save_file(extensions, "Save As", last_path)
 
-            if not check:
-                return
+        if file_path is None:
+            return False
 
-            if obj.ignore_results_data:
-                app().project.file.remove_results_data_from_project_file()
+        if obj.ignore_results_data:
+            app().project.file.remove_results_data_from_project_file()
 
-            if obj.ignore_mesh_data:
-                app().project.file.remove_mesh_data_from_project_file()
+        if obj.ignore_mesh_data:
+            app().project.file.remove_mesh_data_from_project_file()
 
-            self.save_project_as(file_path)
+        self.save_project_as(file_path)
 
-        return obj.complete
+        return True
 
     def save_project_as(self, path):
 
@@ -1084,8 +1071,8 @@ class MainWindow(QMainWindow):
 
             logging.info("Saving the project data... [10%]")
 
-            from time import sleep
             from datetime import datetime
+            from time import sleep
 
             path = Path(path)
             self.project.name = path.stem
@@ -1100,7 +1087,7 @@ class MainWindow(QMainWindow):
 
             logging.info("Saving the project data... [75%]")
             # self.project_menu.update_recents_menu()
-            copy(TEMP_PROJECT_FILE, path)
+            app().project.file.archive_to_file(path)
             self.update_window_title(path)
             self.project_data_modified = False
 
@@ -1114,19 +1101,17 @@ class MainWindow(QMainWindow):
         self.capture_image()
     
     def capture_image(self):
-        path, check = QFileDialog.getSaveFileName(
-            self,
-            "PNG",
-            filter="PNG (*.png)",
-        )
+        extensions = ["png"]
+
+        path = FileDialogService.save_file(extensions, "PNG")
         
-        if not check:
+        if path is None:
             return
 
         widget = self.render_widgets_stack.currentWidget()
         if isinstance(widget, CommonRenderWidget):
             image = widget.get_screenshot()
-            with open(path, "wb") as file:
+            with open(str(path), "wb") as file:
                 image.save(file)
 
     def update_window_title(self, project_path : str | Path):
@@ -1179,7 +1164,7 @@ class MainWindow(QMainWindow):
         self.minimize_dialogs()
 
         none_save_path = self.project.save_path is None
-        temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
+        temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
         data_modified = self.project_data_modified
 
         condition = (none_save_path and temp_file_exists) or data_modified

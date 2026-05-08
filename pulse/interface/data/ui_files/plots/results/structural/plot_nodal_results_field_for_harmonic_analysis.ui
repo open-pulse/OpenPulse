@@ -260,72 +260,72 @@
            </property>
            <item>
             <property name="text">
-             <string> Animation (absolute)</string>
+             <string>Animation (absolute)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Animation (Ux)</string>
+             <string>Animation (Ux)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Animation (Uy)</string>
+             <string>Animation (Uy)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Animation (Uz)</string>
+             <string>Animation (Uz)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Absolute (resultant)</string>
+             <string>Absolute (resultant)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Absolute (Ux)</string>
+             <string>Absolute (Ux)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Absolute (Uy)</string>
+             <string>Absolute (Uy)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Absolute (Uz)</string>
+             <string>Absolute (Uz)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Real - Ux</string>
+             <string>Real - Ux</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Real - Uy</string>
+             <string>Real - Uy</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Real - Uz</string>
+             <string>Real - Uz</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Imaginary - Ux</string>
+             <string>Imaginary - Ux</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Imaginary - Uy</string>
+             <string>Imaginary - Uy</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Imaginary - Uz</string>
+             <string>Imaginary - Uz</string>
             </property>
            </item>
           </widget>
@@ -946,6 +946,6 @@
   <tabstop>comboBox_color_scale</tabstop>
   <tabstop>pushButton_plot</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

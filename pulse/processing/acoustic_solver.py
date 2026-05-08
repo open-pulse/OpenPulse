@@ -4,8 +4,8 @@ from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
 import numpy as np
 from numpy.linalg import norm
-from scipy.sparse import csr_matrix, bmat, eye, block_array
-from scipy.sparse.linalg import eigs, eigsh, spsolve, inv
+from scipy.sparse import csr_matrix, bmat, eye
+from scipy.sparse.linalg import eigs, spsolve, inv
 
 import logging
 
@@ -46,9 +46,9 @@ class AcousticSolver:
 
         self.nl_pp_elements = self.check_non_linear_perforated_plate()
 
-        self._initialize()
+        self.reset_variables()
 
-    def _initialize(self):
+    def reset_variables(self):
 
         self.solution = None
         self.modal_shapes = None
@@ -89,7 +89,7 @@ class AcousticSolver:
         # self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] for i in range(len(self.frequencies))]
         self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] + self.T_link[i] for i in range(len(self.frequencies))]
 
-    def _reinsert_prescribed_dofs(self, solution, modal_analysis = False):
+    def _reinsert_prescribed_dofs(self, solution: np.ndarray, modal_analysis: bool=False):
         """
         This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.
 
@@ -98,7 +98,7 @@ class AcousticSolver:
         solution : array
             Solution data from the direct method, modal superposition or modal shapes from modal analysis.
 
-        modal_analysis : boll, optional
+        modal_analysis : bool, optional
             True if the modal analysis was evaluated.
 
         Returns
@@ -157,7 +157,7 @@ class AcousticSolver:
                 # volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
                 volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i] + Tr_link[i]) * self.array_prescribed_values[:,i], axis=1)
 
-        volume_velocity_combined = volume_velocity.T - volume_velocity_eq
+        volume_velocity_combined = -volume_velocity.T - volume_velocity_eq
 
         return volume_velocity_combined
 
@@ -194,7 +194,7 @@ class AcousticSolver:
             Modal shapes
         """
 
-        modes = kwargs.get("modes", 40)
+        modes = kwargs.get("number_of_modes", 40)
         which = kwargs.get("which", "LM")
         sigma_factor = kwargs.get("sigma_factor", 1e-4)
 
@@ -383,7 +383,7 @@ class AcousticSolver:
         if self.nl_pp_elements:
 
             _criteria = 100*self.target
-            self.update_xy_plot_data()
+            self.update_plot_2d_data()
 
             while relative_difference > self.target or not converged:
                 
@@ -476,54 +476,54 @@ class AcousticSolver:
                 converged = self.check_convergence_criterias(pressure_residues, delta_residues)
 
                 if converged:
-                    self.xy_plot.show()
+                    self.plot_2d.show()
                     self.convergence_data_log = [self.iterations, pressure_residues, delta_residues, 100*self.target]
                     self.solution = previous_solution
                     return self.solution, self.convergence_data_log
 
                 else:
-                    self.update_xy_plot_data()
+                    self.update_plot_2d_data()
                     self.get_global_matrices()
                     solution = np.zeros((rows, cols), dtype=complex)
 
-    def initialize_xy_plotter(self):
+    def initialize_plot_2d(self):
 
-        from pulse.interface.user_input.plots.general.xy_plot import XYPlot
+        from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified
 
         legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
 
         plots_config = {
-                        "number_of_plots" : 3,
-                        "x_label" : "Iterations [n]",
-                        "y_label" : "Relative error [%]",
-                        "colors" : [(0,0,0), (0,0,1), (1,0,0)],
-                        "line_styles" : ["--", "-", "-"],
-                        "markers" : [None, "o", "o"],
-                        "legends" : legends,
-                        "title" : "Perforated plate convergence plot"
-                        }
+            "number_of_plots" : 3,
+            "x_label" : "Iterations [n]",
+            "y_label" : "Relative error [%]",
+            "colors" : [(0,0,0), (0,0,1), (1,0,0)],
+            "line_styles" : ["--", "-", "-"],
+            "markers" : [None, "o", "o"],
+            "legends" : legends,
+            "title" : "Perforated plate convergence plot"
+            }
 
-        self.xy_plot = XYPlot(plots_config)
-        # self.xy_plot.show()
+        self.plot_2d = Plot2DSimplified(**plots_config)
+        # self.plot_2d.show()
 
-    def update_xy_plot_data(self):
+    def update_plot_2d_data(self):
         if self.iterations:
             dy = 20
             xlim = (1, max(self.iterations))
             ylim = (0, (round(max(self.relative_error)/dy,0)+1)*dy)
             x_data = self.iterations
-            self.xy_plot.set_plot_data(x_data, self.relative_error, 1, (xlim, ylim))
+            self.plot_2d.set_plot_data(x_data, self.relative_error, 1, (xlim, ylim))
             if self.deltaP_errors:
-                self.xy_plot.set_plot_data(x_data, self.deltaP_errors, 2, (xlim, ylim))
+                self.plot_2d.set_plot_data(x_data, self.deltaP_errors, 2, (xlim, ylim))
 
         else:
             criteria = 100* self.target
-            self.initialize_xy_plotter()
+            self.initialize_plot_2d()
             xlim = (1, 100)
             ylim = (0, 120)
             x_data = [0, 100]
             y_data = [criteria, criteria]
-            self.xy_plot.set_plot_data(x_data, y_data, 0, (xlim, ylim))
+            self.plot_2d.set_plot_data(x_data, y_data, 0, (xlim, ylim))
 
     def check_convergence_criterias(self, pressure_residues, delta_residues, delta_residue_criteria=True):
 

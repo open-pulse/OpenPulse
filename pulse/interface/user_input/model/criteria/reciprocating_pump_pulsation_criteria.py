@@ -1,27 +1,19 @@
-from PySide6.QtWidgets import QComboBox, QLabel, QLineEdit, QPushButton, QWidget
+import numpy as np
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.criterias.reciprocating_pump_pulsation_criteria_widget_ui import (
+    ReciprocatingPumpPulsationCriteriaWidget_UI,
+)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from molde import load_ui
 
-import numpy as np
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
-kgf_cm2_to_Pa = 9.80665e4
-
-class ReciprocatingPumpPulsationCriteriaInput(QWidget):
+class ReciprocatingPumpPulsationCriteriaInput(ReciprocatingPumpPulsationCriteriaWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "criterias/reciprocating_pump_pulsation_criteria_widget.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -30,7 +22,6 @@ class ReciprocatingPumpPulsationCriteriaInput(QWidget):
 
         self._config_window()
         self._initialize()        
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
 
@@ -46,21 +37,6 @@ class ReciprocatingPumpPulsationCriteriaInput(QWidget):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_line_ids: QComboBox
-
-        # QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_internal_diameter : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_criteria : QPushButton
 
     def _create_connections(self):
         #
@@ -170,6 +146,6 @@ class ReciprocatingPumpPulsationCriteriaInput(QWidget):
         return 1000 * inner_diameter
 
     def reset_input_fields(self):
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_internal_diameter.setText("")
+        self.lineEdit_selected_id.clear()
+        self.lineEdit_internal_diameter.clear()
         self.pushButton_plot_criteria.setDisabled(True)

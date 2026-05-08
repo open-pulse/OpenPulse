@@ -1,30 +1,24 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QTreeWidgetItem
 
-from pulse import app, UI_DIR
-from pulse.model.before_run import BeforeRun
+from pulse import app
+from pulse.interface import error_title, warning_title
+from pulse.interface.ui_generated.criterias.beam_criteria_assistant_ui import (
+    BeamCriteriaAssistant_UI,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-from molde import load_ui
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from pulse.model.before_run import BeforeRun
 
 
-class CheckBeamCriteriaInput(QDialog):
+class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "criterias/beam_criteria_assistant.ui"
-        load_ui(ui_path, self, ui_path.parent)
-
         self.project = app().project
         app().main_window.set_input_widget(self)
 
         self._initialize()
         self._config_window()
-        self.define_qt_variables()
         self.create_connections()
         self._config_widgets()
 
@@ -46,24 +40,9 @@ class CheckBeamCriteriaInput(QDialog):
         self.keep_window_open = True
         self.before_run = BeforeRun()
 
-    def define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_beam_criteria: QLineEdit
-        self.lineEdit_section_id: QLineEdit
-
-        # QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_check_criteria: QPushButton
-        self.pushButton_more_info: QPushButton
-
-        # QTreeWidget
-        self.treeWidget_non_beam_segments: QTreeWidget
-        self.treeWidget_sections_parameters_by_lines: QTreeWidget
-
     def create_connections(self):
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_check_criteria.clicked.connect(self.check_beam_theory_criteria)
         self.pushButton_more_info.clicked.connect(self.get_beam_validity_criteria_info)
         #
@@ -76,12 +55,12 @@ class CheckBeamCriteriaInput(QDialog):
 
     def config_treeWidget(self):
 
-        for i, w in enumerate([80, 120, 160]):
-            self.treeWidget_sections_parameters_by_lines.setColumnWidth(i, w)
+        for i, width in enumerate([80, 120, 160]):
+            self.treeWidget_sections_parameters_by_lines.setColumnWidth(i, width)
             self.treeWidget_sections_parameters_by_lines.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-        for i, w in enumerate([80, 80, 200, 60]):
-            self.treeWidget_non_beam_segments.setColumnWidth(i, w)
+        for i, width in enumerate([80, 80, 200, 60]):
+            self.treeWidget_non_beam_segments.setColumnWidth(i, width)
             self.treeWidget_non_beam_segments.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def load_existing_sections(self):
@@ -159,7 +138,7 @@ class CheckBeamCriteriaInput(QDialog):
                 title = "No branches out of user-defined criteria"
                 message = "The all piping branches from current structure meets "
                 message += "the user-defined 'L/d' beam validity criteria."
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([warning_title, title, message])
 
     def on_click_non_beam_segments(self, item):
         section_id = item.text(0)
@@ -173,7 +152,7 @@ class CheckBeamCriteriaInput(QDialog):
         self.on_double_click_non_beam_segments(item)
 
     def on_click_section_parameters_by_line(self, item):
-        self.lineEdit_section_id.setText("")
+        self.lineEdit_section_id.clear()
         key = item.text(0)
         if key != "":
             if int(key) in self.section_data_lines.keys():
@@ -197,7 +176,7 @@ class CheckBeamCriteriaInput(QDialog):
                     
                             message = f"Insert a positive value to the {label}."
                             message += "\n\nZero value is allowed."
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput([error_title, title, message])
                             self.stop = True
                             return None
                     else:
@@ -205,14 +184,14 @@ class CheckBeamCriteriaInput(QDialog):
                     
                             message = f"Insert a positive value to the {label}."
                             message += "\n\nZero value is not allowed."
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput([error_title, title, message])
                             self.stop = True
                             return None
             except Exception as _err:
         
                 message = f"Wrong input for {label}.\n\n"
                 message += "Error details: " + str(_err)
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 self.stop = True
                 return None
         else:
@@ -221,7 +200,7 @@ class CheckBeamCriteriaInput(QDialog):
             else: 
         
                 message = f"Insert some value at the {label} input field."
-                PrintMessageInput([window_title_1, title, message])                   
+                PrintMessageInput([error_title, title, message])                   
                 self.stop = True
                 return None
         return out
@@ -247,7 +226,7 @@ class CheckBeamCriteriaInput(QDialog):
         message += "but to provide an additional filter to focus on segments that could lead to physically "
         message += "non-representative results."
         #
-        PrintMessageInput([window_title_1, title, message], alignment=Qt.AlignJustify)
+        PrintMessageInput([error_title, title, message], alignment=Qt.AlignJustify)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:

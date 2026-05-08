@@ -1,51 +1,45 @@
-from PySide6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.get_stresses_for_harmonic_analysis_ui import GetStressesForHarmonicAnalysis_UI
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-from molde import load_ui
 
 import logging
 import numpy as np
 
-class PlotStressesForHarmonicAnalysis(QWidget):
+class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/get_stresses_for_harmonic_analysis.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
 
         self._config_window()
         self._initialize()
         self._load_structural_solver()
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
 
     def _initialize(self):
         
         self.keys = np.arange(7)
-        self.labels = np.array(["Normal axial", 
-                                "Normal bending y", 
-                                "Normal bending z", 
-                                "Hoop", 
-                                "Torsional shear", 
-                                "Transversal shear xy", 
-                                "Transversal shear xz"])
-        
+        self.labels = np.array([
+            "Normal axial", 
+            "Normal bending y", 
+            "Normal bending z", 
+            "Hoop", 
+            "Torsional shear", 
+            "Transversal shear xy", 
+            "Transversal shear xz"
+            ])
+
         self.stress_data = list()
 
         self.before_run = app().project.get_pre_solution_model_checks()
-
         self.frequencies = app().project.model.frequencies
-        self.analysis_method = app().project.analysis_method_label
-    
+
     def _load_structural_solver(self):
 
         if app().project.structural_solver is None:
@@ -68,26 +62,10 @@ class PlotStressesForHarmonicAnalysis(QWidget):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_damping_effect : QCheckBox
-
-        # QComboBox
-        self.comboBox_stress_type : QComboBox
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_plot_data : QPushButton
-
     def _create_connections(self):
         #
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
         #
-        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
@@ -118,7 +96,7 @@ class PlotStressesForHarmonicAnalysis(QWidget):
         if len(self.stress_data) == 0 or self.update_damping:
             damping_effect = self.checkBox_damping_effect.isChecked()
 
-            self.stress_data = self.structural_solver.stress_calculate(damping = damping_effect)
+            self.stress_data = self.structural_solver.stress_calculate(damping=damping_effect)
             self.update_damping = False
 
         response = get_stress_spectrum_data(
@@ -132,7 +110,7 @@ class PlotStressesForHarmonicAnalysis(QWidget):
     def join_model_data(self):
 
         self.model_results = dict()
-        title = f"Structural frequency response - {self.analysis_method}"
+        title = f"Structural frequency response - {app().project.analysis_method} method"
 
         for k, element_id in enumerate(self.element_ids):
                 

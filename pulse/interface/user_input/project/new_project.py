@@ -1,32 +1,27 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLabel, QLineEdit, QPushButton
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
-
-from pulse import app, UI_DIR
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-from molde import load_ui
-
 import os
 from pathlib import Path
-from time import time
+
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
+
+from pulse import app
+from pulse.interface.ui_generated.project.new_project_input_ui import NewProjectInput_UI
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title = "Error"
 
-class NewProjectInput(QDialog):
+class NewProjectInput(NewProjectInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "project/new_project_input2.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
         self.preprocessor = app().project.model.preprocessor
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
 
         while self.keep_window_open:
@@ -42,31 +37,6 @@ class NewProjectInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_length_unit : QComboBox
-        self.comboBox_start_project : QComboBox
-
-        # QFrame
-        self.frame_geometry_file : QFrame
-        self.frame_element_size : QFrame
-        self.frame_geometry_tolerance : QFrame
-
-        # QLabel
-        self.label_element_size : QLabel
-        self.label_geometry_tolerance : QLabel
-
-        # QLineEdit
-        self.lineEdit_geometry_path : QLineEdit
-        self.lineEdit_element_size : QLineEdit
-        self.lineEdit_geometry_tolerance : QLineEdit
-
-        # QPushButton
-        self.pushButton_import_geometry : QPushButton
-        self.pushButton_cancel : QPushButton
-        self.pushButton_start_project : QPushButton
 
     def _create_connections(self):
         #
@@ -110,17 +80,14 @@ class NewProjectInput(QDialog):
         else:
             suggested_path = last_geometry_file
 
-        geometry_path, check = QFileDialog.getOpenFileName(
-                                                            None, 
-                                                            'Open file', 
-                                                            suggested_path, 
-                                                            'Files (*.iges *.igs *.step *.stp)'
-                                                            )
+        extensions = ["iges", "igs", "step", "stp"]
+        geometry_path = FileDialogService.open_file(extensions, last_folder=suggested_path)
 
-        if check:
-            self.lineEdit_geometry_path.setText(geometry_path)
-
-            app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
+        if geometry_path is None:
+            return
+        
+        self.lineEdit_geometry_path.setText(str(geometry_path))
+        app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
     def check_project_inputs(self):
         

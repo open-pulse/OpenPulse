@@ -1,17 +1,12 @@
 from PySide6.QtWidgets import QFrame, QWidget
-from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.menus.left_menu_widget_ui import LeftMenuWidget_UI
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
 
-from molde import load_ui
-
-class ResultsViewerWidget(QWidget):
+class ResultsViewerWidget(LeftMenuWidget_UI):
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / "menus/left_menu_widget.ui"
-        load_ui(ui_path, self, UI_DIR)
 
         self._reset()
         self._define_qt_variables()
@@ -23,66 +18,34 @@ class ResultsViewerWidget(QWidget):
     def _define_qt_variables(self):
 
         self.main_frame = QFrame()
-
-        # QWidget
-        self.top_widget: QWidget
-        self.bottom_widget: QWidget
-
         self.results_viewer_items = ResultsViewerItems()
         self.layout().replaceWidget(self.top_widget, self.results_viewer_items)
         self.adjustSize()
 
     def _create_connections(self):
-
-        self.results_viewer_items.item_child_plot_structural_mode_shapes.clicked.connect(
-            self.add_structural_mode_shape_widget)
-
-        self.results_viewer_items.item_child_plot_displacement_field.clicked.connect(
-            self.add_displacement_field_widget)
-
-        self.results_viewer_items.item_child_plot_structural_frequency_response.clicked.connect(
-            self.add_structural_frequency_response_widget)
-
-        self.results_viewer_items.item_child_plot_reaction_frequency_response.clicked.connect(
-            self.add_reaction_frequency_response_widget)
-
-        self.results_viewer_items.item_child_plot_stress_field.clicked.connect(
-            self.add_stress_field_widget)
+        items = self.results_viewer_items
         
-        self.results_viewer_items.item_child_plot_stress_frequency_response.clicked.connect(
-            self.add_stress_frequency_response_widget)
-        
-        self.results_viewer_items.item_child_plot_acoustic_mode_shapes.clicked.connect(
-            self.add_acoustic_mode_shape_widget)
+        # structural plot items
+        items.item_child_plot_structural_mode_shapes.clicked.connect(self.add_structural_mode_shape_widget)
+        items.item_child_plot_displacement_field.clicked.connect(self.add_displacement_field_widget)
+        items.item_child_plot_structural_frequency_response.clicked.connect(self.add_structural_frequency_response_widget)
+        items.item_child_plot_reaction_frequency_response.clicked.connect(self.add_reaction_frequency_response_widget)
+        items.item_child_plot_stress_field.clicked.connect(self.add_stress_field_widget)
+        items.item_child_plot_stress_frequency_response.clicked.connect(self.add_stress_frequency_response_widget)
 
-        self.results_viewer_items.item_child_plot_acoustic_pressure_field.clicked.connect(
-            self.add_acoustic_pressure_field_widget)
-        
-        self.results_viewer_items.item_child_plot_acoustic_frequency_response.clicked.connect(
-            self.add_acoustic_frequency_response_widget)
-
-        self.results_viewer_items.item_child_plot_acoustic_frequency_response_function.clicked.connect(
-            self.add_acoustic_frequency_response_function_widget)
-        
-        self.results_viewer_items.item_child_plot_acoustic_delta_pressures.clicked.connect(
-            self.add_acoustic_delta_pressures_widget)
-
-        self.results_viewer_items.item_child_plot_transmission_loss.clicked.connect(
-            self.add_transmission_loss_widget)
-        
-        self.results_viewer_items.item_child_plot_perforated_plate_convergence_data.clicked.connect(
-            self.plot_perforated_plate_convergence_data)
-        
-        self.results_viewer_items.item_child_reciprocating_compressor_pulsation_criteria.clicked.connect(
-            self.add_reciprocating_compressor_pulsation_criteria_widget)
-        
-        self.results_viewer_items.item_child_reciprocating_pump_pulsation_criteria.clicked.connect(
-            self.add_reciprocating_pump_pulsation_criteria_widget)
-        
-        self.results_viewer_items.item_child_reciprocating_pump_inlet_pressure_criteria.clicked.connect(
-            self.add_reciprocating_pump_inlet_pressure_criteria_widget)
-
-        self.results_viewer_items.item_child_shaking_forces_criteria.clicked.connect(self.add_shaking_forces_criteria_widget)
+        # acoustic plot items
+        items.item_child_plot_acoustic_mode_shapes.clicked.connect(self.add_acoustic_mode_shape_widget)
+        items.item_child_plot_acoustic_pressure_field.clicked.connect(self.add_acoustic_pressure_field_widget)
+        items.item_child_plot_acoustic_frequency_response.clicked.connect(self.add_acoustic_frequency_response_widget)
+        items.item_child_plot_acoustic_pressure_waveform.clicked.connect(self.add_acoustic_pressure_waveform_widget)
+        items.item_child_plot_acoustic_frequency_response_function.clicked.connect(self.add_acoustic_frequency_response_function_widget)
+        items.item_child_plot_acoustic_delta_pressures.clicked.connect(self.add_acoustic_delta_pressures_widget)
+        items.item_child_plot_transmission_loss.clicked.connect(self.add_transmission_loss_widget)
+        items.item_child_plot_perforated_plate_convergence_data.clicked.connect(self.plot_perforated_plate_convergence_data)
+        items.item_child_allowable_pulsations_for_reciprocating_compressor.clicked.connect(self.add_allowable_pulsations_for_reciprocating_compressor_widget)
+        items.item_child_reciprocating_pump_pulsation_criteria.clicked.connect(self.add_reciprocating_pump_pulsation_criteria_widget)
+        items.item_child_reciprocating_pump_inlet_pressure_criteria.clicked.connect(self.add_reciprocating_pump_inlet_pressure_criteria_widget)
+        items.item_child_shaking_forces.clicked.connect(self.add_shaking_forces_criteria_widget)
 
     def update_visibility_items(self):
         self.results_viewer_items._update_items()
@@ -133,6 +96,11 @@ class ResultsViewerWidget(QWidget):
         widget = app().main_window.input_ui.plot_acoustic_frequency_response()
         self.add_widget(widget)
 
+    def add_acoustic_pressure_waveform_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
+        widget = app().main_window.input_ui.plot_acoustic_pressure_waveform()
+        self.add_widget(widget)
+
     def add_acoustic_frequency_response_function_widget(self):
         self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_acoustic_frequency_response_function()
@@ -149,11 +117,11 @@ class ResultsViewerWidget(QWidget):
         self.add_widget(widget)
 
     def plot_perforated_plate_convergence_data(self):
-        app().project.acoustic_solver.xy_plot.show()
+        app().project.acoustic_solver.plot_2d.show()
 
-    def add_reciprocating_compressor_pulsation_criteria_widget(self):
+    def add_allowable_pulsations_for_reciprocating_compressor_widget(self):
         self.configure_render_according_to_plot_type("nodes")
-        widget = app().main_window.input_ui.reciprocating_compressor_pulsation_criteria()
+        widget = app().main_window.input_ui.allowable_pulsations_for_reciprocating_compressor()
         self.add_widget(widget)
 
     def add_reciprocating_pump_pulsation_criteria_widget(self):
@@ -192,14 +160,23 @@ class ResultsViewerWidget(QWidget):
         lines = app().main_window.action_plot_lines.isChecked()
         lines_with_cross_sections = app().main_window.action_plot_lines_with_cross_section.isChecked()
 
+        app().main_window.use_base_render_tool = False
+
         if set_by == "nodes":
             if not (mesh_data or geometry_data):
                 # app().main_window.plot_mesh()
                 app().main_window.plot_geometry_points()
+                app().main_window.render_tools_toolbar.enable_selection_tool()
 
         elif set_by == "lines":
             if not (lines or lines_with_cross_sections):
                 app().main_window.plot_lines_with_cross_sections()
+                app().main_window.render_tools_toolbar.enable_selection_tool()
 
         else:
             app().main_window.plot_results()
+            app().main_window.render_tools_toolbar.disable_selection_tool()
+            app().main_window.use_base_render_tool = True
+        
+        app().main_window.results_widget.update_render_tool_according_to_results_viewer_widget(has_selection = set_by in ["nodes", "lines"])
+

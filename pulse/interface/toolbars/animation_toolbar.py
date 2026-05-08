@@ -1,16 +1,15 @@
-from PySide6.QtWidgets import QLabel, QFileDialog, QPushButton, QSlider, QSpinBox, QToolBar, QWidget
-from PySide6.QtCore import QSize, Qt 
-from PySide6.QtGui import  QIcon, QFont
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QFont, QIcon
+from PySide6.QtWidgets import QLabel, QPushButton, QSlider, QSpinBox, QToolBar, QWidget
 
-from pulse import app, UI_DIR, ICON_DIR
+from pulse import ICON_DIR, app
+from pulse.interface import error_title
 from pulse.interface.formatters import icons
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-from pathlib import Path
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 
 class AnimationToolbar(QToolBar):
@@ -210,30 +209,13 @@ class AnimationToolbar(QToolBar):
         self.cycles = self.spinBox_cycles.value()
 
     def export_animation_to_file(self):
-        file_path, extension = QFileDialog.getSaveFileName(
-            self, "Save As",
-            filter = "Video (*.mp4);;WEBP (*.webp);;GIF (*.gif);; All Files ();;",
-        )
+        extensions = ["mp4", "webp", "gif"]
+        file_path = FileDialogService.save_file(extensions, "Save As")
 
-        if not extension:
+        if file_path is None:
             return
 
-        # Add default suffix if it does not have one
-        file_path = Path(file_path)
-        if extension == "Video (*.mp4)":
-            suffix = ".mp4"
-        elif extension == "WEBP (*.webp)":
-            suffix = ".webp"
-        elif extension == "GIF (*.gif)":
-            suffix = ".gif"
-        else:
-            suffix = ".mp4"
-
-        if not file_path.suffix:
-            file_path = file_path.parent / (file_path.name + suffix)
-
         try:
-
             if file_path.suffix.lower() in [".gif", ".webp"]:
                 LoadingWindow(app().main_window.results_widget.save_animation).run(file_path)
             else:
@@ -243,4 +225,4 @@ class AnimationToolbar(QToolBar):
             title = "Error while exporting animation"
             message = "An error has occured while exporting the animation file.\n"
             message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])

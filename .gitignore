@@ -8,6 +8,7 @@ src/
 *.mtl
 .config
 test.py
+*.md5
 
 .idea/
 
@@ -32,6 +33,11 @@ envpulse/
 measured_data/
 temporary_data/
 
+# pyenv
+.python-version
+
 # Do not ignore
 !pulse/libraries/*.dat
 !examples/projects/*.pulse
+
+!examples/Tables/*.dat

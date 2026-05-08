@@ -1,5 +1,3 @@
-# fmt: off
-
 from pulse import app
 
 import numpy as np
@@ -429,5 +427,3 @@ class DualVolumePSD:
 
         else:
             self.get_radial_radial_segment_data()
-
-# fmt: on

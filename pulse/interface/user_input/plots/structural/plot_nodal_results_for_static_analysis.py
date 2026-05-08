@@ -1,26 +1,20 @@
-from PySide6.QtWidgets import QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.get_nodal_results_for_static_analysis_ui import GetNodalResultsForStaticAnalysis_UI
 
-from molde import load_ui
 
 import numpy as np
 
 
-class PlotNodalResultsForStaticAnalysis(QWidget):
+class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/get_nodal_results_for_static_analysis.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_list_lineEdits()
         self._create_connections()
         self._config_widgets()
@@ -35,20 +29,6 @@ class PlotNodalResultsForStaticAnalysis(QWidget):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_node_id : QLineEdit
-        self.lineEdit_response_ux : QLineEdit
-        self.lineEdit_response_uy : QLineEdit
-        self.lineEdit_response_uz : QLineEdit
-        self.lineEdit_response_rx : QLineEdit
-        self.lineEdit_response_ry : QLineEdit
-        self.lineEdit_response_rz : QLineEdit
-
-        # QPushButton
-        self.pushButton_reset : QPushButton
 
     def _create_connections(self):
         #
@@ -79,7 +59,7 @@ class PlotNodalResultsForStaticAnalysis(QWidget):
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def reset_selection(self):
         self._reset_lineEdits()

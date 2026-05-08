@@ -38,10 +38,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="leftMargin">
@@ -77,7 +77,6 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>10</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -97,7 +96,7 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_cancel">
+       <widget class="QPushButton" name="pushButton_exit">
         <property name="minimumSize">
          <size>
           <width>120</width>
@@ -114,7 +113,6 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>10</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -126,7 +124,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Cancel</string>
+         <string>Exit</string>
         </property>
         <property name="default">
          <bool>true</bool>
@@ -139,10 +137,10 @@
    <item row="0" column="0">
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
@@ -165,6 +163,9 @@
       </property>
       <item row="1" column="0">
        <widget class="QTableWidget" name="tableWidget_fluid_data">
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectionBehavior::SelectColumns</enum>
+        </property>
         <property name="columnCount">
          <number>0</number>
         </property>
@@ -232,7 +233,12 @@
         </row>
         <row>
          <property name="text">
-          <string>Bulk modulus [Pa]</string>
+          <string>Adiabatic bulk modulus [Pa]</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Vapor pressure [Pa]</string>
          </property>
         </row>
         <row>
@@ -256,10 +262,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
          <property name="leftMargin">
@@ -283,10 +289,10 @@
          <item row="0" column="0">
           <widget class="QFrame" name="frame_7">
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::Shape::NoFrame</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QGridLayout" name="gridLayout">
             <property name="leftMargin">
@@ -322,7 +328,6 @@
                <font>
                 <family>MS Shell Dlg 2</family>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
                </font>
@@ -341,7 +346,7 @@
             <item row="0" column="1">
              <spacer name="horizontalSpacer">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -354,37 +359,36 @@
            </layout>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="QPushButton" name="pushButton_add_column">
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_refprop">
            <property name="minimumSize">
             <size>
-             <width>28</width>
+             <width>80</width>
              <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>28</width>
+             <width>80</width>
              <height>28</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>MS Shell Dlg 2</family>
-             <pointsize>9</pointsize>
-             <weight>75</weight>
+             <pointsize>10</pointsize>
              <italic>false</italic>
-             <bold>true</bold>
+             <bold>false</bold>
             </font>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Add row&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Press to open the REFPROP interface&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>
            <property name="text">
-            <string>+</string>
+            <string>Refprop</string>
            </property>
           </widget>
          </item>
@@ -406,7 +410,6 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>9</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -422,37 +425,79 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QPushButton" name="pushButton_refprop">
+         <item row="0" column="3">
+          <widget class="QPushButton" name="pushButton_add_column">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>28</width>
              <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>28</width>
              <height>28</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>MS Shell Dlg 2</family>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
+             <pointsize>9</pointsize>
              <italic>false</italic>
-             <bold>false</bold>
+             <bold>true</bold>
             </font>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Press to open the REFPROP interface&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Add row&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>
            <property name="text">
-            <string>Refprop</string>
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="5">
+          <widget class="QPushButton" name="pushButton_duplicate">
+           <property name="minimumSize">
+            <size>
+             <width>28</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>28</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>9</pointsize>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate the selected fluid&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../icons/resources.qrc">
+             <normaloff>:/icons/mpltoolbar/copy_icon.png</normaloff>:/icons/mpltoolbar/copy_icon.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>18</width>
+             <height>18</height>
+            </size>
            </property>
           </widget>
          </item>
@@ -472,6 +517,8 @@
   <tabstop>tableWidget_fluid_data</tabstop>
   <tabstop>pushButton_attribute</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
