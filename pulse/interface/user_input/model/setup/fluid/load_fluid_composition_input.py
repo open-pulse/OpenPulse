@@ -3,6 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 
 from pulse import app
+from pulse.interface.formatters.icons import change_icon_color_for_widgets
 from pulse.interface.ui_generated.model.setup.fluid.load_fluid_composition_ui import (
     LoadFluidComposition_UI,
 )
@@ -21,8 +22,9 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
        
         self._initialize()
         self._config_window()
-        self._create_connections()
         self._config_widgets()
+        self._paint_icons()
+        self._create_connections()
         self._load_file()
         self.exec()
 
@@ -37,19 +39,39 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
+    def _config_widgets(self):
+        self.lineEdit_file_path.setDisabled(True)
+        self.comboBox_sheet_names.setDisabled(True)
+
+    def _paint_icons(self):
+        icon_color = None
+        theme = app().config.user_preferences.interface_theme
+        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
+        if theme == "dark":
+            icon_color = DARK_ICON_COLOR.to_qt()
+        else:
+            icon_color = LIGHT_ICON_COLOR.to_qt()
+
+        widgets = [self.pushButton_search]
+        change_icon_color_for_widgets(widgets, icon_color)
+
     def _create_connections(self):
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.confirm_button_callback)
         self.pushButton_search.clicked.connect(self.search_button_callback)
 
-    def _config_widgets(self):
-        self.lineEdit_file_path.setDisabled(True)
-        self.comboBox_sheet_names.setDisabled(True)
-
     def _load_file(self):
-        if self.file_path != "":
-            self.lineEdit_file_path.setText(self.file_path)
-            self.load_composition_data_from_file()
+        if not isinstance(self.file_path, Path):
+            self.file_path = str(self.file_path)
+
+        if not isinstance(self.file_path, str):
+            return
+
+        if self.file_path == "":
+            return
+
+        self.lineEdit_file_path.setText(self.file_path)
+        self.load_composition_data_from_file()
 
     def search_button_callback(self):
 
@@ -59,13 +81,17 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
 
         caption = "Open the fluid composition file"
         extensions = ["xlsx", "xls"]
-        self.file_path = FileDialogService.open_file(extensions, caption, last_path)
+        file_path = FileDialogService.open_file(extensions, caption, last_path)
 
-        if self.file_path is None:
+        if file_path is None:
+            self.file_path = ""
             return
         
+        if isinstance(file_path, Path):
+            self.file_path = str(file_path)
+        
         app().config.write_last_folder_path_in_file("fluid_composition_folder", self.file_path)
-                                                    
+
         self.lineEdit_file_path.setText(self.file_path)
 
         if self.load_composition_data_from_file():
