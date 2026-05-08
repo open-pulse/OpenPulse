@@ -157,8 +157,8 @@ class AnalysisToolbar(QToolBar):
         self.pushButton_reset_solution.setIconSize(QSize(20, 20))
         self.pushButton_reset_solution.setCursor(Qt.PointingHandCursor)
         self.pushButton_reset_solution.setToolTip("Reset Solution")
-        self.pushButton_reset_solution.setDisabled(True)
-    
+        self.pushButton_reset_solution.setEnabled(True)
+
     def _create_connections(self):
         #
         self.combo_box_analysis_type.currentTextChanged.connect(self.analysis_type_callback)
