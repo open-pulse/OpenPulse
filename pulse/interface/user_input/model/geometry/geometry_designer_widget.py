@@ -100,6 +100,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.render_widget.selection_changed.connect(self.selection_callback)
         self.select_all_action.triggered.connect(self.select_all_callback)
 
+        self.unit_combobox.setDisabled(True)  # TODO: remove this and fix the unities
         self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
