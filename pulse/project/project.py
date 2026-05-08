@@ -17,6 +17,8 @@ from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.project.load_project import LoadProject
 
+from time import perf_counter
+
 
 class Project:
     def __init__(self):
@@ -557,6 +559,8 @@ class Project:
 
     def build_model_and_solve(self, running_by_script=False):
 
+        t0 = perf_counter()
+
         setup_complete = self.is_analysis_setup_complete()
 
         if not setup_complete:
@@ -597,6 +601,9 @@ class Project:
 
             logging.info("Processing the post solution checks [95%]")
             self.post_solution_actions()
+
+        dt = perf_counter() - t0
+        print(f"Time to solve the model: {dt} [s]")
 
     def check_warnings(self):
 
