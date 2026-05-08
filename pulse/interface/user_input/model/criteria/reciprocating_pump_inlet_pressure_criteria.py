@@ -1,30 +1,21 @@
-from PySide6.QtWidgets import QComboBox, QLabel, QLineEdit, QPushButton, QWidget
+import numpy as np
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.criterias.reciprocating_pump_inlet_pressure_criteria_widget_ui import (
+    ReciprocatingPumpInletPressureCriteriaWidget_UI,
+)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
 from pulse.model.properties.fluid import Fluid
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.utils.signal_processing import process_iFFT_of_onesided_spectrum
 
-from molde import load_ui
 
-from pulse.utils.signal_processing_utils import process_iFFT_of_onesided_spectrum
-
-import numpy as np
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
-kgf_cm2_to_Pa = 9.80665e4
-
-class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
+class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressureCriteriaWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "criterias/reciprocating_pump_inlet_pressure_criteria_widget.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -48,27 +39,9 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_line_ids: QComboBox
-        self.comboBox_pressure_units: QComboBox
-        self.comboBox_temperature_units: QComboBox
-
-        # QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_fluid_name: QLineEdit
-        self.lineEdit_vapor_pressure : QLineEdit
-        self.lineEdit_temperature: QLineEdit
-        #
         self.lineEdit_fluid_name.setDisabled(True)
         # self.lineEdit_vapor_pressure.setDisabled(True)
         self.lineEdit_temperature.setDisabled(True)
-
-        # QPushButton
-        self.pushButton_plot_criteria : QPushButton
 
     def _create_connections(self):
         #
@@ -220,8 +193,8 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
                         vapor_pressure = float(_vapor_pressure)
                         self.lineEdit_vapor_pressure.setText(_vapor_pressure)
 
-                    except:
-                        self.lineEdit_vapor_pressure.setText("")
+                    except Exception:
+                        self.lineEdit_vapor_pressure.clear()
                         return
 
                 return
@@ -262,7 +235,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
             _vapor_pressure = self.lineEdit_vapor_pressure.text().replace(",", ".")
             vapor_pressure = float(_vapor_pressure)
             self.lineEdit_vapor_pressure.setText(_vapor_pressure)
-        except:
+        except Exception:
             return None, None
 
         if "kgf/cm²" in pressure_unit:
@@ -286,8 +259,8 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
         return vapor_pressure_Pa
 
     def reset_input_fields(self):
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_fluid_name.setText("")
-        self.lineEdit_vapor_pressure.setText("")
-        self.lineEdit_temperature.setText("")
+        self.lineEdit_selected_id.clear()
+        self.lineEdit_fluid_name.clear()
+        self.lineEdit_vapor_pressure.clear()
+        self.lineEdit_temperature.clear()
         self.pushButton_plot_criteria.setDisabled(True)

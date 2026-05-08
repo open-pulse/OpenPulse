@@ -1,11 +1,7 @@
 from pulse import app
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from time import time
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class MeshUpdater:
     def __init__(self, *args, **kwargs):

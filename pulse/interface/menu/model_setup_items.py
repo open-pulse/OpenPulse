@@ -1,11 +1,8 @@
-from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PySide6.QtCore import Qt, QSize, QRect
-from pathlib import Path
+from PySide6.QtGui import QColor, QPen
+from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.menu.common_menu_items import CommonMenuItems
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.menu.common_menu_items import ChildTreeWidgetItem, CommonMenuItems
 
 
 class ModelSetupItems(CommonMenuItems):
@@ -22,40 +19,41 @@ class ModelSetupItems(CommonMenuItems):
 
         self._create_items()
         self._create_connections()
+        self.update_tooltips_warnings()
+        self._connect_domain_filter()
 
     def _create_items(self):
         """Creates all TreeWidgetItems."""
         self.item_top_general_settings = self.add_top_item('General Settings')
-        self.item_child_create_geometry = self.add_item('Create/Edit Geometry')
-        self.item_child_set_material = self.add_item('Set Material')
-        self.item_child_set_fluid = self.add_item('Set Fluid')
-        self.item_child_set_crossSection = self.add_item('Set Cross-Section')
+        self.item_child_set_material = self.add_item('Material', property_name="material")
+        self.item_child_set_fluid = self.add_item('Fluid', property_name="fluid")
+        self.item_child_set_crossSection = self.add_item('Cross-Section', property_name="cross_section")
         #
         self.item_top_structural_model_setup = self.add_top_item('Structural Model Setup')
-        self.item_child_set_structural_element_type = self.add_item('Set Structural Element Type')
-        self.item_child_set_prescribed_dofs = self.add_item('Set Prescribed DOFs')
-        self.item_child_set_nodal_loads = self.add_item('Set Nodal Loads')
-        self.item_child_add_mass_spring_damper = self.add_item('Add: Mass / Spring / Damper')
-        self.item_child_add_elastic_nodal_links = self.add_item('Add Elastic Nodal Links')
-        self.item_child_set_beam_xaxis_rotation = self.add_item('Set Beam X-axis Rotation')
-        self.item_child_set_rotation_decoupling_dofs = self.add_item('Set B2P Rotation Decoupling')
-        self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
-        self.item_child_add_valve = self.add_item('Add Valve')
-        self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
-        self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
+        self.item_child_set_structural_element_type = self.add_item('Structural Element Type', property_name="structural_element_type")
+        self.item_child_set_prescribed_dof = self.add_item('Prescribed DOF', property_name="prescribed_dofs")
+        self.item_child_set_nodal_loads = self.add_item('Nodal Loads', property_name="nodal_loads")
+        self.item_child_add_mass_spring_damper = self.add_item('Mass / Spring / Damper', property_name="mass_spring_damper")
+        self.item_child_add_elastic_nodal_links = self.add_item('Elastic Nodal Links', property_name="elastic_nodal_links")
+        self.item_child_set_beam_xaxis_rotation = self.add_item('Beam X-axis Rotation', property_name="beam_xaxis_rotation")
+        self.item_child_set_rotation_decoupling_dofs = self.add_item('B2P Rotation Decoupling', property_name="rotation_decoupling_dofs")
+        self.item_child_set_stress_stiffening = self.add_item('Stress Stiffening', property_name="stress_stiffening")
+        self.item_child_add_valve = self.add_item('Valve', property_name="valve")
+        self.item_child_add_expansion_joint = self.add_item('Expansion Joint', property_name="expansion_joint")
+        self.item_child_set_inertial_loads = self.add_item('Inertial Loads', property_name="inertial_loads")
         #
         self.item_top_acoustic_model_setup = self.add_top_item('Acoustic Model Setup')
-        self.item_child_set_acoustic_element_type = self.add_item('Set Acoustic Element Type')
-        self.item_child_set_acoustic_pressure = self.add_item('Set Acoustic Pressure')
-        self.item_child_set_volume_velocity = self.add_item('Set Volume Velocity')
-        self.item_child_set_specific_impedance = self.add_item('Set Specific Impedance')
-        self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance')
-        self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
-        self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
-        self.item_child_add_reciprocating_compressor_excitation = self.add_item('Add Reciprocating Compressor Excitation')
-        self.item_child_add_reciprocating_pump_excitation = self.add_item('Add Reciprocating Pump Excitation')
-        self.item_child_add_acoustic_transfer_element = self.add_item('Add Acoustic Transfer Element')
-        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
+        self.item_child_set_acoustic_element_type = self.add_item('Acoustic Element Type', property_name="acoustic_element_type")
+        self.item_child_set_acoustic_pressure = self.add_item('Acoustic Pressure', property_name="acoustic_pressure")
+        self.item_child_set_volume_velocity = self.add_item('Volume Velocity', property_name="volume_velocity")
+        self.item_child_set_specific_impedance = self.add_item('Specific Impedance', property_name="specific_impedance")
+        self.item_child_set_radiation_impedance = self.add_item('Radiation Impedance', property_name="radiation_impedance")
+        self.item_child_add_perforated_plate = self.add_item('Perforated Plate', property_name="perforated_plate")
+        self.item_child_set_acoustic_element_length_correction = self.add_item('Element Length Correction', property_name="acoustic_element_length_correction")
+        self.item_child_add_reciprocating_compressor_excitation = self.add_item('Reciprocating Compressor Excitation', property_name="reciprocating_compressor_excitation")
+        self.item_child_add_reciprocating_pump_excitation = self.add_item('Reciprocating Pump Excitation', property_name="reciprocating_pump_excitation")
+        self.item_child_add_acoustic_transfer_element = self.add_item('Acoustic Transfer Element', property_name="acoustic_transfer_element")
+        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements', property_name="turn_off_acoustic_elements")
         #
         self.top_level_items = [
                                 self.item_top_general_settings,
@@ -66,14 +64,13 @@ class ModelSetupItems(CommonMenuItems):
     def _create_connections(self):
         #
         # General Settings
-        self.item_child_create_geometry.clicked.connect(self.item_child_create_geometry_callback)
         self.item_child_set_material.clicked.connect(self.item_child_set_material_callback)
         self.item_child_set_fluid.clicked.connect(self.item_child_set_fluid_callback)
         self.item_child_set_crossSection.clicked.connect(self.item_child_set_cross_section_callback)
         #
         # Structural Model Setup
         self.item_child_set_structural_element_type.clicked.connect(self.item_child_set_structural_element_type_callback)
-        self.item_child_set_prescribed_dofs.clicked.connect(self.item_child_set_prescribed_dofs_callback)
+        self.item_child_set_prescribed_dof.clicked.connect(self.item_child_set_prescribed_dof_callback)
         self.item_child_set_nodal_loads.clicked.connect(self.item_child_set_nodal_loads_callback)
         self.item_child_add_mass_spring_damper.clicked.connect(self.item_child_add_mass_spring_damper_callback)
         self.item_child_add_elastic_nodal_links.clicked.connect(self.item_child_add_elastic_nodal_links_callback)
@@ -100,8 +97,6 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.theme_changed.connect(self.set_theme)
 
     # Callbacks
-    def item_child_create_geometry_callback(self):
-        app().main_window.input_ui.call_geometry_editor()
 
     def item_child_set_material_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
@@ -111,6 +106,8 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.set_input_widget(None)
         app().main_window.set_color_mode(previous_color_mode)
 
+        self.update_tooltips_warnings()
+
     def item_child_set_fluid_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
         app().main_window.action_plot_fluid_callback()
@@ -118,6 +115,8 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.input_ui.set_fluid()
         app().main_window.set_input_widget(None)
         app().main_window.set_color_mode(previous_color_mode)
+
+        self.update_tooltips_warnings()
 
     def item_child_set_cross_section_callback(self):
         self.configure_render_according_to_inputs("lines")
@@ -129,9 +128,9 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.input_ui.set_structural_element_type()
         app().main_window.set_input_widget(None)
 
-    def item_child_set_prescribed_dofs_callback(self):
+    def item_child_set_prescribed_dof_callback(self):
         self.configure_render_according_to_inputs("nodes")
-        app().main_window.input_ui.set_prescribed_dofs()
+        app().main_window.input_ui.set_prescribed_dof()
         app().main_window.set_input_widget(None)
 
     def item_child_set_nodal_loads_callback(self):
@@ -258,24 +257,14 @@ class ModelSetupItems(CommonMenuItems):
             pass
 
     # Items access
-    def modify_geometry_item_access(self, bool_key):
-        self.item_child_create_geometry.setDisabled(bool_key)
-
-    def modify_general_settings_items_access(self, bool_key):
-        self.item_child_create_geometry.setDisabled(bool_key)
-        # self.item_child_set_material.setDisabled(bool_key)
-        # self.item_child_set_fluid.setDisabled(bool_key)
-        # self.item_child_set_crossSection.setDisabled(bool_key)
-
     def modify_model_setup_items_access(self, bool_key):
         #
-        self.item_child_create_geometry.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
         #
         self.item_child_set_structural_element_type.setDisabled(bool_key) 
-        self.item_child_set_prescribed_dofs.setDisabled(bool_key)
+        self.item_child_set_prescribed_dof.setDisabled(bool_key)
         self.item_child_set_nodal_loads.setDisabled(bool_key)
         self.item_child_add_mass_spring_damper.setDisabled(bool_key)
         self.item_child_set_inertial_loads.setDisabled(bool_key)
@@ -312,7 +301,7 @@ class ModelSetupItems(CommonMenuItems):
             self.line_color = QColor(107,137,185)
             self.background_color = QColor(230,230,230)
 
-        border_role = Qt.UserRole + 1
+        border_role = Qt.ItemDataRole.UserRole + 1
         # border_pen = QPen(self.background_color)
         border_pen = QPen(self.line_color)
         border_pen.setWidth(1)
@@ -320,3 +309,80 @@ class ModelSetupItems(CommonMenuItems):
         for item in self.top_level_items:
             item.setBackground(0, self.background_color)
             item.setData(0, border_role, border_pen)
+    
+    def _get_physical_domain(self) -> str:
+        try:
+            return app().main_window.analysis_toolbar.combo_box_physical_domain.currentText().strip().lower()
+        except Exception:
+            return "structural"
+
+    def needs_property(self, property_name: str, domain: str) -> bool:
+
+        if property_name == "material":
+            return True
+
+        if property_name == "fluid":
+            return domain in ["acoustic", "coupled"]
+
+        return False
+
+    def contains_property(self, property_name: str) -> bool:
+        if (properties := app().project.model.properties) is None:
+            return False
+
+        return properties.is_the_property_applied(property_name)
+
+    def update_items_apperence(self):
+        physical_domain = self._get_physical_domain()
+        for top_level_items in self.top_level_items:
+            for index in range(top_level_items.childCount()):
+                item_child: ChildTreeWidgetItem = top_level_items.child(index)
+
+                if item_child.isDisabled():
+                    continue
+
+                item_child.set_warning(False)
+
+                if self.contains_property(item_child.property_name):
+                    item_child.set_icon()
+
+                elif self.needs_property(item_child.property_name, physical_domain):
+                    item_child.set_warning(True)
+
+                else:
+                    item_child.set_icon(visible=False)
+
+    def update_tooltips_warnings(self):
+        physical_domain = self._get_physical_domain()
+
+        for top_level in self.top_level_items:
+            for i in range(top_level.childCount()):
+                item = top_level.child(i)
+                prop_name = getattr(item, "property_name", "")
+
+                if not prop_name:
+                    continue
+
+                is_needed = self.needs_property(prop_name, physical_domain)
+                is_filled = self.contains_property(prop_name)
+
+                if is_needed and not is_filled:
+                    item.set_tooltips(requirement=True)
+                else:
+                    item.set_tooltips(requirement=False)
+
+    def filter_by_domain(self):
+        domain = self._get_physical_domain()
+        self.item_top_general_settings.setHidden(False)
+
+        show_structural = domain in ("structural", "coupled")
+        show_acoustic = domain in ("acoustic", "coupled")
+
+        self.item_top_structural_model_setup.setHidden(not show_structural)
+        self.item_top_acoustic_model_setup.setHidden(not show_acoustic)
+
+    def _connect_domain_filter(self):
+        app().main_window.analysis_changed.connect(self.filter_by_domain)
+        app().main_window.analysis_changed.connect(self.update_tooltips_warnings)
+        app().main_window.analysis_changed.connect(self.update_items_apperence)
+        self.filter_by_domain()

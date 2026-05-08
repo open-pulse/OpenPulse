@@ -4,20 +4,20 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 from pulse.model.cross_section import CrossSection
-from pulse.properties.material import Material
+from pulse.model.properties.material import Material
 from pulse.model.preprocessor import  Preprocessor
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 
 
 # PREPARING MESH
-steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
+steel = Material(name='Steel', identifier=1, density=7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 cross_section = CrossSection(0.05, 0.034)
 preprocessor = Preprocessor()
 preprocessor.load_mesh('coord.dat', 'connect.dat')
 preprocessor.set_material_by_element('all', steel)
 preprocessor.set_cross_section_by_element('all', cross_section)
-preprocessor.set_prescribed_dofs([1, 1200, 1325], np.zeros(6))
+preprocessor.set_prescribed_dof([1, 1200, 1325], np.zeros(6))
 preprocessor.set_structural_loads([361], np.array([1,0,0,0,0,0]))
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS

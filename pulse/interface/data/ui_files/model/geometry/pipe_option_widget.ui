@@ -102,6 +102,6 @@
   <tabstop>bending_options_combobox</tabstop>
   <tabstop>bending_radius_line_edit</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

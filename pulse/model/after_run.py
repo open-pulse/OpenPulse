@@ -1,10 +1,9 @@
-from pulse import app
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from pulse import app
+from pulse.interface import warning_title
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+
 
 class AfterRun:
     def __init__(self):
@@ -55,10 +54,10 @@ class AfterRun:
                     self.main_window.plot_mesh()
                     self.highlight_selection(nodes = self.list_nodes)
                     title = "Acoustic nonlinearity criteria not satisfied"
-                    message_nl = f"The acoustic model is out of its linear validity range at "
+                    message_nl = "The acoustic model is out of its linear validity range at "
                     message_nl += f"{len(self.list_nodes)} nodes and at {len(self.list_freq)} frequencies."
                     message_nl += "It is recommended to check the results carefully."
-                    PrintMessageInput([window_title_2, title, message_nl])
+                    PrintMessageInput([warning_title, title, message_nl])
 
     def check_the_acoustic_criterias_related_to_nodes(self):
         pass

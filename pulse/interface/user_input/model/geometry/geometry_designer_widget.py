@@ -1,79 +1,63 @@
-from PySide6.QtWidgets import (
-    QWidget,
-    QLineEdit,
-    QComboBox,
-    QFrame,
-    QPushButton,
-    QLabel,
-    QStackedWidget,
-    QSlider,
-    QSpinBox,
-)
-from PySide6.QtGui import QAction
-
-from vtkmodules.vtkRenderingCore import vtkCoordinate, vtkCamera
-from vtkmodules.vtkCommonDataModel import vtkRecti
-
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
-
+import math
 import re
 from itertools import chain
 from numbers import Number
-import numpy as np
-import math
 
+import numpy as np
 from molde.stylesheets import set_qproperty
 from molde.utils import TreeInfo
-from molde import load_ui
+from PySide6.QtWidgets import (
+    QLabel,
+    QLineEdit,
+)
+from vtkmodules.vtkCommonDataModel import vtkRecti
+from vtkmodules.vtkRenderingCore import vtkCamera, vtkCoordinate
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.editor.structures import (
+    Beam,
+    Bend,
+    Pipe,
+    Point,
+)
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.ui_generated.model.geometry.geometry_designer_widget_ui import GeometryDesignerWidget_UI
+from pulse.interface.user_input.model.geometry.options import (
+    ArcBendOptions,
+    CBeamOptions,
+    CircularBeamOptions,
+    ExpansionJointOptions,
+    FlangeOptions,
+    IBeamOptions,
+    PipeOptions,
+    PointOptions,
+    RectangularBeamOptions,
+    ReducerOptions,
+    StructureOptions,
+    TBeamOptions,
+    ValveOptions,
+)
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import (
     SetCrossSectionSimplified,
 )
 from pulse.interface.user_input.model.setup.material.set_material_input_simplified import (
     SetMaterialSimplified,
 )
-from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
-from pulse.editor.structures import (
-    Point,
-    Pipe,
-    Bend,
-    Beam,
-)
-
-from pulse.interface.user_input.model.geometry.options import (
-    StructureOptions,
-    PipeOptions,
-    FlangeOptions,
-    ReducerOptions,
-    TBeamOptions,
-    IBeamOptions,
-    CBeamOptions,
-    CircularBeamOptions,
-    RectangularBeamOptions,
-    ExpansionJointOptions,
-    ValveOptions,
-    ArcBendOptions,
-    PointOptions,
-)
+from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 
 
-class GeometryDesignerWidget(QWidget):
+class GeometryDesignerWidget(GeometryDesignerWidget_UI):
     def __init__(self, render_widget: GeometryRenderWidget, parent=None):
         super().__init__(parent)
-
-        ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self.render_widget = render_widget
         self.modified = False
         self.tmp_camera = None
         self.selected_device_name = None
-
         self.pipeline = app().project.pipeline
 
         self._define_qt_variables()
@@ -82,69 +66,7 @@ class GeometryDesignerWidget(QWidget):
         self._initialize()
 
     def _define_qt_variables(self):
-        # QAction
-        self.select_all_action: QAction
         self.addAction(self.select_all_action)
-
-        # QComboBox
-        self.unit_combobox: QComboBox
-        self.structure_combobox: QComboBox
-        self.division_combobox: QComboBox
-        self.bending_options_combobox: QComboBox
-        self.deltas_combobox: QComboBox
-        self.selected_point_combo_box: QComboBox
-        self.distance_axis_combo_box: QComboBox
-
-        # QFrame
-        self.frame_bending_options: QFrame
-        self.frame_bounding_box_sizes: QFrame
-        self.frame_division_options: QFrame
-        self.create_structure_frame: QFrame
-
-        # QPushButton
-        self.add_button: QPushButton
-        self.apply_division_button: QPushButton
-        self.attach_button: QPushButton
-        self.cancel_button: QPushButton
-        self.cancel_division_button: QPushButton
-        self.delete_button: QPushButton
-        self.finalize_button: QPushButton
-        self.configure_button: QPushButton
-        self.set_material_button: QPushButton
-
-        # QLineEdit
-        self.x_line_edit: QLineEdit
-        self.y_line_edit: QLineEdit
-        self.z_line_edit: QLineEdit
-        self.unity_x_label: QLineEdit
-        self.unity_y_label: QLineEdit
-        self.unity_z_label: QLineEdit
-        self.bending_radius_line_edit: QLineEdit
-        self.deltas_line_edit: QLineEdit
-        self.distance_value_line_edit: QLineEdit
-
-        # QLabel
-        self.dx_label: QLabel
-        self.dy_label: QLabel
-        self.dz_label: QLabel
-
-        self.division_slider_label: QLabel
-        self.position_slider_label: QLabel
-        self.sizes_coords_label: QLabel
-
-        # QSlider
-        self.division_slider: QSlider
-        self.position_slider: QSlider
-
-        # QSpinBox
-        self.division_amount_spinbox: QSpinBox
-        self.position_spinbox: QSpinBox
-
-        # QStackedWidget
-        self.options_stack_widget: QStackedWidget
-
-        # QWidget
-        self.empty_widget: QWidget
 
     def _create_layout(self):
         self.material_widget = SetMaterialSimplified()
@@ -167,9 +89,7 @@ class GeometryDesignerWidget(QWidget):
         ]
 
         # Initialize the StructureOptions classes
-        self.structure_options: dict[str, StructureOptions] = {
-            option.name(): option(self) for option in structure_option_types
-        }
+        self.structure_options: dict[str, StructureOptions] = {option.name(): option(self) for option in structure_option_types}
 
         # Add the names to the combobox
         self.structure_combobox.clear()
@@ -181,15 +101,12 @@ class GeometryDesignerWidget(QWidget):
         self.select_all_action.triggered.connect(self.select_all_callback)
 
         self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
-        self.structure_combobox.currentTextChanged.connect(
-            self.structure_type_changed_callback
-        )
+        self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
         self.configure_button.clicked.connect(self.configure_structure_callback)
-        self.material_widget.material_widget.pushButton_attribute.clicked.connect(
-            self.define_material_callback
-        )
+        self.material_widget.material_widget.pushButton_attribute.clicked.connect(self.define_material_callback)
 
+        self.length_line_edit.textEdited.connect(self.length_changed_callback)
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.z_line_edit.textEdited.connect(self.xyz_changed_callback)
@@ -198,32 +115,22 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
         self.z_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
 
-        self.bending_options_combobox.currentIndexChanged.connect(
-            self.bending_options_changed_callback
-        )
-        self.bending_radius_line_edit.textChanged.connect(
-            self.bending_options_changed_callback
-        )
+        self.invert_x_sign.clicked.connect(lambda: self.invert_signal_text(self.x_line_edit))
+        self.invert_y_sign.clicked.connect(lambda: self.invert_signal_text(self.y_line_edit))
+        self.invert_z_sign.clicked.connect(lambda: self.invert_signal_text(self.z_line_edit))
 
-        self.division_combobox.currentTextChanged.connect(
-            self.division_type_changed_callback
-        )
+        self.bending_options_combobox.currentIndexChanged.connect(self.bending_options_changed_callback)
+        self.bending_radius_line_edit.textChanged.connect(self.bending_options_changed_callback)
+
+        self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
         self.division_slider.valueChanged.connect(self.division_slider_callback)
-        self.division_amount_spinbox.textChanged.connect(
-            self.preview_divisions_callback
-        )
+        self.division_amount_spinbox.textChanged.connect(self.preview_divisions_callback)
         self.position_slider.valueChanged.connect(self.position_slider_callback)
         self.position_spinbox.textChanged.connect(self.preview_divisions_callback)
 
-        self.distance_value_line_edit.textChanged.connect(
-            self.preview_divisions_callback
-        )
-        self.distance_axis_combo_box.currentIndexChanged.connect(
-            self.preview_divisions_callback
-        )
-        self.selected_point_combo_box.currentIndexChanged.connect(
-            self.preview_divisions_callback
-        )
+        self.distance_value_line_edit.textChanged.connect(self.preview_divisions_callback)
+        self.distance_axis_combo_box.currentIndexChanged.connect(self.preview_divisions_callback)
+        self.selected_point_combo_box.currentIndexChanged.connect(self.preview_divisions_callback)
 
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
         self.apply_division_button.clicked.connect(self.apply_division_callback)
@@ -238,11 +145,12 @@ class GeometryDesignerWidget(QWidget):
     def _initialize(self):
         self.current_options: StructureOptions | None = None
         self.current_structure_type = None
-        self.current_material_info = None
+        self.current_material_id = None
 
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback(PipeOptions.name())
         self.division_type_changed_callback()
+        self.update_bending_radius_visibility()
 
     def save_tmp_camera(self):
         camera = self.render_widget.renderer.GetActiveCamera()
@@ -260,6 +168,8 @@ class GeometryDesignerWidget(QWidget):
         self.tmp_camera = None
 
     def selection_callback(self):
+        self._reset_xyz()
+
         if issubclass(self.current_structure_type, Point):
             self._set_xyz_to_selected_point()
 
@@ -267,6 +177,7 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.main_editor.remove_collapsed_bends()
             self.cancel_division_callback()
 
+        self._reset_length()
         self._update_permissions()
         self._update_information_text()
 
@@ -325,6 +236,7 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit.setEnabled(key)
         self.y_line_edit.setEnabled(key)
         self.z_line_edit.setEnabled(key)
+        self.length_line_edit.setEnabled(key)
 
     def show_material_widget_callback(self):
         self.material_widget.material_widget.load_data_from_materials_library()
@@ -336,9 +248,7 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
 
     def define_material_callback(self):
-        self.current_material_info = (
-            self.material_widget.material_widget.get_selected_material_id()
-        )
+        self.current_material_id = self.material_widget.material_widget.get_selected_material_id()
         self.material_widget.close()
         self._update_material_of_selected_structures()
         self._update_permissions()
@@ -354,13 +264,14 @@ class GeometryDesignerWidget(QWidget):
 
     def update_bending_radius_visibility(self):
         index = self.bending_options_combobox.currentIndex()
+        self.bending_radius_line_edit.blockSignals(True)
+
         if index == 2:
             self.bending_radius_line_edit.setEnabled(True)
             if self.bending_radius_line_edit.text() in ["1.5*D", "1.0*D"]:
-                self.bending_radius_line_edit.setText("")
+                self.bending_radius_line_edit.clear()
 
         else:
-            self.bending_radius_line_edit.blockSignals(True)
             self.bending_radius_line_edit.setEnabled(False)
             d = self.get_pipe_diameter()
 
@@ -379,46 +290,94 @@ class GeometryDesignerWidget(QWidget):
                     self.bending_radius_line_edit.setText(str(round(bending_radius, 6)))
 
             else:
-                self.bending_radius_line_edit.setText("")
+                self.bending_radius_line_edit.clear()
 
-            self.bending_radius_line_edit.blockSignals(False)
+        self.bending_radius_line_edit.blockSignals(False)
 
     def get_pipe_diameter(self):
         try:
-            section_parameters = (
-                self.cross_section_dialog.cross_section_widget.pipe_section_info[
-                    "section_parameters"
-                ]
-            )
-            diameter = section_parameters[0]
+            nps = self.cross_section_dialog.cross_section_widget.nps
+            if nps:
+                diameter = nps
+            else:
+                section_parameters = self.cross_section_dialog.cross_section_widget.pipe_section_info["section_parameters"]
+                diameter = section_parameters[0]
+
         except Exception:
             return None
 
         return diameter
 
     def bending_options_changed_callback(self):
+        self.update_bending_radius_visibility()
+
         if self.pipeline.selected_structures:
             self._update_bending_radius_of_selected_structures()
-            self.update_bending_radius_visibility()
             self._update_permissions()
             self.render_widget.update_plot(reset_camera=False)
+
         else:
             self.xyz_changed_callback()
 
     def xyz_changed_callback(self):
+        if self.current_options is None:
+            return
+
+        if self.forbidden_structure():
+            self._reset_xyz()
+            window_title = "Invalid Location"
+            title = "Protected Structure"
+            message = "This location belongs to a PSD or Pulsation Damper, please use the dedicated editor to modify it."
+            PrintMessageInput([window_title, title, message])
+            return
+
         try:
-            self.update_bending_radius_visibility()
             xyz = self._get_xyz()
         except ValueError:
             return
         except TypeError:
             return
 
+        self._reset_length()
         self.current_options.xyz_callback(xyz)
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=False)
         self.update_zoom_to_fit_new_points()
+        self._update_information_text()
         self.render_widget.update()
+
+    def length_changed_callback(self):
+        if self.current_options is None:
+            return
+
+        length = self._eval_number(self.length_line_edit.text())
+        if length is None:
+            length = 0
+
+        if self.forbidden_structure():
+            self._reset_xyz()
+            window_title = "Invalid Location"
+            title = "Protected Structure"
+            message = "This location belongs to a PSD or Pulsation Damper, please use the dedicated editor to modify it."
+            PrintMessageInput([window_title, title, message])
+            return
+
+        self._reset_xyz()
+        self.current_options.length_callback(length)
+        self._update_permissions()
+        self.render_widget.update_plot(reset_camera=False)
+        self.update_zoom_to_fit_new_points()
+        self._update_information_text()
+        self.render_widget.update()
+
+    def invert_signal_text(self, line_edit: QLineEdit):
+        txt = line_edit.text()
+        if not txt:
+            return
+
+        txt = txt[1:] if txt.startswith("-") else "-" + txt
+        line_edit.setText(txt)
+        self.xyz_changed_callback()
 
     def update_zoom_to_fit_new_points(self):
         renderer = self.render_widget.renderer
@@ -598,9 +557,7 @@ class GeometryDesignerWidget(QWidget):
 
             division_data[direction_index] = value
 
-            self.pipeline.preview_divided_structures_by_distance_from_point(
-                selected_point, division_data
-            )
+            self.pipeline.preview_divided_structures_by_distance_from_point(selected_point, division_data)
 
         self.render_widget.update_plot(reset_camera=False)
 
@@ -617,7 +574,7 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.divide_structures(value / 100)
 
         elif index == 1:
-            value = self.division_slider.value()
+            value = self.division_amount_spinbox.value()
             self.pipeline.divide_structures_evenly(value)
 
         elif index == 2:
@@ -642,9 +599,7 @@ class GeometryDesignerWidget(QWidget):
 
             division_data[direction_index] = value
 
-            self.pipeline.divide_structures_by_distance_from_point(
-                selected_point, division_data
-            )
+            self.pipeline.divide_structures_by_distance_from_point(selected_point, division_data)
 
         self.pipeline.clear_structure_selection()
         self.render_widget.update_plot(reset_camera=False)
@@ -659,35 +614,30 @@ class GeometryDesignerWidget(QWidget):
                     app().project.model.properties._remove_line(tag)
 
         selected_device_type = None
-        selected_device_name = None
+        selected_device_label = None
 
         for structure in self.pipeline.structures:
-            if (
-                "psd_name" not in structure.extra_info
-                and "pulsation_damper_name" not in structure.extra_info
-            ):
+            if "psd_label" not in structure.extra_info and "pulsation_damper_label" not in structure.extra_info:
                 continue
 
             if structure.selected:
-                if "psd_name" in structure.extra_info:
+                if "psd_label" in structure.extra_info:
                     selected_device_type = "psd"
-                    selected_device_name = structure.extra_info["psd_name"]
+                    selected_device_label = structure.extra_info["psd_label"]
                 else:
                     selected_device_type = "damper"
-                    selected_device_name = structure.extra_info["pulsation_damper_name"]
+                    selected_device_label = structure.extra_info["pulsation_damper_label"]
 
                 break
 
             for point in structure.get_points():
                 if point in self.pipeline.selected_points:
-                    if "psd_name" in structure.extra_info:
+                    if "psd_label" in structure.extra_info:
                         selected_device_type = "psd"
-                        selected_device_name = structure.extra_info["psd_name"]
+                        selected_device_label = structure.extra_info["psd_label"]
                     else:
                         selected_device_type = "damper"
-                        selected_device_name = structure.extra_info[
-                            "pulsation_damper_name"
-                        ]
+                        selected_device_label = structure.extra_info["pulsation_damper_label"]
 
                     break
 
@@ -699,29 +649,25 @@ class GeometryDesignerWidget(QWidget):
         else:
             title = "Error"
             if selected_device_type == "psd":
-                message = (
-                    "To delete a PSD or its parts, please use the dedicated editor."
-                )
+                message = "To delete a PSD or its parts, please use the dedicated editor."
             elif selected_device_type == "damper":
                 message = "To delete a pulsation damper or its parts, please use the dedicated editor."
+
             buttons_config = {
                 "left_button_label": "Cancel",
                 "right_button_label": "Open editor",
             }
-            read = GetUserConfirmationInput(
-                title, message, buttons_config=buttons_config
-            )
 
-            if read._continue:
-                if selected_device_type == "psd":
-                    app().main_window.input_ui.pulsation_suppression_device_editor(
-                        device_to_delete=selected_device_name
-                    )
+            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-                elif selected_device_type == "damper":
-                    app().main_window.input_ui.pulsation_damper_editor(
-                        device_to_delete=selected_device_name
-                    )
+            if not read._continue:
+                return
+
+            if selected_device_type == "psd":
+                app().main_window.input_ui.pulsation_suppression_device_editor(device_to_delete=selected_device_label)
+
+            elif selected_device_type == "damper":
+                app().main_window.input_ui.pulsation_damper_editor(device_to_delete=selected_device_label)
 
         self._reset_xyz()
         self._update_permissions()
@@ -731,15 +677,13 @@ class GeometryDesignerWidget(QWidget):
         self.current_options.attach_callback()
         self.pipeline.commit()
         self._update_permissions()
-        self.render_widget.update_plot(reset_camera=True)
+        self.render_widget.update_plot(reset_camera=False)
         self.modified = True
         self._reset_xyz()
         self._update_permissions()
 
     def add_structure_callback(self):
-        if (self.pipeline.selected_structures) and not (
-            self.pipeline.staged_structures
-        ):
+        if (self.pipeline.selected_structures) and not (self.pipeline.staged_structures):
             self.current_options.replace_selection()
         else:
             self.pipeline.commit()
@@ -749,13 +693,20 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
         self.modified = True
         self._reset_xyz()
+        self._reset_length()
         self._update_permissions()
+        self._update_information_text()
 
     def cancel_callback(self):
         app().main_window.update_plots()
         app().main_window.use_model_setup_workspace()
 
     def finalize_callback(self):
+
+        # reset the model solution whenever the geometry changed
+        if self.modified:
+            app().main_window.reset_solution()
+
         self.modified = False
         self.pipeline.dismiss()
 
@@ -777,6 +728,11 @@ class GeometryDesignerWidget(QWidget):
         app().main_window.use_model_setup_workspace()
         app().main_window.plot_lines_with_cross_sections()
         self.render_widget.set_info_text("")
+
+    def reject(self):
+        # QDialog.reject() calls hide() when Esc is pressed, which makes the
+        # widget disappear when embedded in a QStackedWidget. Override to no-op.
+        pass
 
     def showEvent(self, event):
         self._update_permissions()
@@ -833,13 +789,19 @@ class GeometryDesignerWidget(QWidget):
 
         return dx, dy, dz
 
-    def _set_xyz(self, x, y, z):
+    def _set_xyz(self, x: float, y: float, z: float):
         self.x_line_edit.setText(str(x))
         self.y_line_edit.setText(str(y))
         self.z_line_edit.setText(str(z))
 
+    def _set_length(self, length: float):
+        self.length_line_edit.setText(str(length))
+
     def _reset_xyz(self):
         self._set_xyz("", "", "")
+
+    def _reset_length(self):
+        self._set_length("")
 
     def _set_xyz_to_selected_point(self):
         if len(self.pipeline.selected_points) != 1:
@@ -881,7 +843,7 @@ class GeometryDesignerWidget(QWidget):
 
     def _update_material_of_selected_structures(self):
         for structure in self.pipeline.selected_structures:
-            structure.extra_info["material_info"] = self.current_material_info
+            structure.extra_info["material_id"] = self.current_material_id
 
     def _update_bending_radius_of_selected_structures(self):
         if not isinstance(self.current_options, PipeOptions):
@@ -897,11 +859,23 @@ class GeometryDesignerWidget(QWidget):
 
         self.pipeline.recalculate_curvatures()
 
+    def _add_bending_on_selected_points(self):
+        if not isinstance(self.current_options, PipeOptions):
+            return
+
+        d = self.get_pipe_diameter()
+        if d is None:
+            return
+
+        pipe_options: PipeOptions = self.structure_options[PipeOptions.name()]
+        bending_radius = pipe_options._get_bending_radius(d)
+        self.pipeline.add_bend(bending_radius)
+
     def _unit_abreviation(self, unit):
         if self.length_unit == "meter":
             return "m"
 
-        elif self.length_unit == "milimeter":
+        elif self.length_unit == "millimeter":
             return "mm"
 
         elif self.length_unit == "inch":
@@ -911,23 +885,21 @@ class GeometryDesignerWidget(QWidget):
             return
 
     def _update_information_text(self):
-        cross_section_info = getattr(self.current_options, "cross_section_info", None)
+        cross_section_info = getattr(self.current_options, "structure_info", None)
 
         section_label = ""
         section_parameters = ""
         if cross_section_info:
-            section_label = cross_section_info["section_type_label"]
-            section_parameters = cross_section_info["section_parameters"]
+            section_label = cross_section_info.get("section_type_label")
+            section_parameters = cross_section_info.get("section_parameters")
 
         material_id = ""
         material = None
-        if self.current_material_info is not None:
-            material_id = self.current_material_info
-            material = self.material_widget.material_widget.library_materials[
-                material_id
-            ]
+        if isinstance(self.current_material_id, int):
+            material_id = self.current_material_id
+            material = app().project.model.properties.materials_library.get(material_id)
 
-        message = "Active configuration\n\n"
+        message = ""
 
         if cross_section_info:
             if section_label == "reducer":
@@ -955,6 +927,13 @@ class GeometryDesignerWidget(QWidget):
             tree.add_item("dz", dz, unit)
             message += str(tree) + "\n\n"
 
+        if message:
+            message = "Active configuration:\n\n" + message
+
+        total_added_length = sum([s.arc_length for s in self.pipeline.staged_structures])
+        if total_added_length:
+            message += f"Total added length: {total_added_length:.3f}"
+
         self.render_widget.set_info_text(message)
 
     def _update_permissions(self):
@@ -974,3 +953,33 @@ class GeometryDesignerWidget(QWidget):
         app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.complete = True
+
+    def forbidden_structure(self):
+        forbidden_parts = [
+            # "pipe #1",
+            # "pipe #2",
+            "volume #1",
+            "volume #2",
+            "pipe #3",
+            # "neck",
+            "liquid_filled",
+            "gas_filled",
+        ]
+        for point in self.pipeline.selected_points:
+            structures = self.pipeline.get_structures_of_point(point)
+            for structure in structures:
+                if "psd_label" in structure.extra_info.keys():
+                    line_properties = app().project.model.properties.line_properties
+                    if structure.tag in line_properties:
+                        psd_segment = line_properties[structure.tag].get("psd_segment")
+                        if psd_segment in forbidden_parts:
+                            return True
+
+                elif "pulsation_damper_label" in structure.extra_info.keys():
+                    line_properties = app().project.model.properties.line_properties
+                    if structure.tag in line_properties:
+                        damper_segment = line_properties[structure.tag].get("pulsation_damper_segment")
+                        if damper_segment in forbidden_parts:
+                            return True
+
+        return False

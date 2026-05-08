@@ -1,268 +1,278 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
+from enum import IntEnum
 
-from pulse import app, UI_DIR
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QTreeWidgetItem  #, QHeaderView
+
+from pulse import app
+from pulse.interface import error_title
+from pulse.interface.ui_generated.model.setup.structural.stress_stiffening_input_ui import (
+    StressStiffeningInput_UI,
+)
+from pulse.interface.user_input.model.setup.user_input import UserInput
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
+from pulse.interface.user_input.numeric_checks.unit_utilities import (
+    PressureUnits,
+    pressure_units_labels,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
-import numpy as np
+class TabIndex(IntEnum):
+    SETUP = 0
+    LIST = 1
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
-class StressStiffeningInput(QDialog):
+class AssignmentType(IntEnum):
+    ALL_LINES = 0
+    SELECTED_LINES = 1
+
+
+class StressStiffeningInput(UserInput, StressStiffeningInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/structural/stress_stiffening_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-        
-        app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
         self.before_run = app().project.get_pre_solution_model_checks()
 
-        self._config_window()
         self._initialize()
-        self._define_qt_variables()
-        self._create_connections()
         self._config_widgets()
+        self.configure_dynamic_validators()
+        self._create_connections()
 
-        self.selection_callback()
-        self.load_treeWidgets_info()
+        self.load_lines_info()
 
         while self.keep_window_open:
             self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
         self.keep_window_open = True
 
-    def _define_qt_variables(self):
+    def _config_widgets(self):
+        #
+        # self.treeWidget_lines_info.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        #
+        for i, width in enumerate([60, 140, 140]):
+            self.treeWidget_lines_info.setColumnWidth(i, width)
+            self.treeWidget_lines_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
+        #
+        self._load_units_labels()
 
-        # QComboBox
-        self.comboBox_attribution_type: QComboBox
+    def configure_dynamic_validators(self):
 
-        # QLabel
-        self.label_attribute_to: QLabel
-        self.label_selected_id: QLabel
+        # adjust pressure bounds (p_min -> perfect vacuum)      
+        p_min = 0 
+        p_max = 1e10
 
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_external_pressure: QLineEdit
-        self.lineEdit_internal_pressure: QLineEdit
+        punit_index = self.comboBox_pressure_units.currentIndex()
+        if punit_index == PressureUnits.Pa_g:
+            p_min = -101325
 
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_remove: QPushButton
+        elif punit_index == PressureUnits.kPa_g:
+            p_min = -101.325
 
-        # QTabWidget
-        self.tabWidget_groups: QTabWidget
-        self.tabWidget_main: QTabWidget
+        elif punit_index == PressureUnits.bar_g:
+            p_min = -1.101325
+            p_max = 2e3
 
-        # QTreeWidget
-        self.treeWidget_stress_stiffening: QTreeWidget
+        elif punit_index == PressureUnits.kgf_cm2_g:
+            p_min = -(9.80665*1e4)
+
+        elif punit_index == PressureUnits.psi_g:
+            p_min = -(0.45359237*9.80665) / (0.0254**2)
+
+        elif punit_index == PressureUnits.ksi_g:
+            p_min = -(0.45359237*9.80665) / (1e3 * (0.0254**2))
+            p_max = 1e3
+
+        # configure validator for pressure and temeperature inputs
+        self.lineEdit_external_pressure.setValidator(StrictDoubleValidator(p_min, p_max, 6))
+        self.lineEdit_internal_pressure.setValidator(StrictDoubleValidator(p_min, p_max, 6))
+
+        press_unit = self.comboBox_pressure_units.currentText()
+        self.label_external_pressure_unit.setText(f"[{press_unit}]")
+        self.label_internal_pressure_unit.setText(f"[{press_unit}]")
+
+    def _load_units_labels(self):
+
+        # clear data from unit combo boxes
+        self.comboBox_pressure_units.clear()
+
+        # add pressure labels into unit comboBox
+        self.comboBox_pressure_units.addItems(pressure_units_labels)
+
+        # set default units
+        self.comboBox_pressure_units.setCurrentText("Pa (a)")
 
     def _create_connections(self):
         #
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
+        self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_stress_stiffening.itemClicked.connect(self.on_click_item)
-        self.treeWidget_stress_stiffening.itemDoubleClicked.connect(self.on_double_click_item)
+        self.treeWidget_lines_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_lines_info.itemDoubleClicked.connect(self.on_double_click_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
-
-    def _config_widgets(self):
         #
-        self.pushButton_remove.setDisabled(True)
-        #
-        for i, w in enumerate([100, 130, 140]):
-            self.treeWidget_stress_stiffening.setColumnWidth(i, w)
-            self.treeWidget_stress_stiffening.headerItem().setTextAlignment(i, Qt.AlignCenter)
-
-    def attribution_type_callback(self):
-
-        index = self.comboBox_attribution_type.currentIndex()
-        if index == 0:
-            self.lineEdit_selected_id.setText("All lines")
-        elif index == 1:
-            self.selection_callback()
-
-        self.lineEdit_selected_id.setEnabled(bool(index))
+        self.selection_callback()
 
     def selection_callback(self):
 
+        selected_lines = app().main_window.list_selected_lines()
+        if not selected_lines:
+            return
+
         self.comboBox_attribution_type.blockSignals(True)
 
-        selected_lines = app().main_window.list_selected_lines()
-        if selected_lines:
+        text = ", ".join([str(i) for i in selected_lines])
+        self.lineEdit_selected_id.setText(text)
 
-            text = ", ".join([str(i) for i in selected_lines])
-            self.lineEdit_selected_id.setText(text)
+        self.lineEdit_selected_id.setEnabled(True)
+        self.comboBox_attribution_type.setCurrentIndex(AssignmentType.SELECTED_LINES)
 
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
-
-            if len(selected_lines) == 1:
-                line_id = selected_lines[0]
-                prop_data = self.properties._get_property("stress_stiffening", line_id=line_id)
-                
-                if isinstance(prop_data, dict):
-                    pressures = prop_data["pressures"]
-                    self.lineEdit_external_pressure.setText(str(pressures[0]))
-                    self.lineEdit_internal_pressure.setText(str(pressures[1]))
+        if len(selected_lines) == 1:
+            line_id = selected_lines[0]
+            prop_data = self.properties._get_property("stress_stiffening", line_id=line_id)
+            self.load_property_data(prop_data)
 
         self.comboBox_attribution_type.blockSignals(False)
 
+    def load_property_data(self, data: dict):
+        if not isinstance(data, dict):
+            return
+
+        pressure_unit = data.get("pressure_unit", "Pa (a)")
+        external_pressure = data.get("external_pressure")
+        internal_pressure = data.get("internal_pressure")
+        self.comboBox_pressure_units.setCurrentText(pressure_unit)
+        self.lineEdit_external_pressure.setText(f"{external_pressure : .8e}")
+        self.lineEdit_internal_pressure.setText(f"{internal_pressure : .8e}")
+
+    def attribution_type_callback(self):
+
+        all_lines = self.comboBox_attribution_type.currentIndex() == AssignmentType.ALL_LINES
+        self.lineEdit_selected_id.setDisabled(all_lines)
+
+        if all_lines:
+            self.lineEdit_selected_id.setText("All lines")
+            return
+
+        self.lineEdit_selected_id.clear()
+        self.selection_callback()
+
     def tab_event_callback(self):
-
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_main.currentIndex() == 0:
-            self.selection_callback()
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
+        self.frame_attribution_options.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
 
-        else:
-            self.lineEdit_selected_id.setText("")
-            self.lineEdit_selected_id.setDisabled(True)
+        if tab_list:
+            self.lineEdit_selected_id.clear()
+            self.comboBox_attribution_type.setCurrentIndex(AssignmentType.SELECTED_LINES)
 
-    def tabs_visibility(self):
-        self.pushButton_remove.setDisabled(True)
-        self.tabWidget_main.setTabVisible(1, False)
-        for data in self.properties.line_properties.values():
-            if "stress_stiffening" in data.keys():
-                self.tabWidget_main.setTabVisible(1, True)
-                return
+    def on_click_item(self, item: QTreeWidgetItem):
 
-    def on_click_item(self, item):
-        self.lineEdit_selected_id.setText(item.text(0))
+        line_ids = list()
+        for item in self.treeWidget_lines_info.selectedItems():
+            line_ids.append(int(item.text(0)))
+
+        text = ", ".join([str(i) for i in line_ids])      
+        self.lineEdit_selected_id.setText(text)
+
         self.lineEdit_selected_id.setDisabled(True)
         self.pushButton_remove.setDisabled(False)
 
-    def on_double_click_item(self, item):
+    def on_double_click_item(self, item: QTreeWidgetItem):
         self.on_click_item(item)
 
-    def check_inputs(self, lineEdit: QLineEdit, label: str, only_positive=True, zero_included=False):
-        title = "Ivalid entry"
-        if lineEdit.text() != "":
-            try:
-                out = float(lineEdit.text())
-                if only_positive:
-                    title = f"Invalid input to {label}"
-                    message = f"Insert a positive value to the {label}."
-                    if zero_included:
-                        if out < 0:
-                            message += "\n\nZero value is allowed."
-                            PrintMessageInput([window_title_1, title, message])
-                            return True, None
-                    else:
-                        if out <= 0:
-                            message += "\n\nZero value is not allowed."
-                            PrintMessageInput([window_title_1, title, message])
-                            return True, None
-
-            except Exception as log_error:
-                message = f"Wrong input for {label}.\n\n"
-                message += str(log_error)
-                PrintMessageInput([window_title_1, title, message])
-                return True, None
-
-        else:
-            if zero_included:
-                return False, float(0)
-            else:
-                message = f"Insert some value at the {label} input field."
-                PrintMessageInput([window_title_1, title, message])
-                return True, None
-
-        return False, out
-
     def attribute_callback(self):
-
-        stop, external_pressure = self.check_inputs(self.lineEdit_external_pressure, 
-                                                    "'External pressure'", 
-                                                    zero_included=True)
-        if stop:
-            return
-
-        stop, internal_pressure = self.check_inputs(self.lineEdit_internal_pressure, 
-                                                    "'Internal pressure'", 
-                                                    zero_included=True)
-        if stop:
-            return
         
-        if (external_pressure + internal_pressure) == 0:
+        external_pressure = 0.
+        if self.lineEdit_external_pressure.text() != "":
+            external_pressure = float(self.lineEdit_external_pressure.text())
+
+        internal_pressure = 0.
+        if self.lineEdit_external_pressure.text() != "":
+            internal_pressure = float(self.lineEdit_internal_pressure.text())
+
+        if not any((external_pressure, internal_pressure)):
             title = "Empty entries at the input pressure fields"
-            message = f"You should to insert a value different from zero at the external or internal "
-            message += "pressure field inputs to continue."
-            PrintMessageInput([window_title_1, title, message])  
+            message = "Enter a value different from zero at the external "
+            message += "or internal pressure field inputs to continue."
+            PrintMessageInput([error_title, title, message])  
             return
         
-        parameters = {  "external_pressure" : external_pressure,
-                        "internal_pressure" : internal_pressure  }
+        parameters = {
+            "pressure_unit" : self.comboBox_pressure_units.currentText(),
+            "external_pressure" : external_pressure,
+            "internal_pressure" : internal_pressure,
+            }
 
-        selection_index = self.comboBox_attribution_type.currentIndex()
-        if selection_index == 0:
+        if self.comboBox_attribution_type.currentIndex() == AssignmentType.ALL_LINES:
             line_ids = app().project.model.mesh.lines_from_model
     
-        else:
+        elif self.comboBox_attribution_type.currentIndex() == AssignmentType.SELECTED_LINES:
             lineEdit = self.lineEdit_selected_id.text()
             stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
             if stop:
-                return True
+                return
+
+        else:
+            return
 
         filtered_selection = list()
         for line_id in line_ids:
             element_type = self.properties._get_property("structural_element_type", line_id=line_id)
-            if element_type == "pipe_1":
-                filtered_selection.append(line_id)
+            if element_type != "pipe_1":
+                continue
 
-        if filtered_selection:
+            filtered_selection.append(line_id)
 
-            app().main_window.set_selection(lines=filtered_selection)
+        if not filtered_selection:
+            return
 
-            self.preprocessor.set_stress_stiffening_by_lines(filtered_selection, parameters)
-            self.properties._set_line_property("stress_stiffening", parameters, filtered_selection)
+        # app().main_window.set_selection(lines=filtered_selection)
 
-            self.actions_to_finalize()
-            self.complete = True
+        self.preprocessor.set_stress_stiffening_by_lines(filtered_selection, parameters)
+        self.properties._set_line_property("stress_stiffening", parameters, filtered_selection)
+
+        self.actions_to_finalize()
+        self.complete = True
 
     def remove_callback(self):
-        if self.lineEdit_selected_id.text() != "":
 
-            line_id = int(self.lineEdit_selected_id.text())
+        line_ids = list()
+        for item in self.treeWidget_lines_info.selectedItems():
+            line_ids.append(int(item.text(0)))
 
-            parameters = {  "external_pressure" : 0.,
-                            "internal_pressure" : 0.  }
+        parameters = {
+            "external_pressure" : 0.,
+            "internal_pressure" : 0.,
+            }
 
-            self.preprocessor.set_stress_stiffening_by_lines(line_id, parameters)
-            self.properties._remove_line_property("stress_stiffening", line_id)
+        self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
+        self.properties._remove_line_property("stress_stiffening", line_ids)
 
-            self.lineEdit_selected_id.setText("")
-            self.actions_to_finalize()
+        self.lineEdit_selected_id.clear()
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
         self.hide()
 
-        title = "Resetting of stress stiffenings"
+        title = "Stress stiffenings resetting"
         message = "Would you like to remove the stress stiffenings from the structural model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
@@ -271,24 +281,27 @@ class StressStiffeningInput(QDialog):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            line_ids = list()
-            for (line_id, data) in self.properties.line_properties.items():
-                if "stress_stiffening" in data.keys():
-                    line_ids.append(line_id)
+        line_ids = list()
+        for (line_id, data) in self.properties.line_properties.items():
+            if "stress_stiffening" in data.keys():
+                line_ids.append(line_id)
 
-            parameters = {  "external_pressure" : 0.,
-                            "internal_pressure" : 0.  }
+        parameters = {
+            "external_pressure" : 0.,
+            "internal_pressure" : 0.,
+            }
 
-            self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
-            self.properties._remove_line_property("stress_stiffening", line_ids)
+        self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
+        self.properties._remove_line_property("stress_stiffening", line_ids)
 
-            self.actions_to_finalize()
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
 
-        self.load_treeWidgets_info()
+        self.load_lines_info()
         app().project.file.write_line_properties_in_file()
 
         self.preprocessor.stress_stiffening_enabled = False
@@ -297,32 +310,59 @@ class StressStiffeningInput(QDialog):
                 self.preprocessor.stress_stiffening_enabled = True
                 return
 
-    def load_treeWidgets_info(self):
+    def load_lines_info(self):
 
-        self.treeWidget_stress_stiffening.clear()
+        self.treeWidget_lines_info.clear()
         for line_id, data in self.properties.line_properties.items():
+
             if "stress_stiffening" in data.keys():
+                prop_data = data.get("stress_stiffening")
+                if not isinstance(prop_data, dict):
+                    continue
 
-                prop_data = data["stress_stiffening"]
-                ext_pressure = prop_data["external_pressure"]
-                int_pressure = prop_data["internal_pressure"]
+                pressure_unit = prop_data.get("pressure_unit", "Pa (a)")
+                ext_pressure = prop_data.get("external_pressure")
+                int_pressure = prop_data.get("internal_pressure")
 
-                item = QTreeWidgetItem([str(line_id) ,f"{ext_pressure : .4e}", f"{int_pressure : .4e}"])
-                for i in range(3):
+                item = QTreeWidgetItem([
+                    f"{line_id}",
+                    f"{ext_pressure : .4e}", 
+                    f"{int_pressure : .4e}",
+                    pressure_unit,
+                    ])
+
+                for i in range(4):
                     item.setTextAlignment(i, Qt.AlignCenter)
 
-                self.treeWidget_stress_stiffening.addTopLevelItem(item)
+                self.treeWidget_lines_info.addTopLevelItem(item)
 
-        self.tabs_visibility()
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+
+        self.pushButton_remove.setDisabled(True)
+        for data in self.properties.line_properties.values():
+            if "stress_stiffening" not in data.keys():
+                continue
+
+            self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
+            return
+
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
+        self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+        self.lineEdit_external_pressure.setFocus()
+
+        if self.comboBox_attribution_type.currentIndex() == AssignmentType.SELECTED_LINES:
+            if not self.lineEdit_selected_id.isEnabled():
+                self.lineEdit_selected_id.setEnabled(True)
 
     def keyPressEvent(self, event):
+
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        return super().closeEvent(a0)
+        if event.key() == Qt.Key_Delete:
+            self.remove_callback()
+
+        if event.key() == Qt.Key_Escape:
+            self.close()

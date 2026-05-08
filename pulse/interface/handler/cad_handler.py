@@ -1,12 +1,7 @@
 import gmsh
-from pulse.editor.structures import (
-    Pipe,
-    Bend,
-    Flange
-)
 
-from pulse.utils.unit_conversion import m_to_mm, in_to_mm
-import numpy as np
+from pulse.editor.structures import Bend, Pipe
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
 
 
 class CADHandler:
@@ -21,15 +16,11 @@ class CADHandler:
                 
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
-                
-                if unit == "meter":
-                    start_coords = m_to_mm(_start_coords)
-                    end_coords = m_to_mm(_end_coords)
-                
-                elif unit == "inch":
-                    start_coords = in_to_mm(_start_coords)
-                    end_coords = in_to_mm(_end_coords)
 
+                # converting the units
+                start_coords = convert_length_unit(_start_coords, unit, "mm")
+                end_coords = convert_length_unit(_end_coords, unit, "mm")
+    
                 start_coords = gmsh.model.occ.add_point(*start_coords)
                 end_coords = gmsh.model.occ.add_point(*end_coords)
 
@@ -43,15 +34,10 @@ class CADHandler:
                 _end_coords = structure.end.coords()
                 _center_coords = structure.center.coords()
 
-                if unit == "meter":
-                    start_coords = m_to_mm(_start_coords)
-                    end_coords = m_to_mm(_end_coords)
-                    center_coords = m_to_mm(_center_coords)
-                
-                elif unit == "inch":
-                    start_coords = in_to_mm(_start_coords)
-                    end_coords = in_to_mm(_end_coords)
-                    center_coords = in_to_mm(_center_coords)
+                # converting the units
+                start_coords = convert_length_unit(_start_coords, unit, "mm")
+                end_coords = convert_length_unit(_end_coords, unit, "mm")
+                center_coords = convert_length_unit(_center_coords, unit, "mm")
 
                 start_coords = gmsh.model.occ.add_point(*start_coords)
                 end_coords = gmsh.model.occ.add_point(*end_coords)

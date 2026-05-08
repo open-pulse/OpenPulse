@@ -1,30 +1,33 @@
 
+from pulse import TEMP_PROJECT_DIR
+from examples.example_file_helper import get_example_file_path
+from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
-# import pytest
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+
+import pytest
 import numpy as np
 
 from pathlib import Path
 
-# Setting up model
-# @pytest.fixture
-
-def test_coupled_harmonic_analysis():
+def test_coupled_harmonic_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader()
-
+    project.initialize_pulse_file_and_loader(dir_path=datadir)
+    
     ## Define usefull objects
     model = project.model
     mesh = model.mesh
     preprocessor = model.preprocessor
 
     # Load geometry file (only the *.iges and *.step formats are supported)
-    geometry_path = Path("examples/iges_files/new_geometries/example_2_withBeam.iges")
+    geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
 
     ## Configure the mesher setup
     mesher_setup = {
@@ -68,16 +71,13 @@ def test_coupled_harmonic_analysis():
 
     ## Create the model cross-sections
 
-    main_section_info = {"section_type_label" : "pipe" ,
-                        "section_parameters" : [0.100, 0.008, 0, 0, 0, 0]}
+    main_parameters = [0.100, 0.008, 0, 0, 0, 0]
+    branch_parameters = [0.050, 0.008, 0, 0, 0, 0]
+    beam_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
 
-    branch_section_info = {"section_type_label" : "pipe" ,
-                           "section_parameters" : [0.050, 0.008, 0, 0, 0, 0]}
-
-    beam_section_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
-    beam_section_info = {"section_type_label" : "i_beam" ,
-                         "section_parameters" : beam_section_parameters,
-                         "section_properties" : get_beam_section_properties("i_beam", beam_section_parameters)}
+    main_section_info = PipeCrossSection(*main_parameters)
+    branch_section_info = PipeCrossSection(*branch_parameters)
+    beam_section_info = IBeamCrossSection(*beam_parameters)
 
     cross_section_main = CrossSection(pipe_section_info = main_section_info)
     cross_section_branch = CrossSection(pipe_section_info = branch_section_info)
@@ -90,12 +90,12 @@ def test_coupled_harmonic_analysis():
         corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
 
         if (center_coords, corner_coords).count(None) == 2:
-            section_label = main_section_info["section_type_label"]
+            section_label = main_section_info.section_type_label
             model.properties._set_line_property("structure_name", section_label, line_id)
         else:
             model.properties._set_line_property("structure_name", "bend", line_id)
 
-    model.properties._set_multiple_line_properties(main_section_info, main_lines)
+    model.properties._set_multiple_line_properties(main_section_info.as_dict(), main_lines)
     model.properties._set_line_property("cross_section", cross_section_main, main_lines)
     model.properties._set_line_property("structural_element_type", "pipe_1", main_lines)
     preprocessor.set_cross_section_by_lines(main_lines, cross_section_main)
@@ -108,12 +108,12 @@ def test_coupled_harmonic_analysis():
         corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
 
         if (center_coords, corner_coords).count(None) == 2:
-            section_label = branch_section_info["section_type_label"]
+            section_label = branch_section_info.section_type_label
             model.properties._set_line_property("structure_name", section_label, line_id)
         else:
             model.properties._set_line_property("structure_name", "bend", line_id)
 
-    model.properties._set_multiple_line_properties(branch_section_info, branch_lines)
+    model.properties._set_multiple_line_properties(branch_section_info.as_dict(), branch_lines)
     model.properties._set_line_property("cross_section", cross_section_branch, branch_lines)
     model.properties._set_line_property("structural_element_type", "pipe_1", branch_lines)
     preprocessor.set_cross_section_by_lines(branch_lines, cross_section_branch)
@@ -121,8 +121,8 @@ def test_coupled_harmonic_analysis():
 
     ## Assign the cross-sections to beam lines
 
-    model.properties._set_line_property("structure_name", beam_section_info["section_type_label"], beam_lines)
-    model.properties._set_multiple_line_properties(beam_section_info, beam_lines)
+    model.properties._set_line_property("structure_name", beam_section_info.section_type_label, beam_lines)
+    model.properties._set_multiple_line_properties(beam_section_info.as_dict(), beam_lines)
     model.properties._set_line_property("cross_section", cross_section_beam, beam_lines)
     model.properties._set_line_property("structural_element_type", "beam_1", beam_lines)
     preprocessor.set_cross_section_by_lines(beam_lines, cross_section_beam)
@@ -206,45 +206,30 @@ def test_coupled_harmonic_analysis():
 
         data = {
                 "coords" : list(coords),
-                "impedance_type" : 1,
+                "impedance_type" : "flanged",
                 }
 
         model.properties._set_nodal_property("radiation_impedance", data, node_id)
-
-    """
-    |--------------------------------------------------------------------|
-    |                    Analysis ID codification                        |
-    |--------------------------------------------------------------------|
-    |    0 - Structural - Harmonic analysis through direct method        |
-    |    1 - Structural - Harmonic analysis through mode superposition   |
-    |    2 - Structural - Modal analysis                                 |
-    |    3 - Acoustic - Harmonic analysis through direct method          |
-    |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
-    |    5 - Coupled - Harmonic analysis through direct method           |
-    |    6 - Coupled - Harmonic analysis through mode superposition      |
-    |    7 - Structural - Static analysis (under development)            |
-    |--------------------------------------------------------------------|
-    """
 
     ## Analysis setup for acoustic harmonic analysis
 
     ## Analysis setup for structural modal analysis
 
     # analysis_setup = {
-    #                   "analysis_id" : 4,
-    #                   "modes" : 40,
+    #                   "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
+    #                   "number_of_modes" : 40,
     #                   "sigma_factor" : 1e-2
     #                   }
 
     ## Analysis setup for coupled harmonic analysis
     analysis_setup = {
-                      "analysis_id" : 5,
+                      "analysis_id" : AnalysisID.COUPLED_HARMONIC,
                       "f_min" : 1,
                       "f_max" : 300,
                       "f_step" : 1,
-                      "global_damping" : [1e-3, 1e-5, 0., 0.],
+                      "global_damping" : [1e-3, 1e-5, 0.],
                       }
-    
+
     model.set_analysis_setup(analysis_setup = analysis_setup)
 
     # write data in file
@@ -266,19 +251,19 @@ def create_fluids():
 
     fluids = dict()
     fluids[1] = Fluid(  
-                      'air',
-                      1.204263,
-                      343.395034,
-                      identifier = 1,
-                      isentropic_exponent = 1.401985,
-                      thermal_conductivity = 0.025503,
-                      specific_heat_Cp = 1006.400178,
-                      dynamic_viscosity = float(1.8247e-5),
-                      temperature = 293.15,
-                      pressure = 101325,
-                      molar_mass  = 28.958601,
-                      color = [0, 170, 255]
-                      )
+        name = 'air',
+        identifier = 1,
+        temperature = 293.15,
+        pressure = 101325,
+        density = 1.204263,
+        speed_of_sound = 343.395034,
+        isentropic_exponent = 1.401985,
+        thermal_conductivity = 0.025503,
+        specific_heat_Cp = 1006.400178,
+        dynamic_viscosity = float(1.8247e-5),
+        molar_mass  = 28.958601,
+        color = [0, 170, 255]
+        )
     
     return fluids
 
@@ -287,61 +272,59 @@ def create_materials():
 
     materials = dict()
     materials[1] = Material(
-                            'stainless_steel', 
-                            7860, 
-                            identifier = 1, 
-                            elasticity_modulus = 210e9, 
-                            poisson_ratio = 0.3,
-                            thermal_expansion_coefficient = 1.2e-5,
-                            color = [253, 152, 145]
-                            )
+        name = 'stainless_steel', 
+        identifier = 1, 
+        density = 7860, 
+        elasticity_modulus = 210e9, 
+        poisson_ratio = 0.3,
+        thermal_expansion_coefficient = 1.2e-5,
+        color = [253, 152, 145]
+        )
 
     return materials
 
 
 def create_temporary_fluid_library(project: Project, fluids: dict):
 
-    from configparser import ConfigParser
-    config = ConfigParser()
+    fluid_data = dict()
 
     for fluid_id, fluid in fluids.items():
         fluid: Fluid
 
-        config[f"{fluid_id}"] = {
-                                 "name": fluid.name,
-                                 "identifier": fluid.identifier,
-                                 "pressure": fluid.pressure,
-                                 "temperature": fluid.temperature,
-                                 "density": fluid.density,
-                                 "speed_of_sound": fluid.speed_of_sound,
-                                 "isentropic_exponent": fluid.isentropic_exponent,
-                                 "thermal_conductivity": fluid.thermal_conductivity,
-                                 "dynamic_viscosity": fluid.dynamic_viscosity,
-                                 "molar_mass": fluid.molar_mass,
-                                 "color": fluid.color,
-                                 }
+        fluid_data[f"{fluid_id}"] = {
+            "name": fluid.name,
+            "identifier": fluid.identifier,
+            "pressure": fluid.pressure,
+            "temperature": fluid.temperature,
+            "density": fluid.density,
+            "speed_of_sound": fluid.speed_of_sound,
+            "isentropic_exponent": fluid.isentropic_exponent,
+            "thermal_conductivity": fluid.thermal_conductivity,
+            "dynamic_viscosity": fluid.dynamic_viscosity,
+            "molar_mass": fluid.molar_mass,
+            "color": fluid.color,
+            }
 
-    project.file.write_fluid_library_in_file(config)
+    project.file.write_fluid_library_in_file(fluid_data)
 
 
 def create_temporary_material_library(project: Project, materials: dict):
 
-    from configparser import ConfigParser
-    config = ConfigParser()
+    material_data = dict()
 
     for mat_id, material in materials.items():
         material: Material
-        config[f"{mat_id}"] = {
-                                "name": material.name,
-                                "identifier": material.identifier,
-                                "color": material.color,
-                                "density": material.density,
-                                "elasticity_modulus": material.elasticity_modulus / 1e9,
-                                "poisson_ratio": material.poisson_ratio,
-                                "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
-                                }
+        material_data[f"{mat_id}"] = {
+            "name": material.name,
+            "identifier": material.identifier,
+            "color": material.color,
+            "density": material.density,
+            "elasticity_modulus": material.elasticity_modulus / 1e9,
+            "poisson_ratio": material.poisson_ratio,
+            "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
+            }
 
-    project.file.write_material_library_in_file(config)
+    project.file.write_material_library_in_file(material_data)
 
 
 def remove_files_from_temporary_folder():

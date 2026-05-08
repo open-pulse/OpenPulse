@@ -1546,6 +1546,6 @@
   <tabstop>lineEdit_reaction_my</tabstop>
   <tabstop>lineEdit_reaction_mz</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

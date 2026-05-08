@@ -3,34 +3,43 @@ import numpy as np
 from pathlib import Path
 from scipy.sparse import save_npz, load_npz
 
+from examples.example_file_helper import get_example_file_path
 from pulse.utils.common_utils import sparse_is_equal
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.model.model import Model
 from pulse.model.preprocessor import Preprocessor
 from pulse.project.project import Project
-from pulse.processing.assembly_structural import AssemblyStructural 
+from pulse.processing.assembly_structural import AssemblyStructural
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 # Setting up model
 @pytest.fixture
 def model():
 
-    section_parameters = [0.05, 0.008, 0, 0, 0, 0]
-    pipe_section_info = {  "section_type_label" : "pipe" ,
-                            "section_parameters" : section_parameters  }
+    # create a material object
+    steel = Material(
+        name = 'Steel', 
+        identifier = 1,
+        density = 7850, 
+        elasticity_modulus = 200e9, 
+        poisson_ratio = 0.3,
+        )
 
-    steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
+    section_parameters = [0.05, 0.008, 0, 0, 0, 0]
+    pipe_section_info = PipeCrossSection(*section_parameters)
+
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()
 
     project = Project()
     model = Model(project)
     preprocessor = model.preprocessor
-    geometry_path = Path("examples/iges_files/new_geometries/example_2_withBeam.iges")
+    geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
     preprocessor.generate(geometry_path, 0.01)
 
     table_names = [None, None, None, None, None, None]
-    preprocessor.set_prescribed_dofs([40, 1424, 1324], [np.zeros(6), table_names])
+    preprocessor.set_prescribed_dof([40, 1424, 1324], [np.zeros(6), table_names])
 
     preprocessor.set_material_by_element('all', steel)
     preprocessor.set_cross_section_by_element('all', cross_section)

@@ -1,20 +1,15 @@
-from PySide6.QtWidgets import QCheckBox, QDialog, QPushButton
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.project.reset_project_ui import ResetProject_UI
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 
-class ResetProjectInput(QDialog):
+class ResetProjectInput(ResetProject_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "project/reset_project.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 
@@ -30,15 +25,6 @@ class ResetProjectInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-        # QCheckBox
-        self.reset_fluids_checkbox : QCheckBox
-        self.reset_materials_checkbox : QCheckBox
-        self.reset_acoustic_model_checkbox : QCheckBox
-        self.reset_structural_model_checkbox : QCheckBox
-        self.reset_analysis_setup_checkbox : QCheckBox
-        # QPushButton
-        self.cancel_button : QPushButton
-        self.reset_project_button : QPushButton
         warning_message = "Warning: this process will be irreversible once the button has been pressed."
         self.reset_project_button.setToolTip(warning_message)
 

@@ -296,7 +296,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_cancel">
+       <widget class="QPushButton" name="pushButton_exit">
         <property name="minimumSize">
          <size>
           <width>90</width>
@@ -315,7 +315,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Cancel</string>
+         <string>Exit</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
@@ -361,9 +361,9 @@
   <tabstop>lineEdit_file_path</tabstop>
   <tabstop>pushButton_search</tabstop>
   <tabstop>comboBox_sheet_names</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_confirm</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

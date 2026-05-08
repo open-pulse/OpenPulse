@@ -1,21 +1,21 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
+    pass
 
 
 from copy import deepcopy
 
+from pulse import app
 from pulse.editor.structures import ExpansionJoint
-
-from molde.stylesheets import set_qproperty
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from .structure_options import StructureOptions
-
-from pulse import app
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 window_title = "Error"
+
 
 class ExpansionJointOptions(StructureOptions):
     structure_type = ExpansionJoint
@@ -25,9 +25,9 @@ class ExpansionJointOptions(StructureOptions):
             return
 
         return dict(
-            diameter = self.structure_info.get("effective_diameter", 0),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
+            diameter=self.structure_info.get("effective_diameter", 0),
+            thickness=0,
+            extra_info=self._get_extra_info(),
         )
 
     def configure_structure(self):
@@ -45,32 +45,21 @@ class ExpansionJointOptions(StructureOptions):
         self.configure_section_of_selected()
         self.update_permissions()
 
-    def update_permissions(self):
-        if self.structure_info:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
-            enable = True
-        else:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
-            enable = False
-
-        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
-        super().update_permissions(enable)
-
     def load_data_from_pipe_section(self):
-
-        outside_diameter = self.cross_section_widget.lineEdit_outside_diameter.text()
-        wall_thickness = self.cross_section_widget.lineEdit_wall_thickness.text()
 
         try:
 
-            section_parameters = self.cross_section_widget.pipe_section_info["section_parameters"]
-            outside_diameter = section_parameters[0]
-            wall_thickness = section_parameters[1]
+            pipe_section_info = self.cross_section_widget.pipe_section_info
+            if not isinstance(pipe_section_info, PipeCrossSection):
+                return
+
+            outside_diameter, wall_thickness, offset_y, offset_z, *_ = pipe_section_info.section_parameters
             effective_diameter = outside_diameter - 2 * wall_thickness
 
             self.expansion_joint_input.lineEdit_effective_diameter.setText(f"{round(effective_diameter, 6)}")
-            # self.expansion_joint_input.lineEdit_wall_thickness.setText(f"{round(wall_thickness, 6)}")
-        
+            self.expansion_joint_input.lineEdit_offset_y.setText(f"{round(offset_y, 6)}")
+            self.expansion_joint_input.lineEdit_offset_z.setText(f"{round(offset_z, 6)}")
+
         except Exception as error_log:
             title = "Error while tranfering pipe data"
             message = str(error_log)
@@ -78,7 +67,7 @@ class ExpansionJointOptions(StructureOptions):
 
     def _get_extra_info(self):
         return dict(
-            structural_element_type = "expansion_joint",
-            expansion_joint_info = deepcopy(self.structure_info),
-            material_info = self.geometry_designer_widget.current_material_info,
+            structural_element_type="expansion_joint",
+            expansion_joint_info=deepcopy(self.structure_info),
+            material_id=self.geometry_designer_widget.current_material_id,
         )

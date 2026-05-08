@@ -383,7 +383,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../icons/common/help.png</normaloff>../../icons/common/help.png</iconset>
+             <normaloff>:/icons/common/help.png</normaloff>:/icons/common/help.png</iconset>
            </property>
            <property name="autoDefault">
             <bool>false</bool>
@@ -654,7 +654,7 @@
        <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_cancel">
+       <widget class="QPushButton" name="pushButton_exit">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -676,7 +676,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Cancel</string>
+         <string>Exit</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
@@ -726,6 +726,6 @@
   <tabstop>pushButton_more_info</tabstop>
   <tabstop>pushButton_check_criteria</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

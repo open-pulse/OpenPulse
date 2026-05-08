@@ -1,16 +1,15 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
+    pass
 
 
 from copy import deepcopy
 
-from pulse.editor.structures import Pipe, Bend
-
-from molde.stylesheets import set_qproperty
+from pulse import app
+from pulse.editor.structures import Bend, Pipe
 
 from .structure_options import StructureOptions
-from pulse import app
 
 
 class PipeOptions(StructureOptions):
@@ -24,33 +23,57 @@ class PipeOptions(StructureOptions):
         if parameters is None:
             return
 
+        nps = self.cross_section_widget.nps
+        if nps:
+            bending_radius_base = nps
+        else:
+            bending_radius_base = parameters[0]  # outside diameter
+
         return dict(
-            diameter = parameters[0],
-            thickness = parameters[1],
+            diameter=parameters[0],
+            thickness=parameters[1],
             offset_y=parameters[2],
             offset_z=parameters[3],
-            curvature_radius = self._get_bending_radius(parameters[0]),
-            extra_info = self._get_extra_info(),
+            curvature_radius=self._get_bending_radius(bending_radius_base),
+            extra_info=self._get_extra_info(),
         )
 
-    def configure_structure(self):
+    def attach_callback(self):
+        kwargs = self.get_kwargs()
+        if kwargs is None:
+            return
 
-        self.cross_section_widget.set_inputs_to_geometry_creator()     
+        if self._can_add_bend():
+            self.pipeline.add_bend(**kwargs)
+        else:
+            self.pipeline.connect_structures(Pipe, **kwargs)
+            self.pipeline.commit()
+
+    def update_permissions(self):
+        super().update_permissions()
+        if self.structure_info and self._can_add_bend():
+            self.geometry_designer_widget.attach_button.setEnabled(True)
+
+    def configure_structure(self):
+        self.cross_section_widget.set_inputs_to_geometry_creator()
         self.cross_section_widget.hide_all_tabs()
         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
         self.cross_section_widget.lineEdit_outside_diameter.setFocus()
         self.load_data_from_reducer_section()
+        self.cross_section_dialog.load_active_sections("pipe")
         self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:
             return
 
+        self.cross_section_dialog.reset()
         if self.cross_section_widget.get_constant_section_pipe_parameters():
-            self.configure_structure()  # if it is invalid try again
+            self.configure_structure()
             return
 
-        self.structure_info = self.cross_section_widget.pipe_section_info
+        self.structure_info = self.cross_section_widget.pipe_section_info.as_dict()
+
         self.configure_section_of_selected()
         self.update_permissions()
 
@@ -65,17 +88,6 @@ class PipeOptions(StructureOptions):
 
             for k, v in kwargs.items():
                 setattr(structure, k, v)
-
-    def update_permissions(self):
-        if self.structure_info:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
-            enable = True
-        else:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
-            enable = False
-
-        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
-        super().update_permissions(enable)
 
     def load_data_from_reducer_section(self):
 
@@ -96,26 +108,26 @@ class PipeOptions(StructureOptions):
             self.cross_section_widget.lineEdit_offset_z.setText(offset_z)
 
         for lineEdit in self.cross_section_widget.left_variable_pipe_lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
         for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def _get_bending_radius(self, diameter):
         geometry_input_widget = app().main_window.geometry_input_wigdet
         bending_option = geometry_input_widget.bending_options_combobox.currentText().lower()
         custom_bending_radius = geometry_input_widget.bending_radius_line_edit.text().lower().replace(",", ".")
 
-        if (bending_option == "long radius"):
+        if bending_option == "long radius":
             return 1.5 * diameter
 
-        elif (bending_option == "short radius"):
+        elif bending_option == "short radius":
             return diameter
 
         elif bending_option == "user-defined":
             try:
                 return float(custom_bending_radius)
-            except:
+            except Exception:
                 return 0
 
         else:
@@ -123,7 +135,15 @@ class PipeOptions(StructureOptions):
 
     def _get_extra_info(self):
         return dict(
-            structural_element_type = "pipe_1",
-            cross_section_info = deepcopy(self.structure_info),
-            material_info = self.geometry_designer_widget.current_material_info,
+            structural_element_type="pipe_1",
+            cross_section_info=deepcopy(self.structure_info),
+            material_id=self.geometry_designer_widget.current_material_id,
         )
+
+    def _can_add_bend(self) -> bool:
+        if len(self.pipeline.selected_points) != 1:
+            return False
+
+        point = self.pipeline.selected_points[0]
+        tangencies = self.pipeline.main_editor.get_point_tangency(point)
+        return len(tangencies) == 2

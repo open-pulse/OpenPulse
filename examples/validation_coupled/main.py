@@ -23,7 +23,7 @@ from examples.animation.plot_function import plot_results
 speed_of_sound = 350.337
 density = 24.85
 hydrogen = Fluid('hydrogen', density, speed_of_sound)
-steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
+steel = Material(name='Steel', identifier=1, density=7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008, offset_y = 0.005, offset_z = 0.005)
 # Mesh init
@@ -156,7 +156,7 @@ column = 3
 
 #%%
 ## Structural Coupled ##
-preprocessor.set_prescribed_dofs([1136, 1236, 1086], np.zeros(6))
+preprocessor.set_prescribed_dof([1136, 1236, 1086], np.zeros(6))
 
 preprocessor.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
 preprocessor.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
@@ -164,7 +164,7 @@ preprocessor.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
 solution_structural = StructuralSolver(mesh, acoustic_solution = direct)
 modes = 200
-natural_frequencies, mode_shapes = solution_structural.modal_analysis(modes=modes, harmonic_analysis=True)
+natural_frequencies, mode_shapes = solution_structural.modal_analysis(number_of_modes=modes, harmonic_analysis=True)
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
 direct = solution_structural.direct_method(frequencies, is_viscous_lumped=True)

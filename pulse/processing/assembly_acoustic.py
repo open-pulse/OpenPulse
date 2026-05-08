@@ -1,12 +1,12 @@
 
+import numpy as np
+from scipy.sparse import csr_matrix
+from scipy.special import jn_zeros, jv
+
+from pulse.model import AnalysisID
+from pulse.model.acoustic_element import AcousticElement, ElementLengthCorrection, DOF_PER_ELEMENT, ENTRIES_PER_ELEMENT
 from pulse.model.model import Model
 from pulse.model.node import DOF_PER_NODE_ACOUSTIC
-from pulse.model.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
-
-import numpy as np
-from scipy.sparse import csr_matrix, csc_matrix
-from scipy.special import jn_zeros, jv
-from time import time
 
 
 def length_correction_expansion(smaller_diameter, larger_diameter):
@@ -200,7 +200,7 @@ class AssemblyAcoustic:
 
         return unprescribed_pipe_indexes
 
-    def get_length_corretion(self, element):
+    def get_length_corretion(self, element: AcousticElement):
         """
         This method evaluate the acoustic length correction for an element. The necessary conditions and the type of correction are checked.
 
@@ -214,59 +214,66 @@ class AssemblyAcoustic:
         float
             Length correction.
         """
-        length_correction = 0
-        if element.length_correction_data is not None:
 
-            correction_type = element.length_correction_data["correction_type"]
+        if not isinstance(element.length_correction_data, dict):
+            return 0.
 
-            first = element.first_node.global_index
-            last = element.last_node.global_index
+        correction_type = element.length_correction_data.get("correction_type")
+        if correction_type is None:
+            print("Invalid element length correction type detected")
+            return 0.
 
-            di_actual = element.cross_section.inner_diameter
+        first = element.first_node.global_index
+        last = element.last_node.global_index
 
-            diameters_first = np.array(self.neighbor_diameters[first])
-            diameters_last = np.array(self.neighbor_diameters[last])
+        di_actual = element.cross_section.inner_diameter
 
-            corrections_first = [0]
-            corrections_last = [0]
+        diameters_first = np.array(self.neighbor_diameters[first])
+        diameters_last = np.array(self.neighbor_diameters[last])
 
-            for _, _, di in diameters_first:
-                if di_actual < di:
+        def get_element_correction(di_actual: float, di: float, diameters: list):
 
-                    if correction_type in [0, 2]:
-                        correction = length_correction_expansion(di_actual, di)
+            correction = None
+            if correction_type in [ElementLengthCorrection.EXPANSION, ElementLengthCorrection.LOOP]:
+                correction = length_correction_expansion(di_actual, di)
 
-                    elif correction_type == 1:
-                        correction = length_correction_branch(di_actual, di)
-                        if len(diameters_first) == 2:
-                            message = "Warning: Expansion identified in acoustic "
-                            message += "domain is being corrected as side branch."
-                            print(message)
+            elif correction_type == ElementLengthCorrection.SIDE_BRANCH:
+                correction = length_correction_branch(di_actual, di)
+                if len(diameters) == 2:
+                    message = "Warning: Expansion identified in acoustic "
+                    message += "domain is being corrected as side branch."
+                    print(message)
 
-                    else:
-                        print("Datatype not understood")
+            else:
+                print(f"The correction type {correction_type} is invalid")
 
-                    corrections_first.append(correction)
+            return correction
 
-            for _, _, di in diameters_last:
-                if di_actual < di:
+        corrections_first = [0]
 
-                    if correction_type in [0, 2]:
-                        correction = length_correction_expansion(di_actual, di)
+        for _, _, di in diameters_first:
+            if di_actual >= di:
+                continue
 
-                    elif correction_type == 1:
-                        correction = length_correction_branch(di_actual, di)
-                        if len(diameters_last) == 2:
-                            message = "Warning: Expansion identified in acoustic "
-                            message += "domain is being corrected as side branch."
-                            print(message)
+            correction = get_element_correction(di_actual, di, diameters_first)
+            if correction is None:
+                continue
 
-                    else:
-                        print("Datatype not understood")
+            corrections_first.append(correction)
 
-                    corrections_last.append(correction)
+        corrections_last = [0]
 
-            length_correction = max(corrections_first) + max(corrections_last)
+        for _, _, di in diameters_last:
+            if di_actual >= di:
+                continue
+
+            correction = get_element_correction(di_actual, di, diameters_last)
+            if correction is None:
+                continue
+
+            corrections_last.append(correction)
+
+        length_correction = max(corrections_first) + max(corrections_last)
 
         return length_correction
 
@@ -431,6 +438,9 @@ class AssemblyAcoustic:
         for (property, *args), data in self.model.properties.nodal_properties.items():
             if property in ["specific_impedance", "radiation_impedance"]:
 
+                if not isinstance(data, dict):
+                    continue
+
                 node_id = args[0]
                 node = self.preprocessor.nodes[node_id]
                 position = node.global_index
@@ -445,7 +455,7 @@ class AssemblyAcoustic:
 
                 elif property == "radiation_impedance":
 
-                    impedance_type = data["impedance_type"]
+                    impedance_type = data.get("impedance_type")
                     elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
 
                     if len(elements) == 1:
@@ -532,6 +542,9 @@ class AssemblyAcoustic:
         for (property, *args), data in self.model.properties.nodal_properties.items():
             if property in ["specific_impedance", "radiation_impedance"]:
 
+                if not isinstance(data, dict):
+                    continue
+
                 node_id = args[0]
                 node = self.preprocessor.nodes[node_id]
                 position = node.global_index
@@ -547,12 +560,13 @@ class AssemblyAcoustic:
 
                 elif property == "radiation_impedance":
 
-                    impedance_type = data["impedance_type"]
+                    impedance_type = data.get("impedance_type")
                     elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
 
-                    if impedance_type in [1, 2] and self.model.project.analysis_id == 4:
-                        # TODO: show a message after the solution has been finished
-                        continue
+                    if impedance_type in ["flanged", "unflanged"]:
+                        if self.model.project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
+                            # TODO: show a message after the solution has been finished
+                            continue
 
                     if len(elements) == 1:
                         element = elements[0]

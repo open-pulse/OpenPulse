@@ -1,4 +1,3 @@
-import numpy as np
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from pulse.utils import cross_section_sources
 from pulse.interface.viewer_3d.actors import TubeActor
@@ -35,12 +34,12 @@ class TubeActorResults(TubeActor):
 
         # In acoustic plots we need to show the fluids, not the pipe
         if self.acoustic_plot and (pipe_section or valve):
-            d_out, t, *_ = cross_section.section_parameters
+            d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
             d_inner = d_out - 2 * t
-            return cross_section_sources.closed_pipe_data(element.length, d_inner, sides=tube_sides)
+            return cross_section_sources.closed_pipe_data(element.length, d_inner, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         elif self.acoustic_plot and expansion_joint:
-            _, d_eff, *_ = element.section_parameters_render
-            return cross_section_sources.closed_pipe_data(element.length, d_eff, sides=tube_sides)
+            d_eff, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.closed_pipe_data(element.length, d_eff, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         return super().create_element_data(element)

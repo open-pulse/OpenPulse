@@ -1,7 +1,5 @@
 from PySide6.QtWidgets import QColorDialog
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QIcon
-from pathlib import Path
 
 from pulse import app
 

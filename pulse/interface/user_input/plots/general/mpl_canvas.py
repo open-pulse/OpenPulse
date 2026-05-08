@@ -1,7 +1,8 @@
 import matplotlib
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-matplotlib.use('Qt5Agg')
+matplotlib.use('QtAgg')
+
 
 class MplCanvas(FigureCanvasQTAgg):
 
@@ -9,5 +10,5 @@ class MplCanvas(FigureCanvasQTAgg):
         # fig = Figure(figsize=(width+5, height+5), dpi=dpi)
         self.fig = Figure()#(dpi=dpi)
         self.axes = self.fig.add_subplot(111)
-        self.fig.set_tight_layout(True)
+        self.fig.set_layout_engine('tight')
         super(MplCanvas, self).__init__(self.fig)

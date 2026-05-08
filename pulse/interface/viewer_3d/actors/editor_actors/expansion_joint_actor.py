@@ -16,7 +16,11 @@ class ExpansionJointActor(vtkActor):
         vector = self.expansion_joint.end.coords() - self.expansion_joint.start.coords()
         length = np.linalg.norm(vector)
         source = expansion_joint_data(
-            length, self.expansion_joint.diameter, self.expansion_joint.thickness
+            length, 
+            self.expansion_joint.diameter, 
+            self.expansion_joint.thickness,
+            offset_y=self.expansion_joint.offset_y,
+            offset_z=self.expansion_joint.offset_z,
         )
 
         data = align_vtk_geometry(source, self.expansion_joint.start.coords(), vector)

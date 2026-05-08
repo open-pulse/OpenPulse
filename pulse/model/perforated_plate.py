@@ -1,11 +1,20 @@
 import numpy as np
+from enum import IntEnum
 from math import pi
 from scipy.special import jv
+
 
 def Foks_function(x):
     a = np.array([1 ,  -1.40925 , 0 , 0.33818, 0 , 0.06793, -0.02287 , 0.03015 , -0.01641 , 0.01729 , -0.01248 , 0.01205 , -0.00985])
     b = np.arange(13)
     return np.sum(np.dot(a,x**b))
+
+
+class PerforatedPlateFormulation(IntEnum):
+    OPENPULSE = 0
+    MELING = 1
+    COMMON_PIPE = 2
+
 
 class PerforatedPlate:
     def __init__(self, pp_data: dict):

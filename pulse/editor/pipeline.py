@@ -1,4 +1,4 @@
-from itertools import chain, pairwise
+from itertools import chain
 from typing import Generator, TypeVar
 
 from pulse.editor.editor_delegate import (
@@ -9,20 +9,10 @@ from pulse.editor.editor_delegate import (
     ReplaceEditor,
     SelectionEditor,
 )
-
-from pulse.editor.structures import (
-    Beam,
-    Bend,
-    Elbow,
-    Flange,
-    Pipe,
-    Point,
-    Structure,
-    TBeam
-)
+from pulse.editor.structures import Bend, Elbow, Pipe, Point, Structure, TBeam
 
 # only to help the editor, ignore it
-generic_type = TypeVar("generic_type")
+GenericStructure = TypeVar("GenericStructure")
 
 
 class Pipeline:
@@ -61,9 +51,7 @@ class Pipeline:
     def all_structures(self):
         return chain(self.structures, self.staged_structures)
 
-    def structures_of_type(
-        self, structure_type: generic_type
-    ) -> Generator[generic_type, None, None]:
+    def structures_of_type(self, structure_type: type[GenericStructure]) -> Generator[GenericStructure, None, None]:
         for structure in self.all_structures():
             if isinstance(structure, structure_type):
                 yield structure
@@ -125,6 +113,12 @@ class Pipeline:
         if not isinstance(structure, Structure):
             return
 
+        neighbours_to_remove = []
+        if isinstance(structure, Pipe):
+            for curve in self.structures_of_type(Bend | Elbow):
+                if (structure.start in curve.get_points()) or (structure.end in curve.get_points()):
+                    neighbours_to_remove.append(curve)
+
         if rejoin and isinstance(structure, Bend | Elbow):
             structure.colapse()
 
@@ -132,7 +126,9 @@ class Pipeline:
             self.structures.pop(i)
 
         if rejoin and isinstance(structure, Bend | Elbow):
-            self.attatch_point(structure.corner)
+            self.attach_point(structure.corner)
+
+        self.remove_structures(neighbours_to_remove)
 
     def delete_selection(self):
         for structure in self.selected_structures:
@@ -176,9 +172,20 @@ class Pipeline:
         indexes.reverse()
         return indexes
 
+    def get_structures_of_point(self, point: Point) -> list[Structure]:
+        # TODO: make this faster than O(n).
+        structures = []
+        for structure in self.structures:
+            if point in structure.get_points():
+                structures.append(structure)
+        return structures
+
     # Main Editor
     def add_structure_deltas(self, structure_type, deltas, **kwargs):
         return self.main_editor.add_structure_deltas(structure_type, deltas, **kwargs)
+
+    def add_structure_length(self, structure_type, length, **kwargs):
+        return self.main_editor.add_structure_length(structure_type, length, **kwargs)
 
     def add_pipe(self, deltas, **kwargs):
         return self.main_editor.add_pipe(deltas, **kwargs)
@@ -261,11 +268,11 @@ class Pipeline:
 
     # Replace Editor
     def replace_selection_by(self, structure_type: type[Structure], **kwargs):
-        return self.replace_editor.replace_selection_by(structure_type, **kwargs) 
+        return self.replace_editor.replace_selection_by(structure_type, **kwargs)
 
     def replace_by_pipe(self, **kwargs):
         return self.replace_editor.replace_selection_by(Pipe, **kwargs)
-    
+
     # def replace_by_bent_pipes(self, curvature_radius, **kwargs):
     #     return self.replace_editor.replace_by_bent_pipes(curvature_radius, **kwargs)
 
@@ -297,8 +304,8 @@ class Pipeline:
         return self.replace_editor.replace_selection_by(TBeam, **kwargs)
 
     # Points Editor
-    def attatch_point(self, point: Point):
-        self.points_editor.attatch_point(point)
+    def attach_point(self, point: Point):
+        self.points_editor.attach_point(point)
 
     def detatch_point(self, point: Point):
         return self.points_editor.dettatch_point(point)
@@ -340,7 +347,7 @@ class Pipeline:
 
     def divide_structures_evenly(self, divisions=1):
         self.divide_editor.divide_structures_evenly(divisions)
-    
+
     def divide_structures_by_distance_from_point(self, selected_point, division_data):
         self.divide_editor.divide_structures_by_distance_from_point(selected_point, division_data)
 

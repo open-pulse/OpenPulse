@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../data/icons/pulse_icon.png</normaloff>../data/icons/pulse_icon.png</iconset>
+    <normaloff>:/icons/pulse_icon.png</normaloff>:/icons/pulse_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -28,7 +28,7 @@
        <number>1</number>
       </property>
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <property name="opaqueResize">
        <bool>true</bool>
@@ -44,7 +44,7 @@
         </sizepolicy>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1044</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -109,8 +109,8 @@
       <string>Recent Projects</string>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>../data/icons/common/recent.png</normaloff>../data/icons/common/recent.png</iconset>
+      <iconset resource="../icons/resources.qrc">
+       <normaloff>:/icons/common/recent.png</normaloff>:/icons/common/recent.png</iconset>
      </property>
      <addaction name="actionfiles"/>
     </widget>
@@ -186,13 +186,12 @@
     <string>Main toolbar</string>
    </property>
    <property name="styleSheet">
-    <string notr="true"> QToolBar {
- 	border-style: solid;
- 	border-width: 1px;
-	border-color: #888888;
+    <string notr="true">QToolBar {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888888;
 }
-            
- </string>
+</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -203,6 +202,8 @@
    <addaction name="action_new_project"/>
    <addaction name="action_open_project"/>
    <addaction name="action_reset"/>
+   <addaction name="action_save_project"/>
+   <addaction name="action_save_project_as"/>
    <addaction name="separator"/>
    <addaction name="action_top_view"/>
    <addaction name="action_bottom_view"/>
@@ -222,14 +223,36 @@
    <addaction name="action_section_plane"/>
    <addaction name="action_show_transparent"/>
    <addaction name="separator"/>
+  </widget>
+  <widget class="QToolBar" name="workspaces_toolbar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QToolBar {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #888888;
+}
+</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
    <addaction name="action_geometry_editor_workspace"/>
    <addaction name="action_model_setup_workspace"/>
    <addaction name="action_results_workspace"/>
   </widget>
   <action name="action_new_project">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/new_file.png</normaloff>../icons/common/new_file.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
    </property>
    <property name="text">
     <string>New Project</string>
@@ -240,8 +263,8 @@
   </action>
   <action name="action_open_project">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/import.png</normaloff>../icons/common/import.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/import.png</normaloff>:/icons/common/import.png</iconset>
    </property>
    <property name="text">
     <string>Open Project</string>
@@ -256,7 +279,7 @@
   <action name="action_export_png">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/save_image.png</normaloff>../data/icons/save_image.png</iconset>
+     <normaloff>:/icons/save_image.png</normaloff>:/icons/save_image.png</iconset>
    </property>
    <property name="text">
     <string>Export PNG</string>
@@ -264,8 +287,8 @@
   </action>
   <action name="action_reset">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/reset-image.png</normaloff>../icons/common/reset-image.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/reset-image.png</normaloff>:/icons/common/reset-image.png</iconset>
    </property>
    <property name="text">
     <string>Reset Project</string>
@@ -279,8 +302,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../data/icons/common/save.png</normaloff>../data/icons/common/save.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/save.png</normaloff>:/icons/common/save.png</iconset>
    </property>
    <property name="text">
     <string>Save Project</string>
@@ -294,8 +317,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/save_as.png</normaloff>../icons/common/save_as.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/save_as.png</normaloff>:/icons/common/save_as.png</iconset>
    </property>
    <property name="text">
     <string>Save Project As</string>
@@ -309,8 +332,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/geometry_icon.png</normaloff>../icons/common/geometry_icon.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/geometry_icon.png</normaloff>:/icons/common/geometry_icon.png</iconset>
    </property>
    <property name="text">
     <string>Import Geometry</string>
@@ -329,8 +352,8 @@
   </action>
   <action name="action_top_view">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/top.png</normaloff>../icons/common/top.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/top.png</normaloff>:/icons/common/top.png</iconset>
    </property>
    <property name="text">
     <string>Top View</string>
@@ -341,8 +364,8 @@
   </action>
   <action name="action_bottom_view">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/bottom.png</normaloff>../icons/common/bottom.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/bottom.png</normaloff>:/icons/common/bottom.png</iconset>
    </property>
    <property name="text">
     <string>Bottom View</string>
@@ -353,8 +376,8 @@
   </action>
   <action name="action_front_view">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/front.png</normaloff>../icons/common/front.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/front.png</normaloff>:/icons/common/front.png</iconset>
    </property>
    <property name="text">
     <string>Front View</string>
@@ -365,8 +388,8 @@
   </action>
   <action name="action_back_view">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/back.png</normaloff>../icons/common/back.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/back.png</normaloff>:/icons/common/back.png</iconset>
    </property>
    <property name="text">
     <string>Back View</string>
@@ -377,8 +400,8 @@
   </action>
   <action name="action_left_view">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/left.png</normaloff>../icons/common/left.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/left.png</normaloff>:/icons/common/left.png</iconset>
    </property>
    <property name="text">
     <string>Left View</string>
@@ -389,8 +412,8 @@
   </action>
   <action name="action_right_view">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/right.png</normaloff>../icons/common/right.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/right.png</normaloff>:/icons/common/right.png</iconset>
    </property>
    <property name="text">
     <string>Right View</string>
@@ -401,8 +424,8 @@
   </action>
   <action name="action_isometric_view">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/isometric.png</normaloff>../icons/common/isometric.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/isometric.png</normaloff>:/icons/common/isometric.png</iconset>
    </property>
    <property name="text">
     <string>Isometric View</string>
@@ -421,8 +444,8 @@
   </action>
   <action name="action_exit">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/exit.png</normaloff>../icons/common/exit.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/exit.png</normaloff>:/icons/common/exit.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -486,8 +509,8 @@
   </action>
   <action name="action_user_preferences">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/user_preferences_icon.png</normaloff>../icons/common/user_preferences_icon.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/user_preferences_icon.png</normaloff>:/icons/common/user_preferences_icon.png</iconset>
    </property>
    <property name="text">
     <string>User Preferences</string>
@@ -637,8 +660,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/show_mesh_points.png</normaloff>../icons/common/show_mesh_points.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/show_mesh_points.png</normaloff>:/icons/common/show_mesh_points.png</iconset>
    </property>
    <property name="text">
     <string>Show Mesh Data</string>
@@ -655,8 +678,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/show_lines.png</normaloff>../icons/common/show_lines.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/show_lines.png</normaloff>:/icons/common/show_lines.png</iconset>
    </property>
    <property name="text">
     <string>Show Lines</string>
@@ -670,8 +693,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/show_tubes.png</normaloff>../icons/common/show_tubes.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/show_tubes.png</normaloff>:/icons/common/show_tubes.png</iconset>
    </property>
    <property name="text">
     <string>Show Tubes</string>
@@ -685,8 +708,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/show_symbols.png</normaloff>../icons/common/show_symbols.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/show_symbols.png</normaloff>:/icons/common/show_symbols.png</iconset>
    </property>
    <property name="text">
     <string>Show Symbols</string>
@@ -705,7 +728,7 @@
   <action name="action_export_geometry">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/send_to_disk.png</normaloff>../data/icons/send_to_disk.png</iconset>
+     <normaloff>:/icons/send_to_disk.png</normaloff>:/icons/send_to_disk.png</iconset>
    </property>
    <property name="text">
     <string>Export Geometry</string>
@@ -716,8 +739,8 @@
   </action>
   <action name="action_set_dark_theme">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/moon_icon.png</normaloff>../icons/common/moon_icon.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/moon_icon.png</normaloff>:/icons/common/moon_icon.png</iconset>
    </property>
    <property name="text">
     <string>Use dark theme</string>
@@ -725,8 +748,8 @@
   </action>
   <action name="action_set_light_theme">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/sun_icon.png</normaloff>../icons/common/sun_icon.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/sun_icon.png</normaloff>:/icons/common/sun_icon.png</iconset>
    </property>
    <property name="text">
     <string>Use light theme</string>
@@ -745,8 +768,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/mesh.png</normaloff>../icons/common/mesh.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/mesh.png</normaloff>:/icons/common/mesh.png</iconset>
    </property>
    <property name="text">
     <string>Show Transparent</string>
@@ -778,8 +801,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/section_plane_icon.png</normaloff>../icons/common/section_plane_icon.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/section_plane_icon.png</normaloff>:/icons/common/section_plane_icon.png</iconset>
    </property>
    <property name="text">
     <string>Section Plane</string>
@@ -787,8 +810,8 @@
   </action>
   <action name="action_zoom">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/zoom_icon.png</normaloff>../icons/common/zoom_icon.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/zoom_icon.png</normaloff>:/icons/common/zoom_icon.png</iconset>
    </property>
    <property name="text">
     <string>Zoom</string>
@@ -807,8 +830,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/show_geometry_points.png</normaloff>../icons/common/show_geometry_points.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/show_geometry_points.png</normaloff>:/icons/common/show_geometry_points.png</iconset>
    </property>
    <property name="text">
     <string>Show Geometry Data</string>
@@ -824,11 +847,11 @@
   </action>
   <action name="action_geometry_editor_workspace">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/model_settings.png</normaloff>../icons/common/model_settings.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/model_settings.png</normaloff>:/icons/common/model_settings.png</iconset>
    </property>
    <property name="text">
-    <string>Geometry Editor Workspace Action</string>
+    <string>Geometry</string>
    </property>
    <property name="toolTip">
     <string>Geometry editor workspace</string>
@@ -836,11 +859,11 @@
   </action>
   <action name="action_model_setup_workspace">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/engineering.png</normaloff>../icons/common/engineering.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/engineering.png</normaloff>:/icons/common/engineering.png</iconset>
    </property>
    <property name="text">
-    <string>Geometry Model Setup Workspace Action</string>
+    <string>Model</string>
    </property>
    <property name="toolTip">
     <string>Model setup workspace</string>
@@ -848,11 +871,11 @@
   </action>
   <action name="action_results_workspace">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/common/calculate.png</normaloff>../icons/common/calculate.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/calculate.png</normaloff>:/icons/common/calculate.png</iconset>
    </property>
    <property name="text">
-    <string>Results Workspace Action</string>
+    <string>Results</string>
    </property>
    <property name="toolTip">
     <string>Results workspace</string>
@@ -870,14 +893,16 @@
   </action>
   <action name="action_capture_image">
    <property name="icon">
-    <iconset>
-     <normaloff>../icons/cube-scan.png</normaloff>../icons/cube-scan.png</iconset>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/cube-scan.png</normaloff>:/icons/cube-scan.png</iconset>
    </property>
    <property name="text">
     <string>Capture Image</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

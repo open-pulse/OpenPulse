@@ -1,60 +1,30 @@
 from numpy import allclose
+from dataclasses import dataclass
 
 
+@dataclass
 class Fluid:
-    """A fluid class.
-    This class creates a fluid object from fluid properties input data.
-
-    Parameters
-    ----------
-    name : str
-        Text to be used as fluid's name.
-
-    density : float
-        Fluid density.
-
-    speed_of_sound : float
-        Speed of the sound wave propagating in the fluid.
-
-    isentropic_exponent : float, optional
-        Fluid isentropic exponent, also know as the heat capacity ratio, the adiabatic index,  the ratio of specific heats, or Laplace's coefficient.
-        Default is None.
-
-    thermal_conductivity : float, optional
-        Fluid thermal conductivity.
-        Default is None.
-
-    specific_heat_Cp : float, optional
-        Fluid specific heat capacity at constant pressure.
-        Default is None.
-
-    dynamic_viscosity : float, optional
-        Fluid dynamic viscosity.
-        Default is None.
-
-    color : tuple, optional
-        The color associated with the fluid. Line objects with this fluid object attributed will be shown with this color in the UI.
-        Default is None.
-
-    identifier : int, optional
-        Fluid identifier displayed in the UI list of fluids.
-        Default is -1.
     """
-    def __init__(self,  name, density, speed_of_sound, **kwargs):
-        self.name = name
-        self.density = density
-        self.speed_of_sound = speed_of_sound
-        self.color = kwargs.get("color", None)
-        self.identifier = kwargs.get("identifier", -1)
-        self.isentropic_exponent = kwargs.get("isentropic_exponent", None)
-        self.thermal_conductivity = kwargs.get("thermal_conductivity", None)
-        self.specific_heat_Cp = kwargs.get("specific_heat_Cp", None)
-        self.dynamic_viscosity = kwargs.get("dynamic_viscosity", None)
-        self.temperature = kwargs.get("temperature", None)
-        self.pressure = kwargs.get("pressure", None)
-        self.molar_mass = kwargs.get("molar_mass", None)
-        self.adiabatic_bulk_modulus = kwargs.get("adiabatic_bulk_modulus", None)
-        self.vapor_pressure = kwargs.get("vapor_pressure", None)
+    This class creates a fluid object from fluid properties input data.
+    """
+
+    name: str = None
+    identifier: int = 0
+    temperature: float = 0.0
+    pressure: float = 0.0
+    density: float = 0.0
+    speed_of_sound: float = 0.0
+    isentropic_exponent: float = 0.0
+    thermal_conductivity: float = 0.0
+    specific_heat_Cp: float = 0.0
+    dynamic_viscosity: float = 0.0
+    adiabatic_bulk_modulus: float | None = None
+    vapor_pressure : float | None = None
+    key_mixture : str | None = None
+    molar_mass: float = 0.0
+    key_mixture: str | None = None
+    molar_fractions: list | None = None
+    color: tuple = (0, 0, 0)
 
     @property
     def impedance(self):
@@ -67,7 +37,7 @@ class Fluid:
             Fluid specific impedance.
         """
         return self.density * self.speed_of_sound
-    
+
     @property
     def bulk_modulus(self):
         """
@@ -116,7 +86,17 @@ class Fluid:
         """
         return self.specific_heat_Cp * self.dynamic_viscosity / self.thermal_conductivity
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Fluid"):
         self_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
-        other_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
+        other_parameters = [v for v in other.__dict__.values() if isinstance(v, (float, int))]
         return allclose(self_parameters, other_parameters)
+
+    def as_dict(self) -> dict:
+
+        data = dict()
+        for key, value in self.__dict__.items():
+            if value is None:
+                continue
+            data[key] = value
+
+        return data

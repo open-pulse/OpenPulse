@@ -1,25 +1,18 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_selector_ui import ReciprocatingPumpSelector_UI
 # from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 import numpy as np
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-class ReciprocatingMachineSelector(QDialog):
+class ReciprocatingMachineSelector(ReciprocatingPumpSelector_UI):
     def __init__(self, machine_type: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/reciprocating_pump_selector.ui"
-        load_ui(ui_path, self)
-
         self.machine_type = machine_type
 
         app().main_window.set_input_widget(self)
@@ -27,7 +20,6 @@ class ReciprocatingMachineSelector(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -46,21 +38,6 @@ class ReciprocatingMachineSelector(QDialog):
         self.complete = False
         self.volumetric_flow_rate = None
         self.before_run = app().project.get_pre_solution_model_checks()
-
-    def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_connection_type: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_volumetric_flow_rate: QLineEdit
-
-        # QPushButton
-        self.pushButton_select: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_reset_selection: QPushButton
-
-        # QTreeWidget
-        self.treeWidget_reciprocating_machine_data: QTreeWidget
 
     def _create_connections(self):
         #
@@ -101,9 +78,9 @@ class ReciprocatingMachineSelector(QDialog):
 
     def reset_selection(self):
         app().main_window.set_selection()
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_connection_type.setText("")
-        self.lineEdit_volumetric_flow_rate.setText("")
+        self.lineEdit_selected_id.clear()
+        self.lineEdit_connection_type.clear()
+        self.lineEdit_volumetric_flow_rate.clear()
 
     def select_callback(self):
         if self.lineEdit_selected_id.text() != "":
@@ -148,4 +125,5 @@ class ReciprocatingMachineSelector(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

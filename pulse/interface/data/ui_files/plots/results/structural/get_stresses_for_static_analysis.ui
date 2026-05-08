@@ -1039,6 +1039,6 @@
   <tabstop>lineEdit_shear_stress_xy</tabstop>
   <tabstop>lineEdit_shear_stress_yz</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -1,11 +1,12 @@
-from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar, QWidget
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QIcon, QKeyEvent, QFont
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar, QWidget
 
 from pulse import app
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.utils.interface_utils import check_inputs
+
 
 class MeshToolbar(QToolBar):
     def __init__(self):
@@ -15,21 +16,16 @@ class MeshToolbar(QToolBar):
         self.project = app().main_window.project
         self.mesh_updater = MeshUpdater()
 
-        self._define_qt_variables()
+        self._create_widgets()
         self._config_widgets()
+        self._configure_validators()
+        self._configure_layout()
+        self._configure_appearance()
         self._create_connections()
 
-        self._configure_layout()
-
-        self._configure_appearance()
         self.update_mesh_attributes()
 
-        font = QFont()
-        font.setPointSize(12)
-        self.setFont(font)
-        self.setWindowTitle("Mesh toolbar")
-
-    def _define_qt_variables(self):
+    def _create_widgets(self):
 
         # QLabel
         self.label_element_size = QLabel("Element size [m]:")
@@ -55,6 +51,11 @@ class MeshToolbar(QToolBar):
 
     def _config_widgets(self):
 
+        font = QFont()
+        font.setPointSize(12)
+        self.setFont(font)
+        self.setWindowTitle("Mesh toolbar")
+
         self.label_element_size.setAlignment(Qt.AlignRight)
         self.label_geometry_tolerance.setAlignment(Qt.AlignRight)
         self.label_element_size.setAlignment(Qt.AlignVCenter)
@@ -70,12 +71,9 @@ class MeshToolbar(QToolBar):
         self.pushButton_generate_mesh.setDisabled(True)
         self.pushButton_generate_mesh.setFixedSize(120, 30)
 
-    def _create_connections(self):
-        #
-        self.lineEdit_element_size.textEdited.connect(self.change_button_visibility)
-        self.lineEdit_geometry_tolerance.textEdited.connect(self.change_button_visibility)
-        #
-        self.pushButton_generate_mesh.clicked.connect(self.generate_mesh_callback)
+    def  _configure_validators(self):
+        self.lineEdit_element_size.setValidator(StrictDoubleValidator(1e-8, 1e6, 8))
+        self.lineEdit_geometry_tolerance.setValidator(StrictDoubleValidator(1e-12, 10, 8))
 
     def get_spacer(self):
         spacer = QWidget()
@@ -121,7 +119,14 @@ class MeshToolbar(QToolBar):
                 border-color: #888888;
             }
             """
-        )   
+        )
+
+    def _create_connections(self):
+        #
+        self.lineEdit_element_size.textEdited.connect(self.change_button_visibility)
+        self.lineEdit_geometry_tolerance.textEdited.connect(self.change_button_visibility)
+        #
+        self.pushButton_generate_mesh.clicked.connect(self.generate_mesh_callback)
 
     def change_button_visibility(self):
 
@@ -131,7 +136,7 @@ class MeshToolbar(QToolBar):
         try:
             _element_size = float(self.lineEdit_element_size.text())
             _geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
-        except:
+        except Exception:
             return
         
         if bool(_element_size) and bool(_geometry_tolerance):

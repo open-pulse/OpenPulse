@@ -1175,6 +1175,6 @@
   <tabstop>pushButton_reset_to_default</tabstop>
   <tabstop>pushButton_update_settings</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

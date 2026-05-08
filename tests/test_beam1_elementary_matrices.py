@@ -1,21 +1,21 @@
-from pulse.model.cross_section import CrossSection, get_beam_section_properties
-from pulse.model.properties.fluid import Fluid
+
+from pulse import TEMP_PROJECT_DIR
+from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 
-# import pytest
 import numpy as np
 
 from pathlib import Path
 
-# Setting up model
-# @pytest.fixture
 
-def test_elementary_matrices_for_beam1_element():
+def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Path=TEMP_PROJECT_DIR):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader()
+    project.initialize_pulse_file_and_loader(dir_path=datadir)
 
     ## Define usefull objects
     model = project.model
@@ -23,10 +23,14 @@ def test_elementary_matrices_for_beam1_element():
     preprocessor = model.preprocessor
 
     section_label = "rectangular_beam"
-    section_parameters = [0.06, 0.10, 0.0, 0.0, 0.0, 0.0]
-
     # section_label = "i_beam"
-    # section_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
+   
+    if section_label == "i_beam":
+        section_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
+        section_info = IBeamCrossSection(*section_parameters)
+    else:
+        section_parameters = [0.06, 0.10, 0.0, 0.0, 0.0, 0.0]
+        section_info = RectangularBeamCrossSection(*section_parameters)
 
     line_id = 1
     length = 0.01
@@ -35,14 +39,12 @@ def test_elementary_matrices_for_beam1_element():
     end_coords = [length/(3**(1/2)), length/(3**(1/2)), length/(3**(1/2))]
 
     geometry_info = {
-                     "structure_name" : section_label ,
-                     "start_coords": [0.0, 0.0, 0.0],
-                     "end_coords": end_coords,
-                     "section_type_label": section_label,
-                     "section_parameters" : section_parameters,
-                     "section_properties" : get_beam_section_properties(section_label, section_parameters),
-                     "structural_element_type" : "beam_1"
-                     }
+        "structure_name" : section_label ,
+        "start_coords": [0.0, 0.0, 0.0],
+        "end_coords": end_coords,
+        "structural_element_type" : "beam_1",
+    }
+    geometry_info.update(section_info.as_dict())
 
     model.properties._set_multiple_line_properties(geometry_info, line_id)
 
@@ -50,7 +52,7 @@ def test_elementary_matrices_for_beam1_element():
     #     project.model.properties._set_line_property(key, values, line_ids=line_id)
 
     # Load geometry file (only the *.iges and *.step formats are supported)
-    # geometry_path = Path("examples/iges_files/run_by_script/reciprocating_pump_piping.step")
+    # geometry_path = get_example_file_path("iges_files/run_by_script/reciprocating_pump_piping.step")
     project.file.write_line_properties_in_file()
 
     ## Configure the mesher setup
@@ -77,23 +79,9 @@ def test_elementary_matrices_for_beam1_element():
     model.properties._set_line_property("material", materials[1], line_id)
 
     ## Create the model cross-sections
-
-    # section_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
-    # section_info = {
-    #                 "section_type_label" : "i_beam" ,
-    #                 "section_parameters" : section_parameters,
-    #                 "section_properties" : get_beam_section_properties("i_beam", section_parameters)
-    #                 }
-
-    section_parameters = [0.06, 0.10, 0.0, 0.0, 0.0, 0.0]
-    section_info = {
-                    "section_type_label" : "rectangular_beam" ,
-                    "section_parameters" : section_parameters,
-                    "section_properties" : get_beam_section_properties("rectangular_beam", section_parameters)
-                    }
-
     cross_section = CrossSection(beam_section_info = section_info)
     model.properties._set_line_property("cross_section", cross_section, line_id)
+    model.properties._set_multiple_line_properties(section_info.as_dict(), line_id)
 
     preprocessor.set_cross_section_by_lines(line_id, cross_section)
     preprocessor.set_structural_element_type_by_lines(line_id, "beam_1")
@@ -105,6 +93,7 @@ def test_elementary_matrices_for_beam1_element():
     # np.savetxt("Ke_beam1.dat", Ke, delimiter=",", fmt="%.24e")
     # np.savetxt("Me_beam1.dat", Me, delimiter=",", fmt="%.24e")
 
+    # Original test: compare against CSV reference data
     path = "tests/data/structural_elements/beam_1/"
     Ke_ref = np.loadtxt(path + "K_dense_diag.csv", delimiter=",")
     Me_ref = np.loadtxt(path + "M_dense_diag.csv", delimiter=",")
@@ -126,6 +115,15 @@ def test_elementary_matrices_for_beam1_element():
 
     assert np.max(rel_diff_Ke) < 1e-14
     assert np.max(rel_diff_Me) < 1e-14
+    
+    # Enhanced regression tests using pytest-regressions
+    ndarrays_regression.check(
+        {
+            "stiffness_matrix_flat": Ke,
+            "mass_matrix_flat": Me,
+        },
+        default_tolerance=dict(atol=1e-14, rtol=1e-14)
+    )
 
     project.file.write_line_properties_in_file()
     project.file.write_project_setup_in_file(mesher_setup)
@@ -137,37 +135,37 @@ def create_materials():
 
     materials = dict()
     materials[1] = Material(
-                            'carbon_steel', 
-                            7850, 
-                            identifier = 1, 
-                            elasticity_modulus = 200e9, 
-                            poisson_ratio = 0.3,
-                            thermal_expansion_coefficient = 1.2e-5,
-                            color = [253, 152, 145]
-                            )
+        name = 'carbon_steel', 
+        identifier = 1, 
+        density = 7850, 
+        elasticity_modulus = 200e9, 
+        poisson_ratio = 0.3,
+        thermal_expansion_coefficient = 1.2e-5,
+        color = [253, 152, 145]
+        )
 
     return materials
 
 
 def create_temporary_material_library(project: Project, materials: dict):
 
-    from configparser import ConfigParser
-    config = ConfigParser()
+    material_data = dict()
 
     for mat_id, material in materials.items():
         material: Material
-        config[f"{mat_id}"] = {
-                                "name": material.name,
-                                "identifier": material.identifier,
-                                "color": material.color,
-                                "density": material.density,
-                                "elasticity_modulus": material.elasticity_modulus / 1e9,
-                                "poisson_ratio": material.poisson_ratio,
-                                "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
-                                }
+        material_data[f"{mat_id}"] = {
+            "name": material.name,
+            "identifier": material.identifier,
+            "color": material.color,
+            "density": material.density,
+            "elasticity_modulus": material.elasticity_modulus / 1e9,
+            "poisson_ratio": material.poisson_ratio,
+            "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
+            }
 
-    project.file.write_material_library_in_file(config)
-    
+    project.file.write_material_library_in_file(material_data)
+ 
+
 def remove_files_from_temporary_folder():
 
     from pulse import TEMP_PROJECT_DIR
