@@ -47,9 +47,17 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
         self.comboBox_sheet_names.setDisabled(True)
 
     def _load_file(self):
-        if self.file_path != "":
-            self.lineEdit_file_path.setText(self.file_path)
-            self.load_composition_data_from_file()
+        if not isinstance(self.file_path, Path):
+            self.file_path = str(self.file_path)
+
+        if not isinstance(self.file_path, str):
+            return
+
+        if self.file_path == "":
+            return
+
+        self.lineEdit_file_path.setText(self.file_path)
+        self.load_composition_data_from_file()
 
     def search_button_callback(self):
 
@@ -59,13 +67,17 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
 
         caption = "Open the fluid composition file"
         extensions = ["xlsx", "xls"]
-        self.file_path = FileDialogService.open_file(extensions, caption, last_path)
+        file_path = FileDialogService.open_file(extensions, caption, last_path)
 
-        if self.file_path is None:
+        if file_path is None:
+            self.file_path = ""
             return
         
+        if isinstance(file_path, Path):
+            self.file_path = str(file_path)
+        
         app().config.write_last_folder_path_in_file("fluid_composition_folder", self.file_path)
-                                                    
+
         self.lineEdit_file_path.setText(self.file_path)
 
         if self.load_composition_data_from_file():
