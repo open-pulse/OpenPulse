@@ -643,7 +643,10 @@ class FluidWidget(FluidInputWidget_UI):
         fluid_library_data = app().project.file.read_fluid_library_from_file()
 
         str_fluid_id = str(fluid.identifier)
-        if len(str_fluid_id in fluid_library_data.keys()) == 0:
+        if not fluid_library_data:
+            return
+
+        if str_fluid_id not in fluid_library_data.keys():
             return
 
         # remove the selected fluid

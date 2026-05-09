@@ -684,7 +684,11 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
                 self.warnings[prop_label] = warnings
 
             if key_prop == "Z":
+
                 Z = fluid_property
+                if not isinstance(Z, float):
+                    continue
+
                 if Z < 0.9 or Z > 1.1:
                     self.ideal_gas_warning = True
                     self.compressibility_factor = Z
