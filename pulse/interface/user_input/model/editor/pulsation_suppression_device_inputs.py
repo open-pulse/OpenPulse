@@ -1108,7 +1108,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             for i, variable in enumerate(["diameter", "wall_thickness", "length", "distance"]):
                 name = "lineEdit_" + part + "_" + variable
                 obj = getattr(self, name)
-                parameters = data[key]
+                parameters = data.get(key, "")
 
                 if i < len(parameters):
                     obj.setText(str(parameters[i]))
