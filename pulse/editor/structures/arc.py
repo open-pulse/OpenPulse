@@ -146,18 +146,10 @@ class Arc(Structure):
 
     def get_points(self):
         return [
-            self.interpolate(0),
-            self.interpolate(0.25),
-            self.interpolate(0.5),
-            self.interpolate(0.75),
-            self.interpolate(1),
+            self.start,
+            self.end,
+            self.mid,
         ]
-
-        # return [
-        #     self.start,
-        #     self.end,
-        #     self.mid,
-        # ]
 
     def replace_point(self, old, new):
         if self.start == old:
