@@ -2,7 +2,9 @@ import pytest
 import numpy as np
 
 from examples.example_file_helper import get_example_file_path
-from pulse.model.cross_section import CrossSection, get_beam_section_properties
+from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 from pulse.project.project import Project
 
 from tests.helpers import (
@@ -63,14 +65,9 @@ def example2_project(tmp_path):
     model.properties._set_line_property("material", materials[1], all_lines)
 
     # Cross-sections
-    main_section_info = {"section_type_label": "pipe", "section_parameters": [0.100, 0.008, 0, 0, 0, 0]}
-    branch_section_info = {"section_type_label": "pipe", "section_parameters": [0.050, 0.008, 0, 0, 0, 0]}
-    beam_section_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
-    beam_section_info = {
-        "section_type_label": "i_beam",
-        "section_parameters": beam_section_parameters,
-        "section_properties": get_beam_section_properties("i_beam", beam_section_parameters),
-    }
+    main_section_info = PipeCrossSection(0.100, 0.008, 0, 0, 0, 0)
+    branch_section_info = PipeCrossSection(0.050, 0.008, 0, 0, 0, 0)
+    beam_section_info = IBeamCrossSection(0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0)
 
     cross_section_main = CrossSection(pipe_section_info=main_section_info)
     cross_section_branch = CrossSection(pipe_section_info=branch_section_info)
@@ -79,10 +76,10 @@ def example2_project(tmp_path):
     for line_id in main_lines:
         center_coords = model.properties._get_property("center_coords", line_id=line_id)
         corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
-        label = main_section_info["section_type_label"] if (center_coords, corner_coords).count(None) == 2 else "bend"
+        label = main_section_info.section_type_label if (center_coords, corner_coords).count(None) == 2 else "bend"
         model.properties._set_line_property("structure_name", label, line_id)
 
-    model.properties._set_multiple_line_properties(main_section_info, main_lines)
+    model.properties._set_multiple_line_properties(main_section_info.as_dict(), main_lines)
     model.properties._set_line_property("cross_section", cross_section_main, main_lines)
     model.properties._set_line_property("structural_element_type", "pipe_1", main_lines)
     preprocessor.set_cross_section_by_lines(main_lines, cross_section_main)
@@ -91,17 +88,17 @@ def example2_project(tmp_path):
     for line_id in branch_lines:
         center_coords = model.properties._get_property("center_coords", line_id=line_id)
         corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
-        label = branch_section_info["section_type_label"] if (center_coords, corner_coords).count(None) == 2 else "bend"
+        label = branch_section_info.section_type_label if (center_coords, corner_coords).count(None) == 2 else "bend"
         model.properties._set_line_property("structure_name", label, line_id)
 
-    model.properties._set_multiple_line_properties(branch_section_info, branch_lines)
+    model.properties._set_multiple_line_properties(branch_section_info.as_dict(), branch_lines)
     model.properties._set_line_property("cross_section", cross_section_branch, branch_lines)
     model.properties._set_line_property("structural_element_type", "pipe_1", branch_lines)
     preprocessor.set_cross_section_by_lines(branch_lines, cross_section_branch)
     preprocessor.set_structural_element_type_by_lines(branch_lines, "pipe_1")
 
-    model.properties._set_line_property("structure_name", beam_section_info["section_type_label"], beam_lines)
-    model.properties._set_multiple_line_properties(beam_section_info, beam_lines)
+    model.properties._set_line_property("structure_name", beam_section_info.section_type_label, beam_lines)
+    model.properties._set_multiple_line_properties(beam_section_info.as_dict(), beam_lines)
     model.properties._set_line_property("cross_section", cross_section_beam, beam_lines)
     model.properties._set_line_property("structural_element_type", "beam_1", beam_lines)
     preprocessor.set_cross_section_by_lines(beam_lines, cross_section_beam)
