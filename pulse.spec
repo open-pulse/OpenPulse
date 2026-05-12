@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 
 
 datas = [
@@ -9,6 +9,7 @@ datas = [
 ]
 datas += collect_data_files('molde')
 datas += collect_data_files('opps')
+datas += copy_metadata('imageio')
 
 a = Analysis(
     ['pulse/launch.py'],
