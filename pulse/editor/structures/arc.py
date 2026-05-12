@@ -1,15 +1,17 @@
-import numpy as np
-import gmsh
 from typing import Callable
+
+import gmsh
+import numpy as np
+
+from pulse.utils.math_utils import normalize
 
 from .point import Point
 from .structure import Structure
-from pulse.utils.math_utils import normalize
 
 
 class Arc(Structure):
     """
-    Abstract class to handle structures represented by arcs inserted at any position. 
+    Abstract class to handle structures represented by arcs inserted at any position.
     Arcs are represented as a 3 point arc.
     """
 
@@ -26,9 +28,9 @@ class Arc(Structure):
 
     @classmethod
     def from_tangency(cls, start: Point, end: Point, tangency: np.ndarray, *args, **kwargs) -> "Arc":
-        '''
+        """
         https://github.com/hello.world
-        '''
+        """
 
         _start = start.coords()
         _end = end.coords()
@@ -39,21 +41,22 @@ class Arc(Structure):
         n = np.cross(strucutre_vector, tangency)
         v = np.cross(tangency, n)
 
-        if np.allclose(v, [0,0,0]):
+        if np.allclose(v, [0, 0, 0]):
             mid_coords = _start + strucutre_vector / 2
             mid = Point(*mid_coords)
             return cls(start, end, mid, *args, **kwargs)
 
         v = v / np.linalg.norm(v)
         theta = np.arccos(np.dot(v, strucutre_vector) / norm_structure_vector)
+        sin_theta = np.sin(theta)
 
-        if theta == 0:
+        if np.allclose(theta, 0) or np.allclose(theta, sin_theta):
             r = norm_structure_vector / 2
             center = _start + v * r
             mid_coords = center + tangency * r
 
         else:
-            r = norm_structure_vector * np.sin(theta) / np.sin(np.pi - 2 * theta)
+            r = norm_structure_vector * sin_theta / np.sin(np.pi - 2 * theta)
             m = strucutre_vector / 2 + _start
             center = _start + v * r
             mid_point_direction = normalize(m - center)
@@ -75,15 +78,15 @@ class Arc(Structure):
         v22 = np.dot(v2, v2)
         v12 = np.dot(v1, v2)
 
-        a = 2 * (v11*v22 - v12**2)
+        a = 2 * (v11 * v22 - v12**2)
         if a == 0:
             return None
 
-        b = (1 / a)
-        k1 = b * v22*(v11 - v12)
-        k2 = b * v11*(v22 - v12)
+        b = 1 / a
+        k1 = b * v22 * (v11 - v12)
+        k2 = b * v11 * (v22 - v12)
 
-        P0 = self.mid.coords() + k1*v1 + k2*v2
+        P0 = self.mid.coords() + k1 * v1 + k2 * v2
         return Point(*P0)
 
     @property
@@ -106,11 +109,27 @@ class Arc(Structure):
         average_radius = (norm_u + norm_v) / 2
         return np.arccos(cos_alpha) * average_radius
 
+    def interpolate(self, t: float) -> Point:
+        # t is the percentage of the bend traveled
+        if t <= 0.5:
+            half_t = t * 2
+            intermediary_projection_point = self.start + half_t * (self.mid - self.start)
+        else:
+            half_t = (t - 0.5) * 2
+            intermediary_projection_point = self.mid + half_t * (self.end - self.mid)
+
+        center = self.center
+        if center is None:
+            return intermediary_projection_point
+
+        direction = normalize(intermediary_projection_point - center)
+        return self.center + direction * self.curvature_radius
+
     def angle(self) -> float:
         center = self.center
         if center is None:
             return 0
-        
+
         u = normalize(self.start.coords() - center.coords())
         v = normalize(self.end.coords() - center.coords())
         n = np.cross(u, v)
@@ -148,7 +167,20 @@ class Arc(Structure):
         convert_unit: Callable[[float], float] = lambda x: x,
     ) -> list[int]:
 
-        start = cad.add_point(*convert_unit(self.start.coords()))
-        end = cad.add_point(*convert_unit(self.end.coords()))
-        mid = cad.add_point(*convert_unit(self.mid.coords()))
-        return [cad.add_circle_arc(start, mid, end, center=False)]
+        point_0 = cad.add_point(*convert_unit(self.interpolate(0).coords()))
+        point_50 = cad.add_point(*convert_unit(self.interpolate(0.5).coords()))
+        point_100 = cad.add_point(*convert_unit(self.interpolate(1).coords()))
+
+        if self.center is None:
+            return [
+                cad.add_line(point_0, point_50),
+                cad.add_line(point_50, point_100),
+            ]
+
+        point_25 = cad.add_point(*convert_unit(self.interpolate(0.25).coords()))
+        point_75 = cad.add_point(*convert_unit(self.interpolate(0.75).coords()))
+
+        return [
+            cad.add_circle_arc(point_0, point_25, point_50, center=False),
+            cad.add_circle_arc(point_50, point_75, point_100, center=False),
+        ]

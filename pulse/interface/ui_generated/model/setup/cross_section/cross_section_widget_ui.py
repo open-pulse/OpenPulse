@@ -126,6 +126,7 @@ class Ui_Form(object):
         self.pushButton_select_standard_section.setMaximumSize(QSize(220, 32))
         self.pushButton_select_standard_section.setFont(font)
         self.pushButton_select_standard_section.setStyleSheet(u"")
+        self.pushButton_select_standard_section.setAutoDefault(False)
 
         self.gridLayout_31.addWidget(self.pushButton_select_standard_section, 0, 0, 1, 1)
 
@@ -135,6 +136,7 @@ class Ui_Form(object):
         self.pushButton_check_if_section_is_normalized.setMaximumSize(QSize(220, 32))
         self.pushButton_check_if_section_is_normalized.setFont(font)
         self.pushButton_check_if_section_is_normalized.setStyleSheet(u"")
+        self.pushButton_check_if_section_is_normalized.setAutoDefault(False)
 
         self.gridLayout_31.addWidget(self.pushButton_check_if_section_is_normalized, 0, 1, 1, 1)
 
@@ -415,6 +417,7 @@ class Ui_Form(object):
         self.pushButton_select_standard_section_initial.setMaximumSize(QSize(90, 26))
         self.pushButton_select_standard_section_initial.setFont(font)
         self.pushButton_select_standard_section_initial.setStyleSheet(u"")
+        self.pushButton_select_standard_section_initial.setAutoDefault(False)
 
         self.gridLayout_15.addWidget(self.pushButton_select_standard_section_initial, 0, 0, 1, 1)
 
@@ -435,6 +438,7 @@ class Ui_Form(object):
         self.pushButton_select_standard_section_final.setMaximumSize(QSize(90, 26))
         self.pushButton_select_standard_section_final.setFont(font)
         self.pushButton_select_standard_section_final.setStyleSheet(u"")
+        self.pushButton_select_standard_section_final.setAutoDefault(False)
 
         self.gridLayout_11.addWidget(self.pushButton_select_standard_section_final, 0, 0, 1, 1)
 
@@ -744,6 +748,7 @@ class Ui_Form(object):
         icon.addFile(u":/icons/common/swap_horizontal_arrows.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.pushButton_invert_input_values.setIcon(icon)
         self.pushButton_invert_input_values.setIconSize(QSize(22, 22))
+        self.pushButton_invert_input_values.setAutoDefault(False)
 
         self.gridLayout_16.addWidget(self.pushButton_invert_input_values, 0, 0, 1, 1)
 
@@ -2184,6 +2189,7 @@ class Ui_Form(object):
         self.pushButton_confirm_beam.setMaximumSize(QSize(140, 30))
         self.pushButton_confirm_beam.setFont(font)
         self.pushButton_confirm_beam.setStyleSheet(u"")
+        self.pushButton_confirm_beam.setAutoDefault(False)
 
         self.gridLayout_34.addWidget(self.pushButton_confirm_beam, 0, 3, 1, 1)
 
@@ -2193,6 +2199,7 @@ class Ui_Form(object):
         self.pushButton_plot_beam_cross_section.setMaximumSize(QSize(140, 30))
         self.pushButton_plot_beam_cross_section.setFont(font)
         self.pushButton_plot_beam_cross_section.setStyleSheet(u"")
+        self.pushButton_plot_beam_cross_section.setAutoDefault(False)
 
         self.gridLayout_34.addWidget(self.pushButton_plot_beam_cross_section, 0, 1, 1, 1)
 
@@ -2202,6 +2209,7 @@ class Ui_Form(object):
         self.pushButton_exit_beam.setMaximumSize(QSize(140, 30))
         self.pushButton_exit_beam.setFont(font)
         self.pushButton_exit_beam.setStyleSheet(u"")
+        self.pushButton_exit_beam.setAutoDefault(False)
 
         self.gridLayout_34.addWidget(self.pushButton_exit_beam, 0, 0, 1, 1)
 

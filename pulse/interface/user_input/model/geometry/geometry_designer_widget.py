@@ -100,6 +100,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.render_widget.selection_changed.connect(self.selection_callback)
         self.select_all_action.triggered.connect(self.select_all_callback)
 
+        self.unit_combobox.setDisabled(True)  # TODO: remove this and fix the unities
         self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
@@ -168,6 +169,8 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.tmp_camera = None
 
     def selection_callback(self):
+        self._reset_xyz()
+
         if issubclass(self.current_structure_type, Point):
             self._set_xyz_to_selected_point()
 
@@ -175,7 +178,6 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             self.pipeline.main_editor.remove_collapsed_bends()
             self.cancel_division_callback()
 
-        self._reset_xyz()
         self._reset_length()
         self._update_permissions()
         self._update_information_text()
@@ -676,7 +678,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.current_options.attach_callback()
         self.pipeline.commit()
         self._update_permissions()
-        self.render_widget.update_plot(reset_camera=True)
+        self.render_widget.update_plot(reset_camera=False)
         self.modified = True
         self._reset_xyz()
         self._update_permissions()
@@ -793,8 +795,8 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.y_line_edit.setText(str(y))
         self.z_line_edit.setText(str(z))
 
-    def _set_length(self, lenght: float):
-        self.length_line_edit.setText(str(lenght))
+    def _set_length(self, length: float):
+        self.length_line_edit.setText(str(length))
 
     def _reset_xyz(self):
         self._set_xyz("", "", "")
@@ -874,7 +876,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         if self.length_unit == "meter":
             return "m"
 
-        elif self.length_unit == "milimeter":
+        elif self.length_unit == "millimeter":
             return "mm"
 
         elif self.length_unit == "inch":

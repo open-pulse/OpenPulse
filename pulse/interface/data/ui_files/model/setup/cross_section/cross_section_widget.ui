@@ -351,6 +351,9 @@
                 <property name="text">
                  <string>Get a standardized section</string>
                 </property>
+                <property name="autoDefault">
+                 <bool>false</bool>
+                </property>
                </widget>
               </item>
               <item row="0" column="1">
@@ -380,6 +383,9 @@
                 </property>
                 <property name="text">
                  <string>Check if section is normalized</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -1225,6 +1231,9 @@
                    <property name="text">
                     <string>Get section</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                 </layout>
@@ -1281,6 +1290,9 @@
                    </property>
                    <property name="text">
                     <string>Get section</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -2262,6 +2274,9 @@
                      <width>22</width>
                      <height>22</height>
                     </size>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -6567,6 +6582,9 @@
             <property name="shortcut">
              <string>Ctrl+Return</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
             <property name="default">
              <bool>false</bool>
             </property>
@@ -6600,6 +6618,9 @@
             <property name="text">
              <string>Plot cross-section</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="0">
@@ -6632,6 +6653,9 @@
             </property>
             <property name="shortcut">
              <string>Ctrl+Return</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
             </property>
             <property name="default">
              <bool>false</bool>

@@ -882,7 +882,7 @@ class Ui_Form(object):
         self.structure_type_label.setText(QCoreApplication.translate("Form", u"Structure type:", None))
         self.structure_type_label_3.setText(QCoreApplication.translate("Form", u"Structure material:", None))
         self.unit_combobox.setItemText(0, QCoreApplication.translate("Form", u"Meter", None))
-        self.unit_combobox.setItemText(1, QCoreApplication.translate("Form", u"Milimeter", None))
+        self.unit_combobox.setItemText(1, QCoreApplication.translate("Form", u"Millimeter", None))
         self.unit_combobox.setItemText(2, QCoreApplication.translate("Form", u"Inch", None))
 
         self.general_options_label.setText(QCoreApplication.translate("Form", u"General Options", None))

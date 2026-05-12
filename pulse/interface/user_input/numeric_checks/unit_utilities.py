@@ -203,7 +203,7 @@ def convert_length_unit(value: float, input_unit: str, output_unit: str | None=N
 
     input_unit: str 
     The input length unit. Allowable units: m, meter, cm, centimeter, 
-    mm, milimiter, um, micrometer, in, inch, ft, feet, yd, yard.
+    mm, millimeter, um, micrometer, in, inch, ft, feet, yd, yard.
 
     output_unit: str or None, optional
     The output length unit. Allowable units: same as input.
@@ -215,7 +215,7 @@ def convert_length_unit(value: float, input_unit: str, output_unit: str | None=N
         "cm" : "cm",
         "centimeter" : "cm",
         "mm" : "mm",
-        "milimeter" : "mm",
+        "millimeter" : "mm",
         "um" : "um",
         "micrometer" : "um",
         "in" : "in",

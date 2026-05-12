@@ -11,13 +11,16 @@ from pulse.model import AnalysisID
 
 
 class ModalAnalysisInput(ModalAnalysis_UI):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, analysis_id: AnalysisID, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.close_dialogs()
         app().main_window.set_input_widget(self)
 
+        self.analysis_id = analysis_id
+
         self._initialize()
         self._config_window()
+        self._update_modal_analysis_title()
         self._create_connections()
         self._load_analysis_setup()
         self.exec()
@@ -32,6 +35,13 @@ class ModalAnalysisInput(ModalAnalysis_UI):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
+
+    def _update_modal_analysis_title(self):
+        if self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
+            self.label_title.setText("Acoustic modal analysis setup")
+
+        elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
+            self.label_title.setText("Structural modal analysis setup")
 
     def _create_connections(self):
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)

@@ -2,7 +2,7 @@ import numpy as np
 from time import time
 
 class AdvancedCursor(object):
-    def __init__(self, ax, x, y, show_cursor, show_legend, number_vertLines=12):
+    def __init__(self, ax, x, y, show_cursor, show_legend, number_vlines: int = 12):
 
         self.ax = ax
         self.x = x
@@ -11,14 +11,14 @@ class AdvancedCursor(object):
         self.count = 0
         self.show_cursor = show_cursor
         self.show_legend = show_legend
-        self.number_vertLines = number_vertLines
+        self.number_vlines = number_vlines
 
         self.x_data_labels = []
         self.vertical_lines = []
 
         if self.show_cursor:
 
-            for _ in range(self.number_vertLines):
+            for _ in range(self.number_vlines):
                 # vertical lines
                 self.vertical_lines.append(ax.axvline(x=x[5], visible=True, color='k', alpha=0.3, label='_nolegend_')) 
                 # text labels of vertical lines
@@ -53,13 +53,13 @@ class AdvancedCursor(object):
             x = self.x[indx]
             y = self.y[indx]
 
-            for i in range(self.number_vertLines):
+            for i in range(self.number_vlines):
                 if x*(i+1) > np.max(self.x):
                     self.vertical_lines[i].set_visible(False)
                     self.x_data_labels[i].set_visible(False)
                 else:
                     self.vertical_lines[i].set_xdata([x*(i + 1)])
-                    if self.number_vertLines != 1:
+                    if self.number_vlines != 1:
                         self.x_data_labels[i].set_text(f'{i+1}x')
                         self.x_data_labels[i].set_position((x*(i+1), y_pos))
                         self.x_data_labels[i].set_visible(True)

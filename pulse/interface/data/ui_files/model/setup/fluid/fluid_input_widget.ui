@@ -38,10 +38,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="leftMargin">
@@ -77,7 +77,6 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>10</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -114,7 +113,6 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>10</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -139,10 +137,10 @@
    <item row="0" column="0">
     <widget class="QFrame" name="frame_2">
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
@@ -165,6 +163,9 @@
       </property>
       <item row="1" column="0">
        <widget class="QTableWidget" name="tableWidget_fluid_data">
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectionBehavior::SelectColumns</enum>
+        </property>
         <property name="columnCount">
          <number>0</number>
         </property>
@@ -261,10 +262,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
          <property name="leftMargin">
@@ -288,10 +289,10 @@
          <item row="0" column="0">
           <widget class="QFrame" name="frame_7">
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::Shape::NoFrame</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QGridLayout" name="gridLayout">
             <property name="leftMargin">
@@ -327,7 +328,6 @@
                <font>
                 <family>MS Shell Dlg 2</family>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
                </font>
@@ -346,7 +346,7 @@
             <item row="0" column="1">
              <spacer name="horizontalSpacer">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -377,7 +377,6 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -411,7 +410,6 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>9</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -445,7 +443,6 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>9</pointsize>
-             <weight>75</weight>
              <italic>false</italic>
              <bold>true</bold>
             </font>
@@ -479,7 +476,6 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>9</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -494,7 +490,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../../icons/resources.qrc">
              <normaloff>:/icons/mpltoolbar/copy_icon.png</normaloff>:/icons/mpltoolbar/copy_icon.png</iconset>
            </property>
            <property name="iconSize">
@@ -521,6 +517,8 @@
   <tabstop>tableWidget_fluid_data</tabstop>
   <tabstop>pushButton_attribute</tabstop>
  </tabstops>
- <resources><include location="../../../../icons/resources.qrc" /></resources>
+ <resources>
+  <include location="../../../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
