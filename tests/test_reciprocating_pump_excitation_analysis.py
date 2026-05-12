@@ -15,10 +15,9 @@ from tests.helpers import (
 import numpy as np
 
 from pathlib import Path
-from pulse import TEMP_PROJECT_DIR
 
 
-def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
+def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Initialize a project
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=datadir)
