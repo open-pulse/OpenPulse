@@ -1,26 +1,37 @@
 # -*- mode: python ; coding: utf-8 -*-
-from PyInstaller.utils.hooks import collect_data_files, copy_metadata
+from PyInstaller.utils.hooks import collect_all, collect_data_files, copy_metadata
 
+binaries = []
 
 datas = [
     # we need to add the paths in pairs
-    ('pulse/interface/data/', 'pulse/interface/data/'),
-    ('pulse/libraries/', 'pulse/libraries/'),
+    ("pulse/interface/data/", "pulse/interface/data/"),
+    ("pulse/libraries/", "pulse/libraries/"),
 ]
-datas += collect_data_files('molde')
-datas += collect_data_files('opps')
-datas += copy_metadata('imageio')
+datas += collect_data_files("molde")
+datas += collect_data_files("opps")
+datas += collect_data_files("fastexcel")
+datas += copy_metadata("imageio")
+
+hiddenimports = [
+    "vtk",
+    "vtkmodules.util.execution_model",
+    "vtkmodules.util.data_model",
+]
+
+datas_fastexcel, binaries_fastexcel, hidden_fastexcel = collect_all("fastexcel")
+
+datas += datas_fastexcel
+binaries += binaries_fastexcel
+hiddenimports += hidden_fastexcel
+
 
 a = Analysis(
-    ['pulse/launch.py'],
+    ["pulse/launch.py"],
     pathex=[],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
-    hiddenimports=[
-        "vtk",
-        "vtkmodules.util.execution_model",
-        "vtkmodules.util.data_model",
-    ],
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -34,7 +45,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='OpenPulse.exe',
+    name="OpenPulse.exe",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -45,7 +56,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['pulse.ico'],
+    icon=["pulse.ico"],
 )
 
 coll = COLLECT(
@@ -55,5 +66,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='OpenPulse',
+    name="OpenPulse",
 )
