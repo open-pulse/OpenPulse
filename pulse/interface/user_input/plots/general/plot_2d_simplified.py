@@ -53,7 +53,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
     def _add_plots_to_widget(self) -> None:
         self.results_plot = MplCanvas(self, width=8, height=6, dpi=110)
 
-        self.left_ax = self.results_plot.ax_left
+        self.left_ax = self.results_plot.axes
         self.right_ax = None
 
         if self.plot_2d_widget.layout() is None:
