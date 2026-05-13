@@ -345,7 +345,7 @@ class ReciprocatingCompressorModel:
 
         # if capacity is None:
         #     if self.cap is None:
-        #         self.cap = self.process_capacity(capacity = self.capacity)
+        #         self.cap = self.process_capacity(capacity = self.capacity_fraction)
         #         if self.cap == -1:
         #             return None, None, None
         #     capacity = self.cap
@@ -364,7 +364,7 @@ class ReciprocatingCompressorModel:
         pressures = np.zeros(N, dtype=float)
 
         if capacity is None:
-            capacity = self.capacity
+            capacity = self.capacity_fraction
 
         if capacity < 1:
             start_index, end_index = angle_data["V4"]["indexes"]
@@ -525,7 +525,7 @@ class ReciprocatingCompressorModel:
 
         # if capacity is None:
         #     if self.cap is None:
-        #         self.cap = self.process_capacity(capacity = self.capacity)
+        #         self.cap = self.process_capacity(capacity = self.capacity_fraction)
         #         if self.cap == -1:
         #             return None, None, None
         #     capacity = self.cap
@@ -544,7 +544,7 @@ class ReciprocatingCompressorModel:
         pressures = np.zeros(N, dtype=float)
 
         if capacity is None:
-            capacity = self.capacity
+            capacity = self.capacity_fraction
 
         if capacity < 1:
             start_index, end_index = angle_data["V4"]["indexes"]
@@ -556,7 +556,7 @@ class ReciprocatingCompressorModel:
                     V4c = V_i
                     V3c = V4c/((1/self.pressure_ratio)**(1/self.k))
                 else:
-                    # print(i, self.capacity, V_i, V4c, V3c)
+                    # print(i, self.capacity_fraction, V_i, V4c, V3c)
                     break
 
         valves_info = dict()
