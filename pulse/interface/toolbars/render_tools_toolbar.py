@@ -42,8 +42,6 @@ class RenderToolsToolbar(QToolBar):
         self.zoom_tool_icon = QIcon(str(ICON_DIR / "common/zoom_icon.png"))
     
     def _configure_layout(self):
-        self.addSeparator()
-
         self.addAction(self.action_selection_tool)
         self.addAction(self.action_grab_tool)
         self.addAction(self.action_rotation_tool)
@@ -51,21 +49,14 @@ class RenderToolsToolbar(QToolBar):
     
     def _configure_appearence(self):
         self.setMovable(True)
-        self.setOrientation(Qt.Vertical)
+        self.setOrientation(Qt.Horizontal)
 
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
         self.setSizePolicy(sizePolicy)
-        self.setStyleSheet(u"\n"
-                                                "            QToolBar {\n"
-                                                "                border-style: solid;\n"
-                                                "                border-width: 1px;\n"
-                                                "                border-color: #888888;\n"
-                                                "                spacing: 10px;\n"
-                                                "            }")
-
+       
     def _configure_widgets(self):
         for action in self.actions():
             action.setCheckable(True)

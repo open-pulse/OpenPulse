@@ -817,20 +817,20 @@ class MainWindow(MainWindow_UI):
     
     def _add_render_tools_toolbar(self):
         self.render_tools_toolbar = RenderToolsToolbar()
-        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.render_tools_toolbar)
-        self.render_tools_toolbar.setVisible(False)
+        self.addToolBar(self.render_tools_toolbar)
+        self.render_tools_toolbar.setDisabled(True)
 
         for render in self.get_renderer_widgets():
             self.render_tools_toolbar.render_tool_changed.connect(render.add_render_tool)
 
     def _add_toolbars(self):
+        self._add_render_tools_toolbar()
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
         self._add_animation_toolbar()
-        self._add_render_tools_toolbar()
 
-    def show_render_tools_toolbar(self):
-        self.render_tools_toolbar.setVisible(True)
+    def enable_render_tools_toolbar(self):
+        self.render_tools_toolbar.setEnabled(True)
     
     def get_renderer_widgets(self):
         return [
@@ -965,7 +965,7 @@ class MainWindow(MainWindow_UI):
             return
 
         self.action_geometry_editor_workspace_callback()
-        self.show_render_tools_toolbar()
+        self.enable_render_tools_toolbar()
         self.update_results_workspace_button_accessibility()
 
         return obj.complete
@@ -1011,7 +1011,7 @@ class MainWindow(MainWindow_UI):
 
             logging.info("Configuring visualization [95%]")
             self.action_model_setup_workspace_callback()
-            self.show_render_tools_toolbar()
+            self.enable_render_tools_toolbar()
             self.update_results_workspace_button_accessibility()
             self.update_plots()
 
@@ -1031,7 +1031,7 @@ class MainWindow(MainWindow_UI):
             return True
 
         self.open_project(project_path)
-        self.show_render_tools_toolbar()
+        self.enable_render_tools_toolbar()
 
     def save_project_dialog(self):
         if self.project.save_path is None:
