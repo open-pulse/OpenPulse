@@ -1,0 +1,38 @@
+name: Feature Request
+description: Request a new feature.
+labels: ["feature"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What feature would you like?
+      description: Describe the feature you want in detail.
+      placeholder: Tell us about the feature!
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: What is the use case?
+      description: Why do you need this feature? What problem does it solve?
+      placeholder: e.g. "This would make it easier to..."
+    validations:
+      required: false
+
+  - type: upload
+    id: screenshots
+    attributes:
+      label: Mockups / Examples
+      description: If applicable, add screenshots or drawings to illustrate the feature.
+    validations:
+      required: false
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
