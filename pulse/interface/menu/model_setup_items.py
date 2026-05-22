@@ -330,7 +330,36 @@ class ModelSetupItems(CommonMenuItems):
         if (properties := app().project.model.properties) is None:
             return False
 
+        if property_name == "mass_spring_damper":
+            return bool(self.get_mass_spring_damper_icons())
+
+        if property_name == "elastic_nodal_links":
+            nodal_link_properties = [
+                "stiffness_nodal_links",
+                "damping_nodal_links",
+            ]
+            return any(
+                properties.is_the_property_applied(_property)
+                for _property in nodal_link_properties
+            )
+
         return properties.is_the_property_applied(property_name)
+
+    def get_mass_spring_damper_icons(self) -> list[str]:
+        if (properties := app().project.model.properties) is None:
+            return []
+
+        icon_by_property = {
+            "lumped_masses": "mass",
+            "lumped_stiffness": "spring",
+            "lumped_dampings": "damper",
+        }
+
+        return [
+            icon_name
+            for property_name, icon_name in icon_by_property.items()
+            if properties.is_the_property_applied(property_name)
+        ]
 
     def update_items_apperence(self):
         physical_domain = self._get_physical_domain()
@@ -344,13 +373,18 @@ class ModelSetupItems(CommonMenuItems):
                 item_child.set_warning(False)
 
                 if self.contains_property(item_child.property_name):
-                    item_child.set_icon()
+                    if item_child.property_name == "mass_spring_damper":
+                        item_child.set_multi_icon(self.get_mass_spring_damper_icons())
+                    else:
+                        item_child.set_icon()
 
                 elif self.needs_property(item_child.property_name, physical_domain):
                     item_child.set_warning(True)
 
                 else:
                     item_child.set_icon(visible=False)
+                    if item_child.property_name == "mass_spring_damper":
+                        item_child.set_multi_icon([], visible=False)
 
     def update_tooltips_warnings(self):
         physical_domain = self._get_physical_domain()
