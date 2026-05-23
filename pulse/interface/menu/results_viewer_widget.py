@@ -14,6 +14,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def _reset(self):
         self.current_widget = None
+        self.is_animation_widget = False
 
     def _define_qt_variables(self):
 
@@ -141,7 +142,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def add_widget(self, widget: QWidget, animation_widget=False):
 
-        app().main_window.animation_toolbar.setEnabled(False)
+        app().main_window.animation_toolbar.set_visible(False)
 
         # TODO: please, remove the hide after all it shouldn't be needed
         if isinstance(self.bottom_widget, QWidget):
@@ -149,8 +150,9 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
         self.layout().replaceWidget(self.bottom_widget, widget)
         self.bottom_widget = widget
+        self.is_animation_widget = animation_widget
 
-        app().main_window.animation_toolbar.setEnabled(animation_widget)
+        app().main_window.animation_toolbar.set_visible(animation_widget)
         self.adjustSize()
 
     def configure_render_according_to_plot_type(self, set_by: str):
