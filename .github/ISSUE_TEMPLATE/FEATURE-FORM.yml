@@ -11,15 +11,6 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: motivation
-    attributes:
-      label: What is the use case?
-      description: Why do you need this feature? What problem does it solve?
-      placeholder: e.g. "This would make it easier to..."
-    validations:
-      required: false
-
   - type: upload
     id: screenshots
     attributes:
