@@ -1,5 +1,3 @@
-
-from pulse import TEMP_PROJECT_DIR
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
@@ -11,7 +9,7 @@ import numpy as np
 from pathlib import Path
 
 
-def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Path=TEMP_PROJECT_DIR):
+def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Path):
 
     ## Initialize a project
     project = Project()
@@ -129,7 +127,6 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     project.file.write_project_setup_in_file(mesher_setup)
     project.file.write_analysis_setup_in_file(model.analysis_setup)
 
-    remove_files_from_temporary_folder()
 
 def create_materials():
 
@@ -165,21 +162,3 @@ def create_temporary_material_library(project: Project, materials: dict):
 
     project.file.write_material_library_in_file(material_data)
  
-
-def remove_files_from_temporary_folder():
-
-    from pulse import TEMP_PROJECT_DIR
-    from shutil import rmtree
-    from os import path, remove, listdir
-
-    if TEMP_PROJECT_DIR.exists():
-        for filename in listdir(TEMP_PROJECT_DIR).copy():
-            file_path = TEMP_PROJECT_DIR / filename
-            if path.exists(file_path):
-                if "." in filename:
-                    remove(file_path)
-                else:
-                    rmtree(file_path)
-
-if __name__ == "__main__":
-    test_elementary_matrices_for_beam1_element()
