@@ -22,7 +22,7 @@ def custom_exception_hooks(exc_type, exc_value, exc_traceback):
         PrintMessageInput([
             "Unhandled error",
             f"{exc_type.__name__}: {exc_value}",
-            "\n".join(format_tb(exc_traceback, limit=-1))
+            "\n".join(format_tb(exc_traceback, limit=-5))
         ])
     except Exception as e:
         logging.exception(e)
