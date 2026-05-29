@@ -105,6 +105,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
+        return
         if index >= 2:
             app().main_window.animation_toolbar.setDisabled(True)
         else:

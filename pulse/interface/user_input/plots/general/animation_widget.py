@@ -17,7 +17,6 @@ class AnimationWidget(AnimationWidget_UI):
         self._load_icons()
         self._config_widgets()
         self._create_connections()
-        self.setWindowTitle("Animation toolbar")
 
     def _load_icons(self):
         self.play_icon = QIcon(str(ICON_DIR / "common/play.png"))

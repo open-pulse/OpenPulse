@@ -238,7 +238,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         # Do the things defined in the mother class
         super().stop_animation()
         # Change the animation button to paused
-        app().main_window.animation_toolbar.pause_animation()
+        # app().main_window.animation_toolbar.pause_animation()
 
     def clear_cache(self):
         self._animation_cached_data.clear()
