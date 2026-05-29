@@ -35,6 +35,7 @@ class DataImportAssistant(DataImportAssistant_UI):
 
         self.keep_window_open = True
         self.imported_data = None
+        self.imported_paths: list = list()
 
         self.imported_results: dict[int, ImportedData] = dict()
         self.ids_to_checkBox = dict()
@@ -79,14 +80,25 @@ class DataImportAssistant(DataImportAssistant_UI):
         last_folder = app().config.get_last_folder_for("imported_data_folder")
         file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
 
-        imported_paths: list  = FileDialogService.open_multiple_files(file_extensions, last_folder=last_folder)
+        new_paths = FileDialogService.open_multiple_files(file_extensions, last_folder=last_folder)
 
-        if not imported_paths:
+        if not new_paths:
             return
-        
-        for imported_path in imported_paths:
-            self.lineEdit_import_results_path.setText(str(imported_path))
 
+        self.imported_paths += new_paths
+
+        if len(self.imported_paths) == 1:
+            imported_text = str(self.imported_paths[0])
+        else:
+            imported_text = f"{self.imported_paths[0].name} (+{len(self.imported_paths) - 1} more)"
+
+        tooltip_text = "Imported files:\n" + "\n".join(map(str, self.imported_paths))
+        last_imported_file = str(self.imported_paths[-1])
+
+        self.lineEdit_import_results_path.setText(imported_text)
+        self.lineEdit_import_results_path.setToolTip(tooltip_text)
+
+        for imported_path in new_paths:
             file = FileHandler().read(imported_path)
 
             if isinstance(file, SpreadsheetData):
@@ -98,8 +110,7 @@ class DataImportAssistant(DataImportAssistant_UI):
                 key = self.get_data_index()
                 self.imported_results[key] = file
 
-            app().config.write_last_folder_path_in_file("imported_data_folder", str(imported_path))
-
+        app().config.write_last_folder_path_in_file("imported_data_folder", last_imported_file)
         self.update_treeWidget_info()
 
     def update_treeWidget_info(self):
