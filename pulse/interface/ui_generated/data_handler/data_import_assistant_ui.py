@@ -355,7 +355,7 @@ class Ui_Dialog(object):
         ___qtreewidgetitem1 = self.treeWidget_import_text_files.headerItem()
         ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"Add to plot", None))
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Filename", None))
-        self.label_11.setText(QCoreApplication.translate("Dialog", u"Path:", None))
+        self.label_11.setText(QCoreApplication.translate("Dialog", u"Files", None))
         self.pushButton_search_file_to_import.setText("")
         self.pushButton_add_imported_data_to_plot.setText(QCoreApplication.translate("Dialog", u"Add imported data", None))
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
