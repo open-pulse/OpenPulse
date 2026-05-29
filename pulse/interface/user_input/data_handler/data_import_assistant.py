@@ -12,6 +12,7 @@ import numpy as np
 
 
 class DataImportAssistant(DataImportAssistant_UI):
+    
     def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.plotter = plotter
@@ -191,6 +192,9 @@ class DataImportAssistant(DataImportAssistant_UI):
         self.lineEdit_import_results_path.clear()
         self.treeWidget_import_sheet_files.clear()
         self.treeWidget_import_text_files.clear()
+
+        self.plotter.reset_imported_results_data_to_plot()
+
         self._initialize()
 
     def add_imported_data_to_plot(self):
