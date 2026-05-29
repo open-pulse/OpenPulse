@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem, QGridLayout
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.plot_structural_mode_shape_ui import PlotStructuralModeShape_UI
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 
 
 import numpy as np
@@ -14,6 +15,7 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         self._config_window()
         self._initialize()
         self._create_connections()
+        self._add_animation_widget()
         self._config_widgets()
         self.load_natural_frequencies()
         self.load_user_preference_colormap()
@@ -65,6 +67,15 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+    
+    def _add_animation_widget(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.frame_animation.setLayout(self.grid_layout)
+
+        self.animation_widget = AnimationWidget()
+        self.grid_layout.addWidget(self.animation_widget)
+        self.frame_animation.adjustSize()
   
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()

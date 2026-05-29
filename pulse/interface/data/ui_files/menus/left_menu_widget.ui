@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>283</height>
+    <height>585</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,16 +26,6 @@
    <property name="bottomMargin">
     <number>2</number>
    </property>
-   <item row="1" column="0">
-    <widget class="QWidget" name="bottom_widget" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>80</height>
-      </size>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QWidget" name="top_widget" native="true">
      <property name="minimumSize">
@@ -46,21 +36,20 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+   <item row="1" column="0">
+    <widget class="QWidget" name="bottom_widget" native="true">
+     <property name="minimumSize">
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>0</width>
+       <height>80</height>
       </size>
      </property>
-    </spacer>
+    </widget>
    </item>
   </layout>
  </widget>
- <resources><include location="../../icons/resources.qrc" /></resources>
+ <resources>
+  <include location="../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

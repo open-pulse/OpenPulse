@@ -15,16 +15,16 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <property name="leftMargin">
-    <number>4</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>4</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>4</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>4</number>
+    <number>0</number>
    </property>
    <property name="spacing">
     <number>4</number>
@@ -32,10 +32,10 @@
    <item row="0" column="0">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <property name="leftMargin">
@@ -68,10 +68,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_11">
          <property name="leftMargin">
@@ -95,7 +95,7 @@
          <item row="0" column="0">
           <spacer name="horizontalSpacer">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -123,7 +123,6 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -132,7 +131,7 @@
             <string>Frames/cycle:</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -165,7 +164,7 @@
             <bool>true</bool>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
            <property name="prefix">
             <string/>
@@ -187,7 +186,7 @@
          <item row="0" column="3">
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -215,10 +214,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_10">
          <property name="leftMargin">
@@ -256,7 +255,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -265,7 +263,7 @@
             <string>Cycles:</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -298,13 +296,13 @@
             <bool>true</bool>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
            <property name="prefix">
             <string/>
            </property>
            <property name="minimum">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="maximum">
             <number>20</number>
@@ -313,14 +311,14 @@
             <number>1</number>
            </property>
            <property name="value">
-            <number>3</number>
+            <number>0</number>
            </property>
           </widget>
          </item>
          <item row="0" column="3">
           <spacer name="horizontalSpacer_3">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -333,7 +331,7 @@
          <item row="0" column="0">
           <spacer name="horizontalSpacer_4">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -361,10 +359,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <property name="leftMargin">
@@ -382,10 +380,10 @@
          <item row="0" column="0">
           <widget class="QFrame" name="frame_phase_label">
            <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+            <enum>QFrame::Shape::NoFrame</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QGridLayout" name="gridLayout_5">
             <property name="leftMargin">
@@ -424,10 +422,10 @@
             <number>360</number>
            </property>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="tickPosition">
-            <enum>QSlider::TicksBelow</enum>
+            <enum>QSlider::TickPosition::TicksBelow</enum>
            </property>
           </widget>
          </item>
@@ -449,10 +447,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_9">
          <property name="leftMargin">
@@ -480,7 +478,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>28</height>
             </size>
            </property>
@@ -488,7 +486,6 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -500,7 +497,7 @@
             <string>Animate</string>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../../../icons/resources.qrc">
              <normaloff>:/icons/common/play_pause.png</normaloff>:/icons/common/play_pause.png</iconset>
            </property>
            <property name="iconSize">
@@ -527,7 +524,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>28</height>
             </size>
            </property>
@@ -535,7 +532,6 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -569,6 +565,8 @@
   <tabstop>pushButton_export</tabstop>
   <tabstop>pushButton_animate</tabstop>
  </tabstops>
- <resources><include location="../../../icons/resources.qrc" /></resources>
+ <resources>
+  <include location="../../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
