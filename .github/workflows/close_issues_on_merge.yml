@@ -20,11 +20,18 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
           REPO: ${{ github.repository }}
         run: |
-          echo "$PR_BODY" \
-            | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)\s+#([0-9]+)' \
+          issues=$(echo "$PR_BODY" \
+            | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)\s+#[0-9]+' \
             | grep -oE '[0-9]+' \
-            | while read issue; do
-                echo "Closing issue #$issue"
-                gh issue close "$issue" --repo "$REPO" \
-                  --comment "Closed by #${{ github.event.pull_request.number }}."
-              done
+            | sort -u || true)
+
+          if [ -z "$issues" ]; then
+            echo "No linked issues found in PR body."
+            exit 0
+          fi
+
+          for issue in $issues; do
+            echo "Closing issue #$issue"
+            gh issue close "$issue" --repo "$REPO" \
+              --comment "Closed by #${{ github.event.pull_request.number }}." || true
+          done
