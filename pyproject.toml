@@ -44,6 +44,7 @@ dependencies = [
 
 [project.scripts]
 pulse = "pulse.launch:main"
+bump = "scripts.bump_version:main"
 
 [dependency-groups]
 dev = [
