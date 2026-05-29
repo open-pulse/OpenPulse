@@ -847,7 +847,7 @@ class MainWindow(MainWindow_UI):
             self.icon_color = QColor(color_names.BLUE_7.to_hex())
 
         elif theme == "light":
-            self.icon_color = QColor(color_names.BLUE_4.to_hex())
+            self.icon_color = QColor(color_names.BLUE_5.to_hex())
     
         self.interface_theme = theme
         stylesheets.set_theme(theme)
