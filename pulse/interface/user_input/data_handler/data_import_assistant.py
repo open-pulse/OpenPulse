@@ -75,30 +75,31 @@ class DataImportAssistant(DataImportAssistant_UI):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
 
     def import_results(self):
-
         last_folder = app().config.get_last_folder_for("imported_data_folder")
         file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
 
-        imported_path  = FileDialogService.open_file(file_extensions, last_folder=last_folder)
+        imported_paths: list  = FileDialogService.open_multiple_files(file_extensions, last_folder=last_folder)
 
-        if not imported_path:
+        if not imported_paths:
             return
         
-        self.lineEdit_import_results_path.setText(str(imported_path))
+        for imported_path in imported_paths:
+            self.lineEdit_import_results_path.setText(str(imported_path))
 
-        file = FileHandler().read(imported_path)
+            file = FileHandler().read(imported_path)
 
-        if isinstance(file, SpreadsheetData):
-            for sheet in file.sheets:
-                sheet.source_file = file.filename
+            if isinstance(file, SpreadsheetData):
+                for sheet in file.sheets:
+                    sheet.source_file = file.filename
+                    key = self.get_data_index()
+                    self.imported_results[key] = sheet
+            else:
                 key = self.get_data_index()
-                self.imported_results[key] = sheet
-        else:
-            key = self.get_data_index()
-            self.imported_results[key] = file
+                self.imported_results[key] = file
+
+            app().config.write_last_folder_path_in_file("imported_data_folder", str(imported_path))
 
         self.update_treeWidget_info()
-        app().config.write_last_folder_path_in_file("imported_data_folder", str(imported_path))
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
