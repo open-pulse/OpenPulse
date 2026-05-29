@@ -374,7 +374,8 @@ class ModelSetupItems(CommonMenuItems):
 
                 if self.contains_property(item_child.property_name):
                     if item_child.property_name == "mass_spring_damper":
-                        item_child.set_multi_icon(self.get_mass_spring_damper_icons())
+                        item_child.set_multi_icon([], visible=False)
+                        item_child.set_icon("mass_spring_damper")
                     else:
                         item_child.set_icon()
 
