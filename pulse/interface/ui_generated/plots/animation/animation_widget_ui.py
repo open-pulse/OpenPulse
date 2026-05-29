@@ -225,7 +225,7 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
 
-        self.pushButton_animate.setDefault(True)
+        self.pushButton_animate.setDefault(False)
 
 
         QMetaObject.connectSlotsByName(Form)
