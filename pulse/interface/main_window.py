@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QDialog,
     QMessageBox,
+    QToolBar
 )
 
 from pulse import (
@@ -35,7 +36,7 @@ from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
 from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
+from pulse.interface.toolbars.view_toolbar import ViewToolbar
 from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
 from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
 from pulse.interface.user_input.data_handler.file_dialog_service import (
@@ -397,11 +398,12 @@ class MainWindow(MainWindow_UI):
         self.render_widgets_stack.setCurrentWidget(self.welcome_widget)
         self.setup_widgets_stack.setVisible(False)
 
-        self.analysis_toolbar.setDisabled(True)
-        self.mesh_toolbar.setDisabled(True)
-        self.tool_bar.setDisabled(True)
-        self.workspaces_toolbar.setDisabled(True)
-        self.animation_toolbar.setDisabled(True)
+        self.analysis_toolbar.setVisible(False)
+        self.mesh_toolbar.setVisible(False)
+        self.tool_bar.setVisible(False)
+        self.workspaces_toolbar.setVisible(False)
+        self.animation_toolbar.setVisible(False)
+        self.view_toolbar.setVisible(False)
 
     def plot_lines(self):
         self._configure_visualization(points=True, lines=True)
@@ -563,8 +565,8 @@ class MainWindow(MainWindow_UI):
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
-        self.animation_toolbar.setDisabled(True)
-        self.render_tools_toolbar.enable_selection_tool()
+        self.animation_toolbar.set_visible(False)
+        self.view_toolbar.enable_selection_tool()
 
         self.action_geometry_editor_workspace.setEnabled(False)
         if not self.action_model_setup_workspace.isEnabled():
@@ -586,8 +588,8 @@ class MainWindow(MainWindow_UI):
         self.tool_bar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
-        self.animation_toolbar.setDisabled(True)
-        self.render_tools_toolbar.enable_selection_tool()
+        self.animation_toolbar.set_visible(False)
+        self.view_toolbar.enable_selection_tool()
 
         self.action_model_setup_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
@@ -607,8 +609,8 @@ class MainWindow(MainWindow_UI):
 
         self.results_widget.update_selection()
         self.results_viewer_widget.update_visibility_items()
-        self.animation_toolbar.setEnabled(False)    
-        self.render_tools_toolbar.disable_selection_tool()
+        self.animation_toolbar.set_visible(self.results_viewer_widget.is_animation_widget)
+        self.view_toolbar.disable_selection_tool()
 
         self.action_results_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
@@ -686,34 +688,6 @@ class MainWindow(MainWindow_UI):
     def action_plot_cross_section_callback(self):
         self.input_ui.plot_cross_section()
 
-    def action_isometric_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_isometric_view()
-
-    def action_top_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_top_view()
-
-    def action_bottom_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_bottom_view()
-
-    def action_left_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_left_view()
-
-    def action_right_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_right_view()
-
-    def action_front_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_front_view()
-
-    def action_back_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_back_view()
-    
     def action_section_plane_callback(self, condition):
         if condition:
             self.section_plane.show()
@@ -805,7 +779,6 @@ class MainWindow(MainWindow_UI):
     def _add_analysis_toolbar(self):
         self.analysis_toolbar = AnalysisToolbar()
         self.addToolBar(self.analysis_toolbar)
-        self.analysis_toolbar.setDisabled(True)
 
         if hasattr(self.analysis_toolbar, "domain_changed"):
             self.analysis_toolbar.domain_changed.connect(self.analysis_changed)
@@ -815,22 +788,24 @@ class MainWindow(MainWindow_UI):
         self.addToolBar(self.animation_toolbar)
         self.insertToolBarBreak(self.animation_toolbar)
     
-    def _add_render_tools_toolbar(self):
-        self.render_tools_toolbar = RenderToolsToolbar()
-        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.render_tools_toolbar)
-        self.render_tools_toolbar.setVisible(False)
+    def _add_view_toolbar(self):
+        self.view_toolbar = ViewToolbar()
+        self.addToolBar(Qt.RightToolBarArea, self.view_toolbar)
 
         for render in self.get_renderer_widgets():
-            self.render_tools_toolbar.render_tool_changed.connect(render.add_render_tool)
+            self.view_toolbar.render_tool_changed.connect(render.add_render_tool)
 
     def _add_toolbars(self):
+        self._add_view_toolbar()
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
         self._add_animation_toolbar()
-        self._add_render_tools_toolbar()
+    
+    def set_toolbars_visible(self, visible: bool):
+        toolbars = self.findChildren(QToolBar)
 
-    def show_render_tools_toolbar(self):
-        self.render_tools_toolbar.setVisible(True)
+        for toolbar in toolbars:
+            toolbar.setVisible(visible)
     
     def get_renderer_widgets(self):
         return [
@@ -965,7 +940,8 @@ class MainWindow(MainWindow_UI):
             return
 
         self.action_geometry_editor_workspace_callback()
-        self.show_render_tools_toolbar()
+        self.set_toolbars_visible(True)
+        self.animation_toolbar.set_visible(False)
         self.update_results_workspace_button_accessibility()
 
         return obj.complete
@@ -1011,7 +987,8 @@ class MainWindow(MainWindow_UI):
 
             logging.info("Configuring visualization [95%]")
             self.action_model_setup_workspace_callback()
-            self.show_render_tools_toolbar()
+            self.set_toolbars_visible(True)
+            self.animation_toolbar.set_visible(False)
             self.update_results_workspace_button_accessibility()
             self.update_plots()
 
@@ -1031,7 +1008,7 @@ class MainWindow(MainWindow_UI):
             return True
 
         self.open_project(project_path)
-        self.show_render_tools_toolbar()
+        self.set_toolbars_visible(True)
 
     def save_project_dialog(self):
         if self.project.save_path is None:

@@ -33,10 +33,6 @@ class Project:
         self.pipeline = Pipeline()
         self.model = Model(self)
 
-        self.name = None
-        self.save_path = None
-        self.thumbnail = None
-
         # default animation settings
         self.frames = 40
         self.cycles = 3
@@ -63,6 +59,10 @@ class Project:
         self.perforated_plate_data_log = None
         self.none_project_action = False
         self.stress_stiffening_enabled = False
+
+        self.name = None
+        self.save_path = None
+        self.thumbnail = None
 
         self.min_stress = ""
         self.max_stress = ""

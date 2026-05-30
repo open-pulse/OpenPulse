@@ -34,7 +34,6 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
         )
 
         self.setGeometry(200, 200, 400, 350)
-        self.setModal(1)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Section Plane")
 

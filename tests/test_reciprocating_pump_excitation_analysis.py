@@ -18,7 +18,7 @@ from pathlib import Path
 from pulse import TEMP_PROJECT_DIR
 
 
-def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
+def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Initialize a project
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=datadir)
@@ -277,7 +277,7 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
     assert np.any(np.abs(acoustic_solution) > 0), "Acoustic solution is all zeros"
     assert np.all(np.isfinite(acoustic_solution)), "Non-finite values in acoustic solution"
 
-
+    
 def create_pump_fluids():
     """Water (discharge) and N2 fluids for the reciprocating pump piping model."""
     fluids = dict()

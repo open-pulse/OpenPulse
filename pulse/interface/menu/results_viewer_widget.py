@@ -14,6 +14,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def _reset(self):
         self.current_widget = None
+        self.is_animation_widget = False
 
     def _define_qt_variables(self):
 
@@ -141,7 +142,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def add_widget(self, widget: QWidget, animation_widget=False):
 
-        app().main_window.animation_toolbar.setEnabled(False)
+        app().main_window.animation_toolbar.set_visible(False)
 
         # TODO: please, remove the hide after all it shouldn't be needed
         if isinstance(self.bottom_widget, QWidget):
@@ -149,8 +150,9 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
         self.layout().replaceWidget(self.bottom_widget, widget)
         self.bottom_widget = widget
+        self.is_animation_widget = animation_widget
 
-        app().main_window.animation_toolbar.setEnabled(animation_widget)
+        app().main_window.animation_toolbar.set_visible(animation_widget)
         self.adjustSize()
 
     def configure_render_according_to_plot_type(self, set_by: str):
@@ -166,16 +168,16 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
             if not (mesh_data or geometry_data):
                 # app().main_window.plot_mesh()
                 app().main_window.plot_geometry_points()
-                app().main_window.render_tools_toolbar.enable_selection_tool()
+                app().main_window.view_toolbar.enable_selection_tool()
 
         elif set_by == "lines":
             if not (lines or lines_with_cross_sections):
                 app().main_window.plot_lines_with_cross_sections()
-                app().main_window.render_tools_toolbar.enable_selection_tool()
+                app().main_window.view_toolbar.enable_selection_tool()
 
         else:
             app().main_window.plot_results()
-            app().main_window.render_tools_toolbar.disable_selection_tool()
+            app().main_window.view_toolbar.disable_selection_tool()
             app().main_window.use_base_render_tool = True
         
         app().main_window.results_widget.update_render_tool_according_to_results_viewer_widget(has_selection = set_by in ["nodes", "lines"])

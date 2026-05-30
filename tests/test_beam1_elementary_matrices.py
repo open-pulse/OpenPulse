@@ -1,5 +1,3 @@
-
-from pulse import TEMP_PROJECT_DIR
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
