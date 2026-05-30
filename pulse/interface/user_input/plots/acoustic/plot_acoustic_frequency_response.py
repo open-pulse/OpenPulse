@@ -1,14 +1,28 @@
+from enum import IntEnum
+
+import numpy as np
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_ui import GetAcousticFrequencyResponse_UI
+from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_ui import (
+    GetAcousticFrequencyResponse_UI,
+)
+from pulse.interface.user_input.data_handler.export_model_results import (
+    ExportModelResults,
+)
+from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
+from pulse.model.properties.fluid import Fluid
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+class CutoffFrequency(IntEnum):
+    DISABLED = 0
+    USER_DEFINED = 1
+    AUTOMATIC = 2
+
 
 class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
     def __init__(self, *args, **kwargs):
@@ -19,6 +33,7 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
 
         self._initialize()
         self._config_window()
+        self._configure_validator()
         self._create_connections()
         self.selection_callback()
 
@@ -33,7 +48,12 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
 
+    def _configure_validator(self):
+        self.lineEdit_cutoff_frequency.setValidator(StrictDoubleValidator(0, 1e8, 6))
+
     def _create_connections(self):
+        #
+        self.comboBox_cutoff_frequency_options.currentIndexChanged.connect(self.cutoff_frequency_options_callback)
         #
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         #
@@ -48,8 +68,15 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
     def call_plotter(self):
         if self.check_inputs():
             return
+
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
+
+        f_cut = None
+        if self.comboBox_cutoff_frequency_options.currentIndex() != CutoffFrequency.DISABLED:
+            f_cut = float(self.lineEdit_cutoff_frequency.text()) 
+
+        self.plotter.set_cutoff_frequency(f_cut)
         self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def call_data_exporter(self):
@@ -66,11 +93,61 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
             self.lineEdit_node_id.setFocus()
             return True
 
+        if self.comboBox_cutoff_frequency_options.currentIndex() != CutoffFrequency.DISABLED:
+            line_edit = self.lineEdit_cutoff_frequency
+            if line_edit.text() == "":
+                line_edit.setFocus()
+                return True
+
     def get_response(self, node_id):
         response = get_acoustic_frf(app().project.model.preprocessor, self.solution, node_id)
         if complex(0) in response:
             response += 1e-12
         return response
+
+    def cutoff_frequency_options_callback(self):
+        index = self.comboBox_cutoff_frequency_options.currentIndex()
+        user_defined = index == CutoffFrequency.USER_DEFINED
+        self.lineEdit_cutoff_frequency.setEnabled(user_defined)
+
+        if index == CutoffFrequency.DISABLED:
+            self.lineEdit_cutoff_frequency.clear()
+
+        elif index == CutoffFrequency.AUTOMATIC:
+            f_cut = self.compute_pipe_cutoff_frequency()
+            if isinstance(f_cut, float):
+                value = f"{f_cut : .4f}".strip()
+                self.lineEdit_cutoff_frequency.setText(value)
+
+    def compute_pipe_cutoff_frequency(self):
+
+        d_in = 0.
+        for line_id, data in app().project.model.properties.line_properties.items():
+            if not isinstance(data, dict):
+                continue
+
+            section_type_label = data.get("section_type_label")
+            if section_type_label != "pipe":
+                continue
+
+            d_out, t, *_ = data.get("section_parameters")
+            if d_out - 2 * t > d_in:
+                d_in = d_out - 2 * t
+
+                fluid = data.get("fluid")
+
+        if not isinstance(fluid, Fluid):
+            return None
+   
+        Co = fluid.speed_of_sound
+
+        if d_in == 0:
+            return None
+
+        # cut-off frequency of a circular pipe
+        f_cut = 1.8412 * Co / (np.pi * d_in)
+
+        return f_cut
 
     def join_model_data(self):
 

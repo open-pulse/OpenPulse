@@ -1,21 +1,17 @@
+import numpy as np
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.criterias.reciprocating_pump_inlet_pressure_criteria_widget_ui import ReciprocatingPumpInletPressureCriteriaWidget_UI
+from pulse.interface.ui_generated.criterias.reciprocating_pump_inlet_pressure_criteria_widget_ui import (
+    ReciprocatingPumpInletPressureCriteriaWidget_UI,
+)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import (
+    FrequencyResponsePlotter,
+)
 from pulse.model.properties.fluid import Fluid
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-
-
 from pulse.utils.signal_processing import process_iFFT_of_onesided_spectrum
 
-import numpy as np
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
-kgf_cm2_to_Pa = 9.80665e4
 
 class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressureCriteriaWidget_UI):
     def __init__(self, *args, **kwargs):
@@ -197,7 +193,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressure
                         vapor_pressure = float(_vapor_pressure)
                         self.lineEdit_vapor_pressure.setText(_vapor_pressure)
 
-                    except:
+                    except Exception:
                         self.lineEdit_vapor_pressure.clear()
                         return
 
@@ -239,7 +235,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressure
             _vapor_pressure = self.lineEdit_vapor_pressure.text().replace(",", ".")
             vapor_pressure = float(_vapor_pressure)
             self.lineEdit_vapor_pressure.setText(_vapor_pressure)
-        except:
+        except Exception:
             return None, None
 
         if "kgf/cm²" in pressure_unit:

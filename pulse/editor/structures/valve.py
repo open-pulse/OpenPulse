@@ -17,12 +17,16 @@ class Valve(LinearStructure):
         self.thickness = kwargs.get("thickness", 0.01)
         self.flange_outer_diameter = kwargs.get("flange_outer_diameter", 0.2)
         self.flange_length = kwargs.get("flange_length", 0.05)
+        self.offset_y = kwargs.get("offset_y", 0)
+        self.offset_z= kwargs.get("offset_z", 0)
         self.color = PINK_6
 
     def as_dict(self) -> dict:
         return super().as_dict() | {
             "diameter": self.diameter,
             "thickness": self.thickness,
+            "offset_y": self.offset_y,
+            "offset_z": self.offset_z,
         }
 
     def as_vtk(self):
@@ -121,7 +125,7 @@ class Valve(LinearStructure):
         end = Point(*data["end_coords"])
 
         valve_info = data["valve_info"]
-        d_out, t, *_ = valve_info["body_section_parameters"]
+        d_out, t, offset_y, offset_z, *_ = valve_info["body_section_parameters"]
         flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
         flange_length = valve_info["flange_length"]
 
@@ -132,6 +136,8 @@ class Valve(LinearStructure):
             thickness=t,
             flange_outer_diameter=flange_outer_diameter,
             flange_length=flange_length,
+            offset_y=offset_y,
+            offset_z=offset_z,
         )
 
         section_info = {"section_type_label" : "valve"}

@@ -8,16 +8,16 @@ class RectangularBeam(Beam):
 
         self.width = kwargs.get("width", 0.1)
         self.height = kwargs.get("height", 0.1)
-        self.thickness_width = kwargs.get("thickness_width", 0.01)
-        self.thickness_height = kwargs.get("thickness_height", 0.01)
+        self.width_internal = kwargs.get("width_internal", 0.)
+        self.height_internal = kwargs.get("height_internal", 0.)
         self.angle = 0
 
     def as_dict(self) -> dict:
         return super().as_dict() | {
             "height": self.height,
             "width": self.width,
-            "thickness_width": self.thickness_width,
-            "thickness_height": self.thickness_height,
+            "height_internal" : self.height_internal,
+            "width_internal": self.width_internal,
         }
 
     def as_vtk(self):
@@ -35,8 +35,8 @@ class RectangularBeam(Beam):
             end,
             width=section_parameters[0],
             height=section_parameters[1],
-            thickness_width=(section_parameters[0] - section_parameters[2]) / 2,
-            thickness_height=(section_parameters[0] - section_parameters[3]) / 2,
+            width_internal=section_parameters[2],
+            height_internal=section_parameters[3],
             offset_y=section_parameters[4],
             offset_z=section_parameters[5],
         )

@@ -1,11 +1,13 @@
-from pulse.interface.user_input.data_handler.file_handlers.io_handler import IOHandler
-from pulse.interface.user_input.data_handler.imported_data import SpreadsheetData
-from pulse.interface.user_input.data_handler.imported_data import SpreadsheetSheet
-
-from polars import DataFrame as PolarsDataFrame
 from pathlib import Path
 
 import numpy as np
+from polars import DataFrame as PolarsDataFrame
+
+from pulse.interface.user_input.data_handler.file_handlers.io_handler import IOHandler
+from pulse.interface.user_input.data_handler.imported_data import (
+    SpreadsheetData,
+    SpreadsheetSheet,
+)
 
 
 class SpreadsheetFileHandler(IOHandler):
@@ -16,8 +18,8 @@ class SpreadsheetFileHandler(IOHandler):
         super().__init__()
 
     def read(self, file_path: str | Path) -> SpreadsheetData:
-        from polars import read_excel
         from openpyxl import load_workbook
+        from polars import read_excel
 
         wb = load_workbook(file_path)
 
@@ -34,15 +36,15 @@ class SpreadsheetFileHandler(IOHandler):
 
                 try:
                     sheet_data = read_excel(
-                                            str(file_path), 
-                                            sheet_name = sheetname,  
-                                            columns = cols,
-                                            engine = "openpyxl",
-                                            has_header = False,
-                                            infer_schema_length = 100
-                                            ).to_numpy()
+                        str(file_path),
+                        sheet_name=sheetname,
+                        columns=cols,
+                        engine="openpyxl",
+                        has_header=False,
+                        infer_schema_length=100,
+                    ).to_numpy()
                     break
-                except:
+                except Exception:
                     pass
 
             sheet_data = self._remove_unnecesary_header_in_data(sheet_data)

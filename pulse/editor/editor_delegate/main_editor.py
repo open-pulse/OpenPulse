@@ -2,6 +2,7 @@ from typing import TypeVar
 
 import numpy as np
 
+from pulse import app
 from pulse.editor.structures import (
     Arc,
     Bend,
@@ -43,6 +44,9 @@ class MainEditor(Editor):
         if not issubclass(structure_type, Structure):
             return list()
 
+        if deltas == (0, 0, 0):
+            return list()
+
         if issubclass(structure_type, Pipe):
             if self.is_bend_allowed(self.pipeline.selected_points):
                 return self.add_bent_pipe(deltas, **kwargs)
@@ -72,8 +76,12 @@ class MainEditor(Editor):
             if len(tangent_vectors) != 1:
                 continue
 
+            if length == 0:
+                continue
+
             vector = tangent_vectors[0]
             deltas = vector * length
+
             structure = self._add_generic_linear_structure_to_point(
                 structure_type,
                 deltas,
@@ -97,6 +105,14 @@ class MainEditor(Editor):
             self.pipeline.select_last_point()
 
         for point in self.pipeline.selected_points:
+            for structure in self.pipeline.get_structures_of_point(point):
+                if "psd_label" in structure.extra_info or "pulsation_damper_label" in structure.extra_info:
+                    return bends
+
+            # do not allow adding Bends in more than two connections
+            if len(self.get_point_tangency(point)) > 2:
+                continue
+
             vec_a, vec_b, dangling = self._get_bend_vectors(point)
             if dangling and not allow_dangling:
                 continue
@@ -270,7 +286,9 @@ class MainEditor(Editor):
             v = normalize(structure.mid.coords() - structure.center.coords())
             n = np.cross(v, u)
             tangency = np.cross(n, u)
-            directions.append(tangency)
+            size = np.linalg.norm(tangency)
+            if size:
+                directions.append(tangency / size)
 
         for structure in self.pipeline.structures_of_type(Fillet):
             if structure.is_colapsed():

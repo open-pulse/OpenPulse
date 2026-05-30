@@ -1,6 +1,6 @@
 [project]
 name = "pulse"
-version = "2.0.12"
+version = "2.1.2"
 description = "Open Source Software for Pulsation Analysis of Pipeline Systems"
 authors = [
     { name = "Olavo Silva", email = "olavus@gmail.com" },
@@ -40,7 +40,6 @@ dependencies = [
     "pyarrow>=23.0.0,<24",
     "fastexcel>=0.19.0",
     "pint>=0.24.4",
-    "pytest>=7.4.4",
 ]
 
 [project.scripts]
@@ -48,9 +47,7 @@ pulse = "pulse.launch:main"
 
 [dependency-groups]
 dev = [
-    "black>=24.3.0,<25",
-    "isort>=5.12.0,<6",
-    "pytest>=7.4.1,<8",
+    "pytest>=9.0.3,<10",
     "pytest-datadir>=1.7.2,<2",
     "pytest-regressions>=2.5.0,<3",
     "pyinstaller>=6.4.0,<7 ; python_full_version >= '3.10' and python_full_version < '3.14'",
@@ -72,7 +69,5 @@ build-backend = "hatchling.build"
 profile = "black"
 
 [tool.ruff]
-exclude = [
-    "__pycache__",
-    "pulse/interface/ui_generated",
-]
+exclude = ["__pycache__", "pulse/interface/ui_generated"]
+line-length = 150

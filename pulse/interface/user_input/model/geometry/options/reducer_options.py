@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 from copy import deepcopy
 
 from pulse.editor.structures import Reducer
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 from .structure_options import StructureOptions
 
@@ -46,29 +47,29 @@ class ReducerOptions(StructureOptions):
         if not self.cross_section_dialog.complete:
             return
 
+        self.cross_section_dialog.reset()
         if self.cross_section_widget.get_variable_section_pipe_parameters():
-            self.configure_structure()  # if it is invalid try again
+            self.configure_structure()
             return
 
-        self.structure_info = self.cross_section_widget.pipe_section_info
+        self.structure_info = self.cross_section_widget.pipe_section_info.as_dict()
+
         self.configure_section_of_selected()
         self.update_permissions()
 
     def load_data_from_pipe_section(self):
 
-        outside_diameter = self.cross_section_widget.lineEdit_outside_diameter.text()
-        wall_thickness = self.cross_section_widget.lineEdit_wall_thickness.text()
-        offset_y = self.cross_section_widget.lineEdit_offset_y.text()
-        offset_z = self.cross_section_widget.lineEdit_offset_z.text()
+        pipe_section_info = self.cross_section_widget.pipe_section_info
+        if not isinstance(pipe_section_info, PipeCrossSection):
+            return
 
-        for i, value in enumerate([outside_diameter, wall_thickness, offset_y, offset_z]):
-            self.cross_section_widget.left_variable_pipe_lineEdits[i].setText(value)
+        for i, value in enumerate(pipe_section_info.section_parameters[:4]):
+            self.cross_section_widget.left_variable_pipe_lineEdits[i].setText(str(value))
 
         for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
             lineEdit.clear()
 
-        if outside_diameter != "" and wall_thickness != "":
-            self.cross_section_widget.lineEdit_outside_diameter_final.setFocus()
+        self.cross_section_widget.lineEdit_outside_diameter_final.setFocus()
 
     def _get_extra_info(self):
         return dict(

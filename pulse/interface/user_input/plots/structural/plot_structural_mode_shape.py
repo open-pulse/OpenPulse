@@ -7,8 +7,6 @@ from pulse.interface.ui_generated.plots.results.structural.plot_structural_mode_
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class PlotStructuralModeShape(PlotStructuralModeShape_UI):
     def __init__(self, *args, **kwargs):
@@ -22,18 +20,19 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
 
     def _initialize(self):
         self.mode_index = None
-        self.colormaps = ["jet",
-                          "viridis",
-                          "inferno",
-                          "magma",
-                          "plasma",
-                          "bwr",
-                          "PiYG",
-                          "PRGn",
-                          "BrBG",
-                          "PuOR",
-                          "grayscale",
-                          ]
+        self.colormaps = [
+            "jet",
+            "viridis",
+            "inferno",
+            "magma",
+            "plasma",
+            "bwr",
+            "PiYG",
+            "PRGn",
+            "BrBG",
+            "PuOR",
+            "grayscale",
+        ]
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -80,7 +79,7 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)
                 self.comboBox_colormaps.setCurrentIndex(index)
-        except:
+        except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):

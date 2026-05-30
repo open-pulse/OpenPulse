@@ -1217,7 +1217,7 @@
             </property>
             <column>
              <property name="text">
-              <string>Element type</string>
+              <string>Group</string>
              </property>
              <property name="textAlignment">
               <set>AlignCenter</set>
@@ -1225,7 +1225,7 @@
             </column>
             <column>
              <property name="text">
-              <string>Volumetric flow rate [m³/s]</string>
+              <string>Element type</string>
              </property>
              <property name="textAlignment">
               <set>AlignCenter</set>

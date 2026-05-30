@@ -1,22 +1,26 @@
 from enum import IntEnum
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHeaderView, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem  #, QHeaderView
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.ui_generated.model.setup.structural.stress_stiffening_input_ui import (
     StressStiffeningInput_UI,
 )
 from pulse.interface.user_input.model.setup.user_input import UserInput
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
 )
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
     PressureUnits,
     pressure_units_labels,
 )
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+
 
 class TabIndex(IntEnum):
     SETUP = 0
@@ -26,9 +30,6 @@ class TabIndex(IntEnum):
 class AssignmentType(IntEnum):
     ALL_LINES = 0
     SELECTED_LINES = 1
-
-
-error_title = "Error"
 
 
 class StressStiffeningInput(UserInput, StressStiffeningInput_UI):

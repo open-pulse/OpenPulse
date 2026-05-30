@@ -1,24 +1,23 @@
-from PySide6.QtWidgets import QLineEdit
 from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QLineEdit
 
 from pulse import app
-from pulse.interface.ui_generated.analysis.harmonic_analysis_setup_input_ui import HarmonicAnalysisSetupInput_UI
-from pulse.model import AnalysisID
+from pulse.interface import error_title
+from pulse.interface.ui_generated.analysis.harmonic_analysis_setup_input_ui import (
+    HarmonicAnalysisSetupInput_UI,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-
-error_title = "Error"
+from pulse.model import AnalysisID
 
 
 class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, analysis_id: AnalysisID, *args, **kwargs):
         super().__init__(*args)
-
-        self.project = app().project
-        self.model = app().project.model
 
         app().main_window.close_dialogs()
         app().main_window.set_input_widget(self)
+
+        self.analysis_id = analysis_id
 
         self._initialize()
         self._config_window()
@@ -29,6 +28,10 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
 
         while self.keep_window_open:
             self.exec()
+
+    @property
+    def model(self):
+        return app().project.model
 
     def _initialize(self):
         self.frequencies = list()
@@ -41,6 +44,16 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Analysis setup")
+
+    def update_harmonic_analysis_title(self):
+        if self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
+            self.label_title.setText("Acoustic harmonic analysis setup")
+
+        elif self.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
+            self.label_title.setText("Structural harmonic analysis setup")
+
+        elif self.analysis_id == AnalysisID.COUPLED_HARMONIC:
+            self.label_title.setText("Coupled harmonic analysis setup")
 
     def _create_connections(self):
         #
@@ -63,12 +76,12 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         if not isinstance(analysis_setup, dict):
             return
 
-        if self.project.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+        if self.model.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
             if analysis_setup.get("analysis_method") == "mode_superposition":
                 modes_to_expand = analysis_setup.get("number_of_modes")
                 self.lineEdit_modes_to_expand.setText(f"{modes_to_expand}")
         else:
-            self.lineEdit_modes_to_expand.setText(f"")
+            self.lineEdit_modes_to_expand.clear()
 
     def _update_fmin(self):
         df = self.lineEdit_fstep.text()
@@ -93,11 +106,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
             self.comboBox_method.removeItem(1)
             self.tabWidget_main.setTabVisible(1, False)
 
-        elif analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC, 
-            AnalysisID.COUPLED_HARMONIC,
-            ]:
-
+        elif analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
             analysis_setup = app().project.model.analysis_setup
             mode_sup = analysis_setup.get("analysis_method") == "mode_superposition"
             self.comboBox_method.setCurrentIndex(int(mode_sup))
@@ -111,7 +120,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         if not sum(global_damping):
             return
 
-        if not self.model.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+        if self.model.analysis_id not in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
             return
 
         if global_damping[0]:
@@ -134,16 +143,6 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         self.lineEdit_fmin.setDisabled(key)
         self.lineEdit_fmax.setDisabled(key)
         self.lineEdit_fstep.setDisabled(key)
-
-    def update_harmonic_analysis_title(self):
-        if self.project.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
-            self.label_title.setText("Acoustic harmonic analysis setup")
-
-        elif self.project.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
-            self.label_title.setText("Structural harmonic analysis setup")
-
-        elif self.project.analysis_id == AnalysisID.COUPLED_HARMONIC:
-            self.label_title.setText("Coupled harmonic analysis setup")
 
     def enter_setup_callback(self):
 
@@ -174,8 +173,8 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         f_min = f_max = f_step = 0.
 
         if analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC, 
-            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.ACOUSTIC_HARMONIC,
             AnalysisID.COUPLED_HARMONIC,
             ]:
 
@@ -223,10 +222,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
 
         alpha = beta = eta = 0.0
 
-        if analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC, 
-            AnalysisID.COUPLED_HARMONIC,
-            ]:
+        if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
 
             alpha = self.check_inputs(
                 self.lineEdit_mass_multiplier, 
@@ -261,8 +257,8 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
             analysis_setup["global_damping"] = [alpha, beta, eta]
 
         app().project.file.write_analysis_setup_in_file(analysis_setup)
-        self.project.model.set_analysis_setup(analysis_setup)
-        # self.project.create_solver()
+        app().project.model.set_analysis_setup(analysis_setup)
+        # app().project.create_solver()
 
         self.setup_defined = True
         app().main_window.analysis_toolbar.check_analysis_setup_callback()

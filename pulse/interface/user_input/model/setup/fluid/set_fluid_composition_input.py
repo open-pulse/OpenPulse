@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 )
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.fluid.set_fluid_composition_input_ui import (
     SetFluidCompositionInput_UI,
 )
@@ -17,6 +18,10 @@ from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input i
 from pulse.interface.user_input.model.setup.fluid.refprop_interface import (
     RefpropInterface,
 )
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+    is_numeric,
+)
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
     PressureUnits,
     TemperatureUnits,
@@ -25,15 +30,11 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validators import is_numeric, StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class SetFluidCompositionInput(SetFluidCompositionInput_UI):
@@ -683,7 +684,11 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
                 self.warnings[prop_label] = warnings
 
             if key_prop == "Z":
+
                 Z = fluid_property
+                if not isinstance(Z, float):
+                    continue
+
                 if Z < 0.9 or Z > 1.1:
                     self.ideal_gas_warning = True
                     self.compressibility_factor = Z

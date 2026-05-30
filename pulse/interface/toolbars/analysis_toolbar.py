@@ -157,8 +157,8 @@ class AnalysisToolbar(QToolBar):
         self.pushButton_reset_solution.setIconSize(QSize(20, 20))
         self.pushButton_reset_solution.setCursor(Qt.PointingHandCursor)
         self.pushButton_reset_solution.setToolTip("Reset Solution")
-        self.pushButton_reset_solution.setDisabled(True)
-    
+        self.pushButton_reset_solution.setEnabled(True)
+
     def _create_connections(self):
         #
         self.combo_box_analysis_type.currentTextChanged.connect(self.analysis_type_callback)
@@ -391,7 +391,7 @@ class AnalysisToolbar(QToolBar):
 
     def harmonic_structural(self):
 
-        harmonic = HarmonicAnalysisSetupInput(analysis_id=AnalysisID.STRUCTURAL_HARMONIC)
+        harmonic = HarmonicAnalysisSetupInput(AnalysisID.STRUCTURAL_HARMONIC)
 
         if harmonic.setup_defined:
             self.final_actions()
@@ -402,7 +402,7 @@ class AnalysisToolbar(QToolBar):
 
     def harmonic_acoustic(self):
 
-        harmonic = HarmonicAnalysisSetupInput(analysis_id=AnalysisID.ACOUSTIC_HARMONIC)
+        harmonic = HarmonicAnalysisSetupInput(AnalysisID.ACOUSTIC_HARMONIC)
 
         if harmonic.setup_defined:
             self.final_actions()
@@ -412,7 +412,7 @@ class AnalysisToolbar(QToolBar):
     
     def harmonic_coupled(self):
 
-        harmonic = HarmonicAnalysisSetupInput(analysis_id=AnalysisID.COUPLED_HARMONIC)
+        harmonic = HarmonicAnalysisSetupInput(AnalysisID.COUPLED_HARMONIC)
 
         if harmonic.setup_defined:
             self.final_actions()
@@ -421,7 +421,7 @@ class AnalysisToolbar(QToolBar):
             self.run_analysis()
 
     def modal_structural(self):
-        modal = ModalAnalysisInput()
+        modal = ModalAnalysisInput(AnalysisID.STRUCTURAL_MODAL)
 
         if modal.setup_defined:
             self.pushButton_run_analysis.setEnabled(True)
@@ -433,7 +433,7 @@ class AnalysisToolbar(QToolBar):
             self.run_analysis()
 
     def modal_acoustic(self):
-        modal = ModalAnalysisInput()
+        modal = ModalAnalysisInput(AnalysisID.ACOUSTIC_MODAL)
 
         if modal.setup_defined:
             self.pushButton_run_analysis.setEnabled(True)

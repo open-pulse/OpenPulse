@@ -2,6 +2,7 @@ import numpy as np
 from PySide6.QtWidgets import QLineEdit
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.user_input.model.setup.nodes_input import NodesInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -22,7 +23,6 @@ class AcousticNodesInput(NodesInput):
     def check_complex_entries(
         self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit, property_label: str
     ):
-        error_title = "Error"
 
         title = f"Invalid entry to the {property_label}"
 

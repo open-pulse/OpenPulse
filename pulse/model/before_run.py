@@ -1,16 +1,12 @@
-# fmt: off
-
-from pulse import app
-from pulse.model import AnalysisID
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
-
-import numpy as np
 from collections import defaultdict
 
+import numpy as np
 
-error_title = "Error"
-warning_title = "Warning"
+from pulse import app
+from pulse.interface import error_title, warning_title
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model import AnalysisID
 
 
 class BeforeRun():
@@ -806,5 +802,3 @@ class BeforeRun():
                                 return line_i
 
         return None
-
-# fmt: on

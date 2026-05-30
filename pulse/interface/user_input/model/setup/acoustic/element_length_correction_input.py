@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import warning_title
 from pulse.interface.ui_generated.model.setup.acoustic.element_length_correction_input_ui import (
     ElementLengthCorrectionInput_UI,
 )
@@ -13,9 +14,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class AcousticElementLengthCorrectionInput(

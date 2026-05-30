@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
+from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import (
     ReciprocatingPumpInputs_UI,
 )
@@ -18,20 +19,25 @@ from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFlui
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
     SetFluidInputSimplified,
 )
+from pulse.interface.user_input.numeric_checks.double_validator import (
+    StrictDoubleValidator,
+)
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
     PressureUnits,
     TemperatureUnits,
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
-from pulse.model.reciprocating_pump_model import CylindersActingMode, ReciprocatingPumpModel
-from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified 
+from pulse.model.reciprocating_pump_model import (
+    CylindersActingMode,
+    ReciprocatingPumpModel,
+)
 
 
 class TabIndex(IntEnum):
@@ -43,10 +49,6 @@ class TabIndex(IntEnum):
 class ConnectionType(IntEnum):
     SUCTION = 0
     DISCHARGE = 1
-
-
-error_title = "Error"
-warning_title = "Warning"
 
 
 class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):

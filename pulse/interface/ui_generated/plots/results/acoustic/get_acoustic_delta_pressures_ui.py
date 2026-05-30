@@ -15,17 +15,17 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
-    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
+    QLabel, QLineEdit, QPushButton, QSizePolicy,
+    QSpacerItem, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(340, 224)
+        Form.resize(340, 279)
         Form.setMinimumSize(QSize(0, 224))
-        Form.setMaximumSize(QSize(16777215, 224))
+        Form.setMaximumSize(QSize(16777215, 360))
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setSpacing(4)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -75,46 +75,40 @@ class Ui_Form(object):
         self.frame_input.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_input.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_5 = QGridLayout(self.frame_input)
+        self.gridLayout_5.setSpacing(8)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
-        self.gridLayout_5.setHorizontalSpacing(8)
-        self.gridLayout_5.setVerticalSpacing(2)
-        self.gridLayout_5.setContentsMargins(2, 2, 2, 2)
-        self.Input_NodeID = QLabel(self.frame_input)
-        self.Input_NodeID.setObjectName(u"Input_NodeID")
-        self.Input_NodeID.setMinimumSize(QSize(100, 28))
-        self.Input_NodeID.setMaximumSize(QSize(100, 28))
+        self.gridLayout_5.setContentsMargins(2, 8, 2, 2)
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_5.addItem(self.horizontalSpacer_6, 0, 0, 1, 1)
+
+        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_5.addItem(self.horizontalSpacer_7, 0, 4, 1, 1)
+
+        self.Output_NodeID = QLabel(self.frame_input)
+        self.Output_NodeID.setObjectName(u"Output_NodeID")
+        self.Output_NodeID.setMinimumSize(QSize(120, 28))
+        self.Output_NodeID.setMaximumSize(QSize(140, 28))
         font1 = QFont()
         font1.setPointSize(10)
         font1.setBold(False)
         font1.setItalic(False)
-        self.Input_NodeID.setFont(font1)
-        self.Input_NodeID.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.Output_NodeID.setFont(font1)
+        self.Output_NodeID.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_5.addWidget(self.Input_NodeID, 0, 1, 1, 1)
-
-        self.lineEdit_output_node_id = QLineEdit(self.frame_input)
-        self.lineEdit_output_node_id.setObjectName(u"lineEdit_output_node_id")
-        self.lineEdit_output_node_id.setMinimumSize(QSize(80, 28))
-        self.lineEdit_output_node_id.setMaximumSize(QSize(80, 28))
-        font2 = QFont()
-        font2.setPointSize(10)
-        self.lineEdit_output_node_id.setFont(font2)
-        self.lineEdit_output_node_id.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.lineEdit_output_node_id.setStyleSheet(u"")
-        self.lineEdit_output_node_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_5.addWidget(self.lineEdit_output_node_id, 0, 2, 1, 1)
+        self.gridLayout_5.addWidget(self.Output_NodeID, 1, 1, 1, 1)
 
         self.pushButton_flip_nodes = QPushButton(self.frame_input)
         self.pushButton_flip_nodes.setObjectName(u"pushButton_flip_nodes")
         self.pushButton_flip_nodes.setMinimumSize(QSize(40, 28))
         self.pushButton_flip_nodes.setMaximumSize(QSize(40, 28))
-        font3 = QFont()
-        font3.setFamilies([u"MS Shell Dlg 2"])
-        font3.setPointSize(11)
-        font3.setBold(True)
-        font3.setItalic(False)
-        self.pushButton_flip_nodes.setFont(font3)
+        font2 = QFont()
+        font2.setFamilies([u"MS Shell Dlg 2"])
+        font2.setPointSize(11)
+        font2.setBold(True)
+        font2.setItalic(False)
+        self.pushButton_flip_nodes.setFont(font2)
         self.pushButton_flip_nodes.setStyleSheet(u"")
         icon = QIcon()
         icon.addFile(u":/icons/common/invert_icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
@@ -124,33 +118,86 @@ class Ui_Form(object):
 
         self.gridLayout_5.addWidget(self.pushButton_flip_nodes, 0, 3, 1, 1)
 
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.Output_NodeID_3 = QLabel(self.frame_input)
+        self.Output_NodeID_3.setObjectName(u"Output_NodeID_3")
+        self.Output_NodeID_3.setMinimumSize(QSize(120, 28))
+        self.Output_NodeID_3.setMaximumSize(QSize(140, 28))
+        self.Output_NodeID_3.setFont(font1)
+        self.Output_NodeID_3.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_5.addItem(self.horizontalSpacer_6, 0, 0, 1, 1)
+        self.gridLayout_5.addWidget(self.Output_NodeID_3, 2, 1, 1, 1)
 
-        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.comboBox_cutoff_frequency_options = QComboBox(self.frame_input)
+        self.comboBox_cutoff_frequency_options.addItem("")
+        self.comboBox_cutoff_frequency_options.addItem("")
+        self.comboBox_cutoff_frequency_options.addItem("")
+        self.comboBox_cutoff_frequency_options.setObjectName(u"comboBox_cutoff_frequency_options")
+        self.comboBox_cutoff_frequency_options.setMinimumSize(QSize(120, 28))
+        self.comboBox_cutoff_frequency_options.setMaximumSize(QSize(120, 28))
+        font3 = QFont()
+        font3.setPointSize(10)
+        self.comboBox_cutoff_frequency_options.setFont(font3)
 
-        self.gridLayout_5.addItem(self.horizontalSpacer_7, 0, 4, 1, 1)
+        self.gridLayout_5.addWidget(self.comboBox_cutoff_frequency_options, 2, 2, 1, 1)
+
+        self.lineEdit_output_node_id = QLineEdit(self.frame_input)
+        self.lineEdit_output_node_id.setObjectName(u"lineEdit_output_node_id")
+        self.lineEdit_output_node_id.setMinimumSize(QSize(80, 28))
+        self.lineEdit_output_node_id.setMaximumSize(QSize(120, 28))
+        self.lineEdit_output_node_id.setFont(font3)
+        self.lineEdit_output_node_id.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.lineEdit_output_node_id.setStyleSheet(u"")
+        self.lineEdit_output_node_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_5.addWidget(self.lineEdit_output_node_id, 0, 2, 1, 1)
 
         self.lineEdit_input_node_id = QLineEdit(self.frame_input)
         self.lineEdit_input_node_id.setObjectName(u"lineEdit_input_node_id")
         self.lineEdit_input_node_id.setMinimumSize(QSize(80, 28))
-        self.lineEdit_input_node_id.setMaximumSize(QSize(80, 28))
-        self.lineEdit_input_node_id.setFont(font2)
+        self.lineEdit_input_node_id.setMaximumSize(QSize(120, 28))
+        self.lineEdit_input_node_id.setFont(font3)
         self.lineEdit_input_node_id.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.lineEdit_input_node_id.setStyleSheet(u"")
         self.lineEdit_input_node_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_5.addWidget(self.lineEdit_input_node_id, 1, 2, 1, 1)
 
-        self.Output_NodeID = QLabel(self.frame_input)
-        self.Output_NodeID.setObjectName(u"Output_NodeID")
-        self.Output_NodeID.setMinimumSize(QSize(100, 28))
-        self.Output_NodeID.setMaximumSize(QSize(100, 28))
-        self.Output_NodeID.setFont(font1)
-        self.Output_NodeID.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.Input_NodeID = QLabel(self.frame_input)
+        self.Input_NodeID.setObjectName(u"Input_NodeID")
+        self.Input_NodeID.setMinimumSize(QSize(120, 28))
+        self.Input_NodeID.setMaximumSize(QSize(140, 28))
+        self.Input_NodeID.setFont(font1)
+        self.Input_NodeID.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_5.addWidget(self.Output_NodeID, 1, 1, 1, 1)
+        self.gridLayout_5.addWidget(self.Input_NodeID, 0, 1, 1, 1)
+
+        self.lineEdit_cutoff_frequency = QLineEdit(self.frame_input)
+        self.lineEdit_cutoff_frequency.setObjectName(u"lineEdit_cutoff_frequency")
+        self.lineEdit_cutoff_frequency.setEnabled(False)
+        self.lineEdit_cutoff_frequency.setMinimumSize(QSize(120, 28))
+        self.lineEdit_cutoff_frequency.setMaximumSize(QSize(120, 28))
+        self.lineEdit_cutoff_frequency.setFont(font3)
+        self.lineEdit_cutoff_frequency.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.lineEdit_cutoff_frequency.setStyleSheet(u"")
+        self.lineEdit_cutoff_frequency.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_5.addWidget(self.lineEdit_cutoff_frequency, 3, 2, 1, 1)
+
+        self.Output_NodeID_2 = QLabel(self.frame_input)
+        self.Output_NodeID_2.setObjectName(u"Output_NodeID_2")
+        self.Output_NodeID_2.setMinimumSize(QSize(120, 28))
+        self.Output_NodeID_2.setMaximumSize(QSize(140, 28))
+        self.Output_NodeID_2.setFont(font1)
+        self.Output_NodeID_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_5.addWidget(self.Output_NodeID_2, 3, 1, 1, 1)
+
+        self.label_2 = QLabel(self.frame_input)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setMinimumSize(QSize(40, 28))
+        self.label_2.setMaximumSize(QSize(40, 28))
+
+        self.gridLayout_5.addWidget(self.label_2, 3, 3, 1, 1)
 
 
         self.gridLayout_8.addWidget(self.frame_input, 0, 0, 1, 1)
@@ -199,12 +246,22 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.title.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"center\">Plot delta pressures</p></body></html>", None))
-        self.Input_NodeID.setText(QCoreApplication.translate("Form", u"Output Node ID:", None))
+        self.Output_NodeID.setText(QCoreApplication.translate("Form", u"Input Node ID:", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_flip_nodes.setToolTip(QCoreApplication.translate("Form", u"Press to flip nodes.", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButton_flip_nodes.setText("")
-        self.Output_NodeID.setText(QCoreApplication.translate("Form", u"Input Node ID:", None))
+        self.Output_NodeID_3.setText(QCoreApplication.translate("Form", u"Cut-off frequency:", None))
+        self.comboBox_cutoff_frequency_options.setItemText(0, QCoreApplication.translate("Form", u"Disabled", None))
+        self.comboBox_cutoff_frequency_options.setItemText(1, QCoreApplication.translate("Form", u"User-defined", None))
+        self.comboBox_cutoff_frequency_options.setItemText(2, QCoreApplication.translate("Form", u"Automatic", None))
+
+        self.Input_NodeID.setText(QCoreApplication.translate("Form", u"Output Node ID:", None))
+#if QT_CONFIG(tooltip)
+        self.lineEdit_cutoff_frequency.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"center\">f<span style=\" vertical-align:sub;\">c</span> = 1.8412 x C<span style=\" vertical-align:sub;\">o </span>/ (\u03c0 * D<span style=\" vertical-align:sub;\">in</span>), </p><p align=\"justify\">where C<span style=\" vertical-align:sub;\">0</span> is the fluid speed of sound in m/s, and D<span style=\" vertical-align:sub;\">in</span> is the pipe's internal diameter in m.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.Output_NodeID_2.setText(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-size:11pt;\">f</span><span style=\" font-size:11pt; vertical-align:sub;\">c</span> (circular section):</p></body></html>", None))
+        self.label_2.setText(QCoreApplication.translate("Form", u"[Hz]", None))
         self.pushButton_plot_data.setText(QCoreApplication.translate("Form", u"Plot data", None))
     # retranslateUi
 
@@ -222,11 +279,16 @@ class GetAcousticDeltaPressures_UI(QWidget, Ui_Form):
                     - (Layout): QGridLayout
                             - frame_input: QFrame
                                 - (Layout): QGridLayout
-                                        - Input_NodeID: QLabel
-                                        - lineEdit_output_node_id: QLineEdit
-                                        - pushButton_flip_nodes: QPushButton
-                                        - lineEdit_input_node_id: QLineEdit
                                         - Output_NodeID: QLabel
+                                        - pushButton_flip_nodes: QPushButton
+                                        - Output_NodeID_3: QLabel
+                                        - comboBox_cutoff_frequency_options: QComboBox
+                                        - lineEdit_output_node_id: QLineEdit
+                                        - lineEdit_input_node_id: QLineEdit
+                                        - Input_NodeID: QLabel
+                                        - lineEdit_cutoff_frequency: QLineEdit
+                                        - Output_NodeID_2: QLabel
+                                        - label_2: QLabel
                             - frame_buttons: QFrame
                                 - (Layout): QGridLayout
                                         - pushButton_plot_data: QPushButton

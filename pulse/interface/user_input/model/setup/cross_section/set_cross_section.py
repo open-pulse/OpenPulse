@@ -515,7 +515,8 @@ class SetCrossSectionInput(SetCrossSection_UI):
             mid_coords = self.properties._get_property("mid_coords", line_id=line_id)
 
             if (center_coords, corner_coords, mid_coords).count(None) == 3:
-                section_label = section_info.get("section_type_label")
+                # section_label = section_info.get("section_type_label")
+                section_label = section_info.section_type_label
                 self.properties._set_line_property("structure_name", section_label, line_id)
 
             elif isinstance(mid_coords, list):
@@ -524,14 +525,14 @@ class SetCrossSectionInput(SetCrossSection_UI):
             else:
                 self.properties._set_line_property("structure_name", "bend", line_id)
 
-        self.properties._set_multiple_line_properties(section_info, line_ids)
+        self.properties._set_multiple_line_properties(section_info.as_dict(), line_ids)
         self.properties._set_line_property("cross_section", cross_section, line_ids)
 
         if self.tabWidget_pipe_section.currentIndex() == SectionType.CONSTANT:
             self.preprocessor.set_cross_section_by_lines(line_ids, cross_section)
 
         elif self.tabWidget_pipe_section.currentIndex() == SectionType.VARIABLE:
-            self.preprocessor.set_variable_cross_section_by_line(line_ids, section_info)
+            self.preprocessor.set_variable_cross_section_by_line(line_ids, section_info.as_dict())
 
         self.actions_to_finalize()
 
@@ -552,9 +553,9 @@ class SetCrossSectionInput(SetCrossSection_UI):
         section_info = self.cross_section_widget.beam_section_info
         cross_section = CrossSection(beam_section_info=section_info)
 
-        self.properties._set_multiple_line_properties(section_info, line_ids)
+        self.properties._set_multiple_line_properties(section_info.as_dict(), line_ids)
         self.properties._set_line_property("cross_section", cross_section, line_ids)
-        self.properties._set_line_property("structure_name", section_info["section_type_label"], line_ids)
+        self.properties._set_line_property("structure_name", section_info.section_type_label, line_ids)
 
         self.preprocessor.set_cross_section_by_lines(line_ids, cross_section)
         self.preprocessor.set_capped_end_by_lines(line_ids, False)

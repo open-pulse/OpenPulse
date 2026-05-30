@@ -12,6 +12,7 @@ class PipeCrossSection:
     offset_z: float = 0.
     insulation_thickness: float = 0.
     insulation_density: float = 0.
+    section_type_label: str = "pipe"
 
     @property
     def section_parameters(self):
@@ -20,6 +21,10 @@ class PipeCrossSection:
     @property
     def centroid(self):
         return 0., 0.
+
+    @property
+    def inside_diameter(self):
+        return self.d_out - 2 * self.thickness
 
     @property
     def section_properties(self):
@@ -99,3 +104,9 @@ class PipeCrossSection:
             return Zp, Yp, Zp_ins, Yp_ins, Zc_offset, Yc_offset
 
         return Zp, Yp, None, None, Zc_offset, Yc_offset
+    
+    def as_dict(self):
+        return {
+            "section_type_label" : self.section_type_label,
+            "section_parameters" : self.section_parameters,
+        }

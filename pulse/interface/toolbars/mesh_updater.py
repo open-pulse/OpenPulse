@@ -2,8 +2,6 @@ from pulse import app
 
 from time import time
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class MeshUpdater:
     def __init__(self, *args, **kwargs):

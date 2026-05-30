@@ -1,19 +1,28 @@
-# fmt: off
+from enum import IntEnum
+
+import numpy as np
+from numpy import pi, sqrt
+from scipy.optimize import fsolve, root
+from scipy.special import hankel1, jv
 
 from pulse.model import RadiationImpedanceType
 from pulse.model.node import Node, distance
 from pulse.model.perforated_plate import Foks_function, PerforatedPlateFormulation
 from pulse.model.properties.fluid import Fluid
-
-from numpy import sqrt, pi
-import numpy as np
-from scipy.special import jv, hankel1
-from scipy.optimize import root, fsolve
+from pulse.model.properties.material import Material
+from pulse.model.cross_section import CrossSection
 
 DOF_PER_NODE = 1
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
+
+
+class ElementLengthCorrection(IntEnum):
+    EXPANSION = 0
+    SIDE_BRANCH = 1
+    LOOP = 2
+
 
 def f_function(x):
     return 1 - 2 * jv(1,x)/(x * jv(0,x))
@@ -113,9 +122,9 @@ class AcousticElement:
 
         self.element_type = kwargs.get('element_type', 'undamped')
         self.proportional_damping = kwargs.get('proportional_damping', None)
-        self.material = kwargs.get('material', None)
-        self.fluid = kwargs.get('fluid', None)
-        self.cross_section = kwargs.get('cross_section', None)
+        self.material: Material = kwargs.get('material', None)
+        self.fluid: Fluid = kwargs.get('fluid', None)
+        self.cross_section: CrossSection = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.perforated_plate = kwargs.get('perforated_plate', None)
@@ -1056,5 +1065,3 @@ class AcousticElement:
 
         elif impedance_type == RadiationImpedanceType.UNFLANGED:
             return self.unflanged_termination_impedance(kappa_complex, impedance_complex)
-
-# fmt: on

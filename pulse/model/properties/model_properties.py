@@ -278,15 +278,34 @@ class ModelProperties:
 
         return False
 
+    def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
+
+        acoustic_properties = [
+            "acoustic_pressure",
+            "volume_velocity",
+            "specific_impedance",
+            "radiation_impedance",
+            "reciprocating_compressor_excitation",
+            "reciprocating_pump_excitation",
+            "psd_acoustic_link",
+            "acoustic_transfer_element",
+        ]
+
+        for (property, *args) in self.nodal_properties.keys():
+            if property in acoustic_properties and node_id in args:
+                return True
+
+        return False
+
     def check_if_there_are_tables_at_the_model(self):
         """This method checks if there are imported table of values in
         the model. It returns True if exists or False elsewhere.
         """
 
         data_dicts = [
-                        self.nodal_properties,
-                        self.element_properties,
-                     ]
+            self.nodal_properties,
+            self.element_properties,
+        ]
 
         for data_dict in data_dicts:
             for data in data_dict.values():

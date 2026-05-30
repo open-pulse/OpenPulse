@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHeaderView,
-    QPushButton, QSizePolicy, QSpacerItem, QTableWidget,
-    QTableWidgetItem, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QGridLayout,
+    QHeaderView, QPushButton, QSizePolicy, QSpacerItem,
+    QTableWidget, QTableWidgetItem, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -99,6 +99,7 @@ class Ui_Form(object):
         __qtablewidgetitem6.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(6, __qtablewidgetitem6)
         self.tableWidget_material_data.setObjectName(u"tableWidget_material_data")
+        self.tableWidget_material_data.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectColumns)
         self.tableWidget_material_data.horizontalHeader().setVisible(False)
         self.tableWidget_material_data.verticalHeader().setVisible(True)
         self.tableWidget_material_data.verticalHeader().setCascadingSectionResizes(True)

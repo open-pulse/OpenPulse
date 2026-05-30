@@ -4,6 +4,7 @@ from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.fluid import Fluid
 from pulse.project.project import Project
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 from tests.helpers import (
     create_stainless_steel_material,
@@ -81,24 +82,27 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
 
     ## Create the model cross-sections
 
-    main_section_info = {"section_type_label" : "pipe" ,
-                        "section_parameters" : [0.219075, 0.015088, 0, 0, 0, 0]}
+    main_parameters = [0.219075, 0.015088, 0, 0, 0, 0]
+    header_parameters = [0.32385, 0.015088, 0, 0, 0, 0]
+    neck_parameters = [0.060325, 0.015088, 0, 0, 0, 0]
+    volume_parameters = [0.250, 0.015088, 0, 0, 0, 0]
 
-    header_section_info = {"section_type_label" : "pipe" ,
-                           "section_parameters" : [0.32385, 0.015088, 0, 0, 0, 0]}
+    main_section_info = PipeCrossSection(*main_parameters)
+    header_section_info = PipeCrossSection(*header_parameters)
+    neck_section_info = PipeCrossSection(*neck_parameters)
+    volume_section_info = PipeCrossSection(*volume_parameters)
 
-    neck_section_info = {"section_type_label" : "pipe" ,
-                         "section_parameters" : [0.060325, 0.015088, 0, 0, 0, 0]}
+    sections_info = [
+        main_section_info,
+        header_section_info,
+        neck_section_info,
+        volume_section_info,
+    ]
 
-    volume_section_info = {"section_type_label" : "pipe" ,
-                           "section_parameters" : [0.250, 0.015088, 0, 0, 0, 0]}
-
-    sections_info = [main_section_info, header_section_info, neck_section_info, volume_section_info]
-
-    cross_section_main = CrossSection(pipe_section_info = main_section_info)
-    cross_section_header = CrossSection(pipe_section_info = header_section_info)
-    cross_section_neck = CrossSection(pipe_section_info = neck_section_info)
-    cross_section_volume = CrossSection(pipe_section_info = volume_section_info)
+    cross_section_main = CrossSection(pipe_section_info=main_section_info)
+    cross_section_header = CrossSection(pipe_section_info=header_section_info)
+    cross_section_neck = CrossSection(pipe_section_info=neck_section_info)
+    cross_section_volume = CrossSection(pipe_section_info=volume_section_info)
 
     cross_sections = [cross_section_main, cross_section_header, cross_section_neck, cross_section_volume]
 
@@ -114,12 +118,12 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
             corner_coords = model.properties._get_property("corner_coords", line_id=line_id)
 
             if (center_coords, corner_coords).count(None) == 2:
-                section_label = main_section_info["section_type_label"]
+                section_label = main_section_info.section_type_label
                 model.properties._set_line_property("structure_name", section_label, line_id)
             else:
                 model.properties._set_line_property("structure_name", "bend", line_id)
 
-        model.properties._set_multiple_line_properties(section_info, line_ids)
+        model.properties._set_multiple_line_properties(section_info.as_dict(), line_ids)
         model.properties._set_line_property("cross_section", cross_section, line_ids)
         model.properties._set_line_property("structural_element_type", "pipe_1", line_ids)
         preprocessor.set_cross_section_by_lines(line_ids, cross_section)

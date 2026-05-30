@@ -1,12 +1,12 @@
-from pulse import app
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-
 import os
 from pathlib import Path
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from pulse import app
+from pulse.interface import error_title, warning_title
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
 class CheckREFPROP:
@@ -36,13 +36,13 @@ class CheckREFPROP:
         refProp_path = None
         try:
             refProp_path = os.environ['RPPREFIX']
-        except:
+        except Exception:
             pass
 
         if refProp_path is None:
             try:
                 refProp_path = app().config.get_refprop_path_from_file()
-            except:
+            except Exception:
                 pass
 
         if refProp_path is None:
@@ -66,7 +66,7 @@ class CheckREFPROP:
                     message = f"The selected folder path {folder_path} does not match with the REFPROP installation folder. "
                     message += "As suggestion, try to find the default installation folder in 'C:/Program Files (x86)/REFPROP'. "
                     message += "You should select the valid REFPROP installation folder to proceed."
-                    PrintMessageInput([window_title_1, title, message])
+                    PrintMessageInput([error_title, title, message])
 
         return refProp_path
 
@@ -80,14 +80,14 @@ class CheckREFPROP:
             message += "to install a newer REFPROP version to maintain the compatibility with the application.\n\n"
             message += f"Current version: {version}\n"
             message +=  "Required version: >= 10.0"
-            PrintMessageInput([window_title_2, title, message])
+            PrintMessageInput([warning_title, title, message])
             return True
-        
+
         else:
             title = "REFPROP version detected"
-            message = f"The current REFPROP version installed in the "
+            message = "The current REFPROP version installed in the "
             message += "computer meets the OpenPulse requirements.\n\n"
             message += "Compatible versions: >= v10.0\n"
             message += f"Current version: v{version}\n"
-            PrintMessageInput([window_title_2, title, message], auto_close=True)
+            PrintMessageInput([warning_title, title, message], auto_close=True)
             return False

@@ -8,7 +8,7 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 from pulse.processing.assembly_structural import AssemblyStructural
-
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
 @pytest.fixture
 def model(tmp_path):
@@ -21,10 +21,9 @@ def model(tmp_path):
         poisson_ratio = 0.3,
         )
 
-    pipe_section_info = {
-        "section_type_label": "pipe",
-        "section_parameters": [0.05, 0.008, 0, 0, 0, 0],
-    }
+    section_parameters = [0.05, 0.008, 0, 0, 0, 0]
+    pipe_section_info = PipeCrossSection(*section_parameters)
+
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()
 

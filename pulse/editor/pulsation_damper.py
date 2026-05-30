@@ -1,5 +1,3 @@
-# fmt: off
-
 import numpy as np
 
 def translate_to_connection_point(points, connection_point):
@@ -124,5 +122,3 @@ class PulsationDamper:
 
         if self.damper_type in ["Bladder", "bladder"]:
             self.get_axial_axial_segment_data()
-
-# fmt: on
