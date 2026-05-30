@@ -86,11 +86,29 @@ class Project:
         self._warning_clump = ""
         self._flag_clump = False
     
-    def reset_solutions(self):
-        if self.structural_solver is not None:
-            self.structural_solver.reset()
-        if self.acoustic_solver is not None:
-            self.acoustic_solver.reset()
+    @property
+    def structural_solution(self):
+        if self.structural_solver is None:
+            return None
+        return self.structural_solver.solution
+
+    @property
+    def acoustic_solution(self):
+        if self.acoustic_solver is None:
+            return None
+        return self.acoustic_solver.solution
+
+    @property
+    def natural_frequencies_structural(self):
+        if self.structural_solver is None:
+            return None
+        return getattr(self.structural_solver, "natural_frequencies", None)
+
+    @property
+    def natural_frequencies_acoustic(self):
+        if self.acoustic_solver is None:
+            return None
+        return getattr(self.acoustic_solver, "natural_frequencies", None)
 
     def reset_analysis_setup(self):
         self.model.reset_analysis_setup()
@@ -776,7 +794,7 @@ class Project:
         self.file.write_results_data_in_file()
 
         if self.model.preprocessor.stop_processing:
-            self.reset_solutions()
+            self.reset_solvers()
             self.model.preprocessor.stop_processing = False
             return
 
