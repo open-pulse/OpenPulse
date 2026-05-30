@@ -3,6 +3,8 @@ import logging
 from collections import defaultdict
 from pathlib import Path
 
+import numpy as np
+
 from pulse import TEMP_PROJECT_DIR, app
 from pulse.editor import Pipeline
 from pulse.interface import error_title, warning_title

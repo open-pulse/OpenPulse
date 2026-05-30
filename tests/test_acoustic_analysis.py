@@ -6,6 +6,7 @@ import pytest
 from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
@@ -37,12 +38,7 @@ def acoustic_model(datadir: Path):
     )
 
     section_parameters = [0.05, 0.008, 0, 0, 0, 0]
-    cross_section = CrossSection(
-        pipe_section_info={
-            "section_type_label": "pipe",
-            "section_parameters": section_parameters,
-        }
-    )
+    cross_section = CrossSection(pipe_section_info=PipeCrossSection(*section_parameters))
     cross_section.update_properties()
 
     project = Project()
