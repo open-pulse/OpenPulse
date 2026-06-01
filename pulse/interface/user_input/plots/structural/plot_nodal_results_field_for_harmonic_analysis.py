@@ -1,12 +1,13 @@
-from PySide6.QtWidgets import QTreeWidgetItem
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.structural.plot_nodal_results_field_for_harmonic_analysis_ui import PlotNodalResultsFieldForHarmonicAnalysis_UI
+from pulse.interface.ui_generated.plots.results.structural.plot_nodal_results_field_for_harmonic_analysis_ui import (
+    PlotNodalResultsFieldForHarmonicAnalysis_UI,
+)
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.model import AnalysisID
-
-
-import numpy as np
 
 
 class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicAnalysis_UI):
@@ -15,6 +16,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         self._initialize()
         self._config_window()
         self._define_qt_variables()
+        self._add_animation_widget()
         self._create_connections()
         self.load_frequencies_vector()
         self.load_user_preference_colormap()
@@ -59,6 +61,15 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         self.update_animation_widget_visibility()
         self.load_user_preference_colormap()
         self.update_colormap_type()
+    
+    def _add_animation_widget(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.frame_animation.setLayout(self.grid_layout)
+
+        self.animation_widget = AnimationWidget()
+        self.grid_layout.addWidget(self.animation_widget)
+        self.frame_animation.adjustSize()
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()

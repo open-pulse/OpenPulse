@@ -1,8 +1,18 @@
 from PySide6.QtWidgets import QFrame, QWidget
 
 from pulse import app
-from pulse.interface.ui_generated.menus.left_menu_widget_ui import LeftMenuWidget_UI
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
+from pulse.interface.ui_generated.menus.left_menu_widget_ui import LeftMenuWidget_UI
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
+from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressesFieldForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_field_for_harmonic_analysis import PlotStressesFieldForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_for_harmonic_analysis import PlotStressesForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
+
 
 class ResultsViewerWidget(LeftMenuWidget_UI):
     def __init__(self):
@@ -141,18 +151,14 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         self.add_widget(widget)
 
     def add_widget(self, widget: QWidget, animation_widget=False):
-
-        # app().main_window.animation_toolbar.set_visible(False)
-
         # TODO: please, remove the hide after all it shouldn't be needed
         if isinstance(self.bottom_widget, QWidget):
             self.bottom_widget.hide()
 
         self.layout().replaceWidget(self.bottom_widget, widget)
-        self.bottom_widget = widget
+        self.bottom_widget = self.current_widget = widget
         self.is_animation_widget = animation_widget
 
-        # app().main_window.animation_toolbar.set_visible(animation_widget)
         self.adjustSize()
 
     def configure_render_according_to_plot_type(self, set_by: str):
@@ -181,4 +187,22 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
             app().main_window.use_base_render_tool = True
         
         app().main_window.results_widget.update_render_tool_according_to_results_viewer_widget(has_selection = set_by in ["nodes", "lines"])
+    
+    def current_widget_is_animatable(self) -> bool:
+        return isinstance(self.current_widget, (
+            PlotStructuralModeShape,
+            PlotNodalResultsFieldForHarmonicAnalysis,
+            PlotStressesForStaticAnalysis,
+            PlotStressesFieldForStaticAnalysis,
+            PlotStressesForHarmonicAnalysis,
+            PlotStressesFieldForHarmonicAnalysis,
+            PlotAcousticPressureField,
+            PlotAcousticModeShape,
+        ))
+    
+    def get_animation_widget(self) -> AnimationWidget | None:
+        if self.current_widget_is_animatable():
+            return self.current_widget.animation_widget
+
+        return None
 
