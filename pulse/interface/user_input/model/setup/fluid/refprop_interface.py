@@ -9,6 +9,7 @@ from pulse import app
 from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import get_new_path
+from time import perf_counter
 
 IS_ERROR_REGEX = re.compile(r"\[\w+\s+error")
 IS_WARNING_REGEX = re.compile(r"\[\w+\s+warning")
@@ -90,10 +91,15 @@ class RefpropInterface:
             return True
 
     def initialize_REFPROP(self):
+        print("initialize_REFPROP")
         try:
             
+            t0 = perf_counter()
             from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
+            dt = perf_counter() - t0
+            print(f"Time to import library: {dt} s")
 
+            t0 = perf_counter()
             refProp_path = self.get_refprop_path()
             if refProp_path is None:
                 return True
@@ -105,43 +111,57 @@ class RefpropInterface:
                 PrintMessageInput([error_title, title, message])
                 return True
 
+            dt = perf_counter() - t0
+            print(f"Time to process (A): {dt} s")
+
+            t0 = perf_counter()
             self.refprop = REFPROPFunctionLibrary(refProp_path)
             if self.check_refprop_version():
                 return True
+            
+            dt = perf_counter() - t0
+            print(f"Time to initialize REFPROPFunctionLibrary: {dt} s")
 
+            t0 = perf_counter()
             self.refprop.SETPATHdll(refProp_path)
-            refProp_fluids_path = get_new_path(refProp_path, "FLUIDS")
-            list_files = os.listdir(refProp_fluids_path)
+            refProp_fluids_path = Path(refProp_path) / "FLUIDS"
 
             self.refprop_fluids = dict()
             self.fluid_file_to_final_name = dict()
 
-            for fluid_file in list_files:
-                if ".BNC" not in fluid_file:
-                    filepath = get_new_path(refProp_fluids_path, fluid_file)
+            for fluid_file in os.listdir(refProp_fluids_path):
+                if ".BNC" in fluid_file:
+                    continue
+
+                filepath = Path(refProp_fluids_path) / fluid_file
+                # filepath = get_new_path(refProp_fluids_path, fluid_file)
+
+                f = open(filepath, 'r')
+                line_0 = f.readline()
+                line_1 = f.readline()
+                line_2 = f.readline()
+
+                f.close()
+                short_name = line_0.split("!")[0]
+                full_name = line_2.split("!")[0]
+        
+                letter = " "
+                while letter == " ":
+                    short_name = short_name[:-1]
+                    letter = short_name[-1]
                     
-                    f = open(filepath, 'r')
-                    line_0 = f.readline()
-                    line_1 = f.readline()
-                    line_2 = f.readline()
+                letter = " "
+                while letter == " ":
+                    full_name = full_name[:-1]
+                    letter = full_name[-1]
 
-                    f.close()
-                    short_name = line_0.split("!")[0]
-                    full_name = line_2.split("!")[0]
-            
-                    letter = " "
-                    while letter == " ":
-                        short_name = short_name[:-1]
-                        letter = short_name[-1]
-                        
-                    letter = " "
-                    while letter == " ":
-                        full_name = full_name[:-1]
-                        letter = full_name[-1]
+                final_name = short_name if short_name == full_name else f"{short_name} ({full_name})"
 
-                    final_name = short_name if short_name == full_name else f"{short_name} ({full_name})"
-                    self.refprop_fluids[final_name] = [fluid_file, short_name, full_name]
-                    self.fluid_file_to_final_name[fluid_file] = final_name
+                self.refprop_fluids[final_name] = [fluid_file, short_name, full_name]
+                self.fluid_file_to_final_name[fluid_file] = final_name
+
+            dt = perf_counter() - t0
+            print(f"Time to read the dll data: {dt} s")
 
         except Exception as error_log:
             title = "Error while loading REFPROP"

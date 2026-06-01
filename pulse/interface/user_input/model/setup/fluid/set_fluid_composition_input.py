@@ -35,6 +35,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
+from time import perf_counter
 
 
 class SetFluidCompositionInput(SetFluidCompositionInput_UI):
@@ -46,17 +47,26 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         app().main_window.set_input_widget(self)
 
+        t0 = perf_counter()
         self._config_window()
         self._initialize()
         self._config_widgets()
         self._create_connections()
+        dt = perf_counter() - t0
+        print(f"Tempo gasto em A: {dt} s")
 
         if self.state_properties: 
             self.check_state_properties(self.state_properties)
 
+        t0 = perf_counter()
+        print()
+
         self.update_remainig_composition()
         if self.initialize_refprop_interface():
             return
+        
+        dt = perf_counter() - t0
+        print(f"Tempo gasto em B: {dt} s")
 
         self.update_selected_fluid(fluid_to_edit = self.fluid_to_edit)
 
@@ -158,15 +168,25 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.lineEdit_temperature_right.setValidator(StrictDoubleValidator(t_min, t_max, 6))
 
     def initialize_refprop_interface(self):
+        t0 = perf_counter()
         self.refprop_interface = RefpropInterface()
+        dt = perf_counter() - t0
+        print(f"Time to process A: {dt} s")
+
+        t0 = perf_counter()
         if self.refprop_interface.initialize_REFPROP():
             return True
+        dt = perf_counter() - t0
+        print(f"Time to process B: {dt} s")
 
+        t0 = perf_counter()
         self.refprop = self.refprop_interface.refprop
         self.load_default_gases_info(self.refprop_interface.refprop_fluids)
 
         version = self.refprop_interface.get_REFPROP_version()
         self.setWindowTitle(f"OpenPulse (REFPROP v{version})")
+        dt = perf_counter() - t0
+        print(f"Time to process C: {dt} s")
 
     def _create_connections(self):
         #
