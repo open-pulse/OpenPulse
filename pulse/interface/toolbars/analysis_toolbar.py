@@ -455,7 +455,7 @@ class AnalysisToolbar(QToolBar):
         if not static.proceed_solution:
             return
 
-        app().project.run_analysis()
+        self.run_analysis()
 
     def final_actions(self):
         app().main_window.reset_solution()
