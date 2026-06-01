@@ -19,6 +19,7 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         self._config_widgets()
         self.load_natural_frequencies()
         self.load_user_preference_colormap()
+        self.select_first_frequency()
 
     def _initialize(self):
         self.mode_index = None
@@ -153,6 +154,13 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
+
+    def select_first_frequency(self):
+        if self.treeWidget_frequencies.topLevelItemCount() == 0:
+            return
+        item = self.treeWidget_frequencies.topLevelItem(0)
+        self.treeWidget_frequencies.setCurrentItem(item)
+        self.on_click_item(item)
 
     def on_click_item(self, item):
         self.selected_natural_frequency = self.modes_to_frequencies[int(item.text(0))]

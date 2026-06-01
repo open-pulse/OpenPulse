@@ -21,6 +21,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         self._add_animation_widget()
         self.load_frequencies()
         self.load_user_preference_colormap()
+        self.select_first_frequency()
 
     def _initialize(self):
 
@@ -188,6 +189,13 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         color_scale_setup = self.get_user_color_scale_setup()
         app().project.set_color_scale_setup(color_scale_setup)
         app().main_window.results_widget.show_stress_field(self.selected_index)
+
+    def select_first_frequency(self):
+        if self.treeWidget_frequencies.topLevelItemCount() == 0:
+            return
+        item = self.treeWidget_frequencies.topLevelItem(0)
+        self.treeWidget_frequencies.setCurrentItem(item)
+        self.on_click_item(item)
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))

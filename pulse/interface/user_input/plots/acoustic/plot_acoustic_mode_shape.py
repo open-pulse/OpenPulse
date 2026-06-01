@@ -17,7 +17,8 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         self._config_widgets()
         self.load_natural_frequencies()
         self.load_user_preference_colormap()
-       
+        self.select_first_frequency()
+
     def _initialize(self):
         self.mode_index = None
         self.colormaps = [
@@ -152,6 +153,13 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
                 new.setTextAlignment(i, Qt.AlignCenter)
             
             self.treeWidget_frequencies.addTopLevelItem(new)
+
+    def select_first_frequency(self):
+        if self.treeWidget_frequencies.topLevelItemCount() == 0:
+            return
+        item = self.treeWidget_frequencies.topLevelItem(0)
+        self.treeWidget_frequencies.setCurrentItem(item)
+        self.on_click_item(item)
 
     def on_click_item(self, item):
 

@@ -20,6 +20,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         self._create_connections()
         self.load_frequencies_vector()
         self.load_user_preference_colormap()
+        self.select_first_frequency()
 
     def _initialize(self):
 
@@ -175,6 +176,15 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         #
         app().project.set_color_scale_setup(color_scale_setup)
         app().main_window.results_widget.show_displacement_field(0)
+
+    def select_first_frequency(self):
+        if app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
+            return
+        if self.treeWidget_frequencies.topLevelItemCount() == 0:
+            return
+        item = self.treeWidget_frequencies.topLevelItem(0)
+        self.treeWidget_frequencies.setCurrentItem(item)
+        self.on_click_item(item)
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))

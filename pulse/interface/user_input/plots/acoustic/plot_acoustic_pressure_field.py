@@ -17,6 +17,7 @@ class PlotAcousticPressureField(PlotAcousticPressureFieldForHarmonicAnalysis_UI)
         self._create_connections()
         self.load_frequencies_vector()
         self.load_user_preference_colormap()
+        self.select_first_frequency()
 
     def _initialize(self):
         self.frequencies = app().project.model.frequencies
@@ -127,6 +128,13 @@ class PlotAcousticPressureField(PlotAcousticPressureFieldForHarmonicAnalysis_UI)
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
+
+    def select_first_frequency(self):
+        if self.treeWidget_frequencies.topLevelItemCount() == 0:
+            return
+        item = self.treeWidget_frequencies.topLevelItem(0)
+        self.treeWidget_frequencies.setCurrentItem(item)
+        self.on_click_item(item)
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))
