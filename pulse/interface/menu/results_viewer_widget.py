@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QFrame, QWidget
+from PySide6.QtWidgets import QFrame, QSizePolicy, QSpacerItem, QWidget
 
 from pulse import app
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
@@ -31,6 +31,12 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         self.main_frame = QFrame()
         self.results_viewer_items = ResultsViewerItems()
         self.layout().replaceWidget(self.top_widget, self.results_viewer_items)
+        # Both widgets keep their natural size; the spacer below absorbs the slack
+        # so neither the items tree nor the plot widget gets stretched.
+        self.results_viewer_items.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+        self.layout().addItem(
+            QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding), 2, 0
+        )
         self.adjustSize()
 
     def _create_connections(self):
@@ -151,13 +157,19 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         self.add_widget(widget)
 
     def add_widget(self, widget: QWidget, animation_widget=False):
-        # TODO: please, remove the hide after all it shouldn't be needed
         if isinstance(self.bottom_widget, QWidget):
             self.bottom_widget.hide()
 
         self.layout().replaceWidget(self.bottom_widget, widget)
         self.bottom_widget = self.current_widget = widget
         self.is_animation_widget = animation_widget
+
+        if animation_widget:
+            self.layout().setRowStretch(1, 1)
+            self.layout().setRowStretch(2, 0)
+        else:
+            self.layout().setRowStretch(1, 0)
+            self.layout().setRowStretch(2, 1)
 
         self.adjustSize()
 

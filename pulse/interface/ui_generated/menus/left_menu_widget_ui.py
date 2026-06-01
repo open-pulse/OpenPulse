@@ -27,7 +27,7 @@ class Ui_Form(object):
         self.gridLayout.setContentsMargins(2, 2, 2, 2)
         self.top_widget = QWidget(Form)
         self.top_widget.setObjectName(u"top_widget")
-        self.top_widget.setMinimumSize(QSize(0, 80))
+        self.top_widget.setMinimumSize(QSize(0, 0))
 
         self.gridLayout.addWidget(self.top_widget, 0, 0, 1, 1)
 
