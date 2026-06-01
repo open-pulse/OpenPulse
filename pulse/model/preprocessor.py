@@ -584,6 +584,10 @@ class Preprocessor:
         else:
             diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coords), axis=1)
             mask = diff < radius
+
+            if not external_indexes[mask].any():
+                return None
+
             try:
                 external_index = int(external_indexes[mask].item())
             except Exception as error_log:
