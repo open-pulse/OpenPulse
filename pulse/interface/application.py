@@ -1,4 +1,3 @@
-from PySide6.QtCore import Signal
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import QApplication
 
@@ -7,8 +6,6 @@ from pulse.interface.others.splash_screen import SplashScreen
 
 
 class Application(QApplication):
-    selection_changed = Signal()
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
