@@ -31,8 +31,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         self.main_frame = QFrame()
         self.results_viewer_items = ResultsViewerItems()
         self.layout().replaceWidget(self.top_widget, self.results_viewer_items)
-        # Both widgets keep their natural size; the spacer below absorbs the slack
-        # so neither the items tree nor the plot widget gets stretched.
+       
         self.results_viewer_items.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         self.layout().addItem(
             QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding), 2, 0
@@ -71,12 +70,12 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
     def add_structural_mode_shape_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_structural_mode_shapes()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_displacement_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_displacement_field()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_structural_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -86,7 +85,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
     def add_stress_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_stress_field()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_stress_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -96,17 +95,17 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
     def add_reaction_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_reaction_frequency_response()
-        self.add_widget(widget)
+        self.add_widget(widget, fill=True)
 
     def add_acoustic_mode_shape_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_acoustic_mode_shapes()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_acoustic_pressure_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_acoustic_pressure_field()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_acoustic_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -156,15 +155,14 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         widget = app().main_window.input_ui.shaking_forces_criteria()
         self.add_widget(widget)
 
-    def add_widget(self, widget: QWidget, animation_widget=False):
+    def add_widget(self, widget: QWidget, fill=False):
         if isinstance(self.bottom_widget, QWidget):
             self.bottom_widget.hide()
 
         self.layout().replaceWidget(self.bottom_widget, widget)
         self.bottom_widget = self.current_widget = widget
-        self.is_animation_widget = animation_widget
 
-        if animation_widget:
+        if fill:
             self.layout().setRowStretch(1, 1)
             self.layout().setRowStretch(2, 0)
         else:
