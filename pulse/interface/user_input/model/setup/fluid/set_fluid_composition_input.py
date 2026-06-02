@@ -1,4 +1,6 @@
 
+import logging
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -33,6 +35,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
 
@@ -55,7 +58,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             self.check_state_properties(self.state_properties)
 
         self.update_remainig_composition()
-        if self.initialize_refprop_interface():
+        if LoadingWindow(self.initialize_refprop_interface).run():
             return
 
         self.update_selected_fluid(fluid_to_edit = self.fluid_to_edit)
@@ -158,13 +161,18 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.lineEdit_temperature_right.setValidator(StrictDoubleValidator(t_min, t_max, 6))
 
     def initialize_refprop_interface(self):
+        logging.info("Loading REFPROP interface [10%]")
         self.refprop_interface = RefpropInterface()
+
         if self.refprop_interface.initialize_REFPROP():
             return True
+        
+        logging.info("Loading REFPROP interface [80%]")
 
         self.refprop = self.refprop_interface.refprop
         self.load_default_gases_info(self.refprop_interface.refprop_fluids)
 
+        logging.info("Loading REFPROP interface [95%]")
         version = self.refprop_interface.get_REFPROP_version()
         self.setWindowTitle(f"OpenPulse (REFPROP v{version})")
 
