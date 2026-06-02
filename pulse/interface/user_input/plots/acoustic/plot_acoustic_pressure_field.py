@@ -1,20 +1,21 @@
-from PySide6.QtWidgets import QTreeWidgetItem
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.plot_acoustic_pressure_field_for_harmonic_analysis_ui import PlotAcousticPressureFieldForHarmonicAnalysis_UI
-
-
-import numpy as np
+from pulse.interface.ui_generated.plots.results.acoustic.plot_acoustic_pressure_field_for_harmonic_analysis_ui import (
+    PlotAcousticPressureFieldForHarmonicAnalysis_UI,
+)
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 
 
 class PlotAcousticPressureField(PlotAcousticPressureFieldForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._add_animation_widget()
         self.load_frequencies_vector()
         self.load_user_preference_colormap()
         self.select_first_frequency()
@@ -35,11 +36,6 @@ class PlotAcousticPressureField(PlotAcousticPressureFieldForHarmonicAnalysis_UI)
                           "PuOR",
                           "grayscale",
                           ]
-
-    def _config_window(self):
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
     def _define_qt_variables(self):
         self.frame_button.setVisible(False)
@@ -66,6 +62,15 @@ class PlotAcousticPressureField(PlotAcousticPressureFieldForHarmonicAnalysis_UI)
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+    
+    def _add_animation_widget(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.frame_animation.setLayout(self.grid_layout)
+
+        self.animation_widget = AnimationWidget()
+        self.grid_layout.addWidget(self.animation_widget)
+        self.frame_animation.adjustSize()
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()

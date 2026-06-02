@@ -1,12 +1,13 @@
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.acoustic.acoustic_mode_shape_ui import (
     AcousticModeShape_UI,
 )
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 
 
 class PlotAcousticModeShape(AcousticModeShape_UI):
@@ -15,6 +16,7 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         self._initialize()
         self._create_connections()
         self._config_widgets()
+        self._add_animation_widget()
         self.load_natural_frequencies()
         self.load_user_preference_colormap()
         self.select_first_frequency()
@@ -73,6 +75,15 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
             if i < 2:
                 self.treeWidget_frequencies.setColumnWidth(i, widths[i])
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+    
+    def _add_animation_widget(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.frame_animation.setLayout(self.grid_layout)
+
+        self.animation_widget = AnimationWidget()
+        self.grid_layout.addWidget(self.animation_widget)
+        self.frame_animation.adjustSize()
             
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
