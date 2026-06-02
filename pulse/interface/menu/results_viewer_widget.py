@@ -202,9 +202,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         return isinstance(self.current_widget, (
             PlotStructuralModeShape,
             PlotNodalResultsFieldForHarmonicAnalysis,
-            PlotStressesForStaticAnalysis,
             PlotStressesFieldForStaticAnalysis,
-            PlotStressesForHarmonicAnalysis,
             PlotStressesFieldForHarmonicAnalysis,
             PlotAcousticPressureField,
             PlotAcousticModeShape,

@@ -1,19 +1,19 @@
-from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
+import logging
+
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.plot_stresses_field_for_harmonic_analysis_ui import PlotStressesFieldForHarmonicAnalysis_UI
-from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
-
-import logging
-import numpy as np
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 
 class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._config_window()
+        
         self._initialize()
         self._load_structural_solver()
         self._define_qt_variables()
@@ -72,12 +72,6 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
 
         else:
             self.structural_solver = app().project.structural_solver
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
         self.frame_button.setVisible(False)

@@ -1,19 +1,17 @@
-from PySide6.QtCore import Qt
+
+import logging
+
+import numpy as np
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.get_stresses_for_static_analysis_ui import GetStressesForStaticAnalysis_UI
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 
-import logging
-import numpy as np
-
 class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
 
-        self._config_window()
         self._initialize()
         self._load_structural_solver()
         self._create_list_lineEdits()
@@ -44,12 +42,6 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
 
         else:
             self.structural_solver = app().project.structural_solver
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _create_list_lineEdits(self):
         self.lineEdits = [  self.lineEdit_element_id,
