@@ -1,6 +1,7 @@
 import os
 import re
 from pathlib import Path
+import logging
 
 import numpy as np
 from PySide6.QtWidgets import QFileDialog
@@ -8,8 +9,6 @@ from PySide6.QtWidgets import QFileDialog
 from pulse import app
 from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-# from pulse.utils.common_utils import get_new_path
-from time import perf_counter
 
 IS_ERROR_REGEX = re.compile(r"\[\w+\s+error")
 IS_WARNING_REGEX = re.compile(r"\[\w+\s+warning")
@@ -42,7 +41,7 @@ class RefpropInterface:
             "BS" : "adiabatic_bulk_modulus",
             "KKT" : "isothermal_bulk_modulus",
             "Z" : "compressibility_factor",
-            }
+        }
 
     def get_refprop_path(self) -> None | str:
 
@@ -91,15 +90,12 @@ class RefpropInterface:
             return True
 
     def initialize_REFPROP(self):
-        print("initialize_REFPROP")
+
         try:
             
-            t0 = perf_counter()
             from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
-            dt = perf_counter() - t0
-            print(f"Time to import library: {dt} s")
 
-            t0 = perf_counter()
+            logging.info("Loading REFPROP interface [30%]")
             refProp_path = self.get_refprop_path()
             if refProp_path is None:
                 return True
@@ -111,35 +107,23 @@ class RefpropInterface:
                 PrintMessageInput([error_title, title, message])
                 return True
 
-            dt = perf_counter() - t0
-            print(f"Time to process (A): {dt} s")
-
-            t0 = perf_counter()
+            logging.info("Loading REFPROP interface [40%]")
             self.refprop = REFPROPFunctionLibrary(refProp_path)
             if self.check_refprop_version():
                 return True
-            
-            dt = perf_counter() - t0
-            print(f"Time to initialize REFPROPFunctionLibrary: {dt} s")
-
-            t0 = perf_counter()
+ 
+            logging.info("Loading REFPROP interface [50%]")
             self.refprop.SETPATHdll(refProp_path)
             refProp_fluids_path = Path(refProp_path) / "FLUIDS"
 
             self.refprop_fluids = dict()
             self.fluid_file_to_final_name = dict()
 
-            dt = perf_counter() - t0
-            print(f"Time to read the dll data (a): {dt} s")
-
-            t0 = perf_counter()
-
             for fluid_file in os.listdir(refProp_fluids_path):
                 if ".BNC" in fluid_file:
                     continue
 
                 filepath = Path(refProp_fluids_path) / fluid_file
-                # filepath = get_new_path(refProp_fluids_path, fluid_file)
 
                 f = open(filepath, 'r')
                 line_0 = f.readline()
@@ -154,23 +138,10 @@ class RefpropInterface:
                 short_name = short_name.rstrip()
                 full_name = full_name.rstrip()
 
-                # spacing = " "
-                # while spacing == " ":
-                #     short_name = short_name[:-1]
-                #     spacing = short_name[-1]
-                    
-                # spacing = " "
-                # while spacing == " ":
-                #     full_name = full_name[:-1]
-                #     spacing = full_name[-1]
-
                 final_name = short_name if short_name == full_name else f"{short_name} ({full_name})"
 
                 self.refprop_fluids[final_name] = [fluid_file, short_name, full_name]
                 self.fluid_file_to_final_name[fluid_file] = final_name
-
-            dt = perf_counter() - t0
-            print(f"Time to read the dll data (b): {dt} s")
 
         except Exception as error_log:
             title = "Error while loading REFPROP"
@@ -192,16 +163,16 @@ class RefpropInterface:
         
         units = self.refprop.GETENUMdll(0, "MASS BASE SI").iEnum
         read = self.refprop.REFPROPdll( 
-                                        key_mixture, 
-                                        state_properties, 
-                                        property_key, 
-                                        units, 
-                                        0, 
-                                        0, 
-                                        temperature_K, 
-                                        pressure_Pa, 
-                                        molar_fractions
-                                        )
+            key_mixture,
+            state_properties,
+            property_key,
+            units,
+            0,
+            0,
+            temperature_K,
+            pressure_Pa,
+            molar_fractions,
+        )
 
         if IS_ERROR_REGEX.match(read.herr):
             errors = read.herr
@@ -255,7 +226,7 @@ class RefpropInterface:
                     property_key = prop_key,
                     temperature_K = temperature_K,
                     pressure_Pa = pressure_Pa,
-                    )
+                )
 
                 if errors:
                     print(errors)
