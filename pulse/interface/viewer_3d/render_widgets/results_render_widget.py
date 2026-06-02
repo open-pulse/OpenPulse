@@ -235,11 +235,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self._animation_current_cycle = 0
 
     def stop_animation(self):
+        from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
+
         # Do the things defined in the mother class
         super().stop_animation()
         # Change the animation button to paused
         animation_widget = app().main_window.results_viewer_widget.get_animation_widget()
-        animation_widget.pause_animation()
+        if isinstance(animation_widget, AnimationWidget):
+            animation_widget.pause_animation()
 
     def clear_cache(self):
         self._animation_cached_data.clear()

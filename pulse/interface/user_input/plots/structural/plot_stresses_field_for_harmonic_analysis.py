@@ -109,12 +109,10 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         self.update_plot()
 
     def update_animation_widget_visibility(self):
+        if not hasattr(self, "animation_widget"):
+            return
         index = self.comboBox_color_scale.currentIndex()
-        return
-        if index >= 2:
-            app().main_window.animation_toolbar.setDisabled(True)
-        else:
-            app().main_window.animation_toolbar.setDisabled(False) 
+        self.animation_widget.setDisabled(index >= 2)
 
     def load_user_preference_colormap(self):
         try:
@@ -193,6 +191,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))
+        self.animation_widget.reset_sliders()
         self.update_plot()
 
     def on_doubleclick_item(self, item):

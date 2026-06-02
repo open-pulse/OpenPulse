@@ -79,12 +79,10 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         self.frame_animation.adjustSize()
   
     def update_animation_widget_visibility(self):
+        if not hasattr(self, "animation_widget"):
+            return
         index = self.comboBox_color_scale.currentIndex()
-        return
-        if index >= 4:
-            app().main_window.animation_toolbar.setDisabled(True)
-        else:
-            app().main_window.animation_toolbar.setDisabled(False)
+        self.animation_widget.setDisabled(index >= 4)
 
     def load_user_preference_colormap(self):
         try:
@@ -165,6 +163,7 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
     def on_click_item(self, item):
         self.selected_natural_frequency = self.modes_to_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
+        self.animation_widget.reset_sliders()
         self.update_plot()
 
     def on_doubleclick_item(self, item):
