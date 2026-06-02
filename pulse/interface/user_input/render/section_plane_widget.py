@@ -93,6 +93,19 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
         self.cutting = True
         self.value_changed_2.emit()
 
+    def reset_state(self):
+        self.editing = False
+        self.cutting = False
+        self.invert_value = False
+        self.keep_section_plane = False
+
+        action = app().main_window.action_section_plane
+        action.blockSignals(True)
+        action.setChecked(False)
+        action.blockSignals(False)
+
+        self.reset_button_callback()
+
     def reset_button_callback(self):
         self.relative_plane_position_x_slider.setValue(50),
         self.relative_plane_position_y_slider.setValue(50),
