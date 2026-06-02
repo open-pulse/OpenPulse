@@ -24,7 +24,6 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def _reset(self):
         self.current_widget = None
-        self.is_animation_widget = False
 
     def _define_qt_variables(self):
 

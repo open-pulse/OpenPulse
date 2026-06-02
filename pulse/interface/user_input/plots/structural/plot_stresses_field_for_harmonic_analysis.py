@@ -111,8 +111,8 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
     def update_animation_widget_visibility(self):
         if not hasattr(self, "animation_widget"):
             return
-        index = self.comboBox_color_scale.currentIndex()
-        self.animation_widget.setDisabled(index >= 2)
+        is_animation = self.comboBox_color_scale.currentText().startswith("Animation")
+        self.animation_widget.setDisabled(not is_animation)
 
     def load_user_preference_colormap(self):
         try:
