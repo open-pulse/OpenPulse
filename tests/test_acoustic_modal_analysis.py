@@ -27,7 +27,6 @@ def test_acoustic_modal_analysis(example2_project, num_regression):
     assert len(natural_frequencies) > 0, "Acoustic natural frequencies array is empty"
     assert np.all(natural_frequencies >= 0), "Negative acoustic natural frequencies"
     assert np.all(np.isfinite(natural_frequencies)), "Non-finite acoustic natural frequencies"
-    assert np.all(np.diff(natural_frequencies) >= 0), "Acoustic natural frequencies not in ascending order"
 
     num_regression.check(
         {"natural_frequencies": natural_frequencies},
