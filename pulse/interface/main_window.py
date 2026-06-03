@@ -943,6 +943,7 @@ class MainWindow(MainWindow_UI):
         self.set_toolbars_visible(True)
         self.animation_toolbar.set_visible(False)
         self.update_results_workspace_button_accessibility()
+        self.section_plane.reset_state()
 
         return obj.complete
 
@@ -989,6 +990,7 @@ class MainWindow(MainWindow_UI):
             self.action_model_setup_workspace_callback()
             self.set_toolbars_visible(True)
             self.animation_toolbar.set_visible(False)
+            self.section_plane.reset_state()
             self.update_results_workspace_button_accessibility()
             self.update_plots()
 
