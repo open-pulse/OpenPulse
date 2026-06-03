@@ -693,7 +693,7 @@ class MainWindow(MainWindow_UI):
             self.section_plane.show()
         else:
             self.section_plane.keep_section_plane = False
-            self.section_plane.close()
+            self.section_plane.disable_section_plane()
 
     def action_zoom_callback(self):
         self.geometry_widget.renderer.ResetCamera()

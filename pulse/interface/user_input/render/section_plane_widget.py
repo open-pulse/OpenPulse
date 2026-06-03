@@ -62,8 +62,17 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
             self.cutting = False
         else:
             self.cutting = True
+
         self.value_changed_2.emit()
-        # self.closed.emit()
+    
+    def disable_section_plane(self):
+        self.cutting = False
+
+        if self.isVisible():
+            self.close()
+            return
+
+        self.value_changed_2.emit()
 
     def get_position(self):
         Px = self.relative_plane_position_x_slider.value()
