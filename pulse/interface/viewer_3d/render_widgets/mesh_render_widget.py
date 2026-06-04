@@ -54,7 +54,7 @@ class MeshRenderWidget(CommonRenderWidget):
         app().main_window.theme_changed.connect(self._apply_logo_theme)
         app().main_window.visualization_changed.connect(self.visualization_changed_callback)
         app().main_window.selection_changed.connect(self.update_selection)
-        app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
+        app().main_window.section_plane.value_changed.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
         self.remove_all_actors()
