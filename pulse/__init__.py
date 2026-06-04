@@ -37,4 +37,4 @@ def release_date() -> str:
     '''
     Returns a string containing the release date
     '''
-    return 'Sep 30th 2024'
+    return 'Jun 2026'
