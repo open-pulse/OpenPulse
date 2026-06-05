@@ -129,7 +129,7 @@ class Ui_Dialog(object):
         self.frame_3.setFrameShadow(QFrame.Shadow.Plain)
         self.gridLayout_5 = QGridLayout(self.frame_3)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
-        self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_5.setContentsMargins(6, 6, 6, 6)
         self.lineEdit_search_fluid = QLineEdit(self.frame_3)
         self.lineEdit_search_fluid.setObjectName(u"lineEdit_search_fluid")
 
