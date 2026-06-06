@@ -33,7 +33,7 @@ class Ui_Form(object):
 
         self.bottom_widget = QWidget(Form)
         self.bottom_widget.setObjectName(u"bottom_widget")
-        self.bottom_widget.setMinimumSize(QSize(0, 80))
+        self.bottom_widget.setMinimumSize(QSize(0, 12))
 
         self.gridLayout.addWidget(self.bottom_widget, 1, 0, 1, 1)
 
