@@ -688,7 +688,7 @@ class MainWindow(MainWindow_UI):
             self.section_plane.show()
         else:
             self.section_plane.keep_section_plane = False
-            self.section_plane.close()
+            self.section_plane.disable_section_plane()
 
     def action_zoom_callback(self):
         self.geometry_widget.renderer.ResetCamera()
@@ -931,6 +931,7 @@ class MainWindow(MainWindow_UI):
         self.action_geometry_editor_workspace_callback()
         self.set_toolbars_visible(True)
         self.update_results_workspace_button_accessibility()
+        self.section_plane.reset_state()
 
         return obj.complete
 
