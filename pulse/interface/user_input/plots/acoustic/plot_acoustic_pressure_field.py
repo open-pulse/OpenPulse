@@ -38,15 +38,12 @@ class PlotAcousticPressureField(PlotAcousticPressureFieldForHarmonicAnalysis_UI)
                           ]
 
     def _define_qt_variables(self):
-        self.frame_button.setVisible(False)
         self._config_treeWidget()
 
     def _create_connections(self):
         #
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
-        #
-        self.pushButton_plot.clicked.connect(self.update_plot)
         #
         self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
         #

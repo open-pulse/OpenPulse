@@ -16,7 +16,6 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         self._config_window()
         self._initialize()
         self._load_structural_solver()
-        self._define_qt_variables()
         self._add_animation_widget()
         self._create_connections()
         self.update_plot()
@@ -71,16 +70,11 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-    def _define_qt_variables(self):
-        self.frame_button.setVisible(False)
-
     def _create_connections(self):
         #
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.comboBox_stress_type.currentIndexChanged.connect(self.update_plot)
-        #
-        self.pushButton_plot.clicked.connect(self.update_plot)
         #
         self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
         #

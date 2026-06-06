@@ -1,4 +1,5 @@
 import logging
+from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
@@ -10,13 +11,17 @@ from pulse.interface.user_input.plots.general.animation_widget import AnimationW
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 
+class DampingEffect(IntEnum):
+    EXCLUDED = 0
+    INCLUDED = 1
+
+
 class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self._initialize()
         self._load_structural_solver()
-        self._define_qt_variables()
         self._create_connection()
         self._add_animation_widget()
         self.load_frequencies()
@@ -28,17 +33,19 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         self.selected_index = None
         self.update_damping = False
 
-        self.stress_field = []
-        self.stress_data = []
+        self.stress_field = list()
+        self.stress_data = list()
 
         self.keys = np.arange(7)
-        self.labels = np.array(["Normal axial", 
-                                "Normal bending y", 
-                                "Normal bending z", 
-                                "Hoop", 
-                                "Torsional shear", 
-                                "Transversal shear xy", 
-                                "Transversal shear xz"])
+        self.labels = np.array(
+            ["Normal axial",
+             "Normal bending y",
+             "Normal bending z",
+             "Hoop",
+             "Torsional shear",
+             "Transversal shear xy",
+             "Transversal shear xz"]
+        )
 
         self.frequencies = app().project.model.frequencies
 
@@ -73,20 +80,15 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         else:
             self.structural_solver = app().project.structural_solver
 
-    def _define_qt_variables(self):
-        self.frame_button.setVisible(False)
-
     def _create_connection(self):
         #
-        self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
+        self.comboBox_damping_effect.currentIndexChanged.connect(self._update_damping_effect)
         #
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_stress_type.currentIndexChanged.connect(self.update_plot)
         #
         self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
-        #
-        self.pushButton_plot.clicked.connect(self.update_plot)
         #
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
@@ -116,11 +118,11 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
 
     def load_user_preference_colormap(self):
         try:
-            colormap = app().config2.user_preferences.color_map
+            colormap = app().config.user_preferences.color_map
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)
                 self.comboBox_colormaps.setCurrentIndex(index)
-        except:
+        except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):
@@ -142,6 +144,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         if frequency_selected in self.frequencies:
             self.selected_index = self.dict_frequency_to_index[frequency_selected]
             self.get_stress_data()
+
         app().main_window.results_widget.clear_cache()
 
     def get_user_color_scale_setup(self):
@@ -162,7 +165,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         index = self.comboBox_stress_type.currentIndex()
         stress_label = self.labels[index]
         stress_key = self.keys[index]
-        damping_effect = self.checkBox_damping_effect.isChecked()
+        damping_effect = self.comboBox_damping_effect.currentIndex() == DampingEffect.INCLUDED
 
         if len(self.stress_data) == 0 or self.update_damping:
 
