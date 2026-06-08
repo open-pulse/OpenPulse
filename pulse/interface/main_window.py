@@ -226,7 +226,33 @@ class MainWindow(MainWindow_UI):
         
         else:
             self.try_to_open_argv_path()
-    
+
+    def update_toolbars_stylesheets(self):
+        if self.analysis_toolbar.styleSheet() == "":
+            style_sheet = self.get_toolbars_stylesheet()
+            self.analysis_toolbar.setStyleSheet(style_sheet)
+            self.main_toolbar.setStyleSheet(style_sheet)
+            self.mesh_toolbar.setStyleSheet(style_sheet)
+            self.view_toolbar.setStyleSheet(style_sheet)
+            self.workspaces_toolbar.setStyleSheet(style_sheet)
+            return
+
+        self.analysis_toolbar.setStyleSheet("")
+        self.main_toolbar.setStyleSheet("")
+        self.mesh_toolbar.setStyleSheet("")
+        self.view_toolbar.setStyleSheet("")
+        self.workspaces_toolbar.setStyleSheet("")
+
+    def get_toolbars_stylesheet(self):
+        style_sheet = """
+            QToolBar {
+                border-style: solid;
+                border-width: 0.5px;
+                border-color: #888888;
+            }
+            """
+        return style_sheet
+
     def try_to_open_argv_path(self):
         '''
         Check every argument passed in the command line and try to open it if it is a valid file.
@@ -399,7 +425,7 @@ class MainWindow(MainWindow_UI):
 
         self.analysis_toolbar.setVisible(False)
         self.mesh_toolbar.setVisible(False)
-        self.tool_bar.setVisible(False)
+        self.main_toolbar.setVisible(False)
         self.workspaces_toolbar.setVisible(False)
         self.view_toolbar.setVisible(False)
 
@@ -434,7 +460,7 @@ class MainWindow(MainWindow_UI):
         self.project.reset_solutions()
         self.project.file.remove_results_data_from_project_file()
 
-        self.analysis_toolbar.pushButton_reset_solution.setDisabled(True)
+        self.analysis_toolbar.reset_solution_action.setDisabled(True)
         self.project_data_modified = True
         self.results_widget.show_empty()
         self.use_model_setup_workspace()
@@ -559,7 +585,7 @@ class MainWindow(MainWindow_UI):
             structural_symbols=self.visualization_filter.structural_symbols,
         )
         self.close_dialogs()
-        self.tool_bar.setDisabled(False)
+        self.main_toolbar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
@@ -582,7 +608,7 @@ class MainWindow(MainWindow_UI):
         self.setup_widgets_stack.setVisible(True)
 
         self.mesh_toolbar.setDisabled(False)
-        self.tool_bar.setDisabled(False)
+        self.main_toolbar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.view_toolbar.enable_selection_tool()
@@ -789,6 +815,7 @@ class MainWindow(MainWindow_UI):
         self._add_view_toolbar()
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
+        # self.update_toolbars_stylesheets()
     
     def set_toolbars_visible(self, visible: bool):
         toolbars = self.findChildren(QToolBar)
