@@ -181,6 +181,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         self.comboBox_temperature_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         self.comboBox_distribution_type.currentIndexChanged.connect(self.distribution_type_changed_callback)
+        self.lineEdit_search_fluid.textChanged.connect(self._filter_refprop_fluids)
         #
         self.spinBox_number_of_fluids.valueChanged.connect(self.number_of_fluids_changed_callback)
         #
@@ -507,6 +508,12 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             new = QTreeWidgetItem([fluid])
             new.setTextAlignment(0, Qt.AlignCenter)
             self.treeWidget_refprop_fluids.addTopLevelItem(new)
+
+    def _filter_refprop_fluids(self, text: str):
+            for i in range(self.treeWidget_refprop_fluids.topLevelItemCount()):
+                item = self.treeWidget_refprop_fluids.topLevelItem(i)
+                item.setHidden(text.lower() not in item.text(0).lower())
+
 
     def config_table_data(self):
 
