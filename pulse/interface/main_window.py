@@ -783,7 +783,6 @@ class MainWindow(MainWindow_UI):
         self._add_view_toolbar()
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
-        self._add_animation_toolbar()
         self._configure_workspace_buttons()
 
     def _configure_workspace_buttons(self):
