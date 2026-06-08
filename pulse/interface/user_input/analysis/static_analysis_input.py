@@ -71,7 +71,11 @@ class StaticAnalysisInput(StaticAnalysis_UI):
 
     def run_analysis_callback(self):
         self.enter_setup_callback()
+        self.confirm()
+
+    def confirm(self):
         self.proceed_solution = True
+        app().main_window.analysis_toolbar.enable_pushbutons.emit()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

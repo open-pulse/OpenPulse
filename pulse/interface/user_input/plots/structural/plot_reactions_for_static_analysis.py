@@ -13,10 +13,8 @@ import numpy as np
 class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
 
         self._initialize()
-        self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self._load_structural_solver_and_reactions()
@@ -54,7 +52,7 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
 
     def _config_widgets(self):
         #
-        for i, width in enumerate([20, 80]):
+        for i, width in enumerate([80, 80]):
             self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(i, width)
             self.treeWidget_reactions_at_dampers.setColumnWidth(i, width)
             self.treeWidget_reactions_at_springs.setColumnWidth(i, width)

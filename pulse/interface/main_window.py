@@ -34,7 +34,6 @@ from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
-from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.toolbars.view_toolbar import ViewToolbar
 from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
@@ -402,7 +401,6 @@ class MainWindow(MainWindow_UI):
         self.mesh_toolbar.setVisible(False)
         self.tool_bar.setVisible(False)
         self.workspaces_toolbar.setVisible(False)
-        self.animation_toolbar.setVisible(False)
         self.view_toolbar.setVisible(False)
 
     def plot_lines(self):
@@ -565,7 +563,6 @@ class MainWindow(MainWindow_UI):
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
-        self.animation_toolbar.set_visible(False)
         self.view_toolbar.enable_selection_tool()
 
         self.action_geometry_editor_workspace.setEnabled(False)
@@ -588,7 +585,6 @@ class MainWindow(MainWindow_UI):
         self.tool_bar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
-        self.animation_toolbar.set_visible(False)
         self.view_toolbar.enable_selection_tool()
 
         self.action_model_setup_workspace.setEnabled(False)
@@ -609,7 +605,6 @@ class MainWindow(MainWindow_UI):
 
         self.results_widget.update_selection()
         self.results_viewer_widget.update_visibility_items()
-        self.animation_toolbar.set_visible(self.results_viewer_widget.is_animation_widget)
         self.view_toolbar.disable_selection_tool()
 
         self.action_results_workspace.setEnabled(False)
@@ -782,11 +777,6 @@ class MainWindow(MainWindow_UI):
 
         if hasattr(self.analysis_toolbar, "domain_changed"):
             self.analysis_toolbar.domain_changed.connect(self.analysis_changed)
-
-    def _add_animation_toolbar(self):
-        self.animation_toolbar = AnimationToolbar()
-        self.addToolBar(self.animation_toolbar)
-        self.insertToolBarBreak(self.animation_toolbar)
     
     def _add_view_toolbar(self):
         self.view_toolbar = ViewToolbar()
@@ -799,7 +789,6 @@ class MainWindow(MainWindow_UI):
         self._add_view_toolbar()
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
-        self._add_animation_toolbar()
     
     def set_toolbars_visible(self, visible: bool):
         toolbars = self.findChildren(QToolBar)
@@ -941,7 +930,6 @@ class MainWindow(MainWindow_UI):
 
         self.action_geometry_editor_workspace_callback()
         self.set_toolbars_visible(True)
-        self.animation_toolbar.set_visible(False)
         self.update_results_workspace_button_accessibility()
         self.section_plane.reset_state()
 
@@ -989,8 +977,6 @@ class MainWindow(MainWindow_UI):
             logging.info("Configuring visualization [95%]")
             self.action_model_setup_workspace_callback()
             self.set_toolbars_visible(True)
-            self.animation_toolbar.set_visible(False)
-            self.section_plane.reset_state()
             self.update_results_workspace_button_accessibility()
             self.update_plots()
 

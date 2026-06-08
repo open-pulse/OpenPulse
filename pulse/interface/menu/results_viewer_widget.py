@@ -1,8 +1,18 @@
-from PySide6.QtWidgets import QFrame, QWidget
+from PySide6.QtWidgets import QFrame, QSizePolicy, QSpacerItem, QWidget
 
 from pulse import app
-from pulse.interface.ui_generated.menus.left_menu_widget_ui import LeftMenuWidget_UI
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
+from pulse.interface.ui_generated.menus.left_menu_widget_ui import LeftMenuWidget_UI
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
+from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressesFieldForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_field_for_harmonic_analysis import PlotStressesFieldForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_for_harmonic_analysis import PlotStressesForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
+
 
 class ResultsViewerWidget(LeftMenuWidget_UI):
     def __init__(self):
@@ -14,13 +24,17 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def _reset(self):
         self.current_widget = None
-        self.is_animation_widget = False
 
     def _define_qt_variables(self):
 
         self.main_frame = QFrame()
         self.results_viewer_items = ResultsViewerItems()
         self.layout().replaceWidget(self.top_widget, self.results_viewer_items)
+       
+        self.results_viewer_items.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+        self.layout().addItem(
+            QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding), 2, 0
+        )
         self.adjustSize()
 
     def _create_connections(self):
@@ -55,12 +69,12 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
     def add_structural_mode_shape_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_structural_mode_shapes()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_displacement_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_displacement_field()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_structural_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -70,7 +84,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
     def add_stress_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_stress_field()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_stress_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -80,17 +94,17 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
     def add_reaction_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_reaction_frequency_response()
-        self.add_widget(widget)
+        self.add_widget(widget, fill=True)
 
     def add_acoustic_mode_shape_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_acoustic_mode_shapes()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_acoustic_pressure_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_acoustic_pressure_field()
-        self.add_widget(widget, animation_widget=True)
+        self.add_widget(widget, fill=True)
 
     def add_acoustic_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -140,19 +154,20 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         widget = app().main_window.input_ui.shaking_forces_criteria()
         self.add_widget(widget)
 
-    def add_widget(self, widget: QWidget, animation_widget=False):
-
-        app().main_window.animation_toolbar.set_visible(False)
-
-        # TODO: please, remove the hide after all it shouldn't be needed
+    def add_widget(self, widget: QWidget, fill=False):
         if isinstance(self.bottom_widget, QWidget):
             self.bottom_widget.hide()
 
         self.layout().replaceWidget(self.bottom_widget, widget)
-        self.bottom_widget = widget
-        self.is_animation_widget = animation_widget
+        self.bottom_widget = self.current_widget = widget
 
-        app().main_window.animation_toolbar.set_visible(animation_widget)
+        if fill:
+            self.layout().setRowStretch(1, 1)
+            self.layout().setRowStretch(2, 0)
+        else:
+            self.layout().setRowStretch(1, 0)
+            self.layout().setRowStretch(2, 1)
+
         self.adjustSize()
 
     def configure_render_according_to_plot_type(self, set_by: str):
@@ -181,4 +196,20 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
             app().main_window.use_base_render_tool = True
         
         app().main_window.results_widget.update_render_tool_according_to_results_viewer_widget(has_selection = set_by in ["nodes", "lines"])
+    
+    def current_widget_is_animatable(self) -> bool:
+        return isinstance(self.current_widget, (
+            PlotStructuralModeShape,
+            PlotNodalResultsFieldForHarmonicAnalysis,
+            PlotStressesFieldForStaticAnalysis,
+            PlotStressesFieldForHarmonicAnalysis,
+            PlotAcousticPressureField,
+            PlotAcousticModeShape,
+        ))
+    
+    def get_animation_widget(self) -> AnimationWidget | None:
+        if self.current_widget_is_animatable():
+            return self.current_widget.animation_widget
+
+        return None
 

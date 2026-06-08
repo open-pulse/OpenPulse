@@ -1,12 +1,13 @@
-from PySide6.QtWidgets import QTreeWidgetItem
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.structural.plot_nodal_results_field_for_harmonic_analysis_ui import PlotNodalResultsFieldForHarmonicAnalysis_UI
+from pulse.interface.ui_generated.plots.results.structural.plot_nodal_results_field_for_harmonic_analysis_ui import (
+    PlotNodalResultsFieldForHarmonicAnalysis_UI,
+)
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.model import AnalysisID
-
-
-import numpy as np
 
 
 class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicAnalysis_UI):
@@ -15,9 +16,11 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         self._initialize()
         self._config_window()
         self._define_qt_variables()
+        self._add_animation_widget()
         self._create_connections()
         self.load_frequencies_vector()
         self.load_user_preference_colormap()
+        self.select_first_frequency()
 
     def _initialize(self):
 
@@ -41,15 +44,12 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-        self.frame_button.setVisible(False)
         self._config_treeWidget()
 
     def _create_connections(self):
         #
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
-        #
-        self.pushButton_plot.clicked.connect(self.update_plot)
         #
         self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
         #
@@ -59,13 +59,21 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         self.update_animation_widget_visibility()
         self.load_user_preference_colormap()
         self.update_colormap_type()
+    
+    def _add_animation_widget(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.frame_animation.setLayout(self.grid_layout)
+
+        self.animation_widget = AnimationWidget()
+        self.grid_layout.addWidget(self.animation_widget)
+        self.frame_animation.adjustSize()
 
     def update_animation_widget_visibility(self):
-        index = self.comboBox_color_scale.currentIndex()
-        if index >= 4:
-            app().main_window.animation_toolbar.setDisabled(True)
-        else:
-            app().main_window.animation_toolbar.setDisabled(False) 
+        if not hasattr(self, "animation_widget"):
+            return
+        is_animation = self.comboBox_color_scale.currentText().startswith("Animation")
+        self.animation_widget.setDisabled(not is_animation)
 
     def load_user_preference_colormap(self):
         try:
@@ -164,8 +172,18 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         app().project.set_color_scale_setup(color_scale_setup)
         app().main_window.results_widget.show_displacement_field(0)
 
+    def select_first_frequency(self):
+        if app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
+            return
+        if self.treeWidget_frequencies.topLevelItemCount() == 0:
+            return
+        item = self.treeWidget_frequencies.topLevelItem(0)
+        self.treeWidget_frequencies.setCurrentItem(item)
+        self.on_click_item(item)
+
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))
+        self.animation_widget.reset_sliders()
         self.update_plot()
 
     def on_doubleclick_item(self, item):
