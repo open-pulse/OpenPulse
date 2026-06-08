@@ -1,0 +1,37 @@
+name: Close linked issues on merge
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  issues: write
+
+jobs:
+  close-issues:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Close issues referenced in PR body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          REPO: ${{ github.repository }}
+        run: |
+          issues=$(echo "$PR_BODY" \
+            | grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?)\s+#[0-9]+' \
+            | grep -oE '[0-9]+' \
+            | sort -u || true)
+
+          if [ -z "$issues" ]; then
+            echo "No linked issues found in PR body."
+            exit 0
+          fi
+
+          for issue in $issues; do
+            echo "Closing issue #$issue"
+            gh issue close "$issue" --repo "$REPO" \
+              --comment "Closed by #${{ github.event.pull_request.number }}." || true
+          done

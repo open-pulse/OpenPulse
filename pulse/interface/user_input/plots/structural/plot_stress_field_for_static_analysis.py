@@ -1,12 +1,13 @@
+import logging
+
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGridLayout
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.plot_stresses_field_for_static_analysis_ui import PlotStressesFieldForStaticAnalysis_UI
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.interface.user_input.project.loading_window import LoadingWindow
-
-
-import logging
-import numpy as np
 
 
 class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
@@ -15,7 +16,7 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         self._config_window()
         self._initialize()
         self._load_structural_solver()
-        self._define_qt_variables()
+        self._add_animation_widget()
         self._create_connections()
         self.update_plot()
         self.load_user_preference_colormap()
@@ -69,29 +70,32 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-    def _define_qt_variables(self):
-        self.frame_button.setVisible(False)
-
     def _create_connections(self):
         #
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.comboBox_stress_type.currentIndexChanged.connect(self.update_plot)
         #
-        self.pushButton_plot.clicked.connect(self.update_plot)
-        #
         self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
         #
         self.update_animation_widget_visibility()
         self.load_user_preference_colormap()
         self.update_colormap_type()
+    
+    def _add_animation_widget(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.frame_animation.setLayout(self.grid_layout)
+
+        self.animation_widget = AnimationWidget()
+        self.grid_layout.addWidget(self.animation_widget)
+        self.frame_animation.adjustSize()
 
     def update_animation_widget_visibility(self):
-        index = self.comboBox_color_scale.currentIndex()
-        if index >= 2:
-            app().main_window.animation_toolbar.setDisabled(True)
-        else:
-            app().main_window.animation_toolbar.setDisabled(False) 
+        if not hasattr(self, "animation_widget"):
+            return
+        is_animation = self.comboBox_color_scale.currentText().startswith("Animation")
+        self.animation_widget.setDisabled(not is_animation)
 
     def load_user_preference_colormap(self):
         try:

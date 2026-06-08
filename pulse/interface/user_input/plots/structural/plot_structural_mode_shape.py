@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem, QGridLayout
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.plot_structural_mode_shape_ui import PlotStructuralModeShape_UI
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 
 
 import numpy as np
@@ -14,9 +15,11 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         self._config_window()
         self._initialize()
         self._create_connections()
+        self._add_animation_widget()
         self._config_widgets()
         self.load_natural_frequencies()
         self.load_user_preference_colormap()
+        self.select_first_frequency()
 
     def _initialize(self):
         self.mode_index = None
@@ -45,8 +48,6 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         #
-        self.pushButton_plot.clicked.connect(self.update_plot)
-        #
         self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
         #
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
@@ -58,20 +59,27 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
 
     def _config_widgets(self):
 
-        self.frame_button.setVisible(False)
         self.lineEdit_natural_frequency.setDisabled(True)
 
         widths = [100, 140]
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+    
+    def _add_animation_widget(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.frame_animation.setLayout(self.grid_layout)
+
+        self.animation_widget = AnimationWidget()
+        self.grid_layout.addWidget(self.animation_widget)
+        self.frame_animation.adjustSize()
   
     def update_animation_widget_visibility(self):
-        index = self.comboBox_color_scale.currentIndex()
-        if index >= 4:
-            app().main_window.animation_toolbar.setDisabled(True)
-        else:
-            app().main_window.animation_toolbar.setDisabled(False)
+        if not hasattr(self, "animation_widget"):
+            return
+        is_animation = self.comboBox_color_scale.currentText().startswith("Animation")
+        self.animation_widget.setDisabled(not is_animation)
 
     def load_user_preference_colormap(self):
         try:
@@ -142,9 +150,17 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
 
+    def select_first_frequency(self):
+        if self.treeWidget_frequencies.topLevelItemCount() == 0:
+            return
+        item = self.treeWidget_frequencies.topLevelItem(0)
+        self.treeWidget_frequencies.setCurrentItem(item)
+        self.on_click_item(item)
+
     def on_click_item(self, item):
         self.selected_natural_frequency = self.modes_to_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
+        self.animation_widget.reset_sliders()
         self.update_plot()
 
     def on_doubleclick_item(self, item):
