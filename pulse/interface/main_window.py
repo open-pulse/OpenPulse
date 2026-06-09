@@ -591,11 +591,9 @@ class MainWindow(MainWindow_UI):
         self.mesh_toolbar.setDisabled(True)
         self.view_toolbar.enable_selection_tool()
 
-        self.action_geometry_editor_workspace.setEnabled(False)
-        if not self.action_model_setup_workspace.isEnabled():
-            self.action_model_setup_workspace.setEnabled(True)
-        elif not self.action_results_workspace.isEnabled():
-            self.action_results_workspace.setEnabled(True)
+        self.action_geometry_editor_workspace.setChecked(True)
+        self.action_model_setup_workspace.setChecked(False)
+        self.action_results_workspace.setChecked(False)
         
         self.setup_widgets_stack.setVisible(True)
 
@@ -613,11 +611,9 @@ class MainWindow(MainWindow_UI):
         self.analysis_toolbar.setDisabled(False)
         self.view_toolbar.enable_selection_tool()
 
-        self.action_model_setup_workspace.setEnabled(False)
-        if not self.action_geometry_editor_workspace.isEnabled():
-            self.action_geometry_editor_workspace.setEnabled(True)
-        elif not self.action_results_workspace.isEnabled():
-            self.action_results_workspace.setEnabled(True)
+        self.action_model_setup_workspace.setChecked(True)
+        self.action_geometry_editor_workspace.setChecked(False)
+        self.action_results_workspace.setChecked(False)
 
         self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
@@ -633,11 +629,9 @@ class MainWindow(MainWindow_UI):
         self.results_viewer_widget.update_visibility_items()
         self.view_toolbar.disable_selection_tool()
 
-        self.action_results_workspace.setEnabled(False)
-        if not self.action_geometry_editor_workspace.isEnabled():
-            self.action_geometry_editor_workspace.setEnabled(True)
-        elif not self.action_model_setup_workspace.isEnabled():
-            self.action_model_setup_workspace.setEnabled(True)
+        self.action_results_workspace.setChecked(True)
+        self.action_geometry_editor_workspace.setChecked(False)
+        self.action_model_setup_workspace.setChecked(False)
 
         self.geometry_input_wigdet.setVisible(False)
         self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
@@ -815,7 +809,13 @@ class MainWindow(MainWindow_UI):
         self._add_view_toolbar()
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
-        # self.update_toolbars_stylesheets()
+        self._configure_workspace_buttons()
+
+    def _configure_workspace_buttons(self):
+        self.action_geometry_editor_workspace.setCheckable(True)
+        self.action_model_setup_workspace.setCheckable(True)
+        self.action_results_workspace.setCheckable(True)
+        self.action_results_workspace.setEnabled(False)
     
     def set_toolbars_visible(self, visible: bool):
         toolbars = self.findChildren(QToolBar)
