@@ -56,10 +56,10 @@ class WelcomeWidget(QWidget):
     def setup_labels(self, layout):
         labels_layout = QHBoxLayout()
 
-        new_item = WelcomeItem("New", QIcon(str(ICON_DIR / "common/new_file.png")))
+        new_item = WelcomeItem("New Project", QIcon(str(ICON_DIR / "common/new_file.png")))
         new_item.clicked.connect(self.new_project)
 
-        open_item = WelcomeItem("Open", QIcon(str(ICON_DIR / "common/import.png")))
+        open_item = WelcomeItem("Open Project", QIcon(str(ICON_DIR / "common/import.png")))
         open_item.clicked.connect(self.open_project)
 
         labels_layout.addWidget(new_item)

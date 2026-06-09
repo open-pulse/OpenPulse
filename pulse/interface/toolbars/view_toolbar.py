@@ -81,16 +81,6 @@ class ViewToolbar(QToolBar):
         sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
         self.setSizePolicy(sizePolicy)
 
-        self.setStyleSheet(
-            """
-            QToolBar {
-                border-style: solid;
-                border-width: 1px;
-                border-color: #888888;
-            }
-            """
-        )
-
     def _configure_widgets(self):
         self.action_selection_tool.setCheckable(True)
         self.action_grab_tool.setCheckable(True)

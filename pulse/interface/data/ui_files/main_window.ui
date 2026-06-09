@@ -22,6 +22,18 @@
     <string notr="true"/>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>4</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>4</number>
+    </property>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="lineWidth">
@@ -97,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>1044</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -181,17 +193,9 @@
    <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="tool_bar">
+  <widget class="QToolBar" name="main_toolbar">
    <property name="windowTitle">
     <string>Main toolbar</string>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QToolBar {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #888888;
-}
-</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -219,15 +223,7 @@
   </widget>
   <widget class="QToolBar" name="workspaces_toolbar">
    <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QToolBar {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #888888;
-}
-</string>
+    <string>Workspaces toolbar</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
