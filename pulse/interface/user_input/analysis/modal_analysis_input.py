@@ -44,7 +44,7 @@ class ModalAnalysisInput(ModalAnalysis_UI):
             self.label_title.setText("Structural modal analysis setup")
 
     def _create_connections(self):
-        self.pushButton_run_analysis.clicked.connect(self.run_analysis)
+        self.pushButton_run_analysis.clicked.connect(self.run_analysis_callback)
         self.pushButton_enter_setup.clicked.connect(self.enter_setup_callback)
 
     def _load_analysis_setup(self):
@@ -118,8 +118,7 @@ class ModalAnalysisInput(ModalAnalysis_UI):
         app().main_window.analysis_toolbar.enable_pushbutons.emit()
         self.close()
 
-    def run_analysis(self):
-
+    def run_analysis_callback(self):
         if self.enter_setup_callback():
             return
 
@@ -130,6 +129,7 @@ class ModalAnalysisInput(ModalAnalysis_UI):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.run_analysis()
+            self.run_analysis_callback()
+
         elif event.key() == Qt.Key_Escape:
             self.close()

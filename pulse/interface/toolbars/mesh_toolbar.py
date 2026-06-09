@@ -111,16 +111,6 @@ class MeshToolbar(QToolBar):
         for widget in widgets:
             widget.setFont(font)
 
-        self.setStyleSheet(
-            """
-            QToolBar {
-                border-style: solid;
-                border-width: 1px;
-                border-color: #888888;
-            }
-            """
-        )
-
     def _create_connections(self):
         #
         self.lineEdit_element_size.textEdited.connect(self.change_button_visibility)

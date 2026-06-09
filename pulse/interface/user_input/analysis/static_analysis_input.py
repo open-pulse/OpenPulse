@@ -80,5 +80,6 @@ class StaticAnalysisInput(StaticAnalysis_UI):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.run_analysis_callback()
+
         elif event.key() == Qt.Key_Escape:
             self.close()
