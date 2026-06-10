@@ -1,4 +1,5 @@
 
+from pulse.utils.interface_utils import block_signals
 import logging
 import os
 from functools import partial
@@ -77,7 +78,7 @@ class MainWindow(MainWindow_UI):
         self.selected_elements = set()
 
         self.visualization_filter = VisualizationFilter.all_true()
-        self.selection_filter = SelectionFilter.all_false()
+        self.selection_filter = SelectionFilter.all_true()
         self.filter_tab_scroll_by_wheel()
         
         self.ui_dir = UI_DIR
@@ -524,29 +525,61 @@ class MainWindow(MainWindow_UI):
     def _configure_visualization(self, *args, **kwargs):
         kwargs.setdefault("color_mode", self.visualization_filter.color_mode)
 
-        self.visualization_filter = VisualizationFilter(*args, **kwargs)
-        self.action_show_geometry_data.setChecked(self.visualization_filter.points)
-        self.action_show_mesh_data.setChecked(self.visualization_filter.nodes)
-        self.action_show_lines.setChecked(self.visualization_filter.lines)
-        self.action_show_tubes.setChecked(self.visualization_filter.tubes)
-        symbols = self.visualization_filter.acoustic_symbols | self.visualization_filter.structural_symbols
-        self.action_show_symbols.setChecked(symbols)
+        if visualization_filter := self.get_current_visualization_filter():
+            self.apply_visualization_filter(visualization_filter)
+
         self.visualization_changed.emit()
         self._update_visualization()
 
     def _update_visualization(self):
-        symbols = self.action_show_symbols.isChecked()
-        self.visualization_filter.nodes = self.action_show_mesh_data.isChecked()
-        self.visualization_filter.points = self.action_show_geometry_data.isChecked()
-        self.visualization_filter.tubes = self.action_show_tubes.isChecked()
-        self.visualization_filter.lines = self.action_show_lines.isChecked()
-        self.visualization_filter.transparent = self.action_show_transparent.isChecked()
-        self.visualization_filter.acoustic_symbols = symbols
-        self.visualization_filter.structural_symbols = symbols
-        self.selection_filter.nodes = self.visualization_filter.nodes | self.visualization_filter.points
-        self.selection_filter.elements = self.visualization_filter.nodes
-        self.selection_filter.lines = not self.selection_filter.elements
+        if visualization_filter := self.get_current_visualization_filter():
+            self.update_visualization_filter(visualization_filter)
+        
+        if selection_filter := self.get_current_selection_filter():
+            self.update_selection_filter(selection_filter)
+
         self.visualization_changed.emit()
+
+    def get_current_render_widget(self) -> CommonRenderWidget | None:
+        return self.render_widgets_stack.currentWidget()
+
+    def get_current_visualization_filter(self) -> VisualizationFilter | None:
+        render_widget = self.get_current_render_widget()
+        if not hasattr(render_widget, "visualization_filter"):
+            return None
+        return render_widget.visualization_filter
+
+    def get_current_selection_filter(self) -> SelectionFilter | None:
+        render_widget = self.get_current_render_widget()
+        if not hasattr(render_widget, "selection_filter"):
+            return None
+        return render_widget.selection_filter
+
+    def apply_visualization_filter(self, filter: VisualizationFilter):
+        with block_signals(self):
+            self.action_show_geometry_data.setChecked(filter.points)
+            self.action_show_mesh_data.setChecked(filter.nodes)
+            self.action_show_lines.setChecked(filter.lines)
+            self.action_show_tubes.setChecked(filter.tubes)
+            self.action_show_symbols.setChecked(filter.acoustic_symbols | filter.structural_symbols)
+
+    def update_visualization_filter(self, filter: VisualizationFilter):
+        filter.nodes = self.action_show_mesh_data.isChecked()
+        filter.points = self.action_show_geometry_data.isChecked()
+        filter.tubes = self.action_show_tubes.isChecked()
+        filter.lines = self.action_show_lines.isChecked()
+        filter.transparent = self.action_show_transparent.isChecked()
+        filter.acoustic_symbols = self.action_show_symbols.isChecked()
+        filter.structural_symbols = self.action_show_symbols.isChecked()
+    
+    def update_selection_filter(self, filter: SelectionFilter):
+        filter.nodes = self.action_show_mesh_data.isChecked() | self.action_show_geometry_data.isChecked()
+        filter.elements = self.action_show_mesh_data.isChecked()
+        filter.lines = not self.action_show_mesh_data.isChecked()
+
+    def reload_visualization_filter(self):
+        if visualization_filter := self.get_current_visualization_filter():
+            self.apply_visualization_filter(visualization_filter)
 
     def _load_section_plane(self):
         self.section_plane = SectionPlaneWidget()
@@ -577,28 +610,23 @@ class MainWindow(MainWindow_UI):
         CheckREFPROP()
 
     def action_geometry_editor_workspace_callback(self):
-
         self.clear_selection()
-        self._configure_visualization(
-            points=True, lines=True, tubes=True,
-            acoustic_symbols=self.visualization_filter.acoustic_symbols,
-            structural_symbols=self.visualization_filter.structural_symbols,
-        )
         self.close_dialogs()
+
         self.main_toolbar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
         self.view_toolbar.enable_selection_tool()
+        self.setup_widgets_stack.setVisible(True)
 
         self.action_geometry_editor_workspace.setChecked(True)
         self.action_model_setup_workspace.setChecked(False)
         self.action_results_workspace.setChecked(False)
-        
-        self.setup_widgets_stack.setVisible(True)
 
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
+        self.reload_visualization_filter()
 
     def action_model_setup_workspace_callback(self):
         self.setup_widgets_stack.setVisible(True)
@@ -615,9 +643,9 @@ class MainWindow(MainWindow_UI):
 
         self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
+        self.reload_visualization_filter()
 
     def action_results_workspace_callback(self):
-
         if not self.project.is_the_solution_finished():
             return
 
@@ -633,7 +661,7 @@ class MainWindow(MainWindow_UI):
         self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
         self.results_viewer_widget.update_visibility_items()
-        self._configure_visualization(tubes=True)
+        self.reload_visualization_filter()
 
     def update_results_workspace_button_accessibility(self, solution_exists: bool | None = None):
         if solution_exists is None:

@@ -17,13 +17,7 @@ class GeometryRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.set_interactor_style(BoxSelectionInteractorStyle())
-        self.visualization_filter = VisualizationFilter(
-            points=True,
-            lines=True,
-            tubes=True,
-            acoustic_symbols=True,
-            structural_symbols=True,
-        )
+        self.visualization_filter = VisualizationFilter(points=True, tubes=True)
 
         self.pipeline = app().project.pipeline
 
@@ -162,7 +156,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         if not self._actor_exists():
             return
 
-        visualization = app().main_window.visualization_filter
+        visualization = self.visualization_filter
         self.control_points_actor.SetVisibility(visualization.points)
         self.staged_points_actor.SetVisibility(visualization.points)
         self.selected_points_actor.SetVisibility(visualization.points)
