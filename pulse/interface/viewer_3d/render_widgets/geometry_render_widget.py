@@ -1,16 +1,14 @@
-from vtkmodules.vtkRenderingCore import vtkActor
-
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QApplication
-
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
-
-from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorStagedPointsActor, EditorSelectedPointsActor
-from pulse.interface.viewer_3d.render_tools import SelectionTool
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QApplication
+from vtkmodules.vtkRenderingCore import vtkActor
 
 from pulse import ICON_DIR, app
+from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorSelectedPointsActor, EditorStagedPointsActor
+from pulse.interface.viewer_3d.render_tools import SelectionTool
+from pulse.utils.interface_utils import VisualizationFilter
 
 
 class GeometryRenderWidget(CommonRenderWidget):
@@ -19,6 +17,13 @@ class GeometryRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.set_interactor_style(BoxSelectionInteractorStyle())
+        self.visualization_filter = VisualizationFilter(
+            points=True,
+            lines=True,
+            tubes=True,
+            acoustic_symbols=True,
+            structural_symbols=True,
+        )
 
         self.pipeline = app().project.pipeline
 
@@ -36,18 +41,16 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.create_logos()
         self.create_camera_light(0.1, 0.1)
         self.set_default_render_tool()
-    
+
         self.apply_user_preferences()
         self._create_connections()
         self.update_plot()
-    
+
     def _create_connections(self):
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
         app().main_window.theme_changed.connect(self.set_theme)
-        app().main_window.visualization_changed.connect(
-            self.visualization_changed_callback
-        )
+        app().main_window.visualization_changed.connect(self.visualization_changed_callback)
 
     def update_plot(self, reset_camera=True):
         self.remove_actors()
@@ -73,10 +76,10 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.update()
 
     def set_theme(self, *args, **kwargs):
-        """ It's necessary because if this function doesn't exist
-            CommomRenderWidget will call it's own set_theme function in
-            it's constructor """
-        
+        """It's necessary because if this function doesn't exist
+        CommomRenderWidget will call it's own set_theme function in
+        it's constructor"""
+
         self.update_theme()
 
     def update_theme(self):
@@ -106,18 +109,18 @@ class GeometryRenderWidget(CommonRenderWidget):
         if hasattr(self, "scale_bar_actor"):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
-        
+
     def apply_user_preferences(self):
         self.update_open_pulse_logo_visibility()
         self.update_renderer_font_size()
-        
+
     def update_renderer_font_size(self):
         user_preferences = app().main_window.config.user_preferences
-        font_size_px = int(user_preferences.renderer_font_size * 4/3)
+        font_size_px = int(user_preferences.renderer_font_size * 4 / 3)
 
         info_text_property = self.text_actor.GetTextProperty()
         info_text_property.SetFontSize(font_size_px)
-    
+
     def update_open_pulse_logo_visibility(self):
         user_preferences = app().main_window.config.user_preferences
         if user_preferences.show_open_pulse_logo:
@@ -194,7 +197,7 @@ class GeometryRenderWidget(CommonRenderWidget):
     def selection_callback(self, x, y):
         if not isinstance(self.interactor_style, SelectionTool):
             return
-        
+
         if not self.interactor_style.is_selecting:
             return
 
@@ -294,7 +297,7 @@ class GeometryRenderWidget(CommonRenderWidget):
     def update_selection(self):
         self.selection_changed.emit()
         self.update_plot(reset_camera=False)
-    
+
     def set_default_render_tool(self):
         tool = SelectionTool()
         self.set_interactor_style(tool)
