@@ -31,21 +31,15 @@ from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.toolbars.view_toolbar import ViewToolbar
 from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
 from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
-from pulse.interface.user_input.data_handler.file_dialog_service import (
-    FileDialogService,
-)
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.input_ui import InputUi
-from pulse.interface.user_input.model.geometry.geometry_designer_widget import (
-    GeometryDesignerWidget,
-)
+from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
-from pulse.interface.user_input.project.save_project_data_selector import (
-    SaveProjectDataSelector,
-)
+from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 from pulse.interface.viewer_3d.render_widgets import (
     GeometryRenderWidget,
