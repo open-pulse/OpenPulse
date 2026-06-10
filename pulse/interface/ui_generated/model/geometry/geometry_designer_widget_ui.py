@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'geometry_designer_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -173,45 +173,6 @@ class Ui_Form(object):
         self.frame_bounding_box_sizes.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_10 = QGridLayout(self.frame_bounding_box_sizes)
         self.gridLayout_10.setObjectName(u"gridLayout_10")
-        self.z_line_edit = QLineEdit(self.frame_bounding_box_sizes)
-        self.z_line_edit.setObjectName(u"z_line_edit")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.z_line_edit.sizePolicy().hasHeightForWidth())
-        self.z_line_edit.setSizePolicy(sizePolicy)
-        self.z_line_edit.setMinimumSize(QSize(160, 26))
-        self.z_line_edit.setMaximumSize(QSize(160, 26))
-        self.z_line_edit.setFont(font)
-        self.z_line_edit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-        self.z_line_edit.setClearButtonEnabled(True)
-
-        self.gridLayout_10.addWidget(self.z_line_edit, 4, 2, 1, 1)
-
-        self.unity_x_label = QLabel(self.frame_bounding_box_sizes)
-        self.unity_x_label.setObjectName(u"unity_x_label")
-        self.unity_x_label.setMinimumSize(QSize(50, 0))
-        self.unity_x_label.setMaximumSize(QSize(50, 16777215))
-        self.unity_x_label.setFont(font)
-
-        self.gridLayout_10.addWidget(self.unity_x_label, 2, 3, 1, 1)
-
-        self.sizes_coords_label = QLabel(self.frame_bounding_box_sizes)
-        self.sizes_coords_label.setObjectName(u"sizes_coords_label")
-        self.sizes_coords_label.setFont(font1)
-        self.sizes_coords_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_10.addWidget(self.sizes_coords_label, 0, 2, 1, 1)
-
-        self.dx_label = QLabel(self.frame_bounding_box_sizes)
-        self.dx_label.setObjectName(u"dx_label")
-        self.dx_label.setMinimumSize(QSize(120, 26))
-        self.dx_label.setMaximumSize(QSize(120, 26))
-        self.dx_label.setFont(font)
-        self.dx_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_10.addWidget(self.dx_label, 2, 1, 1, 1)
-
         self.unity_y_label = QLabel(self.frame_bounding_box_sizes)
         self.unity_y_label.setObjectName(u"unity_y_label")
         self.unity_y_label.setMinimumSize(QSize(50, 0))
@@ -220,22 +181,20 @@ class Ui_Form(object):
 
         self.gridLayout_10.addWidget(self.unity_y_label, 3, 3, 1, 1)
 
-        self.unity_z_label = QLabel(self.frame_bounding_box_sizes)
-        self.unity_z_label.setObjectName(u"unity_z_label")
-        self.unity_z_label.setMinimumSize(QSize(50, 0))
-        self.unity_z_label.setMaximumSize(QSize(50, 16777215))
-        self.unity_z_label.setFont(font)
+        self.y_line_edit = QLineEdit(self.frame_bounding_box_sizes)
+        self.y_line_edit.setObjectName(u"y_line_edit")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.y_line_edit.sizePolicy().hasHeightForWidth())
+        self.y_line_edit.setSizePolicy(sizePolicy)
+        self.y_line_edit.setMinimumSize(QSize(160, 26))
+        self.y_line_edit.setMaximumSize(QSize(160, 26))
+        self.y_line_edit.setFont(font)
+        self.y_line_edit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.y_line_edit.setClearButtonEnabled(True)
 
-        self.gridLayout_10.addWidget(self.unity_z_label, 4, 3, 1, 1)
-
-        self.dy_label = QLabel(self.frame_bounding_box_sizes)
-        self.dy_label.setObjectName(u"dy_label")
-        self.dy_label.setMinimumSize(QSize(120, 26))
-        self.dy_label.setMaximumSize(QSize(120, 26))
-        self.dy_label.setFont(font)
-        self.dy_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_10.addWidget(self.dy_label, 3, 1, 1, 1)
+        self.gridLayout_10.addWidget(self.y_line_edit, 3, 2, 1, 1)
 
         self.x_line_edit = QLineEdit(self.frame_bounding_box_sizes)
         self.x_line_edit.setObjectName(u"x_line_edit")
@@ -249,6 +208,30 @@ class Ui_Form(object):
 
         self.gridLayout_10.addWidget(self.x_line_edit, 2, 2, 1, 1)
 
+        self.horizontalSpacer_15 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_10.addItem(self.horizontalSpacer_15, 1, 5, 1, 1)
+
+        self.dx_label = QLabel(self.frame_bounding_box_sizes)
+        self.dx_label.setObjectName(u"dx_label")
+        self.dx_label.setMinimumSize(QSize(120, 26))
+        self.dx_label.setMaximumSize(QSize(120, 26))
+        self.dx_label.setFont(font)
+        self.dx_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_10.addWidget(self.dx_label, 2, 1, 1, 1)
+
+        self.horizontalSpacer_14 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_10.addItem(self.horizontalSpacer_14, 1, 0, 1, 1)
+
+        self.sizes_coords_label = QLabel(self.frame_bounding_box_sizes)
+        self.sizes_coords_label.setObjectName(u"sizes_coords_label")
+        self.sizes_coords_label.setFont(font1)
+        self.sizes_coords_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_10.addWidget(self.sizes_coords_label, 0, 2, 1, 1)
+
         self.length_x_label = QLabel(self.frame_bounding_box_sizes)
         self.length_x_label.setObjectName(u"length_x_label")
         self.length_x_label.setMinimumSize(QSize(50, 0))
@@ -257,26 +240,48 @@ class Ui_Form(object):
 
         self.gridLayout_10.addWidget(self.length_x_label, 1, 3, 1, 1)
 
-        self.y_line_edit = QLineEdit(self.frame_bounding_box_sizes)
-        self.y_line_edit.setObjectName(u"y_line_edit")
-        sizePolicy.setHeightForWidth(self.y_line_edit.sizePolicy().hasHeightForWidth())
-        self.y_line_edit.setSizePolicy(sizePolicy)
-        self.y_line_edit.setMinimumSize(QSize(160, 26))
-        self.y_line_edit.setMaximumSize(QSize(160, 26))
-        self.y_line_edit.setFont(font)
-        self.y_line_edit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-        self.y_line_edit.setClearButtonEnabled(True)
+        self.unity_x_label = QLabel(self.frame_bounding_box_sizes)
+        self.unity_x_label.setObjectName(u"unity_x_label")
+        self.unity_x_label.setMinimumSize(QSize(50, 0))
+        self.unity_x_label.setMaximumSize(QSize(50, 16777215))
+        self.unity_x_label.setFont(font)
 
-        self.gridLayout_10.addWidget(self.y_line_edit, 3, 2, 1, 1)
+        self.gridLayout_10.addWidget(self.unity_x_label, 2, 3, 1, 1)
 
-        self.dz_label = QLabel(self.frame_bounding_box_sizes)
-        self.dz_label.setObjectName(u"dz_label")
-        self.dz_label.setMinimumSize(QSize(120, 26))
-        self.dz_label.setMaximumSize(QSize(120, 26))
-        self.dz_label.setFont(font)
-        self.dz_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.invert_y_sign = QPushButton(self.frame_bounding_box_sizes)
+        self.invert_y_sign.setObjectName(u"invert_y_sign")
+        sizePolicy.setHeightForWidth(self.invert_y_sign.sizePolicy().hasHeightForWidth())
+        self.invert_y_sign.setSizePolicy(sizePolicy)
+        self.invert_y_sign.setMaximumSize(QSize(40, 16777215))
+        self.invert_y_sign.setAutoDefault(False)
 
-        self.gridLayout_10.addWidget(self.dz_label, 4, 1, 1, 1)
+        self.gridLayout_10.addWidget(self.invert_y_sign, 3, 5, 1, 1)
+
+        self.unity_z_label = QLabel(self.frame_bounding_box_sizes)
+        self.unity_z_label.setObjectName(u"unity_z_label")
+        self.unity_z_label.setMinimumSize(QSize(50, 0))
+        self.unity_z_label.setMaximumSize(QSize(50, 16777215))
+        self.unity_z_label.setFont(font)
+
+        self.gridLayout_10.addWidget(self.unity_z_label, 4, 3, 1, 1)
+
+        self.invert_z_sign = QPushButton(self.frame_bounding_box_sizes)
+        self.invert_z_sign.setObjectName(u"invert_z_sign")
+        sizePolicy.setHeightForWidth(self.invert_z_sign.sizePolicy().hasHeightForWidth())
+        self.invert_z_sign.setSizePolicy(sizePolicy)
+        self.invert_z_sign.setMaximumSize(QSize(40, 16777215))
+        self.invert_z_sign.setAutoDefault(False)
+
+        self.gridLayout_10.addWidget(self.invert_z_sign, 4, 5, 1, 1)
+
+        self.dy_label = QLabel(self.frame_bounding_box_sizes)
+        self.dy_label.setObjectName(u"dy_label")
+        self.dy_label.setMinimumSize(QSize(120, 26))
+        self.dy_label.setMaximumSize(QSize(120, 26))
+        self.dy_label.setFont(font)
+        self.dy_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_10.addWidget(self.dy_label, 3, 1, 1, 1)
 
         self.dx_label_2 = QLabel(self.frame_bounding_box_sizes)
         self.dx_label_2.setObjectName(u"dx_label_2")
@@ -286,6 +291,27 @@ class Ui_Form(object):
         self.dx_label_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_10.addWidget(self.dx_label_2, 1, 1, 1, 1)
+
+        self.z_line_edit = QLineEdit(self.frame_bounding_box_sizes)
+        self.z_line_edit.setObjectName(u"z_line_edit")
+        sizePolicy.setHeightForWidth(self.z_line_edit.sizePolicy().hasHeightForWidth())
+        self.z_line_edit.setSizePolicy(sizePolicy)
+        self.z_line_edit.setMinimumSize(QSize(160, 26))
+        self.z_line_edit.setMaximumSize(QSize(160, 26))
+        self.z_line_edit.setFont(font)
+        self.z_line_edit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.z_line_edit.setClearButtonEnabled(True)
+
+        self.gridLayout_10.addWidget(self.z_line_edit, 4, 2, 1, 1)
+
+        self.dz_label = QLabel(self.frame_bounding_box_sizes)
+        self.dz_label.setObjectName(u"dz_label")
+        self.dz_label.setMinimumSize(QSize(120, 26))
+        self.dz_label.setMaximumSize(QSize(120, 26))
+        self.dz_label.setFont(font)
+        self.dz_label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_10.addWidget(self.dz_label, 4, 1, 1, 1)
 
         self.length_line_edit = QLineEdit(self.frame_bounding_box_sizes)
         self.length_line_edit.setObjectName(u"length_line_edit")
@@ -298,32 +324,6 @@ class Ui_Form(object):
         self.length_line_edit.setClearButtonEnabled(True)
 
         self.gridLayout_10.addWidget(self.length_line_edit, 1, 2, 1, 1)
-
-        self.invert_y_sign = QPushButton(self.frame_bounding_box_sizes)
-        self.invert_y_sign.setObjectName(u"invert_y_sign")
-        sizePolicy.setHeightForWidth(self.invert_y_sign.sizePolicy().hasHeightForWidth())
-        self.invert_y_sign.setSizePolicy(sizePolicy)
-        self.invert_y_sign.setMaximumSize(QSize(40, 16777215))
-        self.invert_y_sign.setAutoDefault(False)
-
-        self.gridLayout_10.addWidget(self.invert_y_sign, 3, 5, 1, 1)
-
-        self.invert_z_sign = QPushButton(self.frame_bounding_box_sizes)
-        self.invert_z_sign.setObjectName(u"invert_z_sign")
-        sizePolicy.setHeightForWidth(self.invert_z_sign.sizePolicy().hasHeightForWidth())
-        self.invert_z_sign.setSizePolicy(sizePolicy)
-        self.invert_z_sign.setMaximumSize(QSize(40, 16777215))
-        self.invert_z_sign.setAutoDefault(False)
-
-        self.gridLayout_10.addWidget(self.invert_z_sign, 4, 5, 1, 1)
-
-        self.horizontalSpacer_15 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_10.addItem(self.horizontalSpacer_15, 1, 5, 1, 1)
-
-        self.horizontalSpacer_14 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_10.addItem(self.horizontalSpacer_14, 1, 0, 1, 1)
 
         self.invert_x_sign = QPushButton(self.frame_bounding_box_sizes)
         self.invert_x_sign.setObjectName(u"invert_x_sign")
@@ -827,30 +827,30 @@ class Ui_Form(object):
         self.bending_radius_label.setText(QCoreApplication.translate("Form", u"Bending radius:", None))
         self.bending_radius_unity_label.setText(QCoreApplication.translate("Form", u"[m]", None))
         self.bending_options_label.setText(QCoreApplication.translate("Form", u"Bending Options", None))
-#if QT_CONFIG(tooltip)
-        self.z_line_edit.setToolTip(QCoreApplication.translate("Form", u"Defines the structure segment length component along the global Z-axis.", None))
-#endif // QT_CONFIG(tooltip)
-        self.unity_x_label.setText(QCoreApplication.translate("Form", u"[m]", None))
-        self.sizes_coords_label.setText(QCoreApplication.translate("Form", u"Bounding Box Sizes", None))
-        self.dx_label.setText(QCoreApplication.translate("Form", u"Length \u0394X:", None))
         self.unity_y_label.setText(QCoreApplication.translate("Form", u"[m]", None))
-        self.unity_z_label.setText(QCoreApplication.translate("Form", u"[m]", None))
-        self.dy_label.setText(QCoreApplication.translate("Form", u"Length \u0394Y:", None))
-#if QT_CONFIG(tooltip)
-        self.x_line_edit.setToolTip(QCoreApplication.translate("Form", u"Defines the structure segment length component along the global X-axis.", None))
-#endif // QT_CONFIG(tooltip)
-        self.length_x_label.setText(QCoreApplication.translate("Form", u"[m]", None))
 #if QT_CONFIG(tooltip)
         self.y_line_edit.setToolTip(QCoreApplication.translate("Form", u"Defines the structure segment length component along the global Y-axis.", None))
 #endif // QT_CONFIG(tooltip)
-        self.dz_label.setText(QCoreApplication.translate("Form", u"Length \u0394Z:", None))
+#if QT_CONFIG(tooltip)
+        self.x_line_edit.setToolTip(QCoreApplication.translate("Form", u"Defines the structure segment length component along the global X-axis.", None))
+#endif // QT_CONFIG(tooltip)
+        self.dx_label.setText(QCoreApplication.translate("Form", u"Length \u0394X:", None))
+        self.sizes_coords_label.setText(QCoreApplication.translate("Form", u"Bounding Box Sizes", None))
+        self.length_x_label.setText(QCoreApplication.translate("Form", u"[m]", None))
+        self.unity_x_label.setText(QCoreApplication.translate("Form", u"[m]", None))
+        self.invert_y_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
+        self.unity_z_label.setText(QCoreApplication.translate("Form", u"[m]", None))
+        self.invert_z_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
+        self.dy_label.setText(QCoreApplication.translate("Form", u"Length \u0394Y:", None))
         self.dx_label_2.setText(QCoreApplication.translate("Form", u"Total length:", None))
+#if QT_CONFIG(tooltip)
+        self.z_line_edit.setToolTip(QCoreApplication.translate("Form", u"Defines the structure segment length component along the global Z-axis.", None))
+#endif // QT_CONFIG(tooltip)
+        self.dz_label.setText(QCoreApplication.translate("Form", u"Length \u0394Z:", None))
 #if QT_CONFIG(tooltip)
         self.length_line_edit.setToolTip(QCoreApplication.translate("Form", u"Sets the structure segment length along its current trajectory.\n"
 "(Active at endpoints only).", None))
 #endif // QT_CONFIG(tooltip)
-        self.invert_y_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
-        self.invert_z_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
         self.invert_x_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
         self.label_4.setText(QCoreApplication.translate("Form", u"Division type:", None))
         self.division_combobox.setItemText(0, QCoreApplication.translate("Form", u"Single Division", None))
@@ -935,21 +935,21 @@ class GeometryDesignerWidget_UI(QDialog, Ui_Form):
                                                         - bending_options_label: QLabel
                                             - frame_bounding_box_sizes: QFrame
                                                 - (Layout): QGridLayout
-                                                        - z_line_edit: QLineEdit
-                                                        - unity_x_label: QLabel
-                                                        - sizes_coords_label: QLabel
-                                                        - dx_label: QLabel
                                                         - unity_y_label: QLabel
-                                                        - unity_z_label: QLabel
-                                                        - dy_label: QLabel
-                                                        - x_line_edit: QLineEdit
-                                                        - length_x_label: QLabel
                                                         - y_line_edit: QLineEdit
-                                                        - dz_label: QLabel
-                                                        - dx_label_2: QLabel
-                                                        - length_line_edit: QLineEdit
+                                                        - x_line_edit: QLineEdit
+                                                        - dx_label: QLabel
+                                                        - sizes_coords_label: QLabel
+                                                        - length_x_label: QLabel
+                                                        - unity_x_label: QLabel
                                                         - invert_y_sign: QPushButton
+                                                        - unity_z_label: QLabel
                                                         - invert_z_sign: QPushButton
+                                                        - dy_label: QLabel
+                                                        - dx_label_2: QLabel
+                                                        - z_line_edit: QLineEdit
+                                                        - dz_label: QLabel
+                                                        - length_line_edit: QLineEdit
                                                         - invert_x_sign: QPushButton
                                 - frame_division_options: QFrame
                                     - (Layout): QGridLayout
