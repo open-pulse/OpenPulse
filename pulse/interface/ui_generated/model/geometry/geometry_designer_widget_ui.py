@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'geometry_designer_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -21,12 +21,13 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
     QPushButton, QScrollArea, QSizePolicy, QSlider,
     QSpacerItem, QSpinBox, QStackedWidget, QVBoxLayout,
     QWidget)
+import resources_rc
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(487, 802)
+        Form.resize(648, 846)
         Form.setMinimumSize(QSize(0, 0))
         self.select_all_action = QAction(Form)
         self.select_all_action.setObjectName(u"select_all_action")
@@ -42,7 +43,7 @@ class Ui_Form(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 464, 762))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 642, 794))
         self.gridLayout_4 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(4, 4, 4, 4)
@@ -357,40 +358,67 @@ class Ui_Form(object):
 
         self.gridLayout_3.addWidget(self.frame_5, 3, 2, 1, 1)
 
-        self.frame_4 = QFrame(self.frame_division_options)
-        self.frame_4.setObjectName(u"frame_4")
-        self.frame_4.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
-        self.gridLayout_7 = QGridLayout(self.frame_4)
-        self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.cancel_division_button = QPushButton(self.frame_4)
-        self.cancel_division_button.setObjectName(u"cancel_division_button")
-        self.cancel_division_button.setMinimumSize(QSize(72, 26))
-        self.cancel_division_button.setMaximumSize(QSize(72, 16777215))
-        self.cancel_division_button.setFont(font)
+        self.frame_3 = QFrame(self.frame_division_options)
+        self.frame_3.setObjectName(u"frame_3")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
+        self.frame_3.setSizePolicy(sizePolicy1)
+        self.frame_3.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
+        self.gridLayout_11 = QGridLayout(self.frame_3)
+        self.gridLayout_11.setObjectName(u"gridLayout_11")
+        self.label_4 = QLabel(self.frame_3)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setMinimumSize(QSize(120, 26))
+        self.label_4.setMaximumSize(QSize(120, 26))
+        self.label_4.setFont(font)
+        self.label_4.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_7.addWidget(self.cancel_division_button, 0, 0, 1, 1)
+        self.gridLayout_11.addWidget(self.label_4, 1, 1, 1, 1)
 
-        self.apply_division_button = QPushButton(self.frame_4)
-        self.apply_division_button.setObjectName(u"apply_division_button")
-        self.apply_division_button.setMinimumSize(QSize(72, 26))
-        self.apply_division_button.setMaximumSize(QSize(72, 16777215))
-        self.apply_division_button.setFont(font)
+        self.division_combobox = QComboBox(self.frame_3)
+        self.division_combobox.addItem("")
+        self.division_combobox.addItem("")
+        self.division_combobox.addItem("")
+        self.division_combobox.setObjectName(u"division_combobox")
+        sizePolicy.setHeightForWidth(self.division_combobox.sizePolicy().hasHeightForWidth())
+        self.division_combobox.setSizePolicy(sizePolicy)
+        self.division_combobox.setMinimumSize(QSize(160, 26))
+        self.division_combobox.setMaximumSize(QSize(160, 26))
+        self.division_combobox.setFont(font)
 
-        self.gridLayout_7.addWidget(self.apply_division_button, 0, 2, 1, 1)
+        self.gridLayout_11.addWidget(self.division_combobox, 1, 2, 1, 1)
 
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.general_options_label_3 = QLabel(self.frame_3)
+        self.general_options_label_3.setObjectName(u"general_options_label_3")
+        self.general_options_label_3.setFont(font1)
+        self.general_options_label_3.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_7.addItem(self.horizontalSpacer_5, 0, 1, 1, 1)
+        self.gridLayout_11.addWidget(self.general_options_label_3, 0, 2, 1, 1)
+
+        self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_11.addItem(self.horizontalSpacer_9, 1, 0, 1, 1)
+
+        self.horizontalSpacer_10 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_11.addItem(self.horizontalSpacer_10, 1, 4, 1, 1)
+
+        self.unity_x_label_2 = QLabel(self.frame_3)
+        self.unity_x_label_2.setObjectName(u"unity_x_label_2")
+        self.unity_x_label_2.setMinimumSize(QSize(50, 0))
+        self.unity_x_label_2.setMaximumSize(QSize(50, 16777215))
+        self.unity_x_label_2.setFont(font)
+
+        self.gridLayout_11.addWidget(self.unity_x_label_2, 1, 3, 1, 1)
 
 
-        self.gridLayout_3.addWidget(self.frame_4, 2, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.frame_3, 0, 0, 1, 3)
 
         self.options_stack_widget = QStackedWidget(self.frame_division_options)
         self.options_stack_widget.setObjectName(u"options_stack_widget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.options_stack_widget.sizePolicy().hasHeightForWidth())
         self.options_stack_widget.setSizePolicy(sizePolicy1)
         self.options_stack_widget.setMinimumSize(QSize(0, 0))
@@ -533,61 +561,36 @@ class Ui_Form(object):
 
         self.options_stack_widget.addWidget(self.page_2)
 
-        self.gridLayout_3.addWidget(self.options_stack_widget, 1, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.options_stack_widget, 1, 0, 1, 3)
 
-        self.frame_3 = QFrame(self.frame_division_options)
-        self.frame_3.setObjectName(u"frame_3")
-        self.frame_3.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
-        self.gridLayout_11 = QGridLayout(self.frame_3)
-        self.gridLayout_11.setObjectName(u"gridLayout_11")
-        self.label_4 = QLabel(self.frame_3)
-        self.label_4.setObjectName(u"label_4")
-        self.label_4.setMinimumSize(QSize(120, 26))
-        self.label_4.setMaximumSize(QSize(120, 26))
-        self.label_4.setFont(font)
-        self.label_4.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.frame_4 = QFrame(self.frame_division_options)
+        self.frame_4.setObjectName(u"frame_4")
+        self.frame_4.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
+        self.gridLayout_7 = QGridLayout(self.frame_4)
+        self.gridLayout_7.setObjectName(u"gridLayout_7")
+        self.apply_division_button = QPushButton(self.frame_4)
+        self.apply_division_button.setObjectName(u"apply_division_button")
+        self.apply_division_button.setMinimumSize(QSize(72, 26))
+        self.apply_division_button.setMaximumSize(QSize(72, 16777215))
+        self.apply_division_button.setFont(font)
 
-        self.gridLayout_11.addWidget(self.label_4, 1, 1, 1, 1)
+        self.gridLayout_7.addWidget(self.apply_division_button, 0, 2, 1, 1)
 
-        self.division_combobox = QComboBox(self.frame_3)
-        self.division_combobox.addItem("")
-        self.division_combobox.addItem("")
-        self.division_combobox.addItem("")
-        self.division_combobox.setObjectName(u"division_combobox")
-        sizePolicy.setHeightForWidth(self.division_combobox.sizePolicy().hasHeightForWidth())
-        self.division_combobox.setSizePolicy(sizePolicy)
-        self.division_combobox.setMinimumSize(QSize(160, 26))
-        self.division_combobox.setMaximumSize(QSize(160, 26))
-        self.division_combobox.setFont(font)
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.gridLayout_11.addWidget(self.division_combobox, 1, 2, 1, 1)
+        self.gridLayout_7.addItem(self.horizontalSpacer_5, 0, 1, 1, 1)
 
-        self.general_options_label_3 = QLabel(self.frame_3)
-        self.general_options_label_3.setObjectName(u"general_options_label_3")
-        self.general_options_label_3.setFont(font1)
-        self.general_options_label_3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.cancel_division_button = QPushButton(self.frame_4)
+        self.cancel_division_button.setObjectName(u"cancel_division_button")
+        self.cancel_division_button.setMinimumSize(QSize(72, 26))
+        self.cancel_division_button.setMaximumSize(QSize(72, 16777215))
+        self.cancel_division_button.setFont(font)
 
-        self.gridLayout_11.addWidget(self.general_options_label_3, 0, 2, 1, 1)
-
-        self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_11.addItem(self.horizontalSpacer_9, 1, 0, 1, 1)
-
-        self.horizontalSpacer_10 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_11.addItem(self.horizontalSpacer_10, 1, 4, 1, 1)
-
-        self.unity_x_label_2 = QLabel(self.frame_3)
-        self.unity_x_label_2.setObjectName(u"unity_x_label_2")
-        self.unity_x_label_2.setMinimumSize(QSize(50, 0))
-        self.unity_x_label_2.setMaximumSize(QSize(50, 16777215))
-        self.unity_x_label_2.setFont(font)
-
-        self.gridLayout_11.addWidget(self.unity_x_label_2, 1, 3, 1, 1)
+        self.gridLayout_7.addWidget(self.cancel_division_button, 0, 0, 1, 1)
 
 
-        self.gridLayout_3.addWidget(self.frame_3, 0, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.frame_4, 2, 0, 1, 3)
 
 
         self.gridLayout_4.addWidget(self.frame_division_options, 7, 0, 1, 1)
@@ -850,8 +853,13 @@ class Ui_Form(object):
         self.invert_y_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
         self.invert_z_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
         self.invert_x_sign.setText(QCoreApplication.translate("Form", u"+/-", None))
-        self.cancel_division_button.setText(QCoreApplication.translate("Form", u"Cancel", None))
-        self.apply_division_button.setText(QCoreApplication.translate("Form", u"Divide", None))
+        self.label_4.setText(QCoreApplication.translate("Form", u"Division type:", None))
+        self.division_combobox.setItemText(0, QCoreApplication.translate("Form", u"Single Division", None))
+        self.division_combobox.setItemText(1, QCoreApplication.translate("Form", u"Multiple Division", None))
+        self.division_combobox.setItemText(2, QCoreApplication.translate("Form", u"Distance from Point", None))
+
+        self.general_options_label_3.setText(QCoreApplication.translate("Form", u"Division Options", None))
+        self.unity_x_label_2.setText("")
         self.position_slider_label.setText(QCoreApplication.translate("Form", u"Postion [%]:", None))
         self.division_slider_label.setText(QCoreApplication.translate("Form", u"Divisions:", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"Selected point:", None))
@@ -867,13 +875,8 @@ class Ui_Form(object):
         self.unity_division_dx_label_2.setText(QCoreApplication.translate("Form", u"[m]", None))
         self.label_5.setText(QCoreApplication.translate("Form", u"Distance:", None))
         self.distance_value_line_edit.setText("")
-        self.label_4.setText(QCoreApplication.translate("Form", u"Division type:", None))
-        self.division_combobox.setItemText(0, QCoreApplication.translate("Form", u"Single Division", None))
-        self.division_combobox.setItemText(1, QCoreApplication.translate("Form", u"Multiple Division", None))
-        self.division_combobox.setItemText(2, QCoreApplication.translate("Form", u"Distance from Point", None))
-
-        self.general_options_label_3.setText(QCoreApplication.translate("Form", u"Division Options", None))
-        self.unity_x_label_2.setText("")
+        self.apply_division_button.setText(QCoreApplication.translate("Form", u"Divide", None))
+        self.cancel_division_button.setText(QCoreApplication.translate("Form", u"Cancel", None))
         self.unit_label.setText(QCoreApplication.translate("Form", u"Unit length:", None))
         self.set_material_button.setText(QCoreApplication.translate("Form", u"Set material", None))
         self.structure_type_label_2.setText(QCoreApplication.translate("Form", u"Structure settings:", None))
@@ -906,103 +909,3 @@ class Ui_Form(object):
         self.finalize_button.setProperty(u"status", QCoreApplication.translate("Form", u"main", None))
     # retranslateUi
 
-
-
-class GeometryDesignerWidget_UI(QDialog, Ui_Form):
-    """
-    Component Hierarchy:
-    - Form: QDialog
-        - (Layout): QVBoxLayout
-                - scrollArea: QScrollArea
-                    - scrollAreaWidgetContents: QWidget
-                        - (Layout): QGridLayout
-                                - create_structure_frame: QFrame
-                                    - (Layout): QGridLayout
-                                            - remove_attach_add_frame: QFrame
-                                                - (Layout): QHBoxLayout
-                                                        - delete_button: QPushButton
-                                                        - attach_button: QPushButton
-                                                        - add_button: QPushButton
-                                            - frame_bending_options: QFrame
-                                                - (Layout): QGridLayout
-                                                        - bending_radius_line_edit: QLineEdit
-                                                        - bending_type_label: QLabel
-                                                        - bending_options_combobox: QComboBox
-                                                        - bending_radius_label: QLabel
-                                                        - bending_radius_unity_label: QLabel
-                                                        - bending_options_label: QLabel
-                                            - frame_bounding_box_sizes: QFrame
-                                                - (Layout): QGridLayout
-                                                        - z_line_edit: QLineEdit
-                                                        - unity_x_label: QLabel
-                                                        - sizes_coords_label: QLabel
-                                                        - dx_label: QLabel
-                                                        - unity_y_label: QLabel
-                                                        - unity_z_label: QLabel
-                                                        - dy_label: QLabel
-                                                        - x_line_edit: QLineEdit
-                                                        - length_x_label: QLabel
-                                                        - y_line_edit: QLineEdit
-                                                        - dz_label: QLabel
-                                                        - dx_label_2: QLabel
-                                                        - length_line_edit: QLineEdit
-                                                        - invert_y_sign: QPushButton
-                                                        - invert_z_sign: QPushButton
-                                                        - invert_x_sign: QPushButton
-                                - frame_division_options: QFrame
-                                    - (Layout): QGridLayout
-                                            - frame_5: QFrame
-                                                - (Layout): QHBoxLayout
-                                            - frame_4: QFrame
-                                                - (Layout): QGridLayout
-                                                        - cancel_division_button: QPushButton
-                                                        - apply_division_button: QPushButton
-                                            - options_stack_widget: QStackedWidget
-                                                - page_9: QWidget
-                                                    - (Layout): QHBoxLayout
-                                                            - position_slider_label: QLabel
-                                                            - position_slider: QSlider
-                                                            - position_spinbox: QSpinBox
-                                                - page_10: QWidget
-                                                    - (Layout): QHBoxLayout
-                                                            - division_slider_label: QLabel
-                                                            - division_slider: QSlider
-                                                            - division_amount_spinbox: QSpinBox
-                                                - page_2: QWidget
-                                                    - (Layout): QGridLayout
-                                                            - label_3: QLabel
-                                                            - selected_point_combo_box: QComboBox
-                                                            - label_6: QLabel
-                                                            - distance_axis_combo_box: QComboBox
-                                                            - unity_division_dx_label_2: QLabel
-                                                            - label_5: QLabel
-                                                            - distance_value_line_edit: QLineEdit
-                                            - frame_3: QFrame
-                                                - (Layout): QGridLayout
-                                                        - label_4: QLabel
-                                                        - division_combobox: QComboBox
-                                                        - general_options_label_3: QLabel
-                                                        - unity_x_label_2: QLabel
-                                - frame_2: QFrame
-                                    - (Layout): QGridLayout
-                                            - frame_general_options: QFrame
-                                                - (Layout): QGridLayout
-                                                        - unit_label: QLabel
-                                                        - set_material_button: QPushButton
-                                                        - structure_type_label_2: QLabel
-                                                        - configure_button: QPushButton
-                                                        - bending_radius_unity_label_2: QLabel
-                                                        - structure_type_label: QLabel
-                                                        - structure_type_label_3: QLabel
-                                                        - unit_combobox: QComboBox
-                                                        - general_options_label: QLabel
-                                                        - structure_combobox: QComboBox
-                - frame: QFrame
-                    - (Layout): QHBoxLayout
-                            - cancel_button: QPushButton
-                            - finalize_button: QPushButton
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setupUi(self)
