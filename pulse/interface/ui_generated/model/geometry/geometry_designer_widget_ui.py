@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'geometry_designer_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.1
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
     QPushButton, QScrollArea, QSizePolicy, QSlider,
     QSpacerItem, QSpinBox, QStackedWidget, QVBoxLayout,
     QWidget)
-import resources_rc
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -909,3 +908,103 @@ class Ui_Form(object):
         self.finalize_button.setProperty(u"status", QCoreApplication.translate("Form", u"main", None))
     # retranslateUi
 
+
+
+class GeometryDesignerWidget_UI(QDialog, Ui_Form):
+    """
+    Component Hierarchy:
+    - Form: QDialog
+        - (Layout): QVBoxLayout
+                - scrollArea: QScrollArea
+                    - scrollAreaWidgetContents: QWidget
+                        - (Layout): QGridLayout
+                                - create_structure_frame: QFrame
+                                    - (Layout): QGridLayout
+                                            - remove_attach_add_frame: QFrame
+                                                - (Layout): QHBoxLayout
+                                                        - delete_button: QPushButton
+                                                        - attach_button: QPushButton
+                                                        - add_button: QPushButton
+                                            - frame_bending_options: QFrame
+                                                - (Layout): QGridLayout
+                                                        - bending_radius_line_edit: QLineEdit
+                                                        - bending_type_label: QLabel
+                                                        - bending_options_combobox: QComboBox
+                                                        - bending_radius_label: QLabel
+                                                        - bending_radius_unity_label: QLabel
+                                                        - bending_options_label: QLabel
+                                            - frame_bounding_box_sizes: QFrame
+                                                - (Layout): QGridLayout
+                                                        - z_line_edit: QLineEdit
+                                                        - unity_x_label: QLabel
+                                                        - sizes_coords_label: QLabel
+                                                        - dx_label: QLabel
+                                                        - unity_y_label: QLabel
+                                                        - unity_z_label: QLabel
+                                                        - dy_label: QLabel
+                                                        - x_line_edit: QLineEdit
+                                                        - length_x_label: QLabel
+                                                        - y_line_edit: QLineEdit
+                                                        - dz_label: QLabel
+                                                        - dx_label_2: QLabel
+                                                        - length_line_edit: QLineEdit
+                                                        - invert_y_sign: QPushButton
+                                                        - invert_z_sign: QPushButton
+                                                        - invert_x_sign: QPushButton
+                                - frame_division_options: QFrame
+                                    - (Layout): QGridLayout
+                                            - frame_5: QFrame
+                                                - (Layout): QHBoxLayout
+                                            - frame_3: QFrame
+                                                - (Layout): QGridLayout
+                                                        - label_4: QLabel
+                                                        - division_combobox: QComboBox
+                                                        - general_options_label_3: QLabel
+                                                        - unity_x_label_2: QLabel
+                                            - options_stack_widget: QStackedWidget
+                                                - page_9: QWidget
+                                                    - (Layout): QHBoxLayout
+                                                            - position_slider_label: QLabel
+                                                            - position_slider: QSlider
+                                                            - position_spinbox: QSpinBox
+                                                - page_10: QWidget
+                                                    - (Layout): QHBoxLayout
+                                                            - division_slider_label: QLabel
+                                                            - division_slider: QSlider
+                                                            - division_amount_spinbox: QSpinBox
+                                                - page_2: QWidget
+                                                    - (Layout): QGridLayout
+                                                            - label_3: QLabel
+                                                            - selected_point_combo_box: QComboBox
+                                                            - label_6: QLabel
+                                                            - distance_axis_combo_box: QComboBox
+                                                            - unity_division_dx_label_2: QLabel
+                                                            - label_5: QLabel
+                                                            - distance_value_line_edit: QLineEdit
+                                            - frame_4: QFrame
+                                                - (Layout): QGridLayout
+                                                        - apply_division_button: QPushButton
+                                                        - cancel_division_button: QPushButton
+                                - frame_2: QFrame
+                                    - (Layout): QGridLayout
+                                            - frame_general_options: QFrame
+                                                - (Layout): QGridLayout
+                                                        - unit_label: QLabel
+                                                        - set_material_button: QPushButton
+                                                        - structure_type_label_2: QLabel
+                                                        - configure_button: QPushButton
+                                                        - bending_radius_unity_label_2: QLabel
+                                                        - structure_type_label: QLabel
+                                                        - structure_type_label_3: QLabel
+                                                        - unit_combobox: QComboBox
+                                                        - general_options_label: QLabel
+                                                        - structure_combobox: QComboBox
+                - frame: QFrame
+                    - (Layout): QHBoxLayout
+                            - cancel_button: QPushButton
+                            - finalize_button: QPushButton
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setupUi(self)
