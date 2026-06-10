@@ -1,3 +1,4 @@
+from pulse.utils.interface_utils import SelectionFilter
 from molde.colors import Color
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
@@ -35,6 +36,10 @@ class MeshRenderWidget(CommonRenderWidget):
             tubes=True,
             acoustic_symbols=True,
             structural_symbols=True,
+        )
+        self.selection_filter = SelectionFilter(
+            nodes=True,
+            lines=True,
         )
 
         self.remove_all_actors()
@@ -294,32 +299,31 @@ class MeshRenderWidget(CommonRenderWidget):
 
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
-        selection_filter = app().main_window.selection_filter
 
         picked_nodes = set()
         picked_elements = set()
         picked_lines = set()
 
         if mouse_moved:
-            if selection_filter.nodes:
+            if self.selection_filter.nodes:
                 picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
 
-            if selection_filter.elements:
+            if self.selection_filter.elements:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
 
-            if selection_filter.lines:
+            if self.selection_filter.lines:
                 picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
 
         else:
-            if selection_filter.nodes:
+            if self.selection_filter.nodes:
                 picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
                 picked_nodes.difference_update([-1])  # remove -1 index
 
-            if selection_filter.elements:
+            if self.selection_filter.elements:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])  # remove -1 index
 
-            if selection_filter.lines:
+            if self.selection_filter.lines:
                 picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_lines.difference_update([-1])  # remove -1 index
 
