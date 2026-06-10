@@ -181,7 +181,7 @@ class MainWindow(MainWindow_UI):
         self.setup_widgets_stack.addWidget(self.results_viewer_widget)
 
         self.splitter.setSizes([100, 400])
-        self.splitter.widget(0).setMinimumWidth(360)
+        self.splitter.widget(0).setMinimumWidth(420)
         self._update_visualization()
 
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
@@ -600,8 +600,6 @@ class MainWindow(MainWindow_UI):
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
-        self.splitter.widget(0).setMinimumWidth(420)
-
     def action_model_setup_workspace_callback(self):
         self.setup_widgets_stack.setVisible(True)
 
@@ -617,8 +615,6 @@ class MainWindow(MainWindow_UI):
 
         self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
-
-        self.splitter.widget(0).setMinimumWidth(360)
 
     def action_results_workspace_callback(self):
 
