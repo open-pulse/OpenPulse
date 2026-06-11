@@ -16,6 +16,7 @@ from pulse.editor.structures import (
     Structure,
     Valve,
 )
+from pulse.editor.structures.rigid_element import RigidElement
 from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -689,7 +690,7 @@ class GeometryHandler:
             data["corner_coords"] = get_data(structure.corner.coords())
             data["curvature_radius"] = np.round(structure.curvature_radius, 8)
 
-        elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint):
+        elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint | RigidElement):
             data["structure_name"] = structure.name()
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
