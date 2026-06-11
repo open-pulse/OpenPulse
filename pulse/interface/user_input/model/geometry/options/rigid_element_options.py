@@ -4,7 +4,6 @@ if TYPE_CHECKING:
     pass
 
 
-from copy import deepcopy
 
 from pulse.editor.structures.rigid_element import RigidElement
 
