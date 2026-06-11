@@ -1,3 +1,4 @@
+from pulse.utils.interface_utils import SelectionFilter
 from molde.colors import Color
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
@@ -17,6 +18,7 @@ from pulse.interface.viewer_3d.actors import (
 )
 from pulse.interface.viewer_3d.render_tools import SelectionTool
 from pulse.utils.image_functions import removes_image_background
+from pulse.utils.interface_utils import VisualizationFilter
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
@@ -28,6 +30,17 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
+        self.visualization_filter = VisualizationFilter(
+            points=True,
+            lines=True,
+            tubes=True,
+            acoustic_symbols=True,
+            structural_symbols=True,
+        )
+        self.selection_filter = SelectionFilter(
+            nodes=True,
+            lines=True,
+        )
 
         self.remove_all_actors()
 
@@ -118,16 +131,15 @@ class MeshRenderWidget(CommonRenderWidget):
         if not self._actor_exists():
             return
 
-        visualization = app().main_window.visualization_filter
-        self.points_actor.SetVisibility(visualization.points)
-        self.nodes_actor.SetVisibility(visualization.nodes)
-        self.lines_actor.SetVisibility(visualization.lines)
-        self.tubes_actor.SetVisibility(visualization.tubes)
-        opacity = 0.9 if visualization.transparent else 1
+        self.points_actor.SetVisibility(self.visualization_filter.points)
+        self.nodes_actor.SetVisibility(self.visualization_filter.nodes)
+        self.lines_actor.SetVisibility(self.visualization_filter.lines)
+        self.tubes_actor.SetVisibility(self.visualization_filter.tubes)
+        opacity = 0.9 if self.visualization_filter.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
 
-        self.symbols_actor.SetVisibility(visualization.structural_symbols)
-        self.symbols_actor_fixed.SetVisibility(visualization.structural_symbols)
+        self.symbols_actor.SetVisibility(self.visualization_filter.structural_symbols)
+        self.symbols_actor_fixed.SetVisibility(self.visualization_filter.structural_symbols)
 
         # To update default, material or fluid visualization
         self.tubes_actor.clear_colors()
@@ -199,7 +211,7 @@ class MeshRenderWidget(CommonRenderWidget):
             self._dark_logo.VisibilityOn()
             self._light_logo.VisibilityOff()
             self.open_pulse_logo = self._dark_logo
-    
+
     def save_thumbnail(self):
         thumbnail = app().project.thumbnail
 
@@ -278,7 +290,7 @@ class MeshRenderWidget(CommonRenderWidget):
     def selection_callback(self, x1, y1):
         if not self._actor_exists():
             return
-        
+
         if not isinstance(self.interactor_style, SelectionTool):
             return
 
@@ -287,37 +299,35 @@ class MeshRenderWidget(CommonRenderWidget):
 
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
-        selection_filter = app().main_window.selection_filter
-        visualization_filter = app().main_window.visualization_filter
 
         picked_nodes = set()
         picked_elements = set()
         picked_lines = set()
 
         if mouse_moved:
-            if selection_filter.nodes:
+            if self.selection_filter.nodes:
                 picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
 
-            if selection_filter.elements:
+            if self.selection_filter.elements:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
 
-            if selection_filter.lines:
+            if self.selection_filter.lines:
                 picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
 
         else:
-            if selection_filter.nodes:
+            if self.selection_filter.nodes:
                 picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
                 picked_nodes.difference_update([-1])  # remove -1 index
 
-            if selection_filter.elements:
+            if self.selection_filter.elements:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])  # remove -1 index
 
-            if selection_filter.lines:
+            if self.selection_filter.lines:
                 picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_lines.difference_update([-1])  # remove -1 index
 
-        if visualization_filter.points:
+        if self.visualization_filter.points:
             points_indexes = set(app().project.get_geometry_points().keys())
             picked_nodes.intersection_update(points_indexes)
 

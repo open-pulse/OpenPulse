@@ -30,6 +30,7 @@ from pulse.postprocessing.plot_structural_data import (
     get_stresses_to_plot,
     get_structural_response,
 )
+from pulse.utils.interface_utils import VisualizationFilter
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import (
@@ -57,6 +58,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
+        self.visualization_filter = VisualizationFilter(tubes=True)
 
         self.open_pulse_logo = None
         self.nodes_actor = None
@@ -290,12 +292,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not self._actor_exists():
             return
 
-        visualization = app().main_window.visualization_filter
-        self.points_actor.SetVisibility(visualization.points)
-        self.nodes_actor.SetVisibility(visualization.nodes)
-        self.lines_actor.SetVisibility(visualization.lines)
-        self.tubes_actor.SetVisibility(visualization.tubes)
-        opacity = 0.9 if visualization.transparent else 1
+        self.points_actor.SetVisibility(self.visualization_filter.points)
+        self.nodes_actor.SetVisibility(self.visualization_filter.nodes)
+        self.lines_actor.SetVisibility(self.visualization_filter.lines)
+        self.tubes_actor.SetVisibility(self.visualization_filter.tubes)
+        opacity = 0.9 if self.visualization_filter.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
         if update:
             self.update()
@@ -478,7 +479,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
-        visualization_filter = app().main_window.visualization_filter
         selection_filter = app().main_window.selection_filter
 
         picked_nodes = set()
@@ -489,10 +489,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             if selection_filter.nodes:
                 picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
 
-            if selection_filter.elements and visualization_filter.lines:
+            if selection_filter.elements and self.visualization_filter.lines:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
 
-            if selection_filter.lines and visualization_filter.lines:
+            if selection_filter.lines and self.visualization_filter.lines:
                 picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
 
         else:
@@ -500,15 +500,15 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
                 picked_nodes.difference_update([-1])
 
-            if selection_filter.elements and visualization_filter.lines:
+            if selection_filter.elements and self.visualization_filter.lines:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])
 
-            if selection_filter.lines and visualization_filter.lines:
+            if selection_filter.lines and self.visualization_filter.lines:
                 picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_lines.difference_update([-1])
 
-        if visualization_filter.points:
+        if self.visualization_filter.points:
             points_indexes = set(app().project.get_geometry_points().keys())
             picked_nodes.intersection_update(points_indexes)
 
