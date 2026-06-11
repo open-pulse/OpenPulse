@@ -9,6 +9,7 @@ from .arc_bend_actor import ArcBendActor
 from .expansion_joint_actor import ExpansionJointActor
 from .flange_actor import FlangeActor
 from .pipe_actor import PipeActor
+from .rigid_element_actor import RigidElementActor
 from .pipeline_actor import PipelineActor
 from .reducer_actor import ReducerActor
 from .valve_actor import ValveActor
