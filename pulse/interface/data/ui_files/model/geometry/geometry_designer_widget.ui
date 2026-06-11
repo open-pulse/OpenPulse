@@ -57,8 +57,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>464</width>
-        <height>762</height>
+        <width>467</width>
+        <height>758</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
@@ -1843,6 +1843,11 @@
                <item>
                 <property name="text">
                  <string>Point</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Rigid Element</string>
                 </property>
                </item>
               </widget>
