@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mesher_setup_inputs.ui'
+## Form generated from reading UI file 'mesher_setup_input.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.11.0
 ##
@@ -64,6 +64,7 @@ class Ui_Dialog(object):
 
         self.lineEdit_geometry_tolerance = QLineEdit(self.frame_2)
         self.lineEdit_geometry_tolerance.setObjectName(u"lineEdit_geometry_tolerance")
+        self.lineEdit_geometry_tolerance.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_geometry_tolerance, 2, 2, 1, 1)
 
@@ -82,6 +83,7 @@ class Ui_Dialog(object):
 
         self.lineEdit_element_size = QLineEdit(self.frame_2)
         self.lineEdit_element_size.setObjectName(u"lineEdit_element_size")
+        self.lineEdit_element_size.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_element_size, 0, 2, 1, 1)
 
@@ -201,7 +203,7 @@ class Ui_Dialog(object):
 
 
 
-class MesherSetupInputs_UI(QDialog, Ui_Dialog):
+class MesherSetupInput_UI(QDialog, Ui_Dialog):
     """
     Component Hierarchy:
     - Dialog: QDialog

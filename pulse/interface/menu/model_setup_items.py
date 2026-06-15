@@ -68,6 +68,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_set_material.clicked.connect(self.item_child_set_material_callback)
         self.item_child_set_fluid.clicked.connect(self.item_child_set_fluid_callback)
         self.item_child_set_crossSection.clicked.connect(self.item_child_set_cross_section_callback)
+        self.item_child_mesh_setup.clicked.connect(self.item_child_mesh_setup_callback)
         #
         # Structural Model Setup
         self.item_child_set_structural_element_type.clicked.connect(self.item_child_set_structural_element_type_callback)
@@ -122,6 +123,10 @@ class ModelSetupItems(CommonMenuItems):
     def item_child_set_cross_section_callback(self):
         self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_cross_section()
+        app().main_window.set_input_widget(None)
+    
+    def item_child_mesh_setup_callback(self):
+        app().main_window.input_ui.mesh_setup()
         app().main_window.set_input_widget(None)
 
     def item_child_set_structural_element_type_callback(self):

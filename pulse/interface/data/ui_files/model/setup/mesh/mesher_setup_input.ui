@@ -105,7 +105,11 @@
           </spacer>
          </item>
          <item row="2" column="2">
-          <widget class="QLineEdit" name="lineEdit_geometry_tolerance"/>
+          <widget class="QLineEdit" name="lineEdit_geometry_tolerance">
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
          </item>
          <item row="0" column="1">
           <widget class="QLabel" name="label">
@@ -148,7 +152,11 @@
           </spacer>
          </item>
          <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_element_size"/>
+          <widget class="QLineEdit" name="lineEdit_element_size">
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
          </item>
          <item row="0" column="3">
           <widget class="QLabel" name="label_3">
@@ -248,44 +256,6 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="pushbutton_apply_and_close">
-        <property name="minimumSize">
-         <size>
-          <width>72</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>72</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>Ok</string>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="default">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="pushbutton_apply">
         <property name="minimumSize">
@@ -323,6 +293,19 @@
          <bool>false</bool>
         </property>
        </widget>
+      </item>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer_18">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="pushbutton_cancel">
@@ -362,18 +345,43 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <spacer name="horizontalSpacer_18">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+      <item row="0" column="3">
+       <widget class="QPushButton" name="pushbutton_apply_and_close">
+        <property name="minimumSize">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>72</width>
+          <height>30</height>
          </size>
         </property>
-       </spacer>
+        <property name="maximumSize">
+         <size>
+          <width>72</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Ok</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
