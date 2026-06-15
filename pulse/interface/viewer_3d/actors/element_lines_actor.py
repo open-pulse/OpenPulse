@@ -1,4 +1,5 @@
 from molde.actors import GhostActor
+from molde.colors import PURPLE_7
 from molde.poly_data import LinesData
 from molde.utils import set_polydata_colors
 from vtkmodules.vtkCommonCore import vtkCharArray, vtkIntArray, vtkUnsignedIntArray
@@ -16,6 +17,7 @@ class ElementLinesActor(GhostActor):
         self.elements = self.project.get_structural_elements()
         self.hidden_elements = kwargs.get("hidden_elements", set())
         self.show_deformed = show_deformed
+        self._rigid_elements = self._get_rigid_element_ids()
         self.build()
 
     def build(self):
@@ -63,11 +65,21 @@ class ElementLinesActor(GhostActor):
         self.GetProperty().SetLineWidth(6)
         self.make_ghost()
 
+    def _get_rigid_element_ids(self):
+        rigid_ids = set()
+        for structure in self.project.pipeline.structures:
+            if structure.extra_info.get("structural_element_type") == "rigid_element":
+                rigid_ids.update(self.preprocessor.mesh.elements_from_line.get(structure.tag, []))
+        return rigid_ids
+
     def clear_colors(self):
         lines_color = self.user_preferences.lines_color.to_rgb()
 
         data = self.GetMapper().GetInput()
         set_polydata_colors(data, lines_color)
+
+        if self._rigid_elements:
+            self.set_color(PURPLE_7.to_rgb(), elements=self._rigid_elements)
 
     def set_color(self, color, elements=None, lines=None):
         mapper = self.GetMapper()
