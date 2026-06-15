@@ -807,6 +807,8 @@ class MainWindow(MainWindow_UI):
 
         for render in self.get_renderer_widgets():
             self.view_toolbar.render_tool_changed.connect(render.add_render_tool)
+        
+        self.addToolBarBreak()
 
     def _add_toolbars(self):
         self._add_view_toolbar()
