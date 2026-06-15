@@ -27,6 +27,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_top_general_settings = self.add_top_item('General Settings')
         self.item_child_set_material = self.add_item('Material', property_name="material")
         self.item_child_set_fluid = self.add_item('Fluid', property_name="fluid")
+        self.item_child_mesh_setup = self.add_item('Mesh Setup', property_name="mesh_setup")
         self.item_child_set_crossSection = self.add_item('Cross-Section', property_name="cross_section")
         #
         self.item_top_structural_model_setup = self.add_top_item('Structural Model Setup')
@@ -262,6 +263,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
+        self.item_child_mesh_setup.setDisabled(bool_key)
         #
         self.item_child_set_structural_element_type.setDisabled(bool_key) 
         self.item_child_set_prescribed_dof.setDisabled(bool_key)
