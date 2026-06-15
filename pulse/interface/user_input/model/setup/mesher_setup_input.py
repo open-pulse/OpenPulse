@@ -20,7 +20,6 @@ class MesherSetupInput(MesherSetupInput_UI):
 
         self._initialize()
         self._configure_window()
-        self._configure_widgets()
         self._configure_validators()
         self._create_connections()
 
@@ -32,13 +31,11 @@ class MesherSetupInput(MesherSetupInput_UI):
         self.setWindowTitle("OpenPulse")
         self.setWindowIcon(icons.get_openpulse_icon())
     
-    def _configure_widgets(self):
-        self.lineEdit_element_size.setText("0.01")
-        self.lineEdit_geometry_tolerance.setText("1e-06")
-    
     def _initialize(self):
-        self.element_size = 0.01
-        self.geometry_tolerance = 1e-06
+        self.get_mesh_attributes_from_project_file()
+
+        self.element_size = float(self.lineEdit_element_size.text())
+        self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
     
     def  _configure_validators(self):
         self.lineEdit_element_size.setValidator(StrictDoubleValidator(1e-8, 1e6, 8))
@@ -92,3 +89,11 @@ class MesherSetupInput(MesherSetupInput_UI):
             if _geometry_tolerance != current_geometry_tolerance:
                 return
     
+    def get_mesh_attributes_from_project_file(self):
+        element_size, geometry_tolerance = self.mesh_updater.get_mesh_attributes_from_project_file()
+
+        if element_size is not None:
+            self.lineEdit_element_size.setText(str(element_size))
+
+        if geometry_tolerance is not None:
+            self.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))

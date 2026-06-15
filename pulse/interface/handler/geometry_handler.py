@@ -252,8 +252,6 @@ class GeometryHandler:
 
         if self.length_unit !=  "meter":
             self.project.file.modify_project_attributes(length_unit = "meter", element_size = element_size)
-            if app() is not None:
-                app().main_window.mesh_toolbar.update_mesh_attributes()
 
         if len(self.merged_points):
             self.print_merged_nodes_message()

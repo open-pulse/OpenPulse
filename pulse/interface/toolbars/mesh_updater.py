@@ -77,9 +77,6 @@ class MeshUpdater:
 
         self.set_project_attributes(element_size, geometry_tolerance)
 
-        app().main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
-        app().main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
-
         app().project.loader.load_mesh_setup_from_file()
         app().project.initial_load_project_actions()
         app().project.loader.load_project_data()
