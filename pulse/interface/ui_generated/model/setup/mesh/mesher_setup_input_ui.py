@@ -49,8 +49,8 @@ class Ui_Dialog(object):
 
         self.label_2 = QLabel(self.frame_2)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setMinimumSize(QSize(120, 20))
-        self.label_2.setMaximumSize(QSize(240, 16777215))
+        self.label_2.setMinimumSize(QSize(130, 20))
+        self.label_2.setMaximumSize(QSize(200, 16777215))
         font = QFont()
         font.setPointSize(10)
         self.label_2.setFont(font)
@@ -64,14 +64,15 @@ class Ui_Dialog(object):
 
         self.lineEdit_geometry_tolerance = QLineEdit(self.frame_2)
         self.lineEdit_geometry_tolerance.setObjectName(u"lineEdit_geometry_tolerance")
+        self.lineEdit_geometry_tolerance.setFont(font)
         self.lineEdit_geometry_tolerance.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_geometry_tolerance, 2, 2, 1, 1)
 
         self.label = QLabel(self.frame_2)
         self.label.setObjectName(u"label")
-        self.label.setMinimumSize(QSize(120, 20))
-        self.label.setMaximumSize(QSize(240, 16777215))
+        self.label.setMinimumSize(QSize(130, 20))
+        self.label.setMaximumSize(QSize(200, 16777215))
         self.label.setFont(font)
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -83,17 +84,20 @@ class Ui_Dialog(object):
 
         self.lineEdit_element_size = QLineEdit(self.frame_2)
         self.lineEdit_element_size.setObjectName(u"lineEdit_element_size")
+        self.lineEdit_element_size.setFont(font)
         self.lineEdit_element_size.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_element_size, 0, 2, 1, 1)
 
         self.label_3 = QLabel(self.frame_2)
         self.label_3.setObjectName(u"label_3")
+        self.label_3.setFont(font)
 
         self.gridLayout_3.addWidget(self.label_3, 0, 3, 1, 1)
 
         self.label_4 = QLabel(self.frame_2)
         self.label_4.setObjectName(u"label_4")
+        self.label_4.setFont(font)
 
         self.gridLayout_3.addWidget(self.label_4, 2, 3, 1, 1)
 
@@ -134,31 +138,24 @@ class Ui_Dialog(object):
         self.gridLayout_12.setObjectName(u"gridLayout_12")
         self.gridLayout_12.setVerticalSpacing(0)
         self.gridLayout_12.setContentsMargins(6, 0, 6, 0)
-        self.pushbutton_apply_and_close = QPushButton(self.frame_buttons_2)
-        self.pushbutton_apply_and_close.setObjectName(u"pushbutton_apply_and_close")
-        self.pushbutton_apply_and_close.setMinimumSize(QSize(72, 30))
-        self.pushbutton_apply_and_close.setMaximumSize(QSize(72, 30))
-        font2 = QFont()
-        font2.setPointSize(10)
-        font2.setBold(False)
-        font2.setItalic(False)
-        self.pushbutton_apply_and_close.setFont(font2)
-        self.pushbutton_apply_and_close.setStyleSheet(u"")
-        self.pushbutton_apply_and_close.setAutoDefault(False)
-        self.pushbutton_apply_and_close.setFlat(False)
-
-        self.gridLayout_12.addWidget(self.pushbutton_apply_and_close, 0, 3, 1, 1)
-
         self.pushbutton_apply = QPushButton(self.frame_buttons_2)
         self.pushbutton_apply.setObjectName(u"pushbutton_apply")
         self.pushbutton_apply.setMinimumSize(QSize(72, 30))
         self.pushbutton_apply.setMaximumSize(QSize(72, 30))
+        font2 = QFont()
+        font2.setPointSize(10)
+        font2.setBold(False)
+        font2.setItalic(False)
         self.pushbutton_apply.setFont(font2)
         self.pushbutton_apply.setStyleSheet(u"")
         self.pushbutton_apply.setAutoDefault(False)
         self.pushbutton_apply.setFlat(False)
 
         self.gridLayout_12.addWidget(self.pushbutton_apply, 0, 2, 1, 1)
+
+        self.horizontalSpacer_18 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_12.addItem(self.horizontalSpacer_18, 0, 1, 1, 1)
 
         self.pushbutton_cancel = QPushButton(self.frame_buttons_2)
         self.pushbutton_cancel.setObjectName(u"pushbutton_cancel")
@@ -171,9 +168,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_12.addWidget(self.pushbutton_cancel, 0, 0, 1, 1)
 
-        self.horizontalSpacer_18 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.pushbutton_apply_and_close = QPushButton(self.frame_buttons_2)
+        self.pushbutton_apply_and_close.setObjectName(u"pushbutton_apply_and_close")
+        self.pushbutton_apply_and_close.setMinimumSize(QSize(72, 30))
+        self.pushbutton_apply_and_close.setMaximumSize(QSize(72, 30))
+        self.pushbutton_apply_and_close.setFont(font2)
+        self.pushbutton_apply_and_close.setStyleSheet(u"")
+        self.pushbutton_apply_and_close.setAutoDefault(False)
+        self.pushbutton_apply_and_close.setFlat(False)
 
-        self.gridLayout_12.addItem(self.horizontalSpacer_18, 0, 1, 1, 1)
+        self.gridLayout_12.addWidget(self.pushbutton_apply_and_close, 0, 3, 1, 1)
 
 
         self.gridLayout.addWidget(self.frame_buttons_2, 3, 1, 1, 1)
@@ -181,9 +185,9 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
 
-        self.pushbutton_apply_and_close.setDefault(False)
         self.pushbutton_apply.setDefault(False)
         self.pushbutton_cancel.setDefault(False)
+        self.pushbutton_apply_and_close.setDefault(False)
 
 
         QMetaObject.connectSlotsByName(Dialog)
@@ -195,10 +199,10 @@ class Ui_Dialog(object):
         self.label.setText(QCoreApplication.translate("Dialog", u"Element size:", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"[m]", None))
         self.label_4.setText(QCoreApplication.translate("Dialog", u"[m]", None))
-        self.mesher_setup_label.setText(QCoreApplication.translate("Dialog", u"Mesher Setup", None))
-        self.pushbutton_apply_and_close.setText(QCoreApplication.translate("Dialog", u"Ok", None))
+        self.mesher_setup_label.setText(QCoreApplication.translate("Dialog", u"Mesh Setup", None))
         self.pushbutton_apply.setText(QCoreApplication.translate("Dialog", u"Apply", None))
         self.pushbutton_cancel.setText(QCoreApplication.translate("Dialog", u"Cancel", None))
+        self.pushbutton_apply_and_close.setText(QCoreApplication.translate("Dialog", u"Ok", None))
     # retranslateUi
 
 
@@ -223,9 +227,9 @@ class MesherSetupInput_UI(QDialog, Ui_Dialog):
                             - mesher_setup_label: QLabel
                 - frame_buttons_2: QFrame
                     - (Layout): QGridLayout
-                            - pushbutton_apply_and_close: QPushButton
                             - pushbutton_apply: QPushButton
                             - pushbutton_cancel: QPushButton
+                            - pushbutton_apply_and_close: QPushButton
     """
 
     def __init__(self, *args, **kwargs):
