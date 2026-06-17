@@ -56,6 +56,9 @@ class MesherSetupInput(MesherSetupInput_UI):
         self.mesh_updater.set_project_attributes(self.element_size, self.geometry_tolerance)
         self.mesh_updater.process_mesh_and_load_project()
         self.mesh_attributes_changed()
+
+        # TODO: remove as soon as possible
+        app().main_window.action_results_workspace.setDisabled(True)
     
     def generate_mesh_and_close(self):
         self.generate_mesh_callback()

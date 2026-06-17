@@ -32,6 +32,7 @@ class Ui_Dialog(object):
         self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_4 = QGridLayout(self.frame)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.gridLayout_4.setContentsMargins(4, 4, 4, 4)
         self.frame_2 = QFrame(self.frame)
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setMaximumSize(QSize(16777215, 150))
@@ -39,6 +40,7 @@ class Ui_Dialog(object):
         self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_2)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.gridLayout_3.setContentsMargins(4, 4, 4, 4)
         self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.gridLayout_3.addItem(self.horizontalSpacer_3, 2, 0, 1, 1)
@@ -114,6 +116,7 @@ class Ui_Dialog(object):
         self.frame_title.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame_title)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.gridLayout_2.setContentsMargins(4, 4, 4, 4)
         self.mesher_setup_label = QLabel(self.frame_title)
         self.mesher_setup_label.setObjectName(u"mesher_setup_label")
         self.mesher_setup_label.setMaximumSize(QSize(16777215, 50))
