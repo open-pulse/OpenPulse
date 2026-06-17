@@ -39,6 +39,8 @@ class MesherSetupInput(MesherSetupInput_UI):
 
         self.element_size = float(self.lineEdit_element_size.text())
         self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
+
+        self.enable_apply_pushbuttons(False)
     
     def  _configure_validators(self):
         self.lineEdit_element_size.setValidator(StrictDoubleValidator(1e-8, 1e6, 8))
@@ -100,12 +102,8 @@ class MesherSetupInput(MesherSetupInput_UI):
             return
         
         if bool(_element_size) and bool(_geometry_tolerance):
-
-            if _element_size != current_element_size:
-                return
-
-            if _geometry_tolerance != current_geometry_tolerance:
-                return
+            changed = (_element_size != current_element_size) or (_geometry_tolerance != current_geometry_tolerance)
+            self.enable_apply_pushbuttons(changed)
     
     def get_mesh_attributes_from_project_file(self):
         element_size, geometry_tolerance = self.mesh_updater.get_mesh_attributes_from_project_file()
@@ -115,3 +113,7 @@ class MesherSetupInput(MesherSetupInput_UI):
 
         if geometry_tolerance is not None:
             self.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
+        
+    def enable_apply_pushbuttons(self, enabled: bool):
+        self.pushbutton_apply.setEnabled(enabled)
+        self.pushbutton_apply_and_close.setEnabled(enabled)
