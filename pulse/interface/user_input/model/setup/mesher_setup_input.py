@@ -1,3 +1,5 @@
+import logging
+
 from PySide6.QtCore import Qt
 
 from pulse import app
@@ -5,6 +7,7 @@ from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
 from pulse.interface.ui_generated.model.setup.mesh.mesher_setup_input_ui import MesherSetupInput_UI
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.utils.interface_utils import check_inputs
 
 
@@ -50,15 +53,27 @@ class MesherSetupInput(MesherSetupInput_UI):
         self.lineEdit_geometry_tolerance.textChanged.connect(self.mesh_attributes_changed)
     
     def generate_mesh_callback(self):
-        if self.check_input_values():
-            return
 
-        self.mesh_updater.set_project_attributes(self.element_size, self.geometry_tolerance)
-        self.mesh_updater.process_mesh_and_load_project()
-        self.mesh_attributes_changed()
+        def generate_mesh():
+            logging.info("Checking inputs... [10%]")
+            if self.check_input_values():
+                return
 
-        # TODO: remove as soon as possible
-        app().main_window.action_results_workspace.setDisabled(True)
+            logging.info("Setting project attributes... [25%]")
+            self.mesh_updater.set_project_attributes(self.element_size, self.geometry_tolerance)
+
+            logging.info("Processing the mesh... [75%]")
+            self.mesh_updater.process_mesh_and_load_project()
+
+            logging.info("Updating mesh attributes... [85%]")
+            self.mesh_attributes_changed()
+
+            # TODO: remove as soon as possible
+            app().main_window.action_results_workspace.setDisabled(True)
+
+            logging.info("The mesh was successfully generated. [100%]")
+        
+        LoadingWindow(generate_mesh, parent=self).run()
     
     def generate_mesh_and_close(self):
         self.generate_mesh_callback()
