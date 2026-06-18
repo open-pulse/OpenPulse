@@ -3,7 +3,6 @@ import logging
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
 from pulse.interface.ui_generated.model.setup.mesh.mesher_setup_input_ui import MesherSetupInput_UI
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
@@ -29,11 +28,13 @@ class MesherSetupInput(MesherSetupInput_UI):
         self.exec()
 
     def _configure_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags(
+            Qt.WindowStaysOnTopHint | Qt.WindowType.CustomizeWindowHint | Qt.WindowType.WindowCloseButtonHint | Qt.WindowType.WindowMinimizeButtonHint
+        )
+        self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("OpenPulse")
-        self.setWindowIcon(icons.get_openpulse_icon())
-    
+        self.setWindowIcon(app().main_window.pulse_icon)
+
     def _initialize(self):
         self.get_mesh_attributes_from_project_file()
 
@@ -119,3 +120,11 @@ class MesherSetupInput(MesherSetupInput_UI):
     def enable_apply_pushbuttons(self, enabled: bool):
         self.pushbutton_apply.setEnabled(enabled)
         self.pushbutton_apply_and_close.setEnabled(enabled)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.generate_mesh_callback()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
+
+        return super().keyPressEvent(event)
