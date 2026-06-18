@@ -48,9 +48,9 @@ class MesherSetupInput(MesherSetupInput_UI):
     def _create_connections(self):
         self.pushbutton_cancel.clicked.connect(self.close)
         self.pushbutton_apply.clicked.connect(self.generate_mesh_callback)
-        self.pushbutton_apply_and_close.clicked.connect(self.generate_mesh_and_close)
+        self.pushbutton_apply_and_close.clicked.connect(lambda: self.generate_mesh_callback(close_window=True))
 
-    def generate_mesh_callback(self):
+    def generate_mesh_callback(self, close_window: bool = False):
 
         if self.check_input_values():
             return
@@ -80,9 +80,8 @@ class MesherSetupInput(MesherSetupInput_UI):
         LoadingWindow(generate_mesh, parent=self).run()
         self.show()
 
-    def generate_mesh_and_close(self):
-        self.generate_mesh_callback()
-        self.close()
+        if close_window:
+            self.close()
 
     def check_input_values(self):
         self.element_size = check_inputs(self.lineEdit_element_size, "'Element size'")
