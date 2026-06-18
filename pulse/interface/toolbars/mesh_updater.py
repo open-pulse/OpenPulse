@@ -25,10 +25,7 @@ class MeshUpdater:
         self.element_size = element_size
         self.geometry_tolerance = geometry_tolerance
 
-        app().project.file.modify_project_attributes(
-                                                    element_size = element_size, 
-                                                    geometry_tolerance = geometry_tolerance
-                                                    )
+        app().project.file.modify_project_attributes(element_size=element_size, geometry_tolerance=geometry_tolerance)
 
     def get_mesh_attributes_from_project_file(self):
 
@@ -43,15 +40,14 @@ class MeshUpdater:
         geometry_tolerance = None
 
         if "mesher_setup" in project_setup.keys():
-
             mesh_setup = project_setup["mesher_setup"]
             keys = mesh_setup.keys()
 
-            if 'element_size' in keys:
-                element_size = mesh_setup['element_size']
+            if "element_size" in keys:
+                element_size = mesh_setup["element_size"]
 
-            if 'geometry_tolerance' in keys:
-                geometry_tolerance = mesh_setup['geometry_tolerance']
+            if "geometry_tolerance" in keys:
+                geometry_tolerance = mesh_setup["geometry_tolerance"]
 
         return element_size, geometry_tolerance
 
@@ -65,7 +61,7 @@ class MeshUpdater:
             app().project.loader.load_project_data()
             app().project.loader.load_mesh_dependent_properties()
             app().main_window.initial_project_action(True)
-            app().main_window.update_plots()  
+            app().main_window.update_plots()
             self.complete = True
 
     def undo_mesh_actions(self):
