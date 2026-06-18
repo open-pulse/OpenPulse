@@ -75,7 +75,9 @@ class MesherSetupInput(MesherSetupInput_UI):
 
             logging.info("The mesh was successfully generated. [100%]")
         
+        self.hide()
         LoadingWindow(generate_mesh, parent=self).run()
+        self.show()
     
     def generate_mesh_and_close(self):
         self.generate_mesh_callback()
