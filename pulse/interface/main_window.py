@@ -27,7 +27,6 @@ from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
-from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.toolbars.view_toolbar import ViewToolbar
 from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
 from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
@@ -219,14 +218,12 @@ class MainWindow(MainWindow_UI):
             style_sheet = self.get_toolbars_stylesheet()
             self.analysis_toolbar.setStyleSheet(style_sheet)
             self.main_toolbar.setStyleSheet(style_sheet)
-            self.mesh_toolbar.setStyleSheet(style_sheet)
             self.view_toolbar.setStyleSheet(style_sheet)
             self.workspaces_toolbar.setStyleSheet(style_sheet)
             return
 
         self.analysis_toolbar.setStyleSheet("")
         self.main_toolbar.setStyleSheet("")
-        self.mesh_toolbar.setStyleSheet("")
         self.view_toolbar.setStyleSheet("")
         self.workspaces_toolbar.setStyleSheet("")
 
@@ -406,7 +403,6 @@ class MainWindow(MainWindow_UI):
         self.setup_widgets_stack.setVisible(False)
 
         self.analysis_toolbar.setVisible(False)
-        self.mesh_toolbar.setVisible(False)
         self.main_toolbar.setVisible(False)
         self.workspaces_toolbar.setVisible(False)
         self.view_toolbar.setVisible(False)
@@ -606,7 +602,6 @@ class MainWindow(MainWindow_UI):
         self.main_toolbar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
-        self.mesh_toolbar.setDisabled(True)
         self.view_toolbar.enable_selection_tool()
         self.setup_widgets_stack.setVisible(True)
 
@@ -621,7 +616,6 @@ class MainWindow(MainWindow_UI):
     def action_model_setup_workspace_callback(self):
         self.setup_widgets_stack.setVisible(True)
 
-        self.mesh_toolbar.setDisabled(False)
         self.main_toolbar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
@@ -800,11 +794,6 @@ class MainWindow(MainWindow_UI):
         obj = ImportGeometry()
         self.initial_project_action(obj.complete)
 
-    def _add_mesh_toolbar(self):
-        self.mesh_toolbar = MeshToolbar()
-        self.addToolBar(self.mesh_toolbar)
-        self.insertToolBarBreak(self.mesh_toolbar)
-
     def _add_analysis_toolbar(self):
         self.analysis_toolbar = AnalysisToolbar()
         self.addToolBar(self.analysis_toolbar)
@@ -818,10 +807,11 @@ class MainWindow(MainWindow_UI):
 
         for render in self.get_renderer_widgets():
             self.view_toolbar.render_tool_changed.connect(render.add_render_tool)
+        
+        self.addToolBarBreak()
 
     def _add_toolbars(self):
         self._add_view_toolbar()
-        self._add_mesh_toolbar()
         self._add_analysis_toolbar()
         self._configure_workspace_buttons()
 
@@ -996,7 +986,6 @@ class MainWindow(MainWindow_UI):
 
             # logging.info("Loading project [30%]")
             self.project.load_project()
-            self.mesh_toolbar.update_mesh_attributes()
 
             if project_path is not None:
                 path = Path(project_path)

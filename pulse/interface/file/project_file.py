@@ -194,7 +194,14 @@ class ProjectFile:
 
     def read_project_setup_from_file(self):
         return self._read_file(self.project_setup_filename)
+    
+    def read_mesher_setup_from_file(self) -> dict:
+        project_setup = self._read_file(self.project_setup_filename)
+        if not isinstance(project_setup, dict):
+            return dict()
 
+        return project_setup.get("mesher_setup", dict())
+        
     def write_model_setup_in_file(self, project_setup: dict):
         self._write_file(self.project_setup_filename, project_setup)
         self.project_data_modified_callback()
