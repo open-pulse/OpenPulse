@@ -58,15 +58,21 @@ class LoadingWindow(NewLoadingWindow_UI):
     update the progress bar and progress label.
     """
 
-    def __init__(self, _function):
-        super().__init__()
+    def __init__(self, _function, parent=None):
+        super().__init__(parent)
         self._function = _function
         self._config_window()
 
     def _config_window(self):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Loading")
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint)
+        self.setWindowFlags(
+            Qt.Window
+            | Qt.CustomizeWindowHint
+            | Qt.WindowTitleHint
+            | Qt.WindowMinimizeButtonHint
+            | Qt.Tool
+        )
         self.setWindowModality(Qt.ApplicationModal)
         self.update_position()
         self.progress_bar.setValue(0)
