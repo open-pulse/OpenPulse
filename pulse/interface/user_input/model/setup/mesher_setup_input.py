@@ -20,8 +20,9 @@ class MesherSetupInput(MesherSetupInput_UI):
 
         self.mesh_updater = MeshUpdater()
 
-        self._initialize()
         self._configure_window()
+
+        self._initialize()
         self._configure_validators()
         self._create_connections()
 
@@ -36,10 +37,8 @@ class MesherSetupInput(MesherSetupInput_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _initialize(self):
-        self.get_mesh_attributes_from_project_file()
-
-        self.element_size = float(self.lineEdit_element_size.text())
-        self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
+        self.element_size = None
+        self.geometry_tolerance = None
 
     def _configure_validators(self):
         self.lineEdit_element_size.setValidator(StrictDoubleValidator(1e-8, 1e6, 8))
@@ -49,6 +48,41 @@ class MesherSetupInput(MesherSetupInput_UI):
         self.pushbutton_cancel.clicked.connect(self.close)
         self.pushbutton_apply.clicked.connect(self.generate_mesh_callback)
         self.pushbutton_apply_and_close.clicked.connect(lambda: self.generate_mesh_callback(close_window=True))
+        #
+        self.load_project_mesh_settings()
+
+    def load_project_mesh_settings(self):
+        element_size, geometry_tolerance = self.mesh_updater.get_mesh_attributes_from_project_file()
+
+        if isinstance(element_size, float):
+            self.lineEdit_element_size.setText(str(element_size))
+
+        if isinstance(geometry_tolerance, float):
+            self.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
+
+    def check_input_values(self):
+        self.element_size = check_inputs(self.lineEdit_element_size, "'Element size'")
+        if self.element_size is None:
+            self.lineEdit_element_size.setFocus()
+            return True
+
+        self.geometry_tolerance = check_inputs(self.lineEdit_geometry_tolerance, "'Geometry tolerance'")
+        if self.geometry_tolerance is None:
+            self.lineEdit_geometry_tolerance.setFocus()
+            return True
+
+    def has_mesh_configuration_changed(self):
+        if self.lineEdit_element_size.text() == "":
+            return False
+
+        if self.lineEdit_geometry_tolerance.text() == "":
+            return False
+
+        new_element_size = float(self.lineEdit_element_size.text())
+        new_geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
+        current_element_size, current_geometry_tolerance = self.mesh_updater.get_mesh_attributes_from_project_file()
+
+        return (new_element_size != current_element_size) or (new_geometry_tolerance != current_geometry_tolerance)
 
     def generate_mesh_callback(self, close_window: bool = False):
 
@@ -82,39 +116,6 @@ class MesherSetupInput(MesherSetupInput_UI):
 
         if close_window:
             self.close()
-
-    def check_input_values(self):
-        self.element_size = check_inputs(self.lineEdit_element_size, "'Element size'")
-        if self.element_size is None:
-            self.lineEdit_element_size.setFocus()
-            return True
-
-        self.geometry_tolerance = check_inputs(self.lineEdit_geometry_tolerance, "'Geometry tolerance'")
-        if self.geometry_tolerance is None:
-            self.lineEdit_geometry_tolerance.setFocus()
-            return True
-
-    def get_mesh_attributes_from_project_file(self):
-        element_size, geometry_tolerance = self.mesh_updater.get_mesh_attributes_from_project_file()
-
-        if element_size is not None:
-            self.lineEdit_element_size.setText(str(element_size))
-
-        if geometry_tolerance is not None:
-            self.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
-
-    def has_mesh_configuration_changed(self):
-        if self.lineEdit_element_size.text() == "":
-            return False
-
-        if self.lineEdit_geometry_tolerance.text() == "":
-            return False
-
-        new_element_size = float(self.lineEdit_element_size.text())
-        new_geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
-        current_element_size, current_geometry_tolerance = self.mesh_updater.get_mesh_attributes_from_project_file()
-
-        return (new_element_size != current_element_size) or (new_geometry_tolerance != current_geometry_tolerance)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
