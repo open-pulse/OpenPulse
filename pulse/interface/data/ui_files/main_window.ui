@@ -139,9 +139,9 @@
     <addaction name="action_import_pcf"/>
     <addaction name="action_export_pcf"/>
     <addaction name="separator"/>
+    <addaction name="action_home_exit"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
-    <addaction name="action_home_exit"/>
    </widget>
    <widget class="QMenu" name="menu_plots">
     <property name="title">
