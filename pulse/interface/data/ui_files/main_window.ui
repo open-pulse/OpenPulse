@@ -109,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>1044</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -141,6 +141,7 @@
     <addaction name="separator"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
+    <addaction name="action_home_exit"/>
    </widget>
    <widget class="QMenu" name="menu_plots">
     <property name="title">
@@ -803,6 +804,14 @@
    </property>
    <property name="text">
     <string>Capture Image</string>
+   </property>
+  </action>
+  <action name="action_home_exit">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::GoHome"/>
+   </property>
+   <property name="text">
+    <string>Home Exit</string>
    </property>
   </action>
  </widget>
