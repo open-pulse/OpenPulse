@@ -5,12 +5,7 @@ from pulse.interface.ui_generated.render.section_plane_inputs_ui import SectionP
 
 
 class SectionPlaneWidget(SectionPlaneInputs_UI):
-    value_changed_2 = Signal()
-
-    value_changed = Signal(float, float, float, float, float, float)
-    slider_released = Signal(float, float, float, float, float, float)
-    slider_pressed = Signal(float, float, float, float, float, float)
-    closed = Signal()
+    value_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -52,7 +47,7 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
         super().show()
         self.cutting = True
         self.keep_section_plane = False
-        self.value_changed_2.emit()
+        self.value_changed.emit()
 
     def closeEvent(self, event):
         if not self.keep_section_plane:
@@ -62,8 +57,17 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
             self.cutting = False
         else:
             self.cutting = True
-        self.value_changed_2.emit()
-        # self.closed.emit()
+
+        self.value_changed.emit()
+    
+    def disable_section_plane(self):
+        self.cutting = False
+
+        if self.isVisible():
+            self.close()
+            return
+
+        self.value_changed.emit()
 
     def get_position(self):
         Px = self.relative_plane_position_x_slider.value()
@@ -81,17 +85,30 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
         return self.invert_value
 
     def value_change_callback(self):
-        self.value_changed_2.emit()
+        self.value_changed.emit()
 
     def slider_pressed_callback(self):
         self.editing = True
         self.cutting = True
-        self.value_changed_2.emit()
+        self.value_changed.emit()
 
     def slider_release_callback(self):
         self.editing = False
         self.cutting = True
-        self.value_changed_2.emit()
+        self.value_changed.emit()
+
+    def reset_state(self):
+        self.editing = False
+        self.cutting = False
+        self.invert_value = False
+        self.keep_section_plane = False
+
+        action = app().main_window.action_section_plane
+        action.blockSignals(True)
+        action.setChecked(False)
+        action.blockSignals(False)
+
+        self.reset_button_callback()
 
     def reset_button_callback(self):
         self.relative_plane_position_x_slider.setValue(50),
@@ -102,11 +119,11 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
         self.plane_rotation_z_slider.setValue(0),
 
         self.invert_value = False
-        self.value_changed_2.emit()
+        self.value_changed.emit()
 
     def invert_button_callback(self):
         self.invert_value = not self.invert_value
-        self.value_changed_2.emit()
+        self.value_changed.emit()
 
     def apply_callback(self):
         self.keep_section_plane = True

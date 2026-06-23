@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from pulse import version
+from pulse import VERSION
 from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
@@ -420,9 +420,9 @@ class LoadProject:
             file_version = project_setup["version"]
         else:
             #TODO: remove this as soon as possible
-            file_version = version()
+            file_version = VERSION
 
-        software_version = version()
+        software_version = VERSION
         if Version(file_version) > Version(software_version):
             title = "Incorrect file version"
             message = "The project file version is incompatible with the current OpenPulse version. "

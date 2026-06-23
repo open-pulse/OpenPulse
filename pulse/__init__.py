@@ -7,6 +7,12 @@ from PySide6.QtWidgets import QApplication
 from molde import Color
 from pathlib import Path
 
+__version__ = "2.0.11"
+__release_date__ = 'Jun 2026'
+
+VERSION = __version__
+RELEASE_DATE = __release_date__
+
 OPEN_PULSE_DIR = Path(__file__).parent
 ICON_DIR = OPEN_PULSE_DIR / "interface/data/icons/"
 QSS_DIR = OPEN_PULSE_DIR / "interface/data/qss_files/"
@@ -26,15 +32,3 @@ def app() -> "Application":
     Returns the instance of the current application.
     '''
     return QApplication.instance()
-
-def version() -> str:
-    '''
-    Returns the version of the software available in pyproject.toml
-    '''
-    return "2.0.11"
-
-def release_date() -> str:
-    '''
-    Returns a string containing the release date
-    '''
-    return 'Sep 30th 2024'

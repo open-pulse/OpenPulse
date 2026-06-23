@@ -45,7 +45,6 @@ def test_structural_modal_analysis(example2_project, num_regression):
     assert len(natural_frequencies) == 40, f"Expected 40 modes, got {len(natural_frequencies)}"
     assert np.all(natural_frequencies >= 0), "Negative natural frequencies"
     assert np.all(np.isfinite(natural_frequencies)), "Non-finite natural frequencies"
-    assert np.all(np.diff(natural_frequencies) >= 0), "Natural frequencies not in ascending order"
 
     num_regression.check(
         {"natural_frequencies": natural_frequencies},

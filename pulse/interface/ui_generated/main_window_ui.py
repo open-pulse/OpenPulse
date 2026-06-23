@@ -264,6 +264,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setStyleSheet(u"")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(4, 2, 2, 4)
         self.splitter = QSplitter(self.centralwidget)
         self.splitter.setObjectName(u"splitter")
         self.splitter.setLineWidth(1)
@@ -308,7 +309,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1044, 24))
+        self.menubar.setGeometry(QRect(0, 0, 1044, 22))
         self.menu_project = QMenu(self.menubar)
         self.menu_project.setObjectName(u"menu_project")
         self.menu_recent = QMenu(self.menu_project)
@@ -330,23 +331,11 @@ class Ui_MainWindow(object):
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.tool_bar = QToolBar(MainWindow)
-        self.tool_bar.setObjectName(u"tool_bar")
-        self.tool_bar.setStyleSheet(u"QToolBar {\n"
-"    border-style: solid;\n"
-"    border-width: 1px;\n"
-"    border-color: #888888;\n"
-"}\n"
-"")
-        MainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.tool_bar)
+        self.main_toolbar = QToolBar(MainWindow)
+        self.main_toolbar.setObjectName(u"main_toolbar")
+        MainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.main_toolbar)
         self.workspaces_toolbar = QToolBar(MainWindow)
         self.workspaces_toolbar.setObjectName(u"workspaces_toolbar")
-        self.workspaces_toolbar.setStyleSheet(u"QToolBar {\n"
-"    border-style: solid;\n"
-"    border-width: 1px;\n"
-"    border-color: #888888;\n"
-"}\n"
-"")
         self.workspaces_toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         MainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.workspaces_toolbar)
 
@@ -390,23 +379,23 @@ class Ui_MainWindow(object):
         self.menuTools.addAction(self.action_check_beam_criteria)
         self.menuTools.addAction(self.action_pulsation_suppression_device_editor)
         self.menuTools.addAction(self.action_pulsation_damper_editor)
-        self.tool_bar.addAction(self.action_new_project)
-        self.tool_bar.addAction(self.action_open_project)
-        self.tool_bar.addAction(self.action_reset)
-        self.tool_bar.addAction(self.action_save_project)
-        self.tool_bar.addAction(self.action_save_project_as)
-        self.tool_bar.addSeparator()
-        self.tool_bar.addAction(self.action_zoom)
-        self.tool_bar.addSeparator()
-        self.tool_bar.addAction(self.action_show_mesh_data)
-        self.tool_bar.addAction(self.action_show_geometry_data)
-        self.tool_bar.addAction(self.action_show_lines)
-        self.tool_bar.addAction(self.action_show_tubes)
-        self.tool_bar.addAction(self.action_show_symbols)
-        self.tool_bar.addSeparator()
-        self.tool_bar.addAction(self.action_section_plane)
-        self.tool_bar.addAction(self.action_show_transparent)
-        self.tool_bar.addSeparator()
+        self.main_toolbar.addAction(self.action_new_project)
+        self.main_toolbar.addAction(self.action_open_project)
+        self.main_toolbar.addAction(self.action_reset)
+        self.main_toolbar.addAction(self.action_save_project)
+        self.main_toolbar.addAction(self.action_save_project_as)
+        self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.action_zoom)
+        self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.action_show_mesh_data)
+        self.main_toolbar.addAction(self.action_show_geometry_data)
+        self.main_toolbar.addAction(self.action_show_lines)
+        self.main_toolbar.addAction(self.action_show_tubes)
+        self.main_toolbar.addAction(self.action_show_symbols)
+        self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.action_section_plane)
+        self.main_toolbar.addAction(self.action_show_transparent)
+        self.main_toolbar.addSeparator()
         self.workspaces_toolbar.addAction(self.action_geometry_editor_workspace)
         self.workspaces_toolbar.addAction(self.action_model_setup_workspace)
         self.workspaces_toolbar.addAction(self.action_results_workspace)
@@ -561,8 +550,8 @@ class Ui_MainWindow(object):
         self.menu_help.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
         self.menu_general_settings.setTitle(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.menuTools.setTitle(QCoreApplication.translate("MainWindow", u"Tools", None))
-        self.tool_bar.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main toolbar", None))
-        self.workspaces_toolbar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
+        self.main_toolbar.setWindowTitle(QCoreApplication.translate("MainWindow", u"Main toolbar", None))
+        self.workspaces_toolbar.setWindowTitle(QCoreApplication.translate("MainWindow", u"Workspaces toolbar", None))
     # retranslateUi
 
 
@@ -589,7 +578,7 @@ class MainWindow_UI(QMainWindow, Ui_MainWindow):
             - menu_general_settings: QMenu
             - menuTools: QMenu
         - statusbar: QStatusBar
-        - tool_bar: QToolBar
+        - main_toolbar: QToolBar
         - workspaces_toolbar: QToolBar
     """
 

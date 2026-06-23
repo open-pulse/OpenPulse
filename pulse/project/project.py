@@ -28,7 +28,7 @@ class Project:
 
         # default animation settings
         self.frames = 40
-        self.cycles = 3
+        self.cycles = 0
 
         self._initialize()
         self.reset()

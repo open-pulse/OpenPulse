@@ -1,6 +1,6 @@
 [project]
 name = "pulse"
-version = "2.1.3"
+version = "2.1.4"
 description = "Open Source Software for Pulsation Analysis of Pipeline Systems"
 authors = [
     { name = "Olavo Silva", email = "olavus@gmail.com" },
@@ -44,6 +44,7 @@ dependencies = [
 
 [project.scripts]
 pulse = "pulse.launch:main"
+bump = "scripts.bump_version:main"
 
 [dependency-groups]
 dev = [

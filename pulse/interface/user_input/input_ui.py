@@ -1,5 +1,6 @@
 from pulse.interface.user_input.model.setup.material.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
+from pulse.interface.user_input.model.setup.mesher_setup_input import MesherSetupInput
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
@@ -153,6 +154,9 @@ class InputUi:
 
     def set_fluid(self):
         self.process_input(SetFluidInput)
+    
+    def mesh_setup(self):
+        return self.process_input(MesherSetupInput)
 
     def set_fluid_composition(self):
         self.process_input(SetFluidCompositionInput)

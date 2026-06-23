@@ -14,18 +14,16 @@ def custom_exception_hooks(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
         sys.exit()
 
-    # Logs unhandled errors for future checks 
+    # Logs unhandled errors for future checks
     logging.error("Unhandled error", exc_info=(exc_type, exc_value, exc_traceback))
-    
+
     try:
         from pulse.interface.user_input.project.print_message import PrintMessageInput
-        PrintMessageInput([
-            "Unhandled error",
-            f"{exc_type.__name__}: {exc_value}",
-            "\n".join(format_tb(exc_traceback, limit=-5))
-        ])
+
+        PrintMessageInput(["Unhandled error", f"{exc_type.__name__}: {exc_value}", "\n".join(format_tb(exc_traceback, limit=-5))])
     except Exception as e:
         logging.exception(e)
+
 
 sys.excepthook = custom_exception_hooks
 
@@ -58,22 +56,22 @@ def configure_logs():
 
 
 def main():
-    """ OpenPulse main
-        The main function starts the OpenPulse software.
-        This will create the mainWindow and also pass the terminal arguments to it.
+    """OpenPulse main
+    The main function starts the OpenPulse software.
+    This will create the mainWindow and also pass the terminal arguments to it.
 
-        # If are using Windows with HighDPI active, this'll set the scale to 100%
-        # But the screen and text'll be blurry
+    # If are using Windows with HighDPI active, this'll set the scale to 100%
+    # But the screen and text'll be blurry
 
-        Example:
-            To start the OpenPulse you must first install all requeriments and
-            tip this command in the terminal:
-            (Python3)
+    Example:
+        To start the OpenPulse you must first install all requeriments and
+        tip this command in the terminal:
+        (Python3)
 
-                $ python pulse.py
+            $ python pulse.py
 
-        Todo:
-            Fix the HighDPI part to not blurry the screen. See more by searching "PyQt5 HighDPI".
+    Todo:
+        Fix the HighDPI part to not blurry the screen. See more by searching "PyQt5 HighDPI".
     """
     # Import enabling compiled qt resources to be found from path `:/icons/{filepath_relative_to_qrc}`
     import pulse.interface.data.icons.resources_rc  # noqa: F401
