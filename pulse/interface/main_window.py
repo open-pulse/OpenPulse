@@ -699,9 +699,15 @@ class MainWindow(MainWindow_UI):
         self.close_dialogs()
         self.reset_temporary_folder()
         self.project.reset(reset_all=True)
-        self.project.model.properties._reset_variables()
+
+        if self.project.model.properties is not None:
+            self.project.model.properties._reset_variables()
+
         self.project.reset_project(reset_all=True)
-        self.project.model.mesh.set_mesher_setup()
+
+        if self.project.model.mesh is not None:
+            self.project.model.mesh.set_mesher_setup()
+
         self.reset_geometry_render()
         self.clear_selection()
         self.results_widget.show_empty()
@@ -715,6 +721,7 @@ class MainWindow(MainWindow_UI):
         self.action_model_setup_workspace.setChecked(False)
         self.action_results_workspace.setChecked(False)
         self.welcome_widget.update_recent_projects()
+        self.configure_welcome_widget()
 
     def action_exit_callback(self):
         self.close_app()
