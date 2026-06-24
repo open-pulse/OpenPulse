@@ -121,15 +121,14 @@ class AcousticElement:
         self.index = index
 
         self.element_type = kwargs.get('element_type', 'undamped')
-        self.proportional_damping = kwargs.get('proportional_damping', None)
-        self.material: Material = kwargs.get('material', None)
-        self.fluid: Fluid = kwargs.get('fluid', None)
-        self.cross_section: CrossSection = kwargs.get('cross_section', None)
-        self.cross_section_points = kwargs.get('cross_section_points', None)
-        self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
-        self.perforated_plate = kwargs.get('perforated_plate', None)
-        self.volumetric_flow_rate = kwargs.get('volumetric_flow_rate', 0)
-        self.length_correction_data = kwargs.get('length_correction_data', None)
+        self.proportional_damping: str | None = kwargs.get('proportional_damping')
+        self.material: Material | None = kwargs.get('material')
+        self.fluid: Fluid | None = kwargs.get('fluid')
+        self.cross_section: CrossSection | None = kwargs.get('cross_section')
+        self.loaded_pressure: np.ndarray = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
+        self.perforated_plate: str | None = kwargs.get('perforated_plate')
+        self.volumetric_flow_rate: float = kwargs.get('volumetric_flow_rate', 0)
+        self.length_correction_data: str | None = kwargs.get('length_correction_data')
         self.turned_off = kwargs.get("turned_off", False)
 
         self.reset()
