@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'plot_nodal_results_field_for_harmonic_analysis.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.1
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
