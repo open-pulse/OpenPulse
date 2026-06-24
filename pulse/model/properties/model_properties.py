@@ -1,5 +1,6 @@
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
+from pulse import app
 
 import numpy as np
 from copy import deepcopy
@@ -263,7 +264,33 @@ class ModelProperties:
 
         return None
 
+    def material_is_applied_to_all_lines(self):
+        lines = app().project.model.mesh.lines_from_model
+        k = 0
+        for line_data in self.line_properties.values():
+            if "material" not in line_data.keys():
+                return False
+            k += 1
+
+        return len(lines) == k
+
+    def fluid_is_applied_to_all_lines(self):
+        lines = app().project.model.mesh.lines_from_model
+        k = 0
+        for line_data in self.line_properties.values():
+            if "fluid" not in line_data.keys():
+                return False
+            k += 1
+
+        return len(lines) == k
+
     def is_the_property_applied(self, property: str) -> bool:
+        if property == "material":
+            return self.material_is_applied_to_all_lines()
+
+        if property == "fluid":
+            return self.fluid_is_applied_to_all_lines()
+
         for line_data in self.line_properties.values():
             if property in line_data.keys():
                 return True
