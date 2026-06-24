@@ -684,6 +684,45 @@ class MainWindow(MainWindow_UI):
     def action_user_preferences_callback(self):
         self.input_ui.mesh_setup_visibility()
 
+    def action_home_exit_callback(self):
+        none_save_path = self.project.save_path is None
+        temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
+        data_modified = self.project_data_modified
+
+        condition = (none_save_path and temp_file_exists) or data_modified
+        empty_project = app().project.file.read_line_properties_from_file() is None
+
+        if condition and not empty_project:
+            if self.save_project_data():
+                return
+
+        self.close_dialogs()
+        self.reset_temporary_folder()
+        self.project.reset(reset_all=True)
+
+        if self.project.model.properties is not None:
+            self.project.model.properties._reset_variables()
+
+        self.project.reset_project(reset_all=True)
+
+        if self.project.model.mesh is not None:
+            self.project.model.mesh.set_mesher_setup()
+
+        self.reset_geometry_render()
+        self.clear_selection()
+        self.results_widget.show_empty()
+        self.update_plots()
+        self.status_bar.reset_labels_visibility()
+        self.section_plane.reset_state()
+        self.project_data_modified = False
+        self.set_window_title()
+        self.update_results_workspace_button_accessibility(False)
+        self.action_geometry_editor_workspace.setChecked(False)
+        self.action_model_setup_workspace.setChecked(False)
+        self.action_results_workspace.setChecked(False)
+        self.welcome_widget.update_recent_projects()
+        self.configure_welcome_widget()
+
     def action_exit_callback(self):
         self.close_app()
 
@@ -1001,6 +1040,7 @@ class MainWindow(MainWindow_UI):
             self.action_model_setup_workspace_callback()
             self.set_toolbars_visible(True)
             self.update_results_workspace_button_accessibility()
+            self.view_toolbar.action_front_view_callback()
             self.update_plots()
 
         LoadingWindow(tmp).run()
