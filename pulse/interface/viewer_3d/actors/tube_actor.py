@@ -1,6 +1,6 @@
-import numpy as np
 import logging
-from pulse.utils import cross_section_sources
+
+import numpy as np
 from vtkmodules.vtkCommonCore import (
     vtkDoubleArray,
     vtkIntArray,
@@ -12,11 +12,13 @@ from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
 from vtkmodules.vtkRenderingCore import vtkActor, vtkGlyph3DMapper
 
 from pulse import app
-from pulse.utils.interface_utils import ColorMode
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.model.acoustic_element import AcousticElement
-from pulse.model.structural_element import StructuralElement
 from pulse.model.cross_section import CrossSection
+from pulse.model.node import Node
+from pulse.model.structural_element import StructuralElement
+from pulse.utils import cross_section_sources
+from pulse.utils.interface_utils import ColorMode
 
 
 class TubeActor(vtkActor):
@@ -37,13 +39,14 @@ class TubeActor(vtkActor):
     def __init__(self, **kwargs) -> None:
         super().__init__()
 
-        self.project = app().project
         self.user_preferences = app().main_window.config.user_preferences
-        self.model = self.project.model
-        self.preprocessor = self.project.model.preprocessor
-        self.elements = self.project.get_structural_elements()
+        self.elements = app().project.get_structural_elements()
         self.hidden_elements = kwargs.get("hidden_elements", set())
         self.build()
+
+    @property
+    def model(self):
+        return app().project.model
 
     def build(self):
         visible_elements = {
@@ -71,8 +74,9 @@ class TubeActor(vtkActor):
 
         section_index = dict()
         for element in visible_elements.values():
-            points.InsertNextPoint(self.get_element_coordinates(element))
-            rotations.InsertNextTuple(self.get_element_rotations(element))
+
+            points.InsertNextPoint(self.get_element_coordinates(element.first_node))
+            rotations.InsertNextTuple(self.get_element_rotations(element.index))
 
             key = self._hash_element_section(element)
             if key not in section_index:
@@ -107,11 +111,11 @@ class TubeActor(vtkActor):
         
         self.clear_colors()
 
-    def get_element_coordinates(self, element: AcousticElement | StructuralElement) -> tuple[float, float, float]:
-        return element.first_node.coordinates
+    def get_element_coordinates(self, node: Node) -> tuple[float, float, float]:
+        return node.coordinates
 
-    def get_element_rotations(self, element: AcousticElement | StructuralElement) -> tuple[float, float, float]:
-        return element.section_rotation_xyz_undeformed
+    def get_element_rotations(self, element_index: int) -> tuple[float, float, float]:
+        return self.model.section_rotations.get(element_index).undeformed_rotation_rxyz
 
     def create_element_data(self, element: AcousticElement | StructuralElement):
         cross_section = element.cross_section

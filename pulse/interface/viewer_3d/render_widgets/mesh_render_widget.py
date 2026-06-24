@@ -367,13 +367,16 @@ class MeshRenderWidget(CommonRenderWidget):
         self.lines_actor.set_color((200, 0, 0), elements, lines)
         self.tubes_actor.set_color((255, 0, 50), elements, lines)
 
+        spatial_data = app().main_window.project.model.preprocessor.spatial_data
+        section_rotations = app().main_window.project.model.section_rotations
+
         # show element actor
         self.element_axes_actor.VisibilityOff()
         if len(elements) == 1:
             self.element_axes_actor.VisibilityOn()
             element_id, *_ = elements
-            element = app().project.get_structural_element(element_id)
-            self.element_axes_actor.position_from_element(element)
+
+            self.element_axes_actor.position_from_element(spatial_data.get(element_id), section_rotations.get(element_id))
 
         self.update_info_text()
         self.update()

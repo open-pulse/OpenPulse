@@ -1,25 +1,27 @@
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from pulse.utils import cross_section_sources
 from pulse.interface.viewer_3d.actors import TubeActor
+from pulse.model.node import Node
 
 
 class TubeActorResults(TubeActor):
-    def __init__(self, acoustic_plot=False, show_deformed=False, **kwargs) -> None:
+    def __init__(self, acoustic_plot: bool = False, show_deformed: bool = False, **kwargs) -> None:
         self.acoustic_plot = acoustic_plot
         self.show_deformed = show_deformed
         super().__init__(**kwargs)
 
-    def get_element_coordinates(self, element) -> tuple[float, float, float]:
+    def get_element_coordinates(self, node: Node) -> tuple[float, float, float]:
         if self.show_deformed:
-            return element.first_node.deformed_coordinates
-        else:
-            return element.first_node.coordinates
+            return node.deformed_coordinates
 
-    def get_element_rotations(self, element) -> tuple[float, float, float]:
+        return node.coordinates
+
+    def get_element_rotations(self, element_index: int) -> tuple[float, float, float]:
+        section_rotations = self.model.section_rotations.get(element_index)
         if self.show_deformed:
-            return element.deformed_rotation_xyz
-        else:
-            return element.section_rotation_xyz_undeformed
+            return section_rotations.deformed_rotation_rxyz
+
+        return section_rotations.undeformed_rotation_rxyz
 
     def create_element_data(self, element):
 
