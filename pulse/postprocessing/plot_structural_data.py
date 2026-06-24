@@ -4,6 +4,8 @@ from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.model.preprocessor import Preprocessor
+    from pulse.model.model import Model
+
 
 import numpy as np
 from math import pi
@@ -77,7 +79,7 @@ def get_min_max_resultant_displacements(solution: np.ndarray, column: int, **kwa
             uy_animation = color_scale_setup["uy_animation"]
             uz_animation = color_scale_setup["uz_animation"]
 
-    except:
+    except Exception:
         absolute_animation = True
 
     ind = np.arange(0, solution.shape[0], DOF_PER_NODE_STRUCTURAL)
@@ -160,7 +162,7 @@ def get_min_max_resultant_displacements(solution: np.ndarray, column: int, **kwa
     return r_xyz, r_min, r_max, r_xyz_max
 
 
-def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, column: int, **kwargs) -> np.ndarray:
+def get_structural_response(model: "Model", solution: np.ndarray, column: int, **kwargs) -> np.ndarray:
 
     phase_step = kwargs.get("phase_step", None)
     r_max = kwargs.get("r_max", None)
@@ -179,7 +181,7 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
             ux_animation = color_scale_setup["ux_animation"]
             uy_animation = color_scale_setup["uy_animation"]
             uz_animation = color_scale_setup["uz_animation"]
-    except:
+    except Exception:
         absolute_animation = True
 
     rows = int(solution.shape[0]/DOF_PER_NODE_STRUCTURAL)
@@ -206,7 +208,7 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
     _delta = -np.angle(solution[_idx_max, column])
 
     if new_scf is None:
-        scf = preprocessor.structure_principal_diagonal / 50
+        scf = model.preprocessor.structure_principal_diagonal / 50
 
     if Normalize:
         if r_max == 0:
@@ -215,8 +217,8 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
         r_max, scf = 1, 1
 
     coord_def = np.zeros((rows,4), dtype=float)
-    coord = preprocessor.nodal_coordinates_matrix
-    connect = preprocessor.connectivity_matrix
+    coord = model.preprocessor.nodal_coordinates_matrix
+    connect = model.preprocessor.connectivity_matrix
 
     magnif_factor = scf/r_max
     if phase_step is None:
@@ -260,7 +262,7 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
         data[ind+5, column] 
         ]).T*factor
 
-    nodes = preprocessor.nodes
+    nodes = model.preprocessor.nodes
 
     disp_indexes = [0, 1, 2]
     rot_indexes = [3, 4, 5]
@@ -272,7 +274,7 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
         node.deformed_displacements_xyz_gcs = nodal_solution_gcs[global_index, disp_indexes]
         node.deformed_rotations_xyz_gcs = nodal_solution_gcs[global_index, rot_indexes]
 
-    preprocessor.process_element_cross_sections_orientation_to_plot()
+    model.process_element_cross_sections_orientation_to_plot()
 
     return connect, coord_def, r_xyz_plot, magnif_factor, _delta
 

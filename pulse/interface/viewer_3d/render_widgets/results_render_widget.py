@@ -589,16 +589,15 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def _compute_displacement_field(self, frequency_index, phase_step):
 
-        project = app().project
-        preprocessor = project.model.preprocessor
-        solution = project.get_structural_solution()
+        model = app().project.model
+        solution = app().project.get_structural_solution()
 
         # It is probably a bit unclear, but this function have some colateral
         # effects. It interprets the structural analysis and puts the meaningfull
         # data inside the correspondent nodes.
         # The return values are just extra information.
         _, _, u_def, self._magnification_factor, _ = get_structural_response(
-            preprocessor,
+            model,
             solution,
             frequency_index,
             phase_step=phase_step,
