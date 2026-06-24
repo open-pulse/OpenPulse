@@ -4,7 +4,7 @@ from scipy.sparse import csr_matrix
 from pulse.model.model import Model
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.structural_element import DOF_PER_ELEMENT
-
+from pulse.model.elements.expansion_joint_structural_element import ExpansionJointStructuralElement
 
 class AssemblyStructural:
     """ This class creates a structural assembly object from input data.
@@ -155,19 +155,21 @@ class AssemblyStructural:
         """
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         number_elements = len(self.preprocessor.structural_elements)
-        self.expansion_joint_data = dict()
+        self.expansion_joint_elements: dict[int, ExpansionJointStructuralElement] = dict()
 
         rows, cols = self.preprocessor.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         
         for index, element in enumerate(self.preprocessor.structural_elements.values()):
+
             element_type = element.element_type
+
             if element_type == "rigid_element":
                 continue
 
             elif element_type == "expansion_joint":
-                self.expansion_joint_data[index] = element
+                self.expansion_joint_elements[index] = element
 
             else:
                 mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()
@@ -186,7 +188,7 @@ class AssemblyStructural:
     def get_expansion_joint_global_matrices(self):
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
-        number_elements = len(self.expansion_joint_data)
+        number_elements = len(self.expansion_joint_elements)
         
         if self.frequencies is None:
             number_frequencies = 1
@@ -206,12 +208,13 @@ class AssemblyStructural:
             mat_Ke = np.zeros((number_frequencies, number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
             mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
 
-            for ind, element in enumerate(self.expansion_joint_data.values()):
+            for ind, element in enumerate(self.expansion_joint_elements.values()):
 
-                i, j = element.global_matrix_indexes()
-                rows.append(i)
-                cols.append(j)
-                mat_Ke[:,ind,:,:], mat_Me[ind,:,:] = element.expansion_joint_matrices_gcs(self.frequencies) 
+                e_rows, e_cols = element.global_matrix_indexes()
+                rows.append(e_rows)
+                cols.append(e_cols)
+
+                mat_Ke[:,ind,:,:], mat_Me[ind,:,:] = element.matrices_gcs(self.frequencies) 
 
             rows = np.array(rows).flatten()
             cols = np.array(cols).flatten()   

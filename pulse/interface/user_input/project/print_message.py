@@ -1,11 +1,12 @@
+from time import sleep, time
+
 from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QColor
 
 from pulse import app
+from pulse.interface.formatters.icons import get_error_icon, get_warning_icon
 from pulse.interface.ui_generated.messages.print_message_ui import PrintMessage_UI
-from pulse.interface.formatters.icons import *
 
-
-from time import sleep, time 
 
 class PrintMessageInput(PrintMessage_UI):
     def __init__(self, text_info, **kwargs):
