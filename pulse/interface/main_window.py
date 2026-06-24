@@ -1040,6 +1040,7 @@ class MainWindow(MainWindow_UI):
             self.action_model_setup_workspace_callback()
             self.set_toolbars_visible(True)
             self.update_results_workspace_button_accessibility()
+            self.view_toolbar.action_front_view_callback()
             self.update_plots()
 
         LoadingWindow(tmp).run()
