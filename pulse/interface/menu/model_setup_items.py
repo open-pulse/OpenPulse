@@ -336,6 +336,20 @@ class ModelSetupItems(CommonMenuItems):
     def contains_property(self, property_name: str) -> bool:
         if (properties := app().project.model.properties) is None:
             return False
+        
+        if property_name == "material":
+            if (mesh := app().project.model.mesh) is None:
+                return False
+
+            total_lines = len(mesh.lines_from_model)
+            return properties.is_material_applied_to_all_lines(total_lines)
+
+        if property_name == "fluid":
+            if (mesh := app().project.model.mesh) is None:
+                return False
+
+            total_lines = len(mesh.lines_from_model)
+            return properties.is_fluid_applied_to_all_lines(total_lines)
 
         return properties.is_the_property_applied(property_name)
 
