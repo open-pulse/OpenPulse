@@ -17,15 +17,15 @@ class TubeActorResults(TubeActor):
         return node.coordinates
 
     def get_element_rotations(self, element_index: int) -> tuple[float, float, float]:
-        section_rotations = self.model.section_rotations.get(element_index)
+        section_data = self.get_element_section_data(element_index)
         if self.show_deformed:
-            return section_rotations.deformed_rotation_rxyz
+            return section_data.deformed_rotation_rxyz
 
-        return section_rotations.undeformed_rotation_rxyz
+        return section_data.undeformed_rotation_rxyz
 
     def create_element_data(self, element):
 
-        cross_section = element.cross_section
+        cross_section = self.get_element_attributes(element.index).cross_section
         if cross_section is None:
             return vtkPolyData()
 
@@ -41,7 +41,7 @@ class TubeActorResults(TubeActor):
             return cross_section_sources.closed_pipe_data(element.length, d_inner, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         elif self.acoustic_plot and expansion_joint:
-            d_eff, offset_y, offset_z, *_ = element.section_parameters_render
+            d_eff, offset_y, offset_z, *_ = self.get_element_section_data(element.index).section_parameters_render
             return cross_section_sources.closed_pipe_data(element.length, d_eff, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         return super().create_element_data(element)

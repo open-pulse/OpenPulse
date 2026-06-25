@@ -33,8 +33,7 @@ class MeshPicker:
         self.tube_bounds = dict()
 
     def update_bounds(self):
-        elements = app().project.model.preprocessor.structural_elements
-        nodes = app().project.model.preprocessor.nodes
+        preprocessor = app().project.model.preprocessor
         points = app().project.get_geometry_points()
 
         # Usually it makes more sense to store the points/nodes
@@ -49,11 +48,11 @@ class MeshPicker:
             x, y, z = point.coordinates
             self.points_bounds[key] = (x, x, y, y, z, z)
 
-        for key, node in nodes.items():
+        for key, node in preprocessor.nodes.items():
             x, y, z = node.coordinates
             self.nodes_bounds[key] = (x, x, y, y, z, z)
 
-        for key, element in elements.items():
+        for key, element in preprocessor.structural_elements.items():
             first_node = element.first_node.coordinates
             last_node = element.last_node.coordinates
 
@@ -64,13 +63,14 @@ class MeshPicker:
             y1 = max(first_node[1], last_node[1])
             z1 = max(first_node[2], last_node[2])
 
-            if element.cross_section is None:
+            cross_section = preprocessor.get_element_cross_section(element.index)
+            if cross_section is None:
                 return
 
-            if element.cross_section.outer_diameter is None:
+            if cross_section.outer_diameter is None:
                 return
 
-            radius = element.cross_section.outer_diameter / 2 
+            radius = cross_section.outer_diameter / 2 
             center = element.center_coordinates
 
             line_bounds = (x0, x1, y0, y1, z0, z1)
@@ -264,8 +264,11 @@ class MeshPicker:
 
     def _distance_point_bounds(self, point, bounds) -> float:
         point = np.array(point)
-        distance_fn = lambda _vertice: np.linalg.norm(point - _vertice)
         vertices = self._verts_from_bounds(bounds)
+
+        def distance_fn(p_vertex: np.ndarray):
+            return np.linalg.norm(point - p_vertex)
+
         return min(vertices, key=distance_fn)
 
     def _narrow_pickability_to_actor(self, target_actor: vtkActor):

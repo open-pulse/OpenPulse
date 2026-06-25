@@ -160,20 +160,25 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             if element is None:
                 continue
 
+            element_attributes = app().project.model.preprocessor.structural_element_attributes.get(element.index)
+            cross_section = element_attributes.cross_section
+
             # There must be a cleaner way, but I will just
             # copy this code from the previous version
-            thickness = element.perforated_plate.thickness
-            if element.valve_data:
-                d_in = element.valve_data["valve_effective_diameter"]
+
+            perforated_plate = element_attributes.perforated_plate
+            thickness = perforated_plate.thickness
+            if element_attributes.valve_data is not None:
+                d_in = element_attributes.valve_data.effective_diameter
                 diameter = d_in / 2
             else:
-                diameter = element.cross_section.inner_diameter
+                diameter = cross_section.inner_diameter
 
             coord_a = element.first_node.coordinates
             coord_b = element.last_node.coordinates
             vector = coord_b - coord_a
 
-            if element.perforated_plate.single_hole:
+            if perforated_plate.single_hole:
                 data = perforated_plate_single_hole
             else:
                 data = perforated_plate_many_holes

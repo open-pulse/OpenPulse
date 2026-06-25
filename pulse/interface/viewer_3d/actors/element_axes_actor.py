@@ -3,7 +3,7 @@ from vtkmodules.vtkRenderingAnnotation import vtkAxesActor
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPropCollection
 
 from pulse.model.spatial_data import SpatialData
-from pulse.model.section_rotations import SectionRotations
+from pulse.model.section_data_for_renders import SectionDataForRenders
 
 
 
@@ -17,11 +17,11 @@ class ElementAxesActor(vtkAxesActor):
         self.SetShaftTypeToCylinder()
         self._make_ghost()
 
-    def position_from_element(self, element_spatial_data: SpatialData, section_rotations: SectionRotations):
+    def position_from_element(self, element_spatial_data: SpatialData, section_data: SectionDataForRenders):
     
         length = element_spatial_data.length
         coords = element_spatial_data.center_coordinates
-        rx, ry, rz = section_rotations.undeformed_rotation_rxyz
+        rx, ry, rz = section_data.undeformed_rotation_rxyz
 
         transform = vtkTransform()
         transform.Translate(coords)

@@ -174,28 +174,25 @@ def elements_info_text() -> str:
         last_node = structural_element.last_node
 
         tree = TreeInfo(f"ELEMENT {_id}")
-        tree.add_item( f"First Node - {first_node.external_index:>5}",
-                        "[{:.4f}, {:.4f}, {:.4f}]".format(*first_node.coordinates),
-                        "m" )
-
-        tree.add_item( f"Last Node  - {last_node.external_index:>5}",
-                        "[{:.4f}, {:.4f}, {:.4f}]".format(*last_node.coordinates),
-                        "m" )
+        tree.add_item( f"First Node - {first_node.external_index:>5}", "[{:.4f}, {:.4f}, {:.4f}]".format(*first_node.coordinates), "m" )
+        tree.add_item( f"Last Node  - {last_node.external_index:>5}", "[{:.4f}, {:.4f}, {:.4f}]".format(*last_node.coordinates), "m" )
 
         info_text += str(tree)
 
-        if structural_element.material:
-            info_text += material_info_text(structural_element.material)
+        element_attributes = project.model.preprocessor.structural_element_attributes.get(structural_element.index)
+
+        if element_attributes.material:
+            info_text += material_info_text(element_attributes.material)
 
         if acoustic_element.fluid:
             info_text += fluid_info_text(acoustic_element.fluid)
 
         info_text += cross_section_info_text(
-            structural_element.cross_section, 
-            structural_element.element_type,
-            structural_element.beam_xaxis_rotation,
-            structural_element.expansion_joint_data,
-            structural_element.valve_data
+            element_attributes.cross_section,
+            element_attributes.element_type,
+            element_attributes.xaxis_rotation_angle,
+            element_attributes.expansion_joint_data,
+            element_attributes.valve_data,
             )
 
     return info_text

@@ -40,7 +40,7 @@ class TubeActor(vtkActor):
         super().__init__()
 
         self.user_preferences = app().main_window.config.user_preferences
-        self.elements = app().project.get_structural_elements()
+        self.structural_elements = app().project.get_structural_elements()
         self.hidden_elements = kwargs.get("hidden_elements", set())
         self.build()
 
@@ -48,9 +48,19 @@ class TubeActor(vtkActor):
     def model(self):
         return app().project.model
 
+    @property
+    def preprocessor(self):
+        return app().project.model.preprocessor
+    
+    def get_element_section_data(self, element_id: int):
+        return self.preprocessor.section_data_for_renders.get(element_id)
+
+    def get_element_attributes(self, element_id: int):
+        return self.preprocessor.structural_element_attributes.get(element_id)
+
     def build(self):
         visible_elements = {
-            i: e for i, e in self.elements.items() if (i not in self.hidden_elements)
+            i: e for i, e in self.structural_elements.items() if (i not in self.hidden_elements)
         }
         self._key_index = {j: i for i, j in enumerate(visible_elements.keys())}
 
@@ -115,10 +125,13 @@ class TubeActor(vtkActor):
         return node.coordinates
 
     def get_element_rotations(self, element_index: int) -> tuple[float, float, float]:
-        return self.model.section_rotations.get(element_index).undeformed_rotation_rxyz
+        return self.get_element_section_data(element_index).undeformed_rotation_rxyz
 
     def create_element_data(self, element: AcousticElement | StructuralElement):
-        cross_section = element.cross_section
+
+        cross_section = self.get_element_attributes(element.index).cross_section
+        section_data = self.get_element_section_data(element.index)
+
         if not isinstance(cross_section, CrossSection):
             return vtkPolyData()
 
@@ -126,10 +139,10 @@ class TubeActor(vtkActor):
         length = element.length
 
         if cross_section.section_type_label in ["pipe", "bend", "arc_bend", "reducer"]:
-            if element.section_parameters_render is None:
+            if section_data.section_parameters_render is None:
                 section_parameters = cross_section.section_parameters
             else:
-                section_parameters = element.section_parameters_render
+                section_parameters = section_data.section_parameters_render
 
             d_out, t, offset_y, offset_z, *_ = section_parameters
 
@@ -156,7 +169,7 @@ class TubeActor(vtkActor):
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "expansion_joint":
-            d_eff, offset_y, offset_z, plot_key = element.section_parameters_render
+            d_eff, offset_y, offset_z, plot_key = section_data.section_parameters_render
 
             if plot_key == "major":
                 d_out = d_eff * 1.25
@@ -175,7 +188,7 @@ class TubeActor(vtkActor):
             return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "valve":
-            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            d_out, t, offset_y, offset_z, *_ = section_data.section_parameters_render
             return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         else:
@@ -184,9 +197,9 @@ class TubeActor(vtkActor):
         return None
     
     def _get_tube_sides(self):
-        if len(self.elements) > 100_000:
+        if len(self.structural_elements) > 100_000:
             return 10
-        elif len(self.elements) > 10_000:
+        elif len(self.structural_elements) > 10_000:
             return 20
         else:
             return 30
@@ -241,7 +254,7 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element in self.elements.items():
+        for i, element in self.structural_elements.items():
             index = self._key_index.get(i)
             if index is None:
                 continue
@@ -257,7 +270,7 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element in self.elements.items():
+        for i, element in self.structural_elements.items():
             index = self._key_index.get(i)
             if index is None:
                 continue
@@ -282,7 +295,7 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element in self.elements.items():
+        for i, element in self.structural_elements.items():
             index = self._key_index.get(i)
             if index is None:
                 continue
@@ -313,15 +326,17 @@ class TubeActor(vtkActor):
 
     def _hash_element_section(self, element: AcousticElement | StructuralElement):
 
-        if element.cross_section is None:
+        cross_section = self.get_element_attributes(element.index).cross_section
+        if cross_section is None:
             return 0
 
-        section_label = element.cross_section.section_type_label
+        section_label = cross_section.section_type_label
+        section_data = self.get_element_section_data(element.index)
 
-        if element.section_parameters_render is None:
-            section_parameters = element.cross_section.section_parameters
+        if section_data.section_parameters_render is None:
+            section_parameters = cross_section.section_parameters
         else:
-            section_parameters = element.section_parameters_render
+            section_parameters = section_data.section_parameters_render
 
         if section_parameters is not None:
             section_parameters = tuple(section_parameters)

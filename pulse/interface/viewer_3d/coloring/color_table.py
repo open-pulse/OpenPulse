@@ -3,8 +3,21 @@ from vtkmodules.vtkCommonCore import vtkLookupTable
 from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
 
 from pulse import app
-from pulse.interface.viewer_3d.coloring.color_palettes import *
+from pulse.interface.viewer_3d.coloring.color_palettes import (
+    grey_colors,
+    jet_colors,
+    viridis_colors, 
+    inferno_colors, 
+    magma_colors, 
+    plasma_colors, 
+    bwr_colors, 
+    PiYG_colors, 
+    PRGn_colors, 
+    BrBG_colors, 
+    PuOR_colors, 
+    )
 
+from pulse.model.structural_element import StructuralElement
 
 class ColorTable(vtkLookupTable):
     def __init__(self, data, min_max_values, colormap, **kwargs):
@@ -93,9 +106,10 @@ class ColorTable(vtkLookupTable):
         color_temp = [int(i * 255) for i in color_temp]
         return
 
-    def get_element_color(self, element):
+    def get_element_color(self, element: StructuralElement):
 
         index = element.index
+
         first_gid = element.first_node.global_index
         last_gid = element.last_node.global_index
 
@@ -108,12 +122,15 @@ class ColorTable(vtkLookupTable):
             if element.element_type in ["beam_1", "expansion_joint", "valve"]:
                 return [255, 255, 255]
             else:
-                value = np.real(self.dictData[element.index])
+                value = np.real(self.dictData[index])
 
         elif self.pressure_field_plot:
+            element_attributes = self.project.model.preprocessor.structural_element_attributes.get(index)
+
             if element.element_type == "beam_1":
                 return [255, 255, 255]
-            elif element.turned_off:
+
+            elif element_attributes.turned_off:
                 return [255, 255, 255]
 
             value = (self.valueVector[first_gid] + self.valueVector[last_gid]) / 2
