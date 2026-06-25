@@ -5,19 +5,13 @@ from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
-from pulse.model.cross_sections.circular_beam_cross_section import (
-    CircularBeamCrossSection,
-)
-from pulse.model.cross_sections.generic_beam_cross_section import (
-    GenericBeamCrossSection,
-)
+from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
+from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
 from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
-from pulse.model.cross_sections.rectangular_beam_cross_section import (
-    RectangularBeamCrossSection,
-)
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
 from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
-from pulse.model.perforated_plate import PerforatedPlate
+from pulse.model.data_classes.data_classes import PerforatedPlateData
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 
@@ -36,6 +30,7 @@ class LoadProject:
         super().__init__()
 
         self.project = project
+        self.model = project.model
         self.properties = project.model.properties
         self.preprocessor = project.model.preprocessor
 
@@ -280,7 +275,7 @@ class LoadProject:
                 self.preprocessor.set_element_length_correction_by_element(element_id, prop_data)
 
             elif property == "perforated_plate":
-                perforated_plate = PerforatedPlate(prop_data)
+                perforated_plate = PerforatedPlateData(**prop_data)
                 self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
 
             elif property == "acoustic_element_turned_off":
@@ -342,7 +337,7 @@ class LoadProject:
     def load_cross_sections(self, line_id: list, data: dict):
 
         if "cross_section" in data.keys():
-            cross_section = data["cross_section"]
+            cross_section = data.get("cross_section")
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
 
         elif "section_type_label" in data.keys():
@@ -401,9 +396,9 @@ class LoadProject:
     def load_imported_table_data_from_file(self):
         imported_tables = self.project.file.load_imported_table_data_from_file()
         if "acoustic" in imported_tables.keys():
-            self.project.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
+            self.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
         if "structural" in imported_tables.keys():
-            self.project.model.properties.structural_imported_tables = imported_tables["structural"]
+            self.model.properties.structural_imported_tables = imported_tables["structural"]
 
 
     def check_file_version(self):
@@ -450,14 +445,14 @@ class LoadProject:
         gravity = np.array(inertia_load["gravity"], dtype=float)
         stiffening_effect = inertia_load["stiffening_effect"]
 
-        self.project.model.set_gravity_vector(gravity)
+        self.model.set_gravity_vector(gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
 
 
     def load_analysis_setup(self):
         analysis_setup = self.project.file.load_analysis_file()
         if isinstance(analysis_setup, dict):
-            self.project.model.set_analysis_setup(analysis_setup)
+            self.model.set_analysis_setup(analysis_setup)
 
 
     def get_psd_related_lines(self):
@@ -796,12 +791,12 @@ class LoadProject:
 
                 if key == "harmonic_acoustic":
                     act_harmonic_analysis = True
-                    self.project.model.frequencies = data["frequencies"]
+                    self.model.frequencies = data["frequencies"]
                     self.project.acoustic_solution = data["solution"]
 
                 if key == "harmonic_structural":
                     str_harmonic_analysis = True
-                    self.project.model.frequencies = data["frequencies"]
+                    self.model.frequencies = data["frequencies"]
                     self.project.structural_solution = data["solution"]
 
                 if key == "static_structural":
