@@ -666,7 +666,7 @@ class StructuralSolver:
         for element in structural_elements:
 
             if element.element_type in ['beam_1', 'expansion_joint', 'valve']:
-                element.stress = np.zeros((7, len(_frequencies)))
+                nodal_stresses[element.index] = np.zeros((7, len(_frequencies)))
 
             elif element.element_type == 'pipe_1':
                 # Internal Loads
@@ -727,19 +727,16 @@ class StructuralSolver:
                     hoop_stress = pm
                     radial_stress = -nu * np.pi * (do/(do-di) - 1)
 
-                stress_data = np.c_[
+                nodal_stresses[element.index] = np.c_[
                     internal_load[0] / area - radial_stress,
-                    internal_load[1] * ro/Iy,
-                    internal_load[2] * ro/Iz,
+                    internal_load[1] * ro / Iy,
+                    internal_load[2] * ro / Iz,
                     hoop_stress,
-                    internal_load[3] * ro/J,
+                    internal_load[3] * ro / J,
                     internal_load[4] / area,
-                    internal_load[5] / area   ].T
+                    internal_load[5] / area,
+                ].T
 
-                element.stress = stress_data
-
-            nodal_stresses[element.index] = element.stress
-            
         return nodal_stresses
 
     def stop_processing(self):

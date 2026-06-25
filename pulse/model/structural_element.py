@@ -64,32 +64,21 @@ class StructuralElement:
 
     def _initialize(self):
 
-        # self.section_rotation_xyz_undeformed = None
-        self.deformed_rotation_xyz = None
-        self.deformed_length = None
-        
-        self.internal_pressure = 0
-        self.external_pressure = 0
-
         self._Dab = None
         self._Bab = None
         self._Dts = None
         self._Bts = None
 
         self.transf_mat = None
-        self.mean_rotation_results = None
-        self.rotation_matrix_results_at_lcs = None
 
         self.transf_matrix_offset_shear_left = None
         self.transf_matrix_offset_shear_right = None
-        self.results_at_global_coordinate_system = None
 
-        self.stress = None
         self.static_analysis_evaluated = False
-        self.perforated_plate = None
+
 
     @property
-    def length(self):
+    def length(self) -> float:
         """
         This method returns the element length.
 
@@ -100,35 +89,42 @@ class StructuralElement:
         """
         return distance(self.first_node, self.last_node) 
 
+
     @ property
-    def delta_x(self):
+    def delta_x(self) -> np.ndarray:
         return self.last_node.x - self.first_node.x
 
+
     @ property
-    def delta_y(self):
+    def delta_y(self) -> np.ndarray:
         return self.last_node.y - self.first_node.y
 
-    @ property
-    def delta_z(self):
-        return self.last_node.z - self.first_node.z
 
     @ property
-    def center_coordinates(self):
+    def delta_z(self) -> np.ndarray:
+        return self.last_node.z - self.first_node.z
+
+
+    @ property
+    def center_coordinates(self) -> np.ndarray:
         return np.array([(self.last_node.x + self.first_node.x) / 2, 
                          (self.last_node.y + self.first_node.y) / 2,
                          (self.last_node.z + self.first_node.z) / 2 ], dtype=float)
 
-    @property
-    def directional_vector(self):
-        return np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
 
     @property
-    def normalized_directional_vector(self):
+    def directional_vector(self) -> np.ndarray:
+        return np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
+
+
+    @property
+    def normalized_directional_vector(self) -> np.ndarray:
         v = np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
         return v / np.linalg.norm(v)
 
+
     @property
-    def global_dof(self):
+    def global_dof(self) -> np.ndarray:
         """
         This method returns the element global degrees of freedom. The 3D Timoshenko beam theory implemented takes into account the three node's translations and the three node's rotations.
 
@@ -146,8 +142,9 @@ class StructuralElement:
     # def local_dof(self):
     #     return np.arange(DOF_PER_ELEMENT, dtype=int)
 
+
     @ property
-    def element_rotation_matrix(self):
+    def element_rotation_matrix(self) -> np.ndarray:
         """
         This method returns the transformation matrix that perform a rotation from the element's local coordinate system to the global coordinate system.
 
@@ -164,36 +161,43 @@ class StructuralElement:
         R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.transf_mat
         return R
 
+
     @property
-    def element_rotation_matrix_inverse(self):
+    def element_rotation_matrix_inverse(self) -> np.ndarray:
         return self.element_rotation_matrix.T
 
-    def compute_transf_submatrix(self):
+
+    def compute_transf_submatrix(self) -> np.ndarray:
         xaxis_rotation_angle = 0
         if self.element_attributes is not None:
             xaxis_rotation_angle = self.element_attributes.xaxis_rotation_angle
 
         return rotation_matrix_3x3_by_deltas(self.delta_x, self.delta_y, self.delta_z, xaxis_rotation_angle)
 
-    def element_results_gcs(self):
+
+    def element_results_gcs(self) -> np.ndarray:
         values = np.zeros(DOF_PER_ELEMENT, dtype=float)
         values[:DOF_PER_NODE_STRUCTURAL] = self.first_node.nodal_solution_gcs
         values[DOF_PER_NODE_STRUCTURAL:] = self.last_node.nodal_solution_gcs
         return values
 
+
     def element_results_lcs(self):
         return self.element_rotation_matrix @ self.element_results_gcs()
 
-    def static_element_results_gcs(self):
+
+    def static_element_results_gcs(self) -> np.ndarray:
         values = np.zeros(DOF_PER_ELEMENT, dtype=float)
         values[:DOF_PER_NODE_STRUCTURAL] = self.first_node.static_nodal_solution_gcs
         values[DOF_PER_NODE_STRUCTURAL:] = self.last_node.static_nodal_solution_gcs
         return values
 
-    def static_element_results_lcs(self):
+
+    def static_element_results_lcs(self) -> np.ndarray:
         return self.element_rotation_matrix @ self.static_element_results_gcs()
 
-    def mean_element_results(self):
+
+    def mean_element_results(self) -> np.ndarray:
         results_gcs = self.element_results_gcs()
         results_first_node = results_gcs[:DOF_PER_NODE_STRUCTURAL]
         results_last_node = results_gcs[DOF_PER_NODE_STRUCTURAL:]
@@ -206,21 +210,24 @@ class StructuralElement:
         # theta_z = (results_gcs[5] + results_gcs[-1])/2
         # return np.array([u_x, u_y, u_z, theta_x, theta_y, theta_z], dtype=float)
 
-    def mean_rotations_at_global_coordinate_system(self):
+
+    def mean_rotations_at_global_coordinate_system(self) -> np.ndarray:
         results_gcs = self.element_results_gcs()
         theta_x = (results_gcs[3] + results_gcs[-3])/2
         theta_y = (results_gcs[4] + results_gcs[-2])/2
         theta_z = (results_gcs[5] + results_gcs[-1])/2
         return np.array([theta_x, theta_y, theta_z], dtype=float)
 
-    def mean_rotations_at_local_coordinate_system(self):
+
+    def mean_rotations_at_local_coordinate_system(self) -> np.ndarray:
         results_lcs = self.element_results_lcs()
         theta_x = (results_lcs[3] + results_lcs[-3])/2
         theta_y = (results_lcs[4] + results_lcs[-2])/2
         theta_z = (results_lcs[5] + results_lcs[-1])/2
         return np.array([theta_x, theta_y, theta_z], dtype=float)
 
-    def rotations_at_local_coordinate_system_decoupled(self, element_attributes: "StructuralElementAttributes"):
+
+    def rotations_at_local_coordinate_system_decoupled(self, element_attributes: "StructuralElementAttributes") -> np.ndarray:
 
         results_lcs = self.element_results_lcs()
         [_, node_id, _, decoupled_rotations] = element_attributes.decoupling_info
@@ -258,7 +265,8 @@ class StructuralElement:
 
         return np.array([theta_x, theta_y, theta_z], dtype=float)
 
-    def section_normal_vectors_at_lcs(self):
+
+    def section_normal_vectors_at_lcs(self) -> np.ndarray:
         theta_x, theta_y, theta_z = self.mean_rotations_at_local_coordinate_system()
         L_ = np.sqrt(1-(np.sin(theta_y)**2))
         L = 1
@@ -269,11 +277,11 @@ class StructuralElement:
         return uvw
 
 
-    def deformed_element_length(self, delta):
-        self.deformed_length = (delta[0]**2 + delta[1]**2 + delta[2]**2)**(1/2)
-        
+    def deformed_element_length(self, deltas: np.ndarray) -> float:
+        return np.linalg.norm(deltas)
 
-    def global_matrix_indexes(self):
+
+    def global_matrix_indexes(self) -> np.ndarray:
         """
         This method returns the indexes of the rows and columns that place the element matrices into the global matrices according to the element global degrees of freedom.
 
@@ -289,7 +297,8 @@ class StructuralElement:
         cols = rows.T
         return rows.reshape(-1), cols.reshape(-1)
 
-    def force_vector_gcs(self, element_attributes: "StructuralElementAttributes"):
+
+    def force_vector_gcs(self, element_attributes: "StructuralElementAttributes") -> np.ndarray:
         """
         This method returns the element force vector in the global coordinate system.
 
@@ -302,7 +311,7 @@ class StructuralElement:
         return Rt @ self.get_distributed_load(element_attributes)
 
 
-    def get_distributed_load(self, element_attributes: "StructuralElementAttributes"):
+    def get_distributed_load(self, element_attributes: "StructuralElementAttributes") -> np.ndarray:
         """
         This method returns the element load vector in the local coordinate system. The loads are forces and moments according to the degree of freedom.
 
@@ -338,24 +347,28 @@ class StructuralElement:
         aux_eyes = np.eye( DOF_PER_NODE_STRUCTURAL, dtype=float)
         for point, weigth in zip(points, weigths):
             phi, _ = shape_function(point)
-            N = np.c_[phi[0]*aux_eyes, phi[1]*aux_eyes] 
+            N = np.c_[phi[0] * aux_eyes, phi[1] * aux_eyes]
             Fe += (N.T @ eload_lcs) * det_jacobian * weigth
-        
-        if self.element_type != 'pipe_1':
+
+        if self.element_type != "pipe_1":
             return np.zeros((DOF_PER_ELEMENT, 1), dtype=float)
 
         principal_axis = cross_section.principal_axis
-        
+
         if element_attributes.force_offset:
             if element_attributes.is_section_variable:
+                if self.transf_matrix_offset_shear_left is None:
+                    self.process_offset_transformation_matrices()
                 return self.transf_matrix_offset_shear_left @ Fe
 
             return principal_axis.T @ Fe
-    
+
         return Fe
 
 
-    def force_vector_acoustic_gcs(self, element_attributes: "StructuralElementAttributes", frequencies: np.ndarray, pressures: np.ndarray, pressure_external: float):
+    def force_vector_acoustic_gcs(
+        self, element_attributes: "StructuralElementAttributes", frequencies: np.ndarray, pressures: np.ndarray, pressure_external: float
+    ) -> np.ndarray:
         """
         This method returns the element load vector due to the internal acoustic pressure field in the global 
         coordinate system. The loads are forces and moments according to the degree of freedom. 
@@ -431,7 +444,7 @@ class StructuralElement:
         return R.T @ aux
 
 
-    def force_vector_stress_stiffening(self, element_attributes: "StructuralElementAttributes", vector_gcs: bool = True):
+    def force_vector_stress_stiffening(self, element_attributes: "StructuralElementAttributes", vector_gcs: bool = True) -> np.ndarray:
         """
         This method returns description
         Returns
@@ -486,7 +499,7 @@ class StructuralElement:
             raise TypeError('Only thin and thick wall formulation types are allowable.')
 
 
-    def get_self_weighted_load(self, element_attributes: "StructuralElementAttributes", gravity_vector: np.ndarray):
+    def get_self_weighted_load(self, element_attributes: "StructuralElementAttributes", gravity_vector: np.ndarray) -> np.ndarray:
         """
         This method returns the self-weighted loads for static analysis.
         Returns
@@ -554,7 +567,103 @@ class StructuralElement:
         return Fe_sw
 
 
-def gauss_quadrature(integration_points):
+    def process_offset_transformation_matrices(self):
+        """
+        """
+        N_dof = DOF_PER_NODE_STRUCTURAL
+        E_dof = DOF_PER_ELEMENT
+
+        cross_section_first = self.first_node.cross_section
+        cross_section_last = self.last_node.cross_section
+        
+        yc_1, zc_1, ys_1, zs_1 = cross_section_first.get_centroide_and_shear_center()
+        yc_2, zc_2, ys_2, zs_2  = cross_section_last.get_centroide_and_shear_center()        
+
+        # delta_yc = yc_2 - yc_1
+        # delta_zc = zc_2 - zc_1
+        delta_ys = ys_2 - ys_1
+        delta_zs = zs_2 - zs_1
+
+        offset_first = cross_section_first.offsets
+        offset_last = cross_section_last.offsets
+
+        y1_offset, z1_offset = offset_first
+        y2_offset, z2_offset = offset_last
+
+        delta_yo = y2_offset - y1_offset
+        delta_zo = z2_offset- z1_offset
+        # delta_yo *= -1
+        # delta_zo *= -1
+
+        # process matrix transformation to account the shear center differences effect
+        Le = self.length
+        delta_xo = 0
+        L_A = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
+        L_G = L_A - delta_xo
+        
+        L_N = Le
+        # L_A = Le
+        # L_G = Le
+        L_B = np.sqrt(Le**2 + delta_yo**2)
+        
+        L_SB = np.sqrt(L_G**2 + delta_ys**2)
+        L_SC = np.sqrt(L_G**2 + delta_ys**2 + delta_zs**2)
+
+        C1 = L_SC/L_G
+        C2 = -(delta_ys*L_SC)/(L_SB*L_G)
+        C3 = -delta_zs/L_SB
+
+        Rs = np.eye(N_dof, dtype=float)
+        Ts_1 = np.eye(N_dof, dtype=float)
+        Ts_2 = np.eye(N_dof, dtype=float)
+
+        Rs[[3,4,5],[3,3,3]] = [C1, C2, C3]
+        Ts_1[[1,2],[3,3]] = [-zs_1, ys_1]
+        Ts_2[[1,2],[3,3]] = [-zs_2, ys_2]
+
+        Sc = np.zeros((E_dof, E_dof), dtype=float)
+        Sc[0:N_dof, 0:N_dof] = Rs@Ts_1
+        Sc[N_dof:, N_dof:] = Rs@Ts_2
+
+        # process matrix transformation to account the offset effect
+        ro = np.array([ [      L_A/L_N, delta_yo/L_B,       (L_A*delta_zo)/(L_N*L_B)],
+                        [-delta_yo/L_N,      L_A/L_B, -(delta_yo*delta_zo)/(L_N*L_B)],
+                        [-delta_zo/L_N,            0,                        L_B/L_N] ])
+        
+        # delta_x = sqrt(Le**2 - delta_yo**2 - delta_zo**2)
+        # L_ = np.sqrt(delta_x**2 + delta_yo**2)
+        # L = np.sqrt(delta_x**2 + delta_yo**2 + delta_zo**2)
+
+        # sin_delta = delta_yo / L_
+        # cos_delta = delta_x / L_
+        # sin_epsilon = -delta_zo / L
+        # cos_epsilon = L_ / L
+
+        # ro = np.array([ [cos_delta*cos_epsilon, -sin_delta, cos_delta*sin_epsilon],
+        #                 [sin_delta*cos_epsilon,  cos_delta, sin_delta*sin_epsilon],
+        #                 [         -sin_epsilon,          0,           cos_epsilon] ])
+        
+        # print(ro@np.array([Le,0,0]), delta_yo, delta_zo)
+
+        Ro = np.zeros((N_dof,N_dof), dtype=float)
+        Ro[0:int(N_dof/2), 0:int(N_dof/2)] = ro
+        Ro[ int(N_dof/2):,  int(N_dof/2):] = ro
+
+        To_I = np.eye(N_dof, dtype=float)
+        To_J = np.eye(N_dof, dtype=float)
+        To_I[[0,0,1,2],[4,5,3,3]] = [z1_offset, -y1_offset, -z1_offset, y1_offset]
+        To_J[[0,0,1,2],[4,5,3,3]] = [z2_offset, -y2_offset, -z2_offset, y2_offset]
+
+        Of = np.zeros((E_dof, E_dof), dtype=float)
+        Of[0:N_dof, 0:N_dof] = To_I @ Ro
+        Of[N_dof:, N_dof:] = To_J @ Ro
+
+        self.transf_mat_Offset = Of
+        self.transf_matrix_offset_shear_left = Of.T @ Sc.T
+        self.transf_matrix_offset_shear_right = Sc @ Of
+
+
+def gauss_quadrature(integration_points: int) -> tuple[list, list]:
     """
     This method returns the Gauss quadrature data.  
 
@@ -589,7 +698,7 @@ def gauss_quadrature(integration_points):
         raise TypeError('You must provide 1, 2, or 3 integration points')
     return points, weigths
 
-def shape_function(ksi):
+def shape_function(ksi: float) -> tuple[np.ndarray, np.ndarray]:
     """ This function returns the one dimensional linear shape function and its derivative.
 
     Parameters
@@ -609,17 +718,17 @@ def shape_function(ksi):
     derivative_phi = np.array([-0.5, 0.5])
     return phi, derivative_phi
 
-def symmetrize(a):
+def symmetrize(A: np.ndarray) -> np.ndarray:
     """ This function receives matrix and makes it symmetric.
 
     Parameters
     ----------
-    array
+    A: np.ndarray
         Matrix.
 
     Returns
     -------
-    array
+    np.ndarray
         Symmetric matrix.    
     """
-    return a + a.T - np.diag(a.diagonal())
+    return A + A.T - np.diag(A.diagonal())
