@@ -160,9 +160,8 @@ class AssemblyStructural:
         rows, cols = self.preprocessor.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-        
-        for index, element in enumerate(self.preprocessor.structural_elements.values()):
 
+        for k, (index, element) in enumerate(self.preprocessor.structural_elements.items()):
             element_type = element.element_type
 
             if element_type == "rigid_element":
@@ -172,7 +171,8 @@ class AssemblyStructural:
                 self.expansion_joint_elements[index] = element
 
             else:
-                mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()
+                element_attributes = self.preprocessor.structural_element_attributes.get(index)
+                mat_Ke[k, :, :], mat_Me[k, :, :] = element.matrices_gcs(element_attributes)
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
@@ -396,9 +396,10 @@ class AssemblyStructural:
         loads = np.zeros((total_dof, cols), dtype=complex)
     
         # stress stiffening loads
-        for element in self.preprocessor.structural_elements.values():
+        for index, element in self.preprocessor.structural_elements.items():
             position = element.global_dof
-            loads[position] += element.force_vector_stress_stiffening()
+            element_attributes = self.preprocessor.structural_element_attributes.get(index)
+            loads[position] += element.force_vector_stress_stiffening(element_attributes)
 
         return loads[self.unprescribed_indexes,:]
 
@@ -431,20 +432,22 @@ class AssemblyStructural:
             loads = np.zeros((total_dof, cols), dtype=complex)
         
             # elementary loads - element integration
-            for element in self.preprocessor.structural_elements.values():
+            for index, element in self.preprocessor.structural_elements.items():
 
                 position = element.global_dof
+                element_attributes = self.preprocessor.structural_element_attributes.get(index)
+
                 # self-weight loads
                 if self.model.weight_load:
-                    loads[position] += element.get_self_weighted_load(self.model.gravity_vector)
+                    loads[position] += element.get_self_weighted_load(element_attributes, self.model.gravity_vector)
 
                 # stress stiffening loads
                 if self.model.internal_pressure_load:
-                    loads[position] += element.force_vector_stress_stiffening()
+                    loads[position] += element.force_vector_stress_stiffening(element_attributes)
 
                 # distributed loads
                 if self.model.element_distributed_load:
-                    loads[position] += element.get_distributed_load()
+                    loads[position] += element.get_distributed_load(element_attributes)
 
             if self.model.external_nodal_loads:
                 # nodal loads
@@ -505,23 +508,28 @@ class AssemblyStructural:
         # distributed loads
         for element in self.preprocessor.structural_elements.values():
             position = element.global_dof 
-            loads[position] += element.get_distributed_load()
+            element_attributes = self.preprocessor.structural_element_attributes.get(element.index)
+            loads[position] += element.get_distributed_load(element_attributes)
   
         # nodal loads
         for (property, *args), data in self.model.properties.nodal_properties.items():
-            if property == "nodal_loads":
+            if property != "nodal_loads":
+                continue
+            
+            if not isinstance(data, dict):
+                continue
 
-                node_id = args[0]
-                node = self.preprocessor.nodes[node_id]
-                position = node.global_dof
-                values = data["values"]
+            node_id = args[0]
+            node = self.preprocessor.nodes[node_id]
+            position = node.global_dof
+            values = data["values"]
 
-                if "table_names" in data.keys():
-                    temp_loads = [np.zeros_like(_frequencies) if bc is None else bc for bc in values]
-                else:
-                    temp_loads = [np.zeros_like(_frequencies) if bc is None else np.ones_like(_frequencies)*bc for bc in values]
+            if "table_names" in data.keys():
+                temp_loads = [np.zeros_like(_frequencies) if bc is None else bc for bc in values]
+            else:
+                temp_loads = [np.zeros_like(_frequencies) if bc is None else np.ones_like(_frequencies)*bc for bc in values]
 
-                loads[position, :] += temp_loads
+            loads[position, :] += temp_loads
 
         # for node in self.preprocessor.nodes.values():
         #     if node.there_are_nodal_loads:
@@ -536,18 +544,16 @@ class AssemblyStructural:
         
         # acoustic-structural loads
         if self.acoustic_solution is not None:
-            for element in self.preprocessor.structural_elements.values():
+            for index, element in self.preprocessor.structural_elements.items():
                 pressure_first = self.acoustic_solution[element.first_node.global_index, :]
                 pressure_last = self.acoustic_solution[element.last_node.global_index, :]
                 pressure = np.c_[pressure_first, pressure_last].T
                 position = element.global_dof
-                pressure_loads[position, :] += element.force_vector_acoustic_gcs(   
-                                                                                    _frequencies, 
-                                                                                    pressure, 
-                                                                                    pressure_external
-                                                                                 )
+                element_attributes = self.preprocessor.structural_element_attributes.get(index)
 
-        pressure_loads = pressure_loads[self.unprescribed_indexes,:]
+                pressure_loads[position, :] += element.force_vector_acoustic_gcs(element_attributes, _frequencies, pressure, pressure_external)
+
+        pressure_loads = pressure_loads[self.unprescribed_indexes, :]
 
         if loads_matrix3D:
             loads = loads.T.reshape((len(_frequencies), loads.shape[0], 1))
