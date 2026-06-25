@@ -5,7 +5,7 @@ import numpy as np
 from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node
 from pulse.model.properties.fluid import Fluid
-from pulse.model.structural_element import StructuralElement
+from pulse.model.structural_element import StructuralElement, gauss_quadrature, shape_function
 
 if TYPE_CHECKING:
     from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
@@ -677,59 +677,3 @@ class PipeStructuralElement(StructuralElement):
         self.transf_mat_Offset = Of
         self.transf_matrix_offset_shear_left = Of.T @ Sc.T
         self.transf_matrix_offset_shear_right = Sc @ Of
-
-
-def gauss_quadrature(integration_points: int):
-    """
-    This method returns the Gauss quadrature data.  
-
-    Parameters
-    -------
-    integration_points : int
-        Number of integration points.
-
-    Returns
-    -------
-    points : array
-        Integration points in the normalized domain [-1,1].
-
-    weigths : array
-        Weigths of the respective integration points in the sum approximation.
-
-    Raises
-    ------
-    TypeError
-        Only 1, 2, and 3 integration points are supported.
-    """
-    if integration_points == 1:
-        points = [0]
-        weigths = [2]
-    elif integration_points == 2:
-        points = [-1/np.sqrt(3), 1/np.sqrt(3)]
-        weigths = [1, 1]
-    elif integration_points == 3:
-        points = [-np.sqrt(3/5), 0, np.sqrt(3/5)]
-        weigths = [5/9, 8/9, 5/9]
-    else:
-        raise TypeError('You must provide 1, 2, or 3 integration points')
-    return points, weigths
-
-def shape_function(ksi):
-    """ This function returns the one dimensional linear shape function and its derivative.
-
-    Parameters
-    ----------
-    float in [-1,1]
-        Dimensionless coordinate.
-
-    Returns
-    -------
-    phi : array
-        One dimensional linear shape function.
-
-    derivative_phi : array
-        Shape function derivative.
-    """
-    phi = np.array([(1 - ksi)/2, (1 + ksi)/2])
-    derivative_phi = np.array([-0.5, 0.5])
-    return phi, derivative_phi
