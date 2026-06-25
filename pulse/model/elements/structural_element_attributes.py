@@ -7,7 +7,7 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.data_classes.data_classes import ExpansionJointData, PerforatedPlateData, ValveData
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.model.structural_element import DOF_PER_ELEMENT, DOF_PER_NODE_STRUCTURAL
+from pulse.model.elements.structural_element import DOF_PER_ELEMENT, DOF_PER_NODE_STRUCTURAL
 
 decoupling_matrix_default = np.ones((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=int)
 
@@ -21,8 +21,6 @@ class StructuralElementAttributes:
     material: Material | None = None
     cross_section: CrossSection | None = None
 
-    loaded_forces: np.ndarray = field(default_factory = lambda:np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float))
-
     # pipe-related attributes
     wall_formulation: str = "thin_wall"
     capped_end: bool = True
@@ -33,6 +31,7 @@ class StructuralElementAttributes:
     decoupling_matrix: np.ndarray = field(default_factory = lambda: decoupling_matrix_default)
     decoupling_info: list | None = None # field(default_factory=list)
 
+    # this attribute controls the element rotation about its own axis
     xaxis_rotation_angle: float = 0
 
     # valve data
@@ -51,6 +50,8 @@ class StructuralElementAttributes:
     internal_pressure: float = 0
     external_pressure: float = 0
 
+    # internal loads
+    loaded_forces: np.ndarray = field(default_factory = lambda:np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float))
 
     @property
     def is_section_variable(self):

@@ -22,7 +22,7 @@ from pulse.model.properties.material import Material
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 from pulse.model.section_data_for_renders import SectionDataForRenders
 from pulse.model.spatial_data import SpatialData
-from pulse.model.structural_element import StructuralElement  #, NODES_PER_ELEMENT
+from pulse.model.elements.structural_element import StructuralElement
 from pulse.utils.common_utils import get_linear_distribution_for_variable_section, slicer, split_sequence
 from pulse.utils.rotations import rotation_matrix_3x3_by_angles, rotation_matrix_3x3_by_deltas
 

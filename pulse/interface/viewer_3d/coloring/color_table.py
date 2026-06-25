@@ -17,7 +17,7 @@ from pulse.interface.viewer_3d.coloring.color_palettes import (
     PuOR_colors, 
     )
 
-from pulse.model.structural_element import StructuralElement
+from pulse.model.elements.structural_element import StructuralElement
 
 class ColorTable(vtkLookupTable):
     def __init__(self, data, min_max_values, colormap, **kwargs):

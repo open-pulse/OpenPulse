@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node
-from pulse.model.structural_element import StructuralElement
+from pulse.model.elements.structural_element import StructuralElement
 
 if TYPE_CHECKING:
     from pulse.model.elements.structural_element_attributes import StructuralElementAttributes

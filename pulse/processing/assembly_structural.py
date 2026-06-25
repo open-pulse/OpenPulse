@@ -3,8 +3,9 @@ from scipy.sparse import csr_matrix
 
 from pulse.model.model import Model
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
-from pulse.model.structural_element import DOF_PER_ELEMENT
+from pulse.model.elements.structural_element import DOF_PER_ELEMENT
 from pulse.model.elements.expansion_joint_structural_element import ExpansionJointStructuralElement
+
 
 class AssemblyStructural:
     """ This class creates a structural assembly object from input data.

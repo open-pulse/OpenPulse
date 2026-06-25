@@ -14,7 +14,7 @@ import numpy as np
 
 from pulse.model.acoustic_element import AcousticElement
 from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
-from pulse.model.structural_element import StructuralElement
+from pulse.model.elements.structural_element import StructuralElement
 
 
 class Model:

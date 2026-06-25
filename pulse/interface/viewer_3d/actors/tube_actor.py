@@ -16,7 +16,7 @@ from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.model.acoustic_element import AcousticElement
 from pulse.model.cross_section import CrossSection
 from pulse.model.node import Node
-from pulse.model.structural_element import StructuralElement
+from pulse.model.elements.structural_element import StructuralElement
 from pulse.utils import cross_section_sources
 from pulse.utils.interface_utils import ColorMode
 

@@ -5,7 +5,7 @@ import numpy as np
 from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node
 from pulse.model.properties.fluid import Fluid
-from pulse.model.structural_element import StructuralElement, gauss_quadrature, shape_function
+from pulse.model.elements.structural_element import StructuralElement, gauss_quadrature, shape_function
 
 if TYPE_CHECKING:
     from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
