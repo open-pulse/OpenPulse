@@ -65,10 +65,10 @@ class MeshPicker:
 
             cross_section = preprocessor.get_element_cross_section(element.index)
             if cross_section is None:
-                return
+                continue
 
             if cross_section.outer_diameter is None:
-                return
+                continue
 
             radius = cross_section.outer_diameter / 2 
             center = element.center_coordinates
