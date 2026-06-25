@@ -686,22 +686,29 @@ class StructuralSolver:
                 Bts = element._Bts
 
                 rot = element.element_rotation_matrix
-                T = element.cross_section.principal_axis_translation
-                
+
+                element_attributes = self.model.preprocessor.structural_element_attributes.get(element.index)
+
+                cross_section = element_attributes.cross_section
+                material = element_attributes.material
+                wall_formulation = element_attributes.wall_formulation
+
+                T = cross_section.principal_axis_translation
+
                 normal = Dab @ Bab @ T @ rot @ u
                 shear = Dts @ Bts @ T @ rot @ u
 
-                element.internal_load = np.multiply(np.r_[normal, shear], damping)
+                internal_load = np.multiply(np.r_[normal, shear], damping)
 
                 # Stress
-                do = element.cross_section.outer_diameter
-                di = element.cross_section.inner_diameter
+                do = cross_section.outer_diameter
+                di = cross_section.inner_diameter
                 ro = do/2
-                area = element.cross_section.area
-                Iy = element.cross_section.second_moment_area_y
-                Iz = element.cross_section.second_moment_area_z
-                J = element.cross_section.polar_moment_area
-                nu = element.material.poisson_ratio
+                area = cross_section.area
+                Iy = cross_section.second_moment_area_y
+                Iz = cross_section.second_moment_area_z
+                J = cross_section.polar_moment_area
+                nu = material.poisson_ratio
 
                 acoustic_dofs = np.r_[element.first_node.global_index, element.last_node.global_index]
                 
@@ -712,22 +719,22 @@ class StructuralSolver:
 
                 pm = np.sum(p, axis=0) / 2
 
-                if element.wall_formulation == "thick_wall":
+                if wall_formulation == "thick_wall":
                     hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
                     radial_stress =  -2*nu*(pm*di**2 - p0*do**2)/(do**2 - di**2)
 
-                if element.wall_formulation == "thin_wall":
+                if wall_formulation == "thin_wall":
                     hoop_stress = pm
                     radial_stress = -nu * np.pi * (do/(do-di) - 1)
 
                 stress_data = np.c_[
-                    element.internal_load[0] / area - radial_stress,
-                    element.internal_load[1] * ro/Iy,
-                    element.internal_load[2] * ro/Iz,
+                    internal_load[0] / area - radial_stress,
+                    internal_load[1] * ro/Iy,
+                    internal_load[2] * ro/Iz,
                     hoop_stress,
-                    element.internal_load[3] * ro/J,
-                    element.internal_load[4] / area,
-                    element.internal_load[5] / area   ].T
+                    internal_load[3] * ro/J,
+                    internal_load[4] / area,
+                    internal_load[5] / area   ].T
 
                 element.stress = stress_data
 

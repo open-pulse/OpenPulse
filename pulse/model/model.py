@@ -1,19 +1,21 @@
 
+from typing import TYPE_CHECKING
+
 from pulse.model import AnalysisID
 from pulse.model.mesh import Mesh
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.preprocessor import Preprocessor
 from pulse.model.properties.model_properties import ModelProperties
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.project.project import Project
 
-from pulse.model.acoustic_element import AcousticElement
-from pulse.model.structural_element import StructuralElement
-from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
-
 import numpy as np
+
+from pulse.model.acoustic_element import AcousticElement
+from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
+from pulse.model.structural_element import StructuralElement
+
 
 class Model:
 
@@ -196,9 +198,9 @@ class Model:
                 if 'beam_1' in [first_element.element_type, last_element.element_type]:
                     continue
 
-                first_cross = first_element.cross_section
-                last_cross = last_element.cross_section
-                
+                first_cross = self.preprocessor.get_element_cross_section(first_element.index)
+                last_cross = self.preprocessor.get_element_cross_section(first_element.index)
+
                 if (first_cross, last_cross).count(None):
                     continue
 
@@ -224,12 +226,13 @@ class Model:
                     continue  
 
                 first_node = element.first_node
-                last_node = element.last_node  
+                last_node = element.last_node
 
-                if element.cross_section is None:
+                cross_section = self.preprocessor.get_element_cross_section(element.index)
+                if cross_section is None:
                     continue
 
-                inner_diameter = element.cross_section.inner_diameter 
+                inner_diameter = cross_section.inner_diameter 
 
                 if len(self.preprocessor.neighbors[first_node]) == 1:
                     first_node_id = first_node.external_index
@@ -242,16 +245,17 @@ class Model:
                         inner_diameter = 0
 
             if isinstance(element, AcousticElement | StructuralElement):
+                section_data = self.preprocessor.section_data_for_renders.get(element.index)
+                element_attributes = self.preprocessor.structural_element_attributes.get(element.index)
+
+                section_info = element_attributes.cross_section.section_info
 
                 if element.element_type == 'expansion_joint':
-                    section_info = element.cross_section.section_info
                     if isinstance(section_info, ExpansionJointCrossSection):
-                        element.section_parameters_render = section_info._as_list()
+                        section_data.section_parameters_render = section_info._as_list()
 
                 else:
-
-                    section_info = element.cross_section.section_info
                     outer_diameter, _, offset_y, offset_z, t_ins, *_ = section_info.section_parameters
 
                     thickness = (outer_diameter - inner_diameter) / 2
-                    element.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
+                    section_data.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
