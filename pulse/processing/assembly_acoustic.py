@@ -457,6 +457,7 @@ class AssemblyAcoustic:
 
                     impedance_type = data.get("impedance_type")
                     elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
+                    elements: list[AcousticElement]
 
                     if len(elements) == 1:
                         element = elements[0]
@@ -555,13 +556,13 @@ class AssemblyAcoustic:
 
                     for element in elements:
                         if element.first_node.global_index == position or element.last_node.global_index == position:
-                            # rho = element.fluid.density
                             area_fluid = element.cross_section.area_fluid
 
                 elif property == "radiation_impedance":
 
                     impedance_type = data.get("impedance_type")
                     elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
+                    elements: list[AcousticElement]
 
                     if impedance_type in ["flanged", "unflanged"]:
                         if self.model.project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
@@ -570,7 +571,6 @@ class AssemblyAcoustic:
 
                     if len(elements) == 1:
                         element = elements[0]
-                        # rho = element.fluid.density
                         area_fluid = element.cross_section.area_fluid
                         impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
 

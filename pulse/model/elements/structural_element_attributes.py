@@ -23,6 +23,7 @@ class StructuralElementAttributes:
 
     loaded_forces: np.ndarray = field(default_factory = lambda:np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float))
 
+    # pipe-related attributes
     wall_formulation: str = "thin_wall"
     capped_end: bool = True
     turned_off: bool = False

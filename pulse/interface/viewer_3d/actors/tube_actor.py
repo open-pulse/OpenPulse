@@ -275,13 +275,14 @@ class TubeActor(vtkActor):
             if index is None:
                 continue
 
-            if element.material is None:
+            material = self.preprocessor.get_element_material(element.index)
+            if material is None:
                 colors.SetTuple(index, (255, 255, 255))
                 continue
 
             # get the element color and make it a bit brighter
             # color = np.array(element.material.getColorRGB()) + 50
-            color = np.array(element.material.color) + 50
+            color = np.array(material.color) + 50
 
             color = tuple(np.clip(color, 0, 255))
             colors.SetTuple(index, color)
@@ -300,13 +301,14 @@ class TubeActor(vtkActor):
             if index is None:
                 continue
 
-            if element.fluid is None:
+            fluid = self.preprocessor.get_element_fluid(element.index)
+            if fluid is None:
                 colors.SetTuple(index, (255, 255, 255))
                 continue
 
             # get the element color and make it a bit brighter
             # color = np.array(element.fluid.getColorRGB()) + 50
-            color = np.array(element.fluid.color) + 50
+            color = np.array(fluid.color) + 50
 
             color = tuple(np.clip(color, 0, 255))
             colors.SetTuple(index, color)

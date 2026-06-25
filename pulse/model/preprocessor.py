@@ -1246,7 +1246,6 @@ class Preprocessor:
             Material data.
         """
         for element in slicer(self.structural_elements, elements):
-            element.material = material
             self.structural_element_attributes[element.index].material = material
 
         for element in slicer(self.acoustic_elements, elements):
@@ -1272,7 +1271,7 @@ class Preprocessor:
 
     def set_force_by_element(self, elements, loads):
         for element in slicer(self.structural_elements, elements):
-            element.loaded_forces = loads
+            self.structural_element_attributes.get(element.index).loaded_forces = loads
 
     def set_B2P_rotation_decoupling(self, element_id: int, data: dict):
         """
@@ -1561,18 +1560,11 @@ class Preprocessor:
             Fluid data.
         """
         for element in slicer(self.acoustic_elements, elements):
-            if 'beam_1' not in self.structural_elements[element.index].element_type:
-                element.fluid = fluid
-            else:
-                element.fluid = None
+                element_type = self.structural_elements[element.index].element_type
+                element.fluid = None if element_type == "beam_1" else fluid
 
         for element in slicer(self.structural_elements, elements):
-            if element.element_type not in ['beam_1']:
-                element.fluid = fluid
-            else:
-                element.fluid = None
-
-            self.structural_element_attributes[element.index].fluid = fluid
+            self.structural_element_attributes[element.index].fluid = None if element.element_type == "beam_1" else fluid
 
     def set_fluid_by_lines(self, line_ids: (int | list | tuple), fluid):
         """

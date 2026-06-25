@@ -152,7 +152,7 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
     def get_fluids_from_node(self, node_id: int) -> list[Fluid]:
         fluids = list()
         for element in  self.model.preprocessor.structural_elements_connected_to_node.get(node_id, list()):
-            fluid = element.fluid
+            fluid = self.preprocessor.get_element_fluid(element.index)
             if fluid in fluids:
                 continue
 

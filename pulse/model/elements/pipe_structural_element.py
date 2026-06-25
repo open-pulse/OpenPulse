@@ -364,7 +364,7 @@ class PipeStructuralElement(StructuralElement):
         mu = material.mu_parameter
 
         self.process_offset_transformation_matrices()
-                            
+
         ## Numerical integration by Gauss quadrature
         integrations_points = 1
         points, weigths = gauss_quadrature(integrations_points)
@@ -581,99 +581,3 @@ class PipeStructuralElement(StructuralElement):
             index += 1
             
         return self.transf_mat_Offset.T @ Me @ self.transf_mat_Offset
-
-
-    def process_offset_transformation_matrices(self):
-        """
-        """
-        N_dof = DOF_PER_NODE_STRUCTURAL
-        E_dof = DOF_PER_ELEMENT
-
-        cross_section_first = self.first_node.cross_section
-        cross_section_last = self.last_node.cross_section
-        
-        yc_1, zc_1, ys_1, zs_1 = cross_section_first.get_centroide_and_shear_center()
-        yc_2, zc_2, ys_2, zs_2  = cross_section_last.get_centroide_and_shear_center()        
-
-        # delta_yc = yc_2 - yc_1
-        # delta_zc = zc_2 - zc_1
-        delta_ys = ys_2 - ys_1
-        delta_zs = zs_2 - zs_1
-
-        offset_first = cross_section_first.offsets
-        offset_last = cross_section_last.offsets
-
-        y1_offset, z1_offset = offset_first
-        y2_offset, z2_offset = offset_last
-
-        delta_yo = y2_offset - y1_offset
-        delta_zo = z2_offset- z1_offset
-        # delta_yo *= -1
-        # delta_zo *= -1
-
-        # process matrix transformation to account the shear center differences effect
-        Le = self.length
-        delta_xo = 0
-        L_A = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
-        L_G = L_A - delta_xo
-        
-        L_N = Le
-        # L_A = Le
-        # L_G = Le
-        L_B = np.sqrt(Le**2 + delta_yo**2)
-        
-        L_SB = np.sqrt(L_G**2 + delta_ys**2)
-        L_SC = np.sqrt(L_G**2 + delta_ys**2 + delta_zs**2)
-
-        C1 = L_SC/L_G
-        C2 = -(delta_ys*L_SC)/(L_SB*L_G)
-        C3 = -delta_zs/L_SB
-
-        Rs = np.eye(N_dof, dtype=float)
-        Ts_1 = np.eye(N_dof, dtype=float)
-        Ts_2 = np.eye(N_dof, dtype=float)
-
-        Rs[[3,4,5],[3,3,3]] = [C1, C2, C3]
-        Ts_1[[1,2],[3,3]] = [-zs_1, ys_1]
-        Ts_2[[1,2],[3,3]] = [-zs_2, ys_2]
-
-        Sc = np.zeros((E_dof, E_dof), dtype=float)
-        Sc[0:N_dof, 0:N_dof] = Rs@Ts_1
-        Sc[N_dof:, N_dof:] = Rs@Ts_2
-
-        # process matrix transformation to account the offset effect
-        ro = np.array([ [      L_A/L_N, delta_yo/L_B,       (L_A*delta_zo)/(L_N*L_B)],
-                        [-delta_yo/L_N,      L_A/L_B, -(delta_yo*delta_zo)/(L_N*L_B)],
-                        [-delta_zo/L_N,            0,                        L_B/L_N] ])
-        
-        # delta_x = sqrt(Le**2 - delta_yo**2 - delta_zo**2)
-        # L_ = np.sqrt(delta_x**2 + delta_yo**2)
-        # L = np.sqrt(delta_x**2 + delta_yo**2 + delta_zo**2)
-
-        # sin_delta = delta_yo / L_
-        # cos_delta = delta_x / L_
-        # sin_epsilon = -delta_zo / L
-        # cos_epsilon = L_ / L
-
-        # ro = np.array([ [cos_delta*cos_epsilon, -sin_delta, cos_delta*sin_epsilon],
-        #                 [sin_delta*cos_epsilon,  cos_delta, sin_delta*sin_epsilon],
-        #                 [         -sin_epsilon,          0,           cos_epsilon] ])
-        
-        # print(ro@np.array([Le,0,0]), delta_yo, delta_zo)
-
-        Ro = np.zeros((N_dof,N_dof), dtype=float)
-        Ro[0:int(N_dof/2), 0:int(N_dof/2)] = ro
-        Ro[ int(N_dof/2):,  int(N_dof/2):] = ro
-
-        To_I = np.eye(N_dof, dtype=float)
-        To_J = np.eye(N_dof, dtype=float)
-        To_I[[0,0,1,2],[4,5,3,3]] = [z1_offset, -y1_offset, -z1_offset, y1_offset]
-        To_J[[0,0,1,2],[4,5,3,3]] = [z2_offset, -y2_offset, -z2_offset, y2_offset]
-
-        Of = np.zeros((E_dof, E_dof), dtype=float)
-        Of[0:N_dof, 0:N_dof] = To_I @ Ro
-        Of[N_dof:, N_dof:] = To_J @ Ro
-
-        self.transf_mat_Offset = Of
-        self.transf_matrix_offset_shear_left = Of.T @ Sc.T
-        self.transf_matrix_offset_shear_right = Sc @ Of

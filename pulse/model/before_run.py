@@ -261,15 +261,16 @@ class BeforeRun():
         lines_without_fluids = list()
         for element in self.acoustic_elements.values():
             line_id = self.model.mesh.line_from_element[element.index]
-            if element.element_type in ['wide_duct', 'LRF_fluid_equivalent', 'LRF_full']:
-                if 'pipe_' in self.structural_elements[element.index].element_type:
-                    _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
-                                element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
+            if element.element_type in ["wide_duct", "LRF_fluid_equivalent", "LRF_full"]:
+                if "pipe_" in self.structural_elements[element.index].element_type:
+                    fluid = element.fluid
+                    _list = [fluid.isentropic_exponent, fluid.thermal_conductivity, fluid.specific_heat_Cp, fluid.dynamic_viscosity]
+
                     if None in _list:
                         self.check_all_fluid_inputs = True
                         if line_id not in lines_without_fluids:
                             lines_without_fluids.append(line_id)
-                        
+
         return lines_without_fluids
 
 
