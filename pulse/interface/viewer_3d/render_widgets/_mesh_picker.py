@@ -65,10 +65,10 @@ class MeshPicker:
             z1 = max(first_node[2], last_node[2])
 
             if element.cross_section is None:
-                return
+                continue
 
             if element.cross_section.outer_diameter is None:
-                return
+                continue
 
             radius = element.cross_section.outer_diameter / 2 
             center = element.center_coordinates
