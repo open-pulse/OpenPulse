@@ -6,11 +6,11 @@ from scipy.optimize import fsolve, root
 from scipy.special import hankel1, jv
 
 from pulse.model import RadiationImpedanceType
+from pulse.model.cross_section import CrossSection
+from pulse.model.data_classes.data_classes import Foks_function, PerforatedPlateData, PerforatedPlateFormulation
 from pulse.model.node import Node, distance
-from pulse.model.perforated_plate import Foks_function, PerforatedPlateFormulation
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.model.cross_section import CrossSection
 
 DOF_PER_NODE = 1
 NODES_PER_ELEMENT = 2
@@ -126,10 +126,11 @@ class AcousticElement:
         self.fluid: Fluid | None = kwargs.get('fluid')
         self.cross_section: CrossSection | None = kwargs.get('cross_section')
         self.loaded_pressure: np.ndarray = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
-        self.perforated_plate: str | None = kwargs.get('perforated_plate')
         self.volumetric_flow_rate: float = kwargs.get('volumetric_flow_rate', 0)
         self.length_correction_data: str | None = kwargs.get('length_correction_data')
         self.turned_off = kwargs.get("turned_off", False)
+
+        self.perforated_plate: PerforatedPlateData | None = None
 
         self.reset()
 
@@ -199,8 +200,6 @@ class AcousticElement:
         self.delta_pressure = 0
 
         self.acoustic_link_diameters = list()
-
-        self.section_parameters_render = None
 
     def update_delta_pressure(self, delta_pressure):
         self.delta_pressure = delta_pressure
