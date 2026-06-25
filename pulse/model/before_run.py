@@ -113,7 +113,10 @@ class BeforeRun():
             if line_id is None:
                 continue
 
-            if element.material is None:
+            element_attributes = self.preprocessor.structural_element_attributes.get(element.index)
+            material = element_attributes.material
+
+            if material is None:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:
                     lines_without_materials.append(line_id)
@@ -128,7 +131,11 @@ class BeforeRun():
         lines_without_poisson = list()
         for element in self.structural_elements.values():
             line_id = self.model.mesh.line_from_element[element.index]
-            if element.material.poisson_ratio == 0:
+
+            element_attributes = self.preprocessor.structural_element_attributes.get(element.index)
+            material = element_attributes.material
+
+            if material.poisson_ratio == 0:
                 self.check_poisson = True
                 if line_id not in lines_without_poisson:
                     lines_without_poisson.append(line_id)
@@ -147,12 +154,17 @@ class BeforeRun():
         elements_without_cross_sections = defaultdict(list)  
         for element in self.structural_elements.values():
             line_id = self.model.mesh.line_from_element[element.index]
-            if element.material is None:
+
+            element_attributes = self.preprocessor.structural_element_attributes.get(element.index)
+            material = element_attributes.material
+            cross_section = element_attributes.cross_section
+
+            if material is None:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:
                     lines_without_materials.append(line_id)
 
-            if element.cross_section is None:
+            if cross_section is None:
                 #TODO: remove as soon as possible
                 if element.element_type == "rigid_element":
                     continue
@@ -163,7 +175,7 @@ class BeforeRun():
                         elements_without_cross_sections[line_id].append(element.index)
                     if line_id not in lines_without_cross_sections:
                         lines_without_cross_sections.append(line_id)
-                    
+
             else:        
 
                 if element.element_type == 'expansion_joint':
@@ -176,8 +188,8 @@ class BeforeRun():
 
                 else:
 
-                    if element.cross_section.thickness == 0:
-                        if element.cross_section.area == 0:
+                    if cross_section.thickness == 0:
+                        if cross_section.area == 0:
                             self.check_set_crossSection = True
                             if element.index not in elements_without_cross_sections[line_id]:
                                 elements_without_cross_sections[line_id].append(element.index)
