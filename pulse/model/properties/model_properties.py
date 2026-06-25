@@ -263,19 +263,10 @@ class ModelProperties:
 
         return None
 
-    def is_material_applied_to_all_lines(self, total_lines: int) -> bool:
+    def is_property_applied_to_all_lines(self, property: str, total_lines: int) -> bool:
         k = 0
         for line_data in self.line_properties.values():
-            if "material" not in line_data.keys():
-                return False
-            k += 1
-
-        return total_lines == k
-
-    def is_fluid_applied_to_all_lines(self, total_lines) -> bool:
-        k = 0
-        for line_data in self.line_properties.values():
-            if "fluid" not in line_data.keys():
+            if property not in line_data.keys():
                 return False
             k += 1
 
