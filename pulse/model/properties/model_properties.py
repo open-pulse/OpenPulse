@@ -1,6 +1,5 @@
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
-from pulse import app
 
 import numpy as np
 from copy import deepcopy
