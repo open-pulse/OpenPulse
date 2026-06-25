@@ -1,35 +1,13 @@
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pulse.model.cross_section import CrossSection
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node
-from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
-from pulse.model.structural_element import StructuralElement
+from pulse.model.node import Node
+from pulse.model.structural_element import DOF_PER_ELEMENT, DOF_PER_NODE_STRUCTURAL, StructuralElement
 
-NODES_PER_ELEMENT = 2
-DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
-ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
+if TYPE_CHECKING:
+    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
 
-decoupling_matrix = np.ones((DOF_PER_ELEMENT,DOF_PER_ELEMENT), dtype=int)
-zeros_3x3 = np.zeros((3,3), dtype=float)
-
-
-
-def symmetrize(a):
-    """ This function receives matrix and makes it symmetric.
-
-    Parameters
-    ----------
-    array
-        Matrix.
-
-    Returns
-    -------
-    array
-        Symmetric matrix.    
-    """
-    return a + a.T - np.diag(a.diagonal())
 
 class ExpansionJointStructuralElement(StructuralElement):
     """A structural element.
@@ -69,64 +47,12 @@ class ExpansionJointStructuralElement(StructuralElement):
     def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
         super().__init__(first_node, last_node, index, **kwargs)
 
-        self.first_node = first_node
-        self.last_node = last_node
-        self.index = index
-
         self.element_type = "expansion_joint"
 
-        self.fluid: Fluid | None = kwargs.get('fluid')
-        self.material: Material | None = kwargs.get('material')
-        self.cross_section: CrossSection | None = kwargs.get('cross_section')
-        self.loaded_forces: np.ndarray = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
 
-        self.adding_mass_effect: bool = kwargs.get('adding_mass_effect', False)
-
-        self.section_parameters_render = None
-
-        self._initialize()
-
-
-    def _initialize(self):
-
-        self.deformed_length = None
-        self.beam_xaxis_rotation = 0
-        
-        self.transf_mat = None
-        self.mean_rotation_results = None
-        self.rotation_matrix_results_at_lcs = None
-
-        self.transf_matrix_offset_shear_left = None
-        self.transf_matrix_offset_shear_right = None
-        self.results_at_global_coordinate_system = None
-
-        self.stress = None
-        self.internal_load = None
-        self.static_analysis_evaluated = False
-
-        self.force_offset = True
-
-        self.expansion_joint_data = dict()
-        self.joint_effective_diameter = 0
-        self.joint_axial_locking_criteria = 0
-        self.joint_rods_included = False
-        self.joint_stiffness_table_names = list()
-
-
-    def set_expansion_joint_data(self, data):
-        if not isinstance(data, dict):
-            return
-
-        self.expansion_joint_data = data
-        self.joint_effective_diameter = data.get("effective_diameter")
-        self.joint_rods_included = data.get("rods", False)
-        self.joint_axial_locking_criteria = data.get("axial_locking_criteria", 0)
-
-
-    def matrices_gcs(self, frequencies: np.ndarray | None = None):
+    def matrices_gcs(self, element_attributes: "StructuralElementAttributes", frequencies: np.ndarray | None = None):
         """
-        This method returns the element stiffness and mass matrices according to the 
-        3D Timoshenko beam theory in the global coordinate system.
+        This method returns the expansion joint element stiffness and mass matrices in the global coordinate system.
 
         Returns
         -------
@@ -136,80 +62,29 @@ class ExpansionJointStructuralElement(StructuralElement):
         mass : array
             Element mass matrix in the global coordinate system.
 
-        See also
-        --------
-        stiffness_matrix_gcs : Element stiffness matrix in the global coordinate system.
-        
-        mass_matrix_gcs : Element mass matrix in the global coordinate system.
         """
+
+        self.element_attributes = element_attributes
+
         R = self.element_rotation_matrix
         Rt = self.element_rotation_matrix_inverse
 
-        stiffness = Rt @ self.stiffness_matrix_expansion_joint_harmonic(frequencies=frequencies) @ R
-        mass = Rt @ self.mass_matrix_expansion_joint() @ R
-         
+        stiffness = Rt @ self.stiffness_matrix_expansion_joint_harmonic(element_attributes, frequencies=frequencies) @ R
+        mass = Rt @ self.mass_matrix_expansion_joint(element_attributes) @ R  
+
         return stiffness, mass
 
 
-    def stiffness_matrix_gcs(self, frequencies: np.ndarray | None = None):
-        """
-        This method returns the element stiffness matrix according to the 3D Timoshenko beam theory 
-        in the global coordinate system.
+    def stiffness_matrix_expansion_joint_harmonic(self, element_attributes: "StructuralElementAttributes", frequencies: np.ndarray | None = None):
 
-        Returns
-        -------
-        stiffness : array
-            Element stiffness matrix in the global coordinate system.
+        expansion_joint_data = element_attributes.expansion_joint_data
 
-        See also
-        --------
-        matrices_gcs : Element stiffness and mass matrices in the global coordinate system.
-        
-        mass_matrix_gcs : Element mass matrix in the global coordinate system.
-
-        stiffness_matrix_pipes : Pipe element stiffness matrix in the local coordinate system.
-
-        stiffness_matrix_beam : Beam element stiffness matrix in the local coordinate system.
-        """
-
-        R = self.element_rotation_matrix
-        Rt = self.element_rotation_matrix_inverse
-
-        return Rt @ self.stiffness_matrix_expansion_joint_harmonic(frequencies=frequencies) @ R
-            
-
-    def mass_matrix_gcs(self):
-        """
-        This method returns the element mass matrix according to the 3D Timoshenko beam theory 
-        in the global coordinate system.
-
-        Returns
-        -------
-        mass : array
-            Element mass matrix in the global coordinate system.
-
-        See also
-        --------
-        matrices_gcs : Element stiffness and mass matrices in the global coordinate system.
-
-        stiffness_matrix_gcs : Element stiffness matrix in the global coordinate system.
-        """
-
-        R = self.element_rotation_matrix
-        Rt = self.element_rotation_matrix_inverse
-
-        return Rt @ self.mass_matrix_expansion_joint() @ R  
-
-
-    def stiffness_matrix_expansion_joint_harmonic(self, frequencies: np.ndarray | None = None):
-
-        joint_length  = self.expansion_joint_data.get("joint_length")
-
-        L_e = joint_length / self.length
+        L_e = expansion_joint_data.expansion_joint_length / self.length
         n_freq = 1 if frequencies is None else frequencies.size
 
-        kx, kyz, krx, kryz = self.expansion_joint_data.get("values")
         K_matrix = np.zeros((n_freq, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
+
+        kx, kyz, krx, kryz = expansion_joint_data.expansion_joint_stiffness
 
         K1 = kx * L_e
         K2 = K3 = kyz / L_e
@@ -233,16 +108,15 @@ class ExpansionJointStructuralElement(StructuralElement):
         return K_matrix
 
 
-    def mass_matrix_expansion_joint(self):
+    def mass_matrix_expansion_joint(self, element_attributes: "StructuralElementAttributes"):
 
-        joint_mass = self.expansion_joint_data.get("joint_mass")
-        joint_length  = self.expansion_joint_data.get("joint_length")
+        expansion_joint_data = element_attributes.expansion_joint_data
 
-        L_e = joint_length / self.length
+        L_e = expansion_joint_data.expansion_joint_length / self.length
         M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        M1 = M2 = M3 = joint_mass / (2 * L_e)
-        indexes = np.array([0,1,2,6,7,8], dtype=int)
+        M1 = M2 = M3 = expansion_joint_data.expansion_joint_mass / (2 * L_e)
+        indexes = np.array([0, 1, 2, 6, 7, 8], dtype=int)
 
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
 

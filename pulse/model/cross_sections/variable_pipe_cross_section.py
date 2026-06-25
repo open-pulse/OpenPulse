@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-# from pulse.utils.common_utils import get_linear_distribution_for_variable_section
 
 
 @dataclass

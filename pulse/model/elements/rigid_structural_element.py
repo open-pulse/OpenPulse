@@ -1,18 +1,18 @@
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 
-from pulse.model.cross_section import CrossSection
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node
-from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
 from pulse.model.structural_element import StructuralElement
+
+if TYPE_CHECKING:
+    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
+
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
-
-decoupling_matrix = np.ones((DOF_PER_ELEMENT,DOF_PER_ELEMENT), dtype=int)
-zeros_3x3 = np.zeros((3,3), dtype=float)
 
 
 class RigidStructuralElement(StructuralElement):
@@ -53,35 +53,10 @@ class RigidStructuralElement(StructuralElement):
     def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
         super().__init__(first_node, last_node, index, **kwargs)
 
-        self.first_node = first_node
-        self.last_node = last_node
-        self.index = index
-
         self.element_type = "rigid_element"
 
-        self.material: Material | None = kwargs.get('material')
-        self.cross_section: CrossSection | None  = kwargs.get('cross_section')
-        self.fluid: Fluid | None  = kwargs.get('fluid')
 
-        self.k_factor: float = kwargs.get("k_factor", 1.0)
-
-        self.section_parameters_render = None
-
-        self._initialize()
-
-
-    def _initialize(self):
-
-        self.deformed_rotation_xyz = None
-        self.deformed_length = None
-        self.beam_xaxis_rotation = 0
-        
-        self.transf_mat = None
-        self.mean_rotation_results = None
-        self.rotation_matrix_results_at_lcs = None
-
-
-    def matrices_gcs(self, material: Material):
+    def matrices_gcs(self, element_attributes: "StructuralElementAttributes"):
         """
         This method returns the element stiffness and mass matrices of
         the rigid element.
@@ -94,34 +69,37 @@ class RigidStructuralElement(StructuralElement):
         mass : array
             Element mass matrix in the global coordinate system.
 
-        See also
-        --------
-        stiffness_matrix_rigid_element : Element stiffness matrix in the global coordinate system.
-        
-        mass_matrix_rigid_element : Element mass matrix in the global coordinate system.
         """
 
-        stiffness = self.stiffness_matrix_rigid_element()
+        stiffness = self.stiffness_matrix_rigid_element(element_attributes)
         mass = self.mass_matrix_rigid_element()
-         
+
         return stiffness, mass
 
 
-    def stiffness_matrix_rigid_element(self):
+    def stiffness_matrix_rigid_element(self, element_attributes: "StructuralElementAttributes"):
         
+        material = element_attributes.material
+        cross_section = element_attributes.cross_section
+
+        E = material.elasticity_modulus
+        Iyy = cross_section.second_moment_area_y
+        # Izz = cross_section.second_moment_area_y
+        # Iyz = cross_section.second_moment_area_yz
+
         d = self.length
-        k = self.k_factor
-        
+        k = element_attributes.k_factor
+
         T = np.array([
             [ 1, 0, 0, 0, 0, -d],
             [ 0, 1, 0, 0, 0, 0 ],
             [ 0, 0, 1, 0, 0, 0 ],
             [-d, 0, 0, 1, 0, 0 ],
             [ 0, 0, 0, 0, 1, 0 ],
-            [ 0, 0, 0, 0, 0, 1 ]],
-        dtype = float)
+            [ 0, 0, 0, 0, 0, 1 ]
+            ], dtype = float)
 
-        stiffness = np.block([
+        stiffness = ((E * Iyy) / (k - 1)) * np.block([
             [T * k, T * k],
             [T * k, T * k]
             ], dtype=float)

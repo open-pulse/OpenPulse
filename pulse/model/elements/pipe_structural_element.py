@@ -1,8 +1,15 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 
+from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node
 from pulse.model.properties.fluid import Fluid
-from pulse.model.structural_element import StructuralElement  #, decoupling_matrix
+from pulse.model.structural_element import StructuralElement
+
+if TYPE_CHECKING:
+    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
+
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
@@ -14,15 +21,40 @@ class PipeStructuralElement(StructuralElement):
         super().__init__(first_node, last_node, index, **kwargs)
 
         self.element_type = "pipe_1"
-        self.wall_formulation: str = kwargs.get('wall_formulation', 'thin_wall')
-
-        self.loaded_forces: np.ndarray = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
-
-        self.capped_end: bool = kwargs.get('capped_end', True)
-        self.stress_intensification: bool = kwargs.get('stress_intensification', True)
 
 
-    def stiffness_matrix_pipes(self):
+    def matrices_gcs(self, element_attributes: "StructuralElementAttributes"):
+        """
+        This method returns the element stiffness and mass matrices according to the 
+        3D Timoshenko beam theory in the global coordinate system.
+
+        Returns
+        -------
+        stiffness : array
+            Element stiffness matrix in the global coordinate system.
+            
+        mass : array
+            Element mass matrix in the global coordinate system.
+
+        """
+
+        self.element_attributes = element_attributes
+
+        R = self.element_rotation_matrix
+        Rt = self.element_rotation_matrix_inverse
+
+        if element_attributes.is_section_variable:
+            stiffness = Rt @ self.stiffness_matrix_pipes_variable_section(element_attributes) @ R
+            mass = Rt @ self.mass_matrix_pipes_variable_section(element_attributes) @ R
+
+        else:
+            stiffness = Rt @ self.stiffness_matrix_pipes(element_attributes) @ R
+            mass = Rt @ self.mass_matrix_pipes(element_attributes) @ R
+
+        return stiffness, mass
+
+
+    def stiffness_matrix_pipes(self, element_attributes: "StructuralElementAttributes"):
         """
         This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -38,17 +70,19 @@ class PipeStructuralElement(StructuralElement):
         """
         L = self.length
 
-        E = self.material.elasticity_modulus
-        mu = self.material.mu_parameter
-        G = self.material.shear_modulus
+        material = element_attributes.material
+        cross_section = element_attributes.cross_section
+
+        E = material.elasticity_modulus
+        mu = material.mu_parameter
                    
         # Area properties - constant section along x-axis
-        A = self.cross_section.area
-        Iy = self.cross_section.second_moment_area_y
-        Iz = self.cross_section.second_moment_area_z
-        J = self.cross_section.polar_moment_area
-        res_y = self.cross_section.res_y
-        res_z = self.cross_section.res_z
+        A = cross_section.area
+        Iy = cross_section.second_moment_area_y
+        Iz = cross_section.second_moment_area_z
+        J = cross_section.polar_moment_area
+        res_y = cross_section.res_y
+        res_z = cross_section.res_z
     
         # Shear coefficiets
         aly = 1 / res_y
@@ -58,7 +92,7 @@ class PipeStructuralElement(StructuralElement):
             Qy = 0
             Qz = 0
             Iyz = 0
-            principal_axis = self.cross_section.principal_axis
+            principal_axis = cross_section.principal_axis
         else:
             print('Only pipe_1 element types are allowed.')
             
@@ -68,22 +102,22 @@ class PipeStructuralElement(StructuralElement):
 
         # Constitutive matrices (element with constant geometry along x-axis)
         # Torsion and shear
-        Dts = mu*np.array([ [J  ,   -Qy,    Qz],
-                            [-Qy, aly*A,     0],
-                            [Qz ,     0, alz*A] ])
+        Dts = mu*np.array([ 
+            [J  ,   -Qy,    Qz],
+            [-Qy, aly*A,     0],
+            [Qz ,     0, alz*A],
+            ], dtype=float)
+
         self._Dts = Dts
+
         # Axial and Bending
-        Dab = E*np.array([  [A  ,   Qy,  -Qz],
-                            [Qy ,   Iy, -Iyz],
-                            [-Qz, -Iyz,   Iz]  ])
+        Dab = E*np.array([  
+            [A  ,   Qy,  -Qz],
+            [Qy ,   Iy, -Iyz],
+            [-Qz, -Iyz,   Iz],
+            ], dtype=float)
+
         self._Dab = Dab
-
-        key = 1
-
-        # Variables related to prestress effect
-        self.Phi_y = key*(12*E*Iz)/(G*aly*A*L**2)
-        self.Phi_z = key*(12*E*Iy)/(G*alz*A*L**2)
-        self.Jx_Ax = key*J/A
 
         ## Numerical integration by Gauss quadrature
         integrations_points = 1
@@ -96,13 +130,12 @@ class PipeStructuralElement(StructuralElement):
         K_geo = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
         if self.static_analysis_evaluated:
-
             self.static_analysis_evaluated = False
             Ue = self.static_element_results_lcs()
-            mat_K_geo = self.get_Te_matrix()
-            Fp_x = self.force_vector_stress_stiffening(vector_gcs=False)
-            Te = (E*A/L) * (Ue[6] - Ue[0]) - Fp_x
-            K_geo = (Te/L) * mat_K_geo
+            Te = self.compute_Te_matrix(element_attributes)
+            Fp_x = self.force_vector_stress_stiffening(element_attributes, vector_gcs=False)
+            Te = (E * A / L) * (Ue[6] - Ue[0]) - Fp_x
+            K_geo = (Te / L) * Te
 
         for point, weigth in zip(points, weigths):
 
@@ -112,18 +145,18 @@ class PipeStructuralElement(StructuralElement):
 
             # Axial and Bending B-matrix
             Bab = np.zeros([3, 12])
-            Bab[[0,1,2],[0,4,5]] = dphi[0] # 1st node
-            Bab[[0,1,2],[6,10,11]] = dphi[1] # 2nd node
+            Bab[[0, 1, 2], [0, 4, 5]] = dphi[0]  # 1st node
+            Bab[[0, 1, 2], [6, 10, 11]] = dphi[1]  # 2nd node
             self._Bab = Bab
 
             # Torsional and Shear B-matrix
-            Bts = np.zeros((3,12))
-            Bts[[0,1,2],[3,1,2]] = dphi[0] # 1st node
-            Bts[[1],[5]] = -phi[0]
-            Bts[[2],[4]] = phi[0]
-            Bts[[0,1,2],[9,7,8]] = dphi[1] # 2nd node
-            Bts[[1],[11]] = -phi[1]
-            Bts[[2],[10]] = phi[1]
+            Bts = np.zeros((3, 12))
+            Bts[[0, 1, 2], [3, 1, 2]] = dphi[0]  # 1st node
+            Bts[[1], [5]] = -phi[0]
+            Bts[[2], [4]] = phi[0]
+            Bts[[0, 1, 2], [9, 7, 8]] = dphi[1]  # 2nd node
+            Bts[[1], [11]] = -phi[1]
+            Bts[[2], [10]] = phi[1]
             self._Bts = Bts
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
@@ -134,7 +167,7 @@ class PipeStructuralElement(StructuralElement):
         return principal_axis.T @ Ke @ principal_axis
 
 
-    def mass_matrix_pipes(self):
+    def mass_matrix_pipes(self, element_attributes: "StructuralElementAttributes"):
         """
         This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -148,47 +181,71 @@ class PipeStructuralElement(StructuralElement):
         --------
         mass_matrix_beam : Beam element mass matrix in the local coordinate system.
         """
-        L   = self.length
-        rho = self.material.density
+
+        fluid = element_attributes.fluid
+        material = element_attributes.material
+        cross_section = element_attributes.cross_section
+
+        rho = material.density
 
         # Area properties - constant section along x-axis
-        A = self.cross_section.area
-        Iy = self.cross_section.second_moment_area_y
-        Iz = self.cross_section.second_moment_area_z
-        J = self.cross_section.polar_moment_area
-        Ais = self.cross_section.area_insulation
+        A = cross_section.area
+        Iy = cross_section.second_moment_area_y
+        Iz = cross_section.second_moment_area_z
+        J = cross_section.polar_moment_area
+        Ais = cross_section.area_insulation
 
-        rho_insulation = self.cross_section.insulation_density
-        if self.fluid is not None and self.adding_mass_effect:
-            rho_fluid = self.fluid.density
-            Ai = self.cross_section.area_fluid
-            Gfl = rho_fluid*np.array([[Ai, 0, 0],[0, Ai, 0],[0, 0, Ai]], dtype='float64') 
+        if isinstance(fluid, Fluid) and element_attributes.adding_mass_effect:
+            rho_fluid = fluid.density
+            Ai = cross_section.area_fluid
+            Gfl = rho_fluid * np.array([
+                [Ai, 0, 0],
+                [0, Ai, 0],
+                [0, 0, Ai]
+                ], dtype='float64')
+
         else:
-            Gfl = np.zeros((3,3), dtype='float64') 
+            Gfl = np.zeros((3, 3), dtype='float64') 
 
         if self.element_type == 'pipe_1':
             Qy = 0
             Qz = 0
             Iyz = 0
-            principal_axis = self.cross_section.principal_axis
+            principal_axis = cross_section.principal_axis
         else:
             print('Only pipe_1 element types are allowed.')
 
         # Determinant of Jacobian (linear 1D trasform)
-        det_jacob = L / 2
-        
+        det_jacob = self.length / 2
+
         #Fluid/Insulation inertia effects
-        Gis = rho_insulation*np.array([[Ais, 0, 0],[0, Ais, 0],[0, 0, Ais]], dtype='float64') 
+        rho_insulation = cross_section.insulation_density
+        Gis = rho_insulation * np.array([
+            [Ais, 0, 0],
+            [0, Ais, 0],
+            [0, 0, Ais]
+            ], dtype='float64')
 
         # Inertial matrices
-        Ggm = np.zeros([6, 6])
+        Ggm = np.zeros((6, 6), dtype=float)
         Ggm[np.diag_indices(6)] = np.array([A, A, A, J, Iy, Iz]) / 2
         Ggm[0, 4] = Qy
         Ggm[1, 3] = -Qy
         Ggm[2, 3] = Qz
         Ggm[0, 5] = -Qz
         Ggm[4, 5] = -Iyz
-        Ggm = rho*( Ggm + Ggm.T )
+        Ggm = rho * (Ggm + Ggm.T)
+
+        # Ggm = rho * np.array([
+        #     [  A,   0,   0,   0,   Qy,  -Qz],
+        #     [  0,   A,   0, -Qy,    0,    0],
+        #     [  0,   0,   A,  Qz,    0,    0],
+        #     [  0, -Qy,  Qz,   J,    0,    0],
+        #     [ Qy,   0,   0,   0,   Iy, -Iyz],
+        #     [-Qz,   0,   0,   0, -Iyz,   Iz],
+        #     ], dtype=float)
+        # Ggm[0:3,0:3] += Gfl + Gis
+
         Ggm[0:3,0:3] = Ggm[0:3,0:3] + Gfl + Gis
 
         # Numerical integration by Gauss quadrature
@@ -200,57 +257,92 @@ class PipeStructuralElement(StructuralElement):
         aux_eyes = np.eye( DOF_PER_NODE_STRUCTURAL )
         
         for point, weigth in zip(points, weigths):
-            phi, _ = shape_function( point )
-            N = np.c_[phi[0]*aux_eyes, phi[1]*aux_eyes] 
+            phi, _ = shape_function(point)
+            N = np.c_[phi[0] * aux_eyes, phi[1] * aux_eyes]
             Me += (N.T @ Ggm @ N) * det_jacob * weigth
 
         return principal_axis.T @ Me @ principal_axis
     
 
-    def get_Te_matrix(self):
+    def compute_Te_matrix(self, element_attributes: "StructuralElementAttributes"):
         """
+        This method computes the Te matrix for stress stiffening updating.
         """
+
+        L = self.length
+
+        material = element_attributes.material
+        cross_section = element_attributes.cross_section
+
+        E = material.elasticity_modulus
+        G = material.shear_modulus
+                   
+        # Area properties - constant section along x-axis
+        A = cross_section.area
+        Iy = cross_section.second_moment_area_y
+        Iz = cross_section.second_moment_area_z
+        J = cross_section.polar_moment_area
+        res_y = cross_section.res_y
+        res_z = cross_section.res_z
+    
+        # Shear coefficiets
+        aly = 1 / res_y
+        alz = 1 / res_z
+
+        key = 1
+
+        # Variables related to prestress effect
+        Phi_y = key * (12 * E * Iz) / (G * aly * A * L**2)
+        Phi_z = key * (12 * E * Iy) / (G * alz * A * L**2)
+        Jx_Ax = key * J / A
                
-        L = self.length    
-        den_y = (1 + self.Phi_y)**2
-        den_z = (1 + self.Phi_z)**2
+        den_y = (1 + Phi_y)**2
+        den_z = (1 + Phi_z)**2
 
-        mat_K_geo = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        Te_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+        Te_matrix[[1, 2, 7, 8], [1, 2, 7, 8]] = [
+            (6 / 5 + 2 * Phi_y + Phi_y**2) / den_y,
+            (6 / 5 + 2 * Phi_z + Phi_z**2) / den_z,
+            (6 / 5 + 2 * Phi_y + Phi_y**2) / den_y,
+            (6 / 5 + 2 * Phi_z + Phi_z**2) / den_z,
+        ]
+
+        Te_matrix[[1, 2, 7, 8], [7, 8, 1, 2]] = [
+            -(6 / 5 + 2 * Phi_y + Phi_y**2) / den_y,
+            -(6 / 5 + 2 * Phi_z + Phi_z**2) / den_z,
+            -(6 / 5 + 2 * Phi_y + Phi_y**2) / den_y,
+            -(6 / 5 + 2 * Phi_z + Phi_z**2) / den_z,
+        ]
+
+        Te_matrix[[3, 3, 9, 9], [3, 9, 3, 9]] = [Jx_Ax, -Jx_Ax, -Jx_Ax, Jx_Ax]
+
+        Te_matrix[[4, 5, 10, 11], [4, 5, 10, 11]] = [
+            (L**2) * ((2 / 15) + (Phi_z / 6) + ((Phi_z**2) / 12)) / den_z,
+            (L**2) * ((2 / 15) + (Phi_y / 6) + ((Phi_y**2) / 12)) / den_y,
+            (L**2) * ((2 / 15) + (Phi_z / 6) + ((Phi_z**2) / 12)) / den_z,
+            (L**2) * ((2 / 15) + (Phi_y / 6) + ((Phi_y**2) / 12)) / den_y,
+        ]
+
+        Te_matrix[[4, 5, 10, 11], [10, 11, 4, 5]] = [
+            -(L**2) * ((1 / 30) + (Phi_z / 6) + ((Phi_z**2) / 12)) / den_z,
+            -(L**2) * ((1 / 30) + (Phi_y / 6) + ((Phi_y**2) / 12)) / den_y,
+            -(L**2) * ((1 / 30) + (Phi_z / 6) + ((Phi_z**2) / 12)) / den_z,
+            -(L**2) * ((1 / 30) + (Phi_y / 6) + ((Phi_y**2) / 12)) / den_y,
+        ]
+
+        Te_matrix[[1, 1, 5, 11], [5, 11, 1, 1]] = [L / (10 * den_y), L / (10 * den_y), L / (10 * den_y), L / (10 * den_y)]
+
+        Te_matrix[[4, 8, 8, 10], [8, 4, 10, 8]] = [L / (10 * den_z), L / (10 * den_z), L / (10 * den_z), L / (10 * den_z)]
+
+        Te_matrix[[5, 7, 7, 11], [7, 5, 11, 7]] = [-L / (10 * den_y), -L / (10 * den_y), -L / (10 * den_y), -L / (10 * den_y)]
+
+        Te_matrix[[2, 2, 4, 10], [4, 10, 2, 2]] = [-L / (10 * den_z), -L / (10 * den_z), -L / (10 * den_z), -L / (10 * den_z)]
         
-        mat_K_geo[[1,2,7,8],[1,2,7,8]] = [  (6/5 + 2*self.Phi_y + self.Phi_y**2)/den_y, 
-                                            (6/5 + 2*self.Phi_z + self.Phi_z**2)/den_z,
-                                            (6/5 + 2*self.Phi_y + self.Phi_y**2)/den_y,
-                                            (6/5 + 2*self.Phi_z + self.Phi_z**2)/den_z  ]
-
-        mat_K_geo[[1,2,7,8],[7,8,1,2]] = [  -(6/5 + 2*self.Phi_y + self.Phi_y**2)/den_y, 
-                                            -(6/5 + 2*self.Phi_z + self.Phi_z**2)/den_z,
-                                            -(6/5 + 2*self.Phi_y + self.Phi_y**2)/den_y,
-                                            -(6/5 + 2*self.Phi_z + self.Phi_z**2)/den_z   ]
-
-        mat_K_geo[[3,3,9,9],[3,9,3,9]] =  [  self.Jx_Ax, -self.Jx_Ax, -self.Jx_Ax, self.Jx_Ax  ]
-
-        mat_K_geo[[4,5,10,11],[4,5,10,11]] = [  (L**2)*((2/15) + (self.Phi_z/6) + ((self.Phi_z**2)/12))/den_z,
-                                                (L**2)*((2/15) + (self.Phi_y/6) + ((self.Phi_y**2)/12))/den_y,
-                                                (L**2)*((2/15) + (self.Phi_z/6) + ((self.Phi_z**2)/12))/den_z,
-                                                (L**2)*((2/15) + (self.Phi_y/6) + ((self.Phi_y**2)/12))/den_y   ]
-
-        mat_K_geo[[4,5,10,11],[10,11,4,5]] = [  -(L**2)*((1/30) + (self.Phi_z/6) + ((self.Phi_z**2)/12))/den_z,
-                                                -(L**2)*((1/30) + (self.Phi_y/6) + ((self.Phi_y**2)/12))/den_y,
-                                                -(L**2)*((1/30) + (self.Phi_z/6) + ((self.Phi_z**2)/12))/den_z,
-                                                -(L**2)*((1/30) + (self.Phi_y/6) + ((self.Phi_y**2)/12))/den_y   ]
-
-        mat_K_geo[[1,1,5,11],[5,11,1,1]] =  [   L/(10*den_y), L/(10*den_y), L/(10*den_y), L/(10*den_y)  ]
-
-        mat_K_geo[[4,8,8,10],[8,4,10,8]] =  [   L/(10*den_z), L/(10*den_z), L/(10*den_z), L/(10*den_z)  ]
-
-        mat_K_geo[[5,7,7,11],[7,5,11,7]] =  [   -L/(10*den_y), -L/(10*den_y), -L/(10*den_y), -L/(10*den_y)  ]
-
-        mat_K_geo[[2,2,4,10],[4,10,2,2]] =  [   -L/(10*den_z), -L/(10*den_z), -L/(10*den_z), -L/(10*den_z)  ]
-        
-        return mat_K_geo
+        return Te_matrix
 
 
-    def stiffness_matrix_pipes_variable_section(self):
+    def stiffness_matrix_pipes_variable_section(self, element_attributes: "StructuralElementAttributes"):
         """
         This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -264,12 +356,13 @@ class PipeStructuralElement(StructuralElement):
         --------
         stiffness_matrix_beam : Beam element stiffness matrix in the local coordinate system.
         """
-        L = self.length
 
-        E = self.material.elasticity_modulus
-        mu = self.material.mu_parameter
-        G = self.material.shear_modulus
-        
+        material = element_attributes.material
+        # cross_section = element_attributes.cross_section
+
+        E = material.elasticity_modulus
+        mu = material.mu_parameter
+
         self.process_offset_transformation_matrices()
                             
         ## Numerical integration by Gauss quadrature
@@ -277,6 +370,7 @@ class PipeStructuralElement(StructuralElement):
         points, weigths = gauss_quadrature(integrations_points)
 
         # Determinant of Jacobian (linear 1D trasform)
+        L = self.length
         det_jacob = L / 2
         inv_jacob = 1 / det_jacob
 
@@ -288,7 +382,7 @@ class PipeStructuralElement(StructuralElement):
         prop_1 = [sections[0].outer_diameter, sections[1].outer_diameter]
         prop_2 = [sections[0].thickness, sections[1].thickness]
 
-        for point, weigth in zip( points, weigths ):
+        for point, weigth in zip(points, weigths):
 
             # Shape function and its derivative
             phi, derivative_phi = shape_function( point )
@@ -310,34 +404,28 @@ class PipeStructuralElement(StructuralElement):
             res_z = section.res_z
         
             # Shear coefficiets
-            aly = 1/res_y
-            alz = 1/res_z
+            aly = 1 / res_y
+            alz = 1 / res_z
             
             if self.element_type in ['pipe_1', 'valve']:
                 Qy = 0
                 Qz = 0
                 Iyz = 0
                 # principal_axis = section.principal_axis
+
             else:
                 print('Only pipe_1 element types are allowed.')
-                
-            key = 1
-            # Variables related to prestress effect
-            self.Phi_y = key*(12*E*Iz)/(G*aly*A*L**2)
-            self.Phi_z = key*(12*E*Iy)/(G*alz*A*L**2)
-            self.Jx_Ax = key*J/A
 
             Ue = np.zeros(DOF_PER_ELEMENT, dtype=float)
             K_geo = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
             if self.static_analysis_evaluated:
-
                 self.static_analysis_evaluated = False
                 Ue = self.static_element_results_lcs()
-                mat_K_geo = self.get_Te_matrix()
-                Fp_x = self.force_vector_stress_stiffening(vector_gcs=False)
-                Te = (E*A/L)*(Ue[6] - Ue[0]) - Fp_x
-                K_geo = (Te/L)*mat_K_geo
+                mat_K_geo = self.compute_Te_matrix(element_attributes)
+                Fp_x = self.force_vector_stress_stiffening(element_attributes, vector_gcs=False)
+                Te = (E * A / L) * (Ue[6] - Ue[0]) - Fp_x
+                K_geo = (Te / L) * mat_K_geo
 
             # if self.index in [12]:
             #     # print("\nElement 12:")
@@ -347,18 +435,25 @@ class PipeStructuralElement(StructuralElement):
 
             # Constitutive matrices (element with constant geometry along x-axis)
             # Torsion and shear
-            Dts = mu*np.array([ [J  ,   -Qy,    Qz],
-                                [-Qy, aly*A,     0],
-                                [Qz ,     0, alz*A] ])
+            Dts = mu * np.array([ 
+                [  J,   -Qy,    Qz],
+                [-Qy, aly*A,     0],
+                [ Qz,     0, alz*A],
+                ], dtype=float)
+            
             self._Dts = Dts
+
             # Axial and Bending
-            Dab = E*np.array([  [A  ,   Qy,  -Qz],
-                                [Qy ,   Iy, -Iyz],
-                                [-Qz, -Iyz,   Iz]  ])
+            Dab = E*np.array([  
+                [A  ,   Qy,  -Qz],
+                [Qy ,   Iy, -Iyz],
+                [-Qz, -Iyz,   Iz],
+                ], dtype=float)
+
             self._Dab = Dab
 
             # Axial and Bending B-matrix
-            Bab = np.zeros([3, 12])
+            Bab = np.zeros([3, 12], dtype=float)
             Bab[[0,1,2],[0,4,5]] = dphi[0] # 1st node
             Bab[[0,1,2],[6,10,11]] = dphi[1] # 2nd node
             self._Bab = Bab
@@ -383,7 +478,7 @@ class PipeStructuralElement(StructuralElement):
         return self.transf_matrix_offset_shear_left @ Ke @ self.transf_matrix_offset_shear_right
 
 
-    def mass_matrix_pipes_variable_section(self):
+    def mass_matrix_pipes_variable_section(self, element_attributes: "StructuralElementAttributes"):
         """
         This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -398,7 +493,12 @@ class PipeStructuralElement(StructuralElement):
         mass_matrix_beam : Beam element mass matrix in the local coordinate system.
         """
         L   = self.length
-        rho = self.material.density
+
+        fluid = element_attributes.fluid
+        material = element_attributes.material
+        # cross_section = element_attributes.cross_section
+
+        rho = material.density
 
         # Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -436,10 +536,15 @@ class PipeStructuralElement(StructuralElement):
             Ais = section.area_insulation
 
             rho_insulation = section.insulation_density
-            if self.fluid is not None and self.adding_mass_effect:
-                rho_fluid = self.fluid.density
+            if isinstance(fluid, Fluid) and element_attributes.adding_mass_effect:
+                rho_fluid = fluid.density
                 Ai = section.area_fluid
-                Gfl = rho_fluid*np.array([[Ai, 0, 0],[0, Ai, 0],[0, 0, Ai]], dtype='float64') 
+                Gfl = rho_fluid*np.array([
+                    [Ai, 0, 0],
+                    [0, Ai, 0],
+                    [0, 0, Ai]
+                    ], dtype='float64')
+
             else:
                 Gfl = np.zeros((3,3), dtype='float64') 
 
@@ -452,7 +557,11 @@ class PipeStructuralElement(StructuralElement):
                 print('Only pipe_1 element types are allowed.')
             
             #Fluid/Insulation inertia effects
-            Gis = rho_insulation*np.array([[Ais, 0, 0],[0, Ais, 0],[0, 0, Ais]], dtype='float64') 
+            Gis = rho_insulation * np.array([
+                [Ais, 0, 0],
+                [0, Ais, 0],
+                [0, 0, Ais]
+                ], dtype='float64')
 
             # Inertial matrices
             Ggm = np.zeros([6, 6])
@@ -465,47 +574,13 @@ class PipeStructuralElement(StructuralElement):
             Ggm[4, 5] = -Iyz
 
             # Ggm[[0,1,2,0,4], [4,3,3,5,5]] = [Qy, -Qy, Qz, -Qz, -Iyz]
-            Ggm = rho*( Ggm + Ggm.T )
+            Ggm = rho * ( Ggm + Ggm.T )
             Ggm[0:3,0:3] = Ggm[0:3,0:3] + Gfl + Gis
 
             Me += (N.T @ Ggm @ N) * det_jacob * weigth
             index += 1
             
         return self.transf_mat_Offset.T @ Me @ self.transf_mat_Offset
-
-
-    def matrices_gcs(self):
-        """
-        This method returns the element stiffness and mass matrices according to the 
-        3D Timoshenko beam theory in the global coordinate system.
-
-        Returns
-        -------
-        stiffness : array
-            Element stiffness matrix in the global coordinate system.
-            
-        mass : array
-            Element mass matrix in the global coordinate system.
-
-        See also
-        --------
-        stiffness_matrix_gcs : Element stiffness matrix in the global coordinate system.
-        
-        mass_matrix_gcs : Element mass matrix in the global coordinate system.
-        """
-
-        R = self.element_rotation_matrix
-        Rt = self.element_rotation_matrix_inverse
-
-        if self.variable_section:
-            stiffness = Rt @ self.stiffness_matrix_pipes_variable_section() @ R
-            mass = Rt @ self.mass_matrix_pipes_variable_section() @ R
-
-        else:
-            stiffness = Rt @ self.stiffness_matrix_pipes() @ R
-            mass = Rt @ self.mass_matrix_pipes() @ R
-
-        return stiffness, mass
 
 
     def process_offset_transformation_matrices(self):
@@ -604,252 +679,7 @@ class PipeStructuralElement(StructuralElement):
         self.transf_matrix_offset_shear_right = Sc @ Of
 
 
-    def get_self_weighted_load(self, gravity_vector):
-        """
-        This method returns the self-weighted loads for static analysis.
-        Returns
-        -------
-        Fe_sw : array
-            Load vector due to self-weight in the global coordinate system.
-        """
- 
-        if np.sum(gravity_vector) == 0:
-            return np.zeros((12,1), dtype=float)
-        #
-        g = gravity_vector
-        rho = self.material.density
-        A = self.cross_section.area
-        #
-        A_fluid = A_ins = 0.
-        rho_fluid = rho_ins = 0.
-        if self.element_type in ["pipe_1", "valve"]:
-            A_ins = self.cross_section.area_insulation
-            rho_ins = self.cross_section.insulation_density
-            if isinstance(self.fluid, Fluid) and self.adding_mass_effect:
-                rho_fluid = self.fluid.density
-                A_fluid = self.cross_section.area_fluid
-
-        eload = (rho * A + rho_fluid * A_fluid + rho_ins * A_ins) * g
-
-        _R = self.element_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
-        _Rt = self.element_rotation_matrix_inverse[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
-
-        # convert the loads to the local coordinates
-        eload_lcs =  _R @ eload @ _Rt               
-        eload_lcs = eload_lcs.reshape(-1, 1)
-
-        ## Numerical integration by Gauss quadrature
-        L = self.length
-        integrations_points = 2
-        points, weigths = gauss_quadrature(integrations_points)
-
-        #Determinant of Jacobian (linear 1D trasform)
-        det_jacobian = L / 2
-
-        Fe_sw = 0.
-        aux_eyes = np.eye(DOF_PER_NODE_STRUCTURAL, dtype=float)
-
-        for point, weigth in zip(points, weigths):
-            phi, _ = shape_function(point)
-            N = np.c_[phi[0] * aux_eyes, phi[1] * aux_eyes]
-            Fe_sw += (N.T @ eload_lcs) * det_jacobian * weigth
-        
-        if self.element_type == 'pipe_1':
-            principal_axis = self.cross_section.principal_axis
-        else:
-            principal_axis = np.eye(DOF_PER_ELEMENT)
-
-        if self.force_offset:
-            if self.variable_section:
-                return self.transf_matrix_offset_shear_left @ Fe_sw
-            else:
-                return principal_axis.T @ Fe_sw
-        else:
-            return Fe_sw
-
-
-    def get_distributed_load(self, rot_matrix: np.ndarray):
-        """
-        This method returns the element load vector in the local coordinate system. The loads are forces and moments according to the degree of freedom.
-
-        Returns
-        -------
-        force : array
-            Load in the local coordinate system.
-
-        Raises
-        ------
-        TypeError
-            Only pipe_1 element type is allowed.
-        """
-
-        _R = self.element_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
-        _Rt = self.element_rotation_matrix_inverse[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
-        
-        # convert the loads to the local coordinates
-        eload_lcs =  _R @ self.loaded_forces @ _Rt               
-        eload_lcs = eload_lcs.reshape(-1, 1)
-
-        ## Numerical integration by Gauss quadrature
-        L = self.length
-        integrations_points = 2
-        points, weigths = gauss_quadrature(integrations_points)
-
-        #Determinant of Jacobian (linear 1D trasform)
-        det_jacobian = L / 2
-
-        Fe = 0
-        aux_eyes = np.eye( DOF_PER_NODE_STRUCTURAL, dtype=float)
-        for point, weigth in zip(points, weigths):
-            phi, _ = shape_function(point)
-            N = np.c_[phi[0]*aux_eyes, phi[1]*aux_eyes] 
-            Fe += (N.T @ eload_lcs) * det_jacobian * weigth
-        
-        if self.element_type == 'pipe_1':
-            principal_axis = self.cross_section.principal_axis
-        else:
-            return np.zeros((DOF_PER_ELEMENT, 1), dtype=float)
-        
-        if self.force_offset:
-            if self.variable_section:
-                return self.transf_matrix_offset_shear_left @ Fe
-            else:
-                return principal_axis.T @ Fe
-        else:
-            return Fe
-
-
-    def force_vector_acoustic_gcs(self, frequencies, pressures, pressure_external):
-        """
-        This method returns the element load vector due to the internal acoustic pressure field in the global 
-        coordinate system. The loads are forces and moments according to the degree of freedom. 
-
-        Parameters
-        ----------
-        frequencies : array
-            Frequencies of analysis in Hertz.
-        
-        pressure_avg : array
-            The average between the pressure at the first node and last node of the element. 
-
-        Returns
-        -------
-        force : array
-            Load vector in the global coordinate system.
-        """
-        rows = DOF_PER_ELEMENT
-        cols = len(frequencies)
-        Do = self.cross_section.outer_diameter
-        Di = self.cross_section.inner_diameter
-
-        nu = self.material.poisson_ratio
-        A = self.cross_section.area
-
-        # p_avg = (pressures[0]+pressures[1])/2
-        if self.capped_end:
-            capped_end = 1
-        else:
-            capped_end = 0
-
-        # print(f"-> capped_end [{self.index}]: {self.capped_end} / {capped_end}")
-
-        if self.element_type == 'pipe_1':
-
-            stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
-            if self.wall_formulation == "thick_wall": 
-                force = A * (capped_end - 2*nu) * stress_axial
-            elif self.wall_formulation == "thin_wall":
-                force = A * (capped_end*stress_axial - nu*pressures*(Do/(Do-Di) - 1))
-            else:
-                raise TypeError('Only thin and thick wall formulation types are allowable.')
-
-        elif self.element_type in ['expansion_joint','valve']:
-            nu = 0
-            force = A * (capped_end - 2*nu) * pressures
-
-        else:
-            return np.zeros((rows, cols))
-
-        aux = np.zeros((rows, cols), dtype=complex)
-        aux[0,:] = -force[0,:]
-        aux[6,:] =  force[1,:]
-
-        R = self.element_rotation_matrix
-
-        if self.element_type == 'pipe_1':
-            principal_axis = self.cross_section.principal_axis
-        elif self.element_type in ['expansion_joint', 'valve']:
-            principal_axis = np.eye(DOF_PER_ELEMENT)
-        else:
-            raise TypeError(f'Invalid element type: {self.element_type}')
-
-        if self.force_offset:
-            if self.variable_section:
-                if self.transf_matrix_offset_shear_left is None:
-                    self.process_offset_transformation_matrices()
-                return R.T @ self.transf_matrix_offset_shear_left @ aux
-            else:
-                return R.T @ principal_axis.T @ aux
-        else:
-            return R.T @ aux
-
-
-    def force_vector_stress_stiffening(self, vector_gcs: bool = True):
-        """
-        This method returns description
-        Returns
-        -------
-        S : array
-            Load vector in the global coordinate system.
-        """
-
-        rows = DOF_PER_ELEMENT
-        aux = np.zeros([rows, 1])
-
-        D_out = self.cross_section.outer_diameter
-        D_in = self.cross_section.inner_diameter
-        A = self.cross_section.area
-        nu = self.material.poisson_ratio
-
-        P_in = self.internal_pressure
-        P_out = self.external_pressure
-
-        if self.element_type in ['pipe_1', 'valve']:
-            axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
-        else:
-            return aux
-
-        if self.capped_end:
-            capped_end = 1
-        else:
-            capped_end = 0
-
-        if self.element_type in ['pipe_1', 'valve']:
-            principal_axis = self.cross_section.principal_axis
-        else:
-            raise TypeError(f'Invalid element type: {self.element_type}')
-
-        aux[0], aux[6] = -1, 1
-        R = self.element_rotation_matrix
-
-        if vector_gcs:
-            if self.force_offset:
-                aux = R.T @ (principal_axis.T @ aux)
-            else:
-                aux = R.T @ aux
-        else:
-            aux = 1
-            capped_end = 0
-
-        if self.wall_formulation == "thick_wall":
-            return (capped_end - 2*nu) * axial_stress * A * aux
-        elif self.wall_formulation == "thin_wall":
-            return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
-        else:
-            raise TypeError('Only thin and thick wall formulation types are allowable.')
-
-
-def gauss_quadrature(integration_points):
+def gauss_quadrature(integration_points: int):
     """
     This method returns the Gauss quadrature data.  
 
