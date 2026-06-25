@@ -1,5 +1,5 @@
 #%%
-from time import time
+# from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
@@ -7,8 +7,7 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
 from pulse.model.preprocessor import Preprocessor
-from pulse.model.perforated_plate import PerforatedPlate
-from pulse.processing.assembly_acoustic import AssemblyAcoustic
+from pulse.model.data_classes.data_classes import PerforatedPlateData
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
@@ -54,7 +53,7 @@ direct = solution.direct_method()
 hole_diameter = 1e-3
 thickness = 0.002
 porosity = 0.01
-pp = PerforatedPlate(hole_diameter, thickness, porosity)
+pp = PerforatedPlateData(hole_diameter, thickness, porosity)
 preprocessor.set_perforated_plate(86, pp)
 
 solution = AcousticSolver(preprocessor, frequencies)

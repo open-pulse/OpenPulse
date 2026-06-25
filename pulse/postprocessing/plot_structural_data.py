@@ -274,7 +274,7 @@ def get_structural_response(model: "Model", solution: np.ndarray, column: int, *
         node.deformed_displacements_xyz_gcs = nodal_solution_gcs[global_index, disp_indexes]
         node.deformed_rotations_xyz_gcs = nodal_solution_gcs[global_index, rot_indexes]
 
-    model.process_element_cross_sections_orientation_to_plot()
+    model.preprocessor.process_element_cross_sections_orientation_to_plot()
 
     return connect, coord_def, r_xyz_plot, magnif_factor, _delta
 
@@ -419,7 +419,7 @@ def get_stresses_to_plot(
         # NOTE: the shift_phase variable is used to synchronize both 
         # the displacement and stress fields while computing
         # the animation-related data
-        stresses = _stresses*np.cos(phase_step + _phase + shift_phase)
+        stresses = _stresses * np.cos(phase_step + _phase + shift_phase)
 
         if absolute_animation:
             stresses = np.absolute(stresses)
@@ -428,16 +428,3 @@ def get_stresses_to_plot(
     min_max_values = [min(stresses), max(stresses)]
 
     return stresses_data, min_max_values
-
-# def get_internal_loads_data(preprocessor, column, absolute=False, real=False, imaginary=False):
-
-#     elements = preprocessor.structural_elements
-#     internal_loads = [np.r_[i, elements[i].internal_load[:, column]] for i in elements ]
-#     if absolute:
-#         return np.abs(np.array(internal_loads))
-#     elif real:
-#         return np.real(np.array(internal_loads))
-#     elif imaginary:
-#         return np.imag(np.array(internal_loads))
-#     else:
-#         return np.array(internal_loads) 
