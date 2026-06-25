@@ -299,7 +299,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
 
     def actions_to_finalize(self):
         self.lineEdit_actual_angle.clear()
-        self.preprocessor.process_all_rotation_matrices()
+        self.preprocessor.process_all_transformation_matrices()
         app().project.file.write_line_properties_in_file()
         self.load_lines_info()
         app().main_window.update_plots()

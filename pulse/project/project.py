@@ -158,7 +158,7 @@ class Project:
         self.loader.load_mesh_dependent_properties()
 
         logging.info("Finalizing model data loading [75%]")
-        # self.model.preprocessor.process_all_rotation_matrices()
+        # self.model.preprocessor.process_all_transformation_matrices()
         self.model.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
@@ -179,6 +179,7 @@ class Project:
     def process_geometry_and_mesh(self):
         # t0 = time()
         self.model.preprocessor.generate()
+        self.model.preprocessor.process_all_transformation_matrices()
         if app() is None:
             return
 
@@ -475,7 +476,7 @@ class Project:
                 return
 
         if self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
-            self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
+            self.model.preprocessor.enable_fluid_mass_adding_effect(enable=False)
             self.structural_solver = self.get_structural_solver()
 
         elif self.analysis_id in [
@@ -485,14 +486,14 @@ class Project:
             self.acoustic_solver = self.get_acoustic_solver()
 
         elif self.analysis_id in [AnalysisID.COUPLED_HARMONIC]:
-            self.model.preprocessor.enable_fluid_mass_adding_effect()
+            self.model.preprocessor.enable_fluid_mass_adding_effect(enable=True)
             self.acoustic_solver = self.get_acoustic_solver()
 
         elif self.analysis_id in [
             AnalysisID.STRUCTURAL_HARMONIC,
             AnalysisID.STRUCTURAL_STATIC,
             ]:
-            self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
+            self.model.preprocessor.enable_fluid_mass_adding_effect(enable=False)
             self.structural_solver = self.get_structural_solver()
 
     def process_analysis(self):

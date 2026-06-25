@@ -4,25 +4,14 @@ from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface import error_title, warning_title
-from pulse.interface.ui_generated.model.info.get_perforated_plate_info_ui import (
-    GetPerforatedPlateInfo_UI,
-)
-from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import (
-    PerforatedPlateInput_UI,
-)
+from pulse.interface.ui_generated.model.info.get_perforated_plate_info_ui import GetPerforatedPlateInfo_UI
+from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import PerforatedPlateInput_UI
 from pulse.interface.user_input.model.setup.elements_input import ElementsInput
-from pulse.interface.user_input.plots.general.frequency_response_plotter import (
-    FrequencyResponsePlotter,
-)
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.perforated_plate import PerforatedPlate, PerforatedPlateFormulation
-from pulse.postprocessing.plot_acoustic_data import (
-    get_perforated_plate_acoustic_absortion,
-    get_perforated_plate_impedance,
-)
+from pulse.model.data_classes.data_classes import PerforatedPlateData, PerforatedPlateFormulation
+from pulse.postprocessing.plot_acoustic_data import get_perforated_plate_acoustic_absortion, get_perforated_plate_impedance
 
 
 class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
@@ -246,20 +235,22 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
     def get_area_porosity(self, element_id: int):
         element = self.preprocessor.structural_elements[element_id]
         if element.element_type == "pipe_1":
-            if element.cross_section is not None:
-                cross_section = element.cross_section
-                d_in = cross_section.inner_diameter
-                if self.lineEdit_hole_diameter.text() != "":
-                    str_hole_diameter = self.lineEdit_hole_diameter.text()
-                    str_hole_diameter = str_hole_diameter.replace(",", ".")
+            cross_section = self.preprocessor.get_element_cross_section(element_id)
+            if cross_section is None:
+                return None
 
-                    try:
-                        hole_diameter = float(str_hole_diameter)
-                        area_porosity = (hole_diameter / d_in) ** 2
-                    except Exception:
-                        return None
+            d_in = cross_section.inner_diameter
+            if self.lineEdit_hole_diameter.text() != "":
+                str_hole_diameter = self.lineEdit_hole_diameter.text()
+                str_hole_diameter = str_hole_diameter.replace(",", ".")
 
-                    return area_porosity
+                try:
+                    hole_diameter = float(str_hole_diameter)
+                    area_porosity = (hole_diameter / d_in) ** 2
+                except Exception:
+                    return None
+
+                return area_porosity
 
     def single_hole_perforated_plate_callback(self):
         key = self.checkBox_single_hole.isChecked()
@@ -598,7 +589,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
 
                     self.perforated_plate_inputs["area_porosity"] = area_porosity
 
-                perforated_plate = PerforatedPlate(self.perforated_plate_inputs)
+                perforated_plate = PerforatedPlateData(**self.perforated_plate_inputs)
 
                 if self.lineEdit_load_table_path.text() != "":
                     if self.imported_values is None:

@@ -6,19 +6,11 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.structural.valve_input_ui import (
-    ValveInput_UI,
-)
-from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import (
-    PerforatedPlateInput,
-)
-from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
-    StructuralLinesInput,
-)
+from pulse.interface.ui_generated.model.setup.structural.valve_input_ui import ValveInput_UI
+from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
+from pulse.interface.user_input.model.setup.structural.structural_lines_input import StructuralLinesInput
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.cross_section import CrossSection
 
 
@@ -536,22 +528,23 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
                 line_elements[-1] - 1,
                 line_elements[-1] + 1,
             ]
-            cross = None
+
+            cross_section = None
             element_type = None
 
             for element_id in element_ids:
                 # get the cross-section of the first out-of-line valid element
                 if element_id not in line_elements:
                     element = self.preprocessor.structural_elements[element_id]
-                    cross = element.cross_section
+                    cross_section = self.preprocessor.get_element_cross_section(element_id)
                     element_type = element.element_type
                     break
 
-            if element_type == "pipe_1" and isinstance(cross, CrossSection):
+            if element_type == "pipe_1" and isinstance(cross_section, CrossSection):
                 pipe_info = {
                     "structure_name" : "pipe",
                     "section_type_label" : "pipe",
-                    "section_parameters" : cross.section_parameters,
+                    "section_parameters" : cross_section.section_parameters,
                     }
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)

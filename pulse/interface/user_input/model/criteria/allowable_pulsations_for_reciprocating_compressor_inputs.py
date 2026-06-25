@@ -163,7 +163,7 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
     def get_diameters_from_node(self, node_id: int) -> list[float]:
         diameters = list()
         for element in  self.model.preprocessor.structural_elements_connected_to_node.get(node_id, list()):
-            cross_section = element.cross_section
+            cross_section = self.preprocessor.get_element_cross_section(element.index)
             if cross_section.section_type_label != "pipe":
                 continue
 
@@ -186,7 +186,7 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
             return
 
         # load the compressor parameters
-        pressure_unit = self.comp_parameters.get("pressure_unit", "Pa (a)")
+        # pressure_unit = self.comp_parameters.get("pressure_unit", "Pa (a)")
         pressure_ratio = self.comp_parameters.get("pressure_ratio")
 
         node_ids = app().main_window.list_selected_nodes()
@@ -287,7 +287,7 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
         self.model_results.clear()
 
         # load the compressor parameters
-        pressure_unit = self.comp_parameters.get("pressure_unit", "Pa (a)")
+        # pressure_unit = self.comp_parameters.get("pressure_unit", "Pa (a)")
 
         node_ids = app().main_window.list_selected_nodes()
         if len(node_ids) != 1:

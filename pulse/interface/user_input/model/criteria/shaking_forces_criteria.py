@@ -87,15 +87,16 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
 
         for row, element_id in enumerate(element_ids):
 
-            element = app().project.model.preprocessor.structural_elements[element_id]
-
+            # load the acoustic harmonic solution
             acoustic_solution = app().project.get_acoustic_solution()
+            element = app().project.model.preprocessor.structural_elements[element_id]
+            element_attributes = app().project.model.preprocessor.structural_element_attributes.get(element_id)
 
             pressure_first = acoustic_solution[element.first_node.global_index, :]
             pressure_last = acoustic_solution[element.last_node.global_index, :]
             pressure = np.c_[pressure_first, pressure_last].T
 
-            pressure_loads += element.force_vector_acoustic_gcs(self.frequencies, pressure, pressure_external)
+            pressure_loads += element.force_vector_acoustic_gcs(element_attributes, self.frequencies, pressure, pressure_external)
 
         F_x = pressure_loads[0] + pressure_loads[6]
         F_y = pressure_loads[1] + pressure_loads[7]
@@ -103,11 +104,11 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
         F_res = (F_x**2 + F_y**2 + F_z**2)**(1/2)
 
         shaking_forces = {
-                          "F_x" : F_x,
-                          "F_y" : F_y,
-                          "F_z" : F_z,
-                          "F_res" : F_res,
-                          }
+            "F_x": F_x,
+            "F_y": F_y,
+            "F_z": F_z,
+            "F_res": F_res,
+        }
 
         return shaking_forces
 

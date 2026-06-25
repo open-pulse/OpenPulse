@@ -14,7 +14,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.structural_element import decoupling_matrix
+from pulse.model.elements.structural_element_attributes import decoupling_matrix_default
 
 
 class TabIndex(IntEnum):
@@ -212,9 +212,10 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
                 continue
 
             element_id = int(item.text(0))
-            element = self.preprocessor.structural_elements[element_id]
-            element.decoupling_matrix = decoupling_matrix
-            element.decoupling_info = None
+            element_attributes = self.preprocessor.structural_element_attributes.get(element_id)
+
+            element_attributes.decoupling_matrix = decoupling_matrix_default
+            element_attributes.decoupling_info = None
 
             self.properties._remove_element_property(
                 "B2P_rotation_decoupling", element_id
@@ -247,9 +248,10 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
                 element_ids.append(element_id)
 
         for element_id in element_ids:
-            element = self.preprocessor.structural_elements[element_id]
-            element.decoupling_matrix = decoupling_matrix
-            element.decoupling_info = None
+            element_attributes = self.preprocessor.structural_element_attributes.get(element_id)
+
+            element_attributes.decoupling_matrix = decoupling_matrix_default
+            element_attributes.decoupling_info = None
 
             self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 
