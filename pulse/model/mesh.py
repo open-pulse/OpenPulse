@@ -152,6 +152,12 @@ class Mesh:
             gmsh.model.occ.removeAllDuplicates() 
             gmsh.model.occ.synchronize()
 
+            # Apply per-structure mesh constraints
+            from pulse.editor.structures.rigid_element import RigidElement
+            for structure in self.project.pipeline.structures:
+                if isinstance(structure, RigidElement):
+                    structure.define_gmsh_mesh_constraints()
+
             # generate the mesh for dim=3
             gmsh.model.mesh.generate(3)
 

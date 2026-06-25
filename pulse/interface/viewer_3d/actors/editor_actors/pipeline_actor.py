@@ -7,6 +7,7 @@ from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData, vtkPolyDataNormals
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
+from pulse.editor.structures import RigidElement
 from pulse.utils.cell_utils import (
     fill_cell_identifier,
     paint_data,
@@ -24,8 +25,12 @@ class PipelineActor(vtkActor):
     def create_geometry(self):
         append_filter = vtkAppendPolyData()
         selection_color = (255, 0, 50)
+        has_data = False
 
         for i, shape in enumerate(self.pipeline.all_structures()):
+            if isinstance(shape, RigidElement):
+                continue
+
             shape_data = shape.as_vtk().GetMapper().GetInput()
 
             if shape.staged:
@@ -36,8 +41,9 @@ class PipelineActor(vtkActor):
 
             fill_cell_identifier(shape_data, i)
             append_filter.AddInputData(shape_data)
+            has_data = True
 
-        if len(list(self.pipeline.all_structures())):
+        if has_data:
             append_filter.Update()
             appended_data = append_filter.GetOutput()
         else:

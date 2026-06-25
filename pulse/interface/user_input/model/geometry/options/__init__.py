@@ -11,3 +11,4 @@ from .expansion_joint_options import ExpansionJointOptions
 from .valve_options import ValveOptions
 from .arc_bend_options import ArcBendOptions
 from .point_options import PointOptions
+from .rigid_element_options import RigidElementOptions
