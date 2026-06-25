@@ -1,14 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
 
 @dataclass
-class SectionRotations:
+class SectionDataForRenders:
 
     undeformed_rotation_rx: np.ndarray
     undeformed_rotation_ry: np.ndarray
     undeformed_rotation_rz: np.ndarray
+
+    section_parameters_render: list | None = field(default_factory=list)
 
     def set_deformed_rotations(self, rot_x: float, rot_y: float, rot_z: float):
         self.deformed_rotation_rx = rot_x
