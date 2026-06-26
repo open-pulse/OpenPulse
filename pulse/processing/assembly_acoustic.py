@@ -300,15 +300,18 @@ class AssemblyAcoustic:
         rows, cols = self.preprocessor.get_global_acoustic_indexes()
         data_k = np.zeros([len(self.frequencies), total_entries], dtype = complex)
 
-        for element in self.preprocessor.get_acoustic_elements():
+        for index in self.preprocessor.get_acoustic_elements():
 
-            index = element.index
             start = (index - 1) * ENTRIES_PER_ELEMENT
             end = start + ENTRIES_PER_ELEMENT
 
-            if element.acoustic_link_diameters:
-                length_correction = self.get_length_correction_for_acoustic_link(element.acoustic_link_diameters)
+            element_attributes = self.preprocessor.element_attributes.get(index)
+            link_diameters = element_attributes.acoustic_link_diameters
+
+            if link_diameters:
+                length_correction = self.get_length_correction_for_acoustic_link(link_diameters)
             else:
+                element = self.preprocessor.acoustic_elements.get(index)
                 length_correction = self.get_length_corretion(element)
 
             data_k[:, start:end] = element.matrix(self.frequencies, length_correction = length_correction)
@@ -432,45 +435,46 @@ class AssemblyAcoustic:
         ind_Klump = list()
         area_fluid = None
 
-        elements = self.preprocessor.get_acoustic_elements()
-
         # processing external elements by node
         for (property, *args), data in self.model.properties.nodal_properties.items():
-            if property in ["specific_impedance", "radiation_impedance"]:
+            if property not in ["specific_impedance", "radiation_impedance"]:
+                continue
 
-                if not isinstance(data, dict):
-                    continue
+            if not isinstance(data, dict):
+                continue
 
-                node_id = args[0]
-                node = self.preprocessor.nodes[node_id]
-                position = node.global_index
+            node_id = args[0]
+            node = self.preprocessor.nodes[node_id]
+            position = node.global_index
 
-                if property == "specific_impedance":
-    
-                    impedance = data["values"][0]
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
+            if len(element_ids) != 1:
+                continue
 
-                    for element in elements:
-                        if element.first_node.global_index == position or element.last_node.global_index == position:
-                            area_fluid = element.cross_section.area_fluid
+            structural_element_type = self.preprocessor.get_structural_element_type(element_ids[0])
+            if structural_element_type in ["beam_1", "rigid_element"]:
+                continue
 
-                elif property == "radiation_impedance":
+            cross_section = self.preprocessor.get_element_cross_section(element_ids[0])
+            area_fluid = cross_section.area_fluid
 
-                    impedance_type = data.get("impedance_type")
-                    elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
-                    elements: list[AcousticElement]
+            if property == "specific_impedance":
+                impedance = data["values"][0]
 
-                    if len(elements) == 1:
-                        element = elements[0]
-                        area_fluid = element.cross_section.area_fluid
-                        impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
+            elif property == "radiation_impedance":
+                impedance_type = data.get("impedance_type")
 
-                ind_Klump.append(position)
-                admittance = self.get_nodal_admittance(impedance, area_fluid, self.frequencies)
+                # TODO: build the acoustic element
+                element = self.preprocessor.acoustic_elements.get(element_ids[0])
+                impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
 
-                if len(data_Klump):
-                    data_Klump = np.c_[data_Klump, admittance]
-                else:
-                    data_Klump = admittance
+            ind_Klump.append(position)
+            admittance = self.get_nodal_admittance(impedance, area_fluid, self.frequencies)
+
+            if len(data_Klump):
+                data_Klump = np.c_[data_Klump, admittance]
+            else:
+                data_Klump = admittance
 
         if area_fluid is None:
             full_K = [csr_matrix((total_dof, total_dof)) for _ in self.frequencies]
@@ -537,52 +541,49 @@ class AssemblyAcoustic:
         ind_Clump = list()
         data_Clump = list()
 
-        elements = self.preprocessor.get_acoustic_elements()
-
         # processing external elements by node
         for (property, *args), data in self.model.properties.nodal_properties.items():
-            if property in ["specific_impedance", "radiation_impedance"]:
+            if property not in ["specific_impedance", "radiation_impedance"]:
+                continue
 
-                if not isinstance(data, dict):
-                    continue
+            if not isinstance(data, dict):
+                continue
 
-                node_id = args[0]
-                node = self.preprocessor.nodes[node_id]
-                position = node.global_index
+            node_id = args[0]
+            node = self.preprocessor.nodes[node_id]
+            position = node.global_index
 
-                if property == "specific_impedance":
-    
-                    impedance = data["values"][0]
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
+            if len(element_ids) != 1:
+                continue
 
-                    for element in elements:
-                        if element.first_node.global_index == position or element.last_node.global_index == position:
-                            area_fluid = element.cross_section.area_fluid
+            cross_section = self.preprocessor.get_element_cross_section(element_ids[0])
+            area_fluid = cross_section.area_fluid
 
-                elif property == "radiation_impedance":
+            if property == "specific_impedance":
+                impedance = data["values"][0]
 
-                    impedance_type = data.get("impedance_type")
-                    elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
-                    elements: list[AcousticElement]
+            elif property == "radiation_impedance":
+                impedance_type = data.get("impedance_type")
+                
+                if impedance_type in ["flanged", "unflanged"]:
+                    if self.model.project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
+                        # TODO: show a message after the solution has been finished
+                        continue
 
-                    if impedance_type in ["flanged", "unflanged"]:
-                        if self.model.project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-                            # TODO: show a message after the solution has been finished
-                            continue
+                    # TODO: build the acoustic element
+                    element = self.preprocessor.acoustic_elements.get(element_ids[0])
+                    impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
 
-                    if len(elements) == 1:
-                        element = elements[0]
-                        area_fluid = element.cross_section.area_fluid
-                        impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
+            ind_Clump.append(position)
+            Z = self.get_array_of_values(impedance, self.frequencies)
 
-                ind_Clump.append(position)
-                Z = self.get_array_of_values(impedance, self.frequencies)
+            Ce = area_fluid / Z
 
-                Ce = area_fluid / Z
-
-                if len(data_Clump):
-                    data_Clump = np.c_[data_Clump, Ce]
-                else:
-                    data_Clump = Ce
+            if len(data_Clump):
+                data_Clump = np.c_[data_Clump, Ce]
+            else:
+                data_Clump = Ce
 
         if area_fluid is None:
             if self.frequencies is None:
@@ -620,8 +621,8 @@ class AssemblyAcoustic:
         # for index, element in enumerate(self.preprocessor.acoustic_elements.values()):
         for element in self.preprocessor.get_acoustic_elements():
 
-            structural_element = self.preprocessor.structural_elements[element.index]
-            if structural_element.element_type == "rigid_element":
+            structural_element_type = self.preprocessor.get_structural_element_type(element.index)
+            if structural_element_type == "rigid_element":
                 continue
 
             index = element.index - 1
