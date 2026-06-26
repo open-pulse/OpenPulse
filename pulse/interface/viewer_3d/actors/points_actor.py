@@ -11,7 +11,7 @@ class PointsActor(GhostActor):
     def __init__(self, show_deformed=False, **kwargs) -> None:
         super().__init__()
 
-        self.points = app().project.get_geometry_points()
+        self.points = app().project.model.preprocessor.get_geometry_points()
         self.user_preferences = app().main_window.config.user_preferences
         self.hidden_nodes = kwargs.get("hidden_nodes", set())
         self.show_deformed = show_deformed

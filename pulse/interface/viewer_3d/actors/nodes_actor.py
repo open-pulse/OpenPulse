@@ -5,7 +5,6 @@ from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
 from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 from pulse import app
 
-from pulse import app
 
 class NodesActor(GhostActor):
     def __init__(self, show_deformed=False, **kwargs) -> None:

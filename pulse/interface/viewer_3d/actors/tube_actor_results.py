@@ -1,7 +1,10 @@
 from vtkmodules.vtkCommonDataModel import vtkPolyData
-from pulse.utils import cross_section_sources
+
 from pulse.interface.viewer_3d.actors import TubeActor
+from pulse.model.cross_section import CrossSection
 from pulse.model.node import Node
+from pulse.model.elements.element_attributes import ElementAttributes
+from pulse.utils import cross_section_sources
 
 
 class TubeActorResults(TubeActor):
@@ -11,37 +14,41 @@ class TubeActorResults(TubeActor):
         super().__init__(**kwargs)
 
     def get_element_coordinates(self, node: Node) -> tuple[float, float, float]:
+        return node.deformed_coordinates if self.show_deformed else node.coordinates
+
+    def get_element_rotations(self, element_id: int) -> tuple[float, float, float]:
         if self.show_deformed:
-            return node.deformed_coordinates
+            return self.preprocessor.deformed_section_rotations[element_id - 1, :]
 
-        return node.coordinates
+        return self.preprocessor.undeformed_section_rotations[element_id - 1, :]
 
-    def get_element_rotations(self, element_index: int) -> tuple[float, float, float]:
-        section_data = self.get_element_section_data(element_index)
-        if self.show_deformed:
-            return section_data.deformed_rotation_rxyz
+    def create_element_data(self, element_attributes: ElementAttributes):
 
-        return section_data.undeformed_rotation_rxyz
+        cross_section = element_attributes.cross_section
 
-    def create_element_data(self, element):
-
-        cross_section = self.get_element_attributes(element.index).cross_section
-        if cross_section is None:
+        if not isinstance(cross_section, CrossSection):
             return vtkPolyData()
 
-        pipe_section = element.element_type == "pipe_1"
-        expansion_joint = element.element_type == "expansion_joint"
-        valve = element.element_type == "valve"
+        section_type_label = cross_section.section_type_label
+
+        pipe_section = section_type_label in ["pipe", "bend", "arc_bend", "reducer"]
+        expansion_joint = section_type_label == "expansion_joint"
+        valve = section_type_label == "valve"
+
         tube_sides = self._get_tube_sides()
 
         # In acoustic plots we need to show the fluids, not the pipe
-        if self.acoustic_plot and (pipe_section or valve):
-            d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
-            d_inner = d_out - 2 * t
-            return cross_section_sources.closed_pipe_data(element.length, d_inner, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
+        if self.acoustic_plot:
+            length = element_attributes.length
+            section_parameters_render = element_attributes.section_parameters_render
 
-        elif self.acoustic_plot and expansion_joint:
-            d_eff, offset_y, offset_z, *_ = self.get_element_section_data(element.index).section_parameters_render
-            return cross_section_sources.closed_pipe_data(element.length, d_eff, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
+            if pipe_section or valve:
+                d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
+                d_inner = d_out - 2 * t
+                return cross_section_sources.closed_pipe_data(length, d_inner, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
-        return super().create_element_data(element)
+            elif expansion_joint:
+                d_eff, offset_y, offset_z, *_ = section_parameters_render
+                return cross_section_sources.closed_pipe_data(length, d_eff, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
+
+        return super().create_element_data(element_attributes)

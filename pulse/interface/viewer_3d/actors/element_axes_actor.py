@@ -2,14 +2,14 @@ from vtkmodules.vtkCommonTransforms import vtkTransform
 from vtkmodules.vtkRenderingAnnotation import vtkAxesActor
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPropCollection
 
-from pulse.model.spatial_data import SpatialData
-from pulse.model.section_data_for_renders import SectionDataForRenders
+from pulse.model.elements.element_attributes import ElementAttributes
 
-
+from pulse import app
 
 class ElementAxesActor(vtkAxesActor):
     def __init__(self) -> None:
         super().__init__()
+
         self.build()
 
     def build(self):
@@ -17,11 +17,15 @@ class ElementAxesActor(vtkAxesActor):
         self.SetShaftTypeToCylinder()
         self._make_ghost()
 
-    def position_from_element(self, element_spatial_data: SpatialData, section_data: SectionDataForRenders):
-    
-        length = element_spatial_data.length
-        coords = element_spatial_data.center_coordinates
-        rx, ry, rz = section_data.undeformed_rotation_rxyz
+    @property
+    def undeformed_section_rotations(self):
+        return app().project.model.preprocessor.undeformed_section_rotations
+
+    def position_from_element(self, element_attributes: ElementAttributes):
+
+        length = element_attributes.length
+        coords = element_attributes.center_coordinates
+        rx, ry, rz = self.undeformed_section_rotations[element_attributes.index - 1, :]
 
         transform = vtkTransform()
         transform.Translate(coords)

@@ -6,42 +6,61 @@ from vtkmodules.vtkCommonCore import vtkCharArray, vtkIntArray, vtkUnsignedIntAr
 from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
 from pulse import app
+import numpy as np
+
 
 class ElementLinesActor(GhostActor):
     def __init__(self, show_deformed=False, **kwargs) -> None:
         super().__init__()
 
-        self.project = app().project
-        self.user_preferences = app().main_window.config.user_preferences
-        self.preprocessor = self.project.model.preprocessor
-        self.elements = self.project.get_structural_elements()
-        self.hidden_elements = kwargs.get("hidden_elements", set())
         self.show_deformed = show_deformed
+        self.hidden_elements = kwargs.get("hidden_elements", set())
+
         self._rigid_elements = self._get_rigid_element_ids()
+
         self.build()
 
+    @property
+    def user_preferences(self):
+        return app().main_window.config.user_preferences
+
+    @property
+    def project(self):
+        return app().project
+
+    @property
+    def mesh(self):
+        return app().project.model.mesh
+
+    @property
+    def element_attributes(self):
+        return app().project.model.preprocessor.element_attributes
+
     def build(self):
-        visible_elements = {
-            i: e for i, e in self.elements.items() if (i not in self.hidden_elements)
-        }
+
+        all_elements = np.array(list(self.element_attributes.keys()), dtype=int)
+        visible_elements = all_elements[~np.isin(all_elements, self.hidden_elements)]
+
         self._key_index = {j: i for i, j in enumerate(visible_elements)}
 
-        lines = []
+        lines = list()
         entity_index = vtkUnsignedIntArray()
         entity_index.SetName("entity_index")
         element_index = vtkUnsignedIntArray()
         element_index.SetName("element_index")
 
-        for i, element in visible_elements.items():
+        for i, index in enumerate(visible_elements):
+            element_attributes = self.element_attributes.get(index)
             if self.show_deformed:
-                x0, y0, z0 = element.first_node.deformed_coordinates
-                x1, y1, z1 = element.last_node.deformed_coordinates
+                x0, y0, z0 = element_attributes.first_node.deformed_coordinates
+                x1, y1, z1 = element_attributes.last_node.deformed_coordinates
+
             else:
-                x0, y0, z0 = element.first_node.coordinates
-                x1, y1, z1 = element.last_node.coordinates
+                x0, y0, z0 = element_attributes.first_node.coordinates
+                x1, y1, z1 = element_attributes.last_node.coordinates
 
             lines.append((x0, y0, z0, x1, y1, z1))
-            entity = self.preprocessor.mesh.line_from_element.get(i)
+            entity = self.mesh.line_from_element.get(i)
             if entity is None:
                 continue
 
@@ -101,10 +120,19 @@ class ElementLinesActor(GhostActor):
         colors: vtkCharArray = data.GetCellData().GetArray("colors")
 
         for i in range(n_cells):
-            element = element_indexes.GetValue(i)
-            entity = entity_indexes.GetValue(i)
-            if (entity in lines) or (element in elements):
-                colors.SetTuple3(i, *color)
+            print(f"Antes: {i}")
+            
+            try:
+                element = element_indexes.GetValue(i)
+                entity = entity_indexes.GetValue(i)
+               
+                if (entity in lines) or (element in elements):
+                    colors.SetTuple3(i, *color)
+
+            except Exception as error_log:
+                print(str(error_log))
+                print(i, n_cells)
+                pass
 
         mapper.SetScalarModeToUseCellData()
         mapper.ScalarVisibilityOff()  # Just to force color updates
