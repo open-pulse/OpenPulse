@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+# from pulse.model.mesh_utils import ElementConnectivityData, get_connectivity
 
 if TYPE_CHECKING:
     from pulse.project.project import Project
@@ -13,7 +14,7 @@ from enum import IntEnum
 
 import gmsh
 import numpy as np
-
+from time import perf_counter
 
 class ImportType(IntEnum):
     CAD_FILE = 0
@@ -158,18 +159,34 @@ class Mesh:
                 if isinstance(structure, RigidElement):
                     structure.define_gmsh_mesh_constraints()
 
-            # generate the mesh for dim=3
-            gmsh.model.mesh.generate(3)
+            # for (dim, tag) in gmsh.model.getEntities(0):
+            #     try:
+            #         pcoords = gmsh.model.getValue(0, tag, [])
+            #         gmsh.model.removeEntities([(dim, tag)])
+            #     except Exception:
+            #         pass
 
-            node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
-            _, element_indexes, connectivity = gmsh.model.mesh.getElements()
+            # generate mesh for 1D elements
+            gmsh.model.mesh.generate(1)
 
-            self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
-            self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
+            nodes_tags, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
+            _, elements_tags, connectivity = gmsh.model.mesh.getElements()
 
-            self.project.model.preprocessor._create_nodes(node_indexes, coords, self.map_nodes)
-            self.project.model.preprocessor._create_structural_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
-            self.project.model.preprocessor._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)                       
+            _nodes_tags = np.unique(nodes_tags)
+            _elements_tags = np.unique(elements_tags[0])
+
+            # self.map_nodes = dict(zip(_nodes_tags, np.arange(_nodes_tags.size, dtype=int)))
+            # self.map_elements = dict(zip(_elements_tags, np.arange(_elements_tags.size, dtype=int)))
+
+            self.map_nodes = dict(zip(_nodes_tags, np.arange(1, _nodes_tags.size + 1, 1, dtype=int)))
+            self.map_elements = dict(zip(_elements_tags, np.arange(1, _elements_tags.size + 1, 1, dtype=int)))
+
+            # self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
+            # self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
+
+            self.project.model.preprocessor._create_nodes(nodes_tags, coords, self.map_nodes)
+            self.project.model.preprocessor._create_structural_elements(elements_tags[0], connectivity[0], self.map_nodes, self.map_elements)
+            self.project.model.preprocessor._create_acoustic_elements(elements_tags[0], connectivity[0], self.map_nodes, self.map_elements)                       
             self.project.model.preprocessor.update_number_divisions()
 
         except Exception as log_error:
@@ -238,7 +255,7 @@ class Mesh:
         This method maps the elements and nodes for each GMSH line.
 
         """
-        # t0 = time()
+        t0 = perf_counter()
 
         self.elements_from_gmsh_lines.clear()
         self.nodes_from_gmsh_lines.clear()
@@ -254,8 +271,50 @@ class Mesh:
             line_nodes, _coords, _ = gmsh.model.mesh.getNodes(dim, tag, True)
             self.nodes_from_gmsh_lines[tag] = [self.map_nodes[node] for node in line_nodes]
 
-        # dt = time() - t0
+        dt = perf_counter() - t0
+        print(f"Time to process : {dt}")
+
+        # t0 = perf_counter()
+
+        # indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, includeBoundary=True)
+        # total_nodes = np.unique(indexes).size
+
+        # unit_length_factor = 1
+        # self.nodal_coordinates = np.zeros((total_nodes, 4))
+        # self.nodal_coordinates[indexes - 1, 1:] = coords.reshape(-1, 3) * unit_length_factor
+        # self.nodal_coordinates[indexes - 1, :1] = indexes.reshape(-1, 1) - 1
+
+        # nodes_from_lines = gmsh.model.mesh.getNodes(dim=1, includeBoundary=True)[0]
+
+        # if isinstance(nodes_from_lines, np.ndarray):
+        #     self.nodes_from_lines = np.unique(nodes_from_lines) - 1
+
+        # connectivity_data = dict()
+
+        # for dim, tag in gmsh.model.getEntities(1):
+        #     elements_data = dict()
+        #     element_types, element_indexes, connectivities = gmsh.model.mesh.getElements(dim, tag)
+
+        #     if not element_indexes:
+        #         continue
+
+        #     for i, element_type in enumerate(element_types):
+        #         _, _, _, nodes_per_element, _, _ = gmsh.model.mesh.getElementProperties(element_type)
+
+        #         array_connectivities = np.array(connectivities[i]).reshape(-1, nodes_per_element)
+        #         array_connectivities -= 1
+
+        #         elements_data[element_type] = ElementConnectivityData(element_indexes[i], array_connectivities) 
+
+        #     connectivity_data[dim, tag] = elements_data
+
+        # self.lines_connectivity, self.map_line_elements = get_connectivity(connectivity_data)
+  
+        # dt = perf_counter() - t0
         # print(f"Time to process : {dt}")
+
+        # print(self.nodal_coordinates)
+        # print(np.unique(self.lines_connectivity[:, 4:]).size)
 
     def _concatenate_line_elements(self):
         """
@@ -295,10 +354,10 @@ class Mesh:
         """
         self.lines_from_node.clear()
         self.nodes_from_line.clear()
-        for node_id, elements in self.project.model.preprocessor.structural_elements_connected_to_node.items():
-            for element in elements:
+        for node_id, element_ids in self.project.model.preprocessor.elements_connected_to_node.items():
+            for element_id in element_ids:
 
-                line_id = self.line_from_element.get(element.index)
+                line_id = self.line_from_element.get(element_id)
                 if line_id is None:
                     continue
 
