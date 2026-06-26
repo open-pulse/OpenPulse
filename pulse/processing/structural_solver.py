@@ -8,6 +8,7 @@ from pulse.interface import error_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.model import Model
 from pulse.processing.assembly_structural import AssemblyStructural
+from pulse.model.elements.elements_builder import build_structural_element
 
 
 class StructuralSolver:
@@ -655,7 +656,6 @@ class StructuralSolver:
         else:
             _frequencies = self.frequencies
 
-        structural_elements = self.model.preprocessor.structural_elements.values()
         omega = 2 * np.pi * _frequencies.reshape(1, -1)
 
         damping = np.ones([6, 1]) @  (1 + 1j*(eta + omega * beta))
@@ -663,79 +663,82 @@ class StructuralSolver:
 
         p0 = external_pressure
 
-        for element in structural_elements:
+        for element_attributes in self.model.preprocessor.element_attributes.values():
+            element = build_structural_element(element_attributes)
 
-            if element.element_type in ['beam_1', 'expansion_joint', 'valve']:
+            if element_attributes.structural_element_type in ["beam_1", "expansion_joint", "valve"]:
                 nodal_stresses[element.index] = np.zeros((7, len(_frequencies)))
 
-            elif element.element_type == 'pipe_1':
-                # Internal Loads
-                structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
+            elif element_attributes.structural_element_type != "pipe_1":
+                continue
 
-                if self.solution is None:
-                    title = "Empty solution"
-                    message = "A strutural analysis must be performed to obtain the stress field."
-                    PrintMessageInput([error_title, title, message])
-                    return {}
+            # Internal Loads
+            structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
 
-                u = self.solution[structural_dofs, :]
-                Dab = element._Dab
-                Bab = element._Bab
+            if self.solution is None:
+                title = "Empty solution"
+                message = "A strutural analysis must be performed to obtain the stress field."
+                PrintMessageInput([error_title, title, message])
+                return {}
 
-                Dts = element._Dts
-                Bts = element._Bts
+            u = self.solution[structural_dofs, :]
+            Dab = element._Dab
+            Bab = element._Bab
 
-                rot = element.element_rotation_matrix
+            Dts = element._Dts
+            Bts = element._Bts
 
-                element_attributes = self.model.preprocessor.structural_element_attributes.get(element.index)
+            rot = element.element_rotation_matrix
 
-                cross_section = element_attributes.cross_section
-                material = element_attributes.material
-                wall_formulation = element_attributes.wall_formulation
+            element_attributes = self.model.preprocessor.element_attributes.get(element.index)
 
-                T = cross_section.principal_axis_translation
+            cross_section = element_attributes.cross_section
+            material = element_attributes.material
+            wall_formulation = element_attributes.wall_formulation
 
-                normal = Dab @ Bab @ T @ rot @ u
-                shear = Dts @ Bts @ T @ rot @ u
+            T = cross_section.principal_axis_translation
 
-                internal_load = np.multiply(np.r_[normal, shear], damping)
+            normal = Dab @ Bab @ T @ rot @ u
+            shear = Dts @ Bts @ T @ rot @ u
 
-                # Stress
-                do = cross_section.outer_diameter
-                di = cross_section.inner_diameter
-                ro = do/2
-                area = cross_section.area
-                Iy = cross_section.second_moment_area_y
-                Iz = cross_section.second_moment_area_z
-                J = cross_section.polar_moment_area
-                nu = material.poisson_ratio
+            internal_load = np.multiply(np.r_[normal, shear], damping)
 
-                acoustic_dofs = np.r_[element.first_node.global_index, element.last_node.global_index]
-                
-                if self.acoustic_solution is not None:
-                    p = self.acoustic_solution[acoustic_dofs, :]
-                else:
-                    p = np.zeros((2, len(_frequencies)))
+            # Stress
+            do = cross_section.outer_diameter
+            di = cross_section.inner_diameter
+            ro = do / 2
+            area = cross_section.area
+            Iy = cross_section.second_moment_area_y
+            Iz = cross_section.second_moment_area_z
+            J = cross_section.polar_moment_area
+            nu = material.poisson_ratio
 
-                pm = np.sum(p, axis=0) / 2
+            acoustic_dofs = np.r_[element.first_node.global_index, element.last_node.global_index]
 
-                if wall_formulation == "thick_wall":
-                    hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
-                    radial_stress =  -2*nu*(pm*di**2 - p0*do**2)/(do**2 - di**2)
+            if self.acoustic_solution is not None:
+                p = self.acoustic_solution[acoustic_dofs, :]
+            else:
+                p = np.zeros((2, len(_frequencies)))
 
-                if wall_formulation == "thin_wall":
-                    hoop_stress = pm
-                    radial_stress = -nu * np.pi * (do/(do-di) - 1)
+            pm = np.sum(p, axis=0) / 2
 
-                nodal_stresses[element.index] = np.c_[
-                    internal_load[0] / area - radial_stress,
-                    internal_load[1] * ro / Iy,
-                    internal_load[2] * ro / Iz,
-                    hoop_stress,
-                    internal_load[3] * ro / J,
-                    internal_load[4] / area,
-                    internal_load[5] / area,
-                ].T
+            if wall_formulation == "thick_wall":
+                hoop_stress = (2 * pm * di**2 - p0 * (do**2 + di**2)) / (do**2 - di**2)
+                radial_stress = -2 * nu * (pm * di**2 - p0 * do**2) / (do**2 - di**2)
+
+            if wall_formulation == "thin_wall":
+                hoop_stress = pm
+                radial_stress = -nu * np.pi * (do / (do - di) - 1)
+
+            nodal_stresses[element.index] = np.c_[
+                internal_load[0] / area - radial_stress,
+                internal_load[1] * ro / Iy,
+                internal_load[2] * ro / Iz,
+                hoop_stress,
+                internal_load[3] * ro / J,
+                internal_load[4] / area,
+                internal_load[5] / area,
+            ].T
 
         return nodal_stresses
 

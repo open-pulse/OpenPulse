@@ -22,19 +22,20 @@ class ElementAttributes:
         self.first_node = first_node
         self.last_node = last_node
 
-        self.reset_attributes()
+        self.reset_common_attributes()
+        self.reset_structural_element_attributes()
         self.reset_acoustic_element_attributes()
 
         self.reset_render_related_attributes()
 
-    def reset_attributes(self):
-
-        self.structural_element_type: Literal["pipe_1", "beam_1", "expansion_joint", "valve", "rigid_element"] = "pipe_1"
-        self.acoustic_element_type: Literal["undamped"] = "undamped"
-
+    def reset_common_attributes(self):
         self.fluid: Fluid | None = None
         self.material: Material | None = None
         self.cross_section: CrossSection | None = None
+
+    def reset_structural_element_attributes(self):
+
+        self.structural_element_type: Literal["pipe_1", "beam_1", "expansion_joint", "valve", "rigid_element"] = "pipe_1"
 
         # pipe-related attributes
         self.wall_formulation: str = "thin_wall"
@@ -72,16 +73,12 @@ class ElementAttributes:
         self.transf_mat = None
 
 
-    def reset_render_related_attributes(self):
-    
-        self.undeformed_rotation_rx: None | np.ndarray = None
-        self.undeformed_rotation_ry: None | np.ndarray = None
-        self.undeformed_rotation_rz: None | np.ndarray = None
-
-        self.section_parameters_render: list | None = list()
-
-
     def reset_acoustic_element_attributes(self):
+
+        self.acoustic_element_type: Literal["undamped"] = "undamped"
+        self.proportional_damping: str | None = 0
+        self.volumetric_flow_rate: float = 0
+        self.length_correction_data: str | None = None
 
         self.pp_impedance = None
 
@@ -96,6 +93,16 @@ class ElementAttributes:
         self.delta_pressure: float = 0
 
         self.acoustic_link_diameters = list()
+
+
+    def reset_render_related_attributes(self):
+    
+        self.undeformed_rotation_rx: None | np.ndarray = None
+        self.undeformed_rotation_ry: None | np.ndarray = None
+        self.undeformed_rotation_rz: None | np.ndarray = None
+
+        self.section_parameters_render: list | None = list()
+
 
     def update_delta_pressure(self, delta_pressure):
         self.delta_pressure = delta_pressure

@@ -3,6 +3,7 @@ from pulse.model.properties.material import Material
 from pulse.project.project import Project
 from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
 from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.elements.elements_builder import build_structural_element
 
 import numpy as np
 
@@ -84,8 +85,8 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     preprocessor.set_cross_section_by_lines(line_id, cross_section)
     preprocessor.set_structural_element_type_by_lines(line_id, "beam_1")
 
-    structural_elements = model.preprocessor.structural_elements
-    element = structural_elements[1]
+    element_attributes = model.preprocessor.element_attributes.get(1)
+    element = build_structural_element(element_attributes)
 
     Ke, Me = element.matrices_gcs()
     # np.savetxt("Ke_beam1.dat", Ke, delimiter=",", fmt="%.24e")

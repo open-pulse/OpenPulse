@@ -1,10 +1,11 @@
 import numpy as np
 from scipy.sparse import csr_matrix
 
+from pulse.model.elements.elements_builder import build_structural_element
+from pulse.model.elements.expansion_joint_structural_element import ExpansionJointStructuralElement
+from pulse.model.elements.structural_element import DOF_PER_ELEMENT
 from pulse.model.model import Model
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
-from pulse.model.elements.structural_element import DOF_PER_ELEMENT
-from pulse.model.elements.expansion_joint_structural_element import ExpansionJointStructuralElement
 
 
 class AssemblyStructural:
@@ -155,25 +156,26 @@ class AssemblyStructural:
             refer to the free DOF and the columns to the prescribed DOF.
         """
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
-        number_elements = len(self.preprocessor.structural_elements)
+        number_elements = self.preprocessor.number_structural_elements
         self.expansion_joint_elements: dict[int, ExpansionJointStructuralElement] = dict()
 
         rows, cols = self.preprocessor.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        for k, (index, element) in enumerate(self.preprocessor.structural_elements.items()):
-            element_type = element.element_type
+        for k, (index, element_attributes) in enumerate(self.preprocessor.element_attributes.items()):
 
-            if element_type == "rigid_element":
+            # build the structural element
+            element = build_structural_element(element_attributes)
+
+            if element_attributes.structural_element_type == "rigid_element":
                 continue
 
-            elif element_type == "expansion_joint":
+            elif element_attributes.structural_element_type == "expansion_joint":
                 self.expansion_joint_elements[index] = element
 
             else:
-                element_attributes = self.preprocessor.structural_element_attributes.get(index)
-                mat_Ke[k, :, :], mat_Me[k, :, :] = element.matrices_gcs(element_attributes)
+                mat_Ke[k, :, :], mat_Me[k, :, :] = element.matrices_gcs()
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
@@ -395,12 +397,12 @@ class AssemblyStructural:
         cols = 1
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         loads = np.zeros((total_dof, cols), dtype=complex)
-    
+
         # stress stiffening loads
-        for index, element in self.preprocessor.structural_elements.items():
+        for index, element_attributes in self.preprocessor.element_attributes.items():
+            element = build_structural_element(element_attributes)
             position = element.global_dof
-            element_attributes = self.preprocessor.structural_element_attributes.get(index)
-            loads[position] += element.force_vector_stress_stiffening(element_attributes)
+            loads[position] += element.force_vector_stress_stiffening()
 
         return loads[self.unprescribed_indexes,:]
 
@@ -433,22 +435,21 @@ class AssemblyStructural:
             loads = np.zeros((total_dof, cols), dtype=complex)
         
             # elementary loads - element integration
-            for index, element in self.preprocessor.structural_elements.items():
-
+            for index, element_attributes in self.preprocessor.element_attributes.items():
+                element = build_structural_element(element_attributes)
                 position = element.global_dof
-                element_attributes = self.preprocessor.structural_element_attributes.get(index)
 
                 # self-weight loads
                 if self.model.weight_load:
-                    loads[position] += element.get_self_weighted_load(element_attributes, self.model.gravity_vector)
+                    loads[position] += element.get_self_weighted_load(self.model.gravity_vector)
 
                 # stress stiffening loads
                 if self.model.internal_pressure_load:
-                    loads[position] += element.force_vector_stress_stiffening(element_attributes)
+                    loads[position] += element.force_vector_stress_stiffening()
 
                 # distributed loads
                 if self.model.element_distributed_load:
-                    loads[position] += element.get_distributed_load(element_attributes)
+                    loads[position] += element.get_distributed_load()
 
             if self.model.external_nodal_loads:
                 # nodal loads
@@ -507,11 +508,11 @@ class AssemblyStructural:
             return self.get_global_loads_for_static_analysis()
 
         # distributed loads
-        for element in self.preprocessor.structural_elements.values():
+        for element_attributes in self.preprocessor.element_attributes.values():
+            element = build_structural_element(element_attributes)
             position = element.global_dof 
-            element_attributes = self.preprocessor.structural_element_attributes.get(element.index)
-            loads[position] += element.get_distributed_load(element_attributes)
-  
+            loads[position] += element.get_distributed_load()
+
         # nodal loads
         for (property, *args), data in self.model.properties.nodal_properties.items():
             if property != "nodal_loads":
@@ -545,14 +546,14 @@ class AssemblyStructural:
         
         # acoustic-structural loads
         if self.acoustic_solution is not None:
-            for index, element in self.preprocessor.structural_elements.items():
-                pressure_first = self.acoustic_solution[element.first_node.global_index, :]
-                pressure_last = self.acoustic_solution[element.last_node.global_index, :]
+            for element_attributes in self.preprocessor.element_attributes.values():
+                pressure_first = self.acoustic_solution[element_attributes.first_node.global_index, :]
+                pressure_last = self.acoustic_solution[element_attributes.last_node.global_index, :]
                 pressure = np.c_[pressure_first, pressure_last].T
                 position = element.global_dof
-                element_attributes = self.preprocessor.structural_element_attributes.get(index)
 
-                pressure_loads[position, :] += element.force_vector_acoustic_gcs(element_attributes, _frequencies, pressure, pressure_external)
+                element = build_structural_element(element_attributes)
+                pressure_loads[position, :] += element.force_vector_acoustic_gcs(_frequencies, pressure, pressure_external)
 
         pressure_loads = pressure_loads[self.unprescribed_indexes, :]
 
