@@ -191,7 +191,20 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Guilherme Pierri](https://www.linkedin.com/in/guilherme-pierri-4487a4271/) - Computer Scientist;
    - [Taiana Barbosa Farias](https://www.linkedin.com/in/taiana-barbosa-farias-82740339a/) - Front-end.
 
+## Citation
+
+```bibtex
+@software{open_pulse_software,
+  title         = {open-pulse/OpenPulse: 2.1.3},
+  author        = {Jacson Gil Vargas and Olavo M. Silva and Lucas Kulakauskas and Andr\'{e} Fernandes and Vitor Voigt Slongo and Rodrigo Schwartz and Vinicius Henrique Ribeiro and Guilherme Pierri and Diego Martin Tuozzo and Taiana Barbosa Farias and Danilo Espindola and Jos\'{e} Luiz de Souza and Fabrício Cruz and nathanjshaffer and Gustavo Martins},
+  year          = 2026,
+  month         = jun,
+  publisher     = {Zenodo},
+  doi           = {10.5281/zenodo.20936704},
+  url           = {https://doi.org/10.5281/zenodo.20936704},
+  version       = {v2.1.3}
+}
+```
+
 <p align="center">
    <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/MOPT4.PNG?raw=true" alt="MOPT logo" width="1100"/>
-
-**
