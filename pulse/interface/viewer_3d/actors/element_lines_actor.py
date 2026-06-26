@@ -60,8 +60,9 @@ class ElementLinesActor(GhostActor):
                 x1, y1, z1 = element_attributes.last_node.coordinates
 
             lines.append((x0, y0, z0, x1, y1, z1))
-            entity = self.mesh.line_from_element.get(i)
+            entity = self.mesh.line_from_element.get(index)
             if entity is None:
+                print(f"Warning: the element [{i}] is not associated with a line")
                 continue
 
             entity_index.InsertNextTuple1(entity)
@@ -120,8 +121,7 @@ class ElementLinesActor(GhostActor):
         colors: vtkCharArray = data.GetCellData().GetArray("colors")
 
         for i in range(n_cells):
-            print(f"Antes: {i}")
-            
+
             try:
                 element = element_indexes.GetValue(i)
                 entity = entity_indexes.GetValue(i)
@@ -131,8 +131,6 @@ class ElementLinesActor(GhostActor):
 
             except Exception as error_log:
                 print(str(error_log))
-                print(i, n_cells)
-                pass
 
         mapper.SetScalarModeToUseCellData()
         mapper.ScalarVisibilityOff()  # Just to force color updates
