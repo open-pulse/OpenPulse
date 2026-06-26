@@ -186,16 +186,15 @@ class Model:
         """ 
         This method adds lids to cross-section variations and terminations.
         """
-        for elements in self.preprocessor.structural_elements_connected_to_node.values():
+        for element_ids in self.preprocessor.elements_connected_to_node.values():
 
             element = None
-            if len(elements) == 2:
+            if len(element_ids) == 2:
 
-                first_element, last_element = elements
-                first_element: StructuralElement
-                last_element: StructuralElement
+                first_element = self.preprocessor.element_attributes.get(element_ids[0])
+                last_element = self.preprocessor.element_attributes.get(element_ids[1])
 
-                if 'beam_1' in [first_element.element_type, last_element.element_type]:
+                if 'beam_1' in [first_element.structural_element_type, last_element.structural_element_type]:
                     continue
 
                 first_cross = self.preprocessor.get_element_cross_section(first_element.index)
@@ -217,22 +216,19 @@ class Model:
                     inner_diameter = last_inner_diameter 
                     element = first_element
 
-            elif len(elements) == 1: 
+            elif len(element_ids) == 1:
+                first_element = self.preprocessor.element_attributes.get(element_ids[0])
+                if first_element.structural_element_type == "beam_1":
+                    continue
 
-                element = elements[0]
-                element: StructuralElement
- 
-                if element.element_type == 'beam_1':
-                    continue  
+                first_node = first_element.first_node
+                last_node = first_element.last_node
 
-                first_node = element.first_node
-                last_node = element.last_node
-
-                cross_section = self.preprocessor.get_element_cross_section(element.index)
+                cross_section = first_element.cross_section
                 if cross_section is None:
                     continue
 
-                inner_diameter = cross_section.inner_diameter 
+                inner_diameter = cross_section.inner_diameter
 
                 if len(self.preprocessor.neighbors[first_node]) == 1:
                     first_node_id = first_node.external_index
@@ -245,17 +241,15 @@ class Model:
                         inner_diameter = 0
 
             if isinstance(element, AcousticElement | StructuralElement):
-                section_data = self.preprocessor.section_data_for_renders.get(element.index)
-                element_attributes = self.preprocessor.structural_element_attributes.get(element.index)
-
+                element_attributes = self.preprocessor.element_attributes.get(element.index)
                 section_info = element_attributes.cross_section.section_info
 
-                if element.element_type == 'expansion_joint':
+                if element_attributes.structural_element_type == 'expansion_joint':
                     if isinstance(section_info, ExpansionJointCrossSection):
-                        section_data.section_parameters_render = section_info._as_list()
+                        element_attributes.section_parameters_render = section_info._as_list()
 
                 else:
                     outer_diameter, _, offset_y, offset_z, t_ins, *_ = section_info.section_parameters
-
                     thickness = (outer_diameter - inner_diameter) / 2
-                    section_data.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
+
+                    element_attributes.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
