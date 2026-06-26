@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node
+from pulse.model.elements.element_attributes import ElementAttributes
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.properties.fluid import Fluid
 from pulse.model.elements.structural_element import StructuralElement, gauss_quadrature, shape_function
 
 if TYPE_CHECKING:
-    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
+    from pulse.model.elements.element_attributes import ElementAttributes
 
 
 NODES_PER_ELEMENT = 2
@@ -17,13 +17,11 @@ ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 
 
 class PipeStructuralElement(StructuralElement):
-    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
-        super().__init__(first_node, last_node, index, **kwargs)
-
-        self.element_type = "pipe_1"
+    def __init__(self, element_attributes: ElementAttributes, **kwargs):
+        super().__init__(element_attributes, **kwargs)
 
 
-    def matrices_gcs(self, element_attributes: "StructuralElementAttributes"):
+    def matrices_gcs(self):
         """
         This method returns the element stiffness and mass matrices according to the 
         3D Timoshenko beam theory in the global coordinate system.
@@ -38,23 +36,21 @@ class PipeStructuralElement(StructuralElement):
 
         """
 
-        self.element_attributes = element_attributes
-
         R = self.element_rotation_matrix
         Rt = self.element_rotation_matrix_inverse
 
-        if element_attributes.is_section_variable:
-            stiffness = Rt @ self.stiffness_matrix_pipes_variable_section(element_attributes) @ R
-            mass = Rt @ self.mass_matrix_pipes_variable_section(element_attributes) @ R
+        if self.element_attributes.is_section_variable:
+            stiffness = Rt @ self.stiffness_matrix_pipes_variable_section() @ R
+            mass = Rt @ self.mass_matrix_pipes_variable_section() @ R
 
         else:
-            stiffness = Rt @ self.stiffness_matrix_pipes(element_attributes) @ R
-            mass = Rt @ self.mass_matrix_pipes(element_attributes) @ R
+            stiffness = Rt @ self.stiffness_matrix_pipes() @ R
+            mass = Rt @ self.mass_matrix_pipes() @ R
 
         return stiffness, mass
 
 
-    def stiffness_matrix_pipes(self, element_attributes: "StructuralElementAttributes"):
+    def stiffness_matrix_pipes(self):
         """
         This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -70,8 +66,8 @@ class PipeStructuralElement(StructuralElement):
         """
         L = self.length
 
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
+        material = self.material
+        cross_section = self.cross_section
 
         E = material.elasticity_modulus
         mu = material.mu_parameter
@@ -129,11 +125,11 @@ class PipeStructuralElement(StructuralElement):
         Ue = np.zeros(DOF_PER_ELEMENT, dtype=float)
         K_geo = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        if self.static_analysis_evaluated:
-            self.static_analysis_evaluated = False
+        if self.element_attributes.static_analysis_evaluated:
+            self.element_attributes.static_analysis_evaluated = False
             Ue = self.static_element_results_lcs()
-            Te = self.compute_Te_matrix(element_attributes)
-            Fp_x = self.force_vector_stress_stiffening(element_attributes, vector_gcs=False)
+            Te = self.compute_Te_matrix()
+            Fp_x = self.force_vector_stress_stiffening(vector_gcs=False)
             Te = (E * A / L) * (Ue[6] - Ue[0]) - Fp_x
             K_geo = (Te / L) * Te
 
@@ -167,7 +163,7 @@ class PipeStructuralElement(StructuralElement):
         return principal_axis.T @ Ke @ principal_axis
 
 
-    def mass_matrix_pipes(self, element_attributes: "StructuralElementAttributes"):
+    def mass_matrix_pipes(self):
         """
         This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -182,9 +178,9 @@ class PipeStructuralElement(StructuralElement):
         mass_matrix_beam : Beam element mass matrix in the local coordinate system.
         """
 
-        fluid = element_attributes.fluid
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
+        fluid = self.fluid
+        material = self.material
+        cross_section = self.cross_section
 
         rho = material.density
 
@@ -195,7 +191,7 @@ class PipeStructuralElement(StructuralElement):
         J = cross_section.polar_moment_area
         Ais = cross_section.area_insulation
 
-        if isinstance(fluid, Fluid) and element_attributes.adding_mass_effect:
+        if isinstance(fluid, Fluid) and self.element_attributes.adding_mass_effect:
             rho_fluid = fluid.density
             Ai = cross_section.area_fluid
             Gfl = rho_fluid * np.array([
@@ -207,7 +203,7 @@ class PipeStructuralElement(StructuralElement):
         else:
             Gfl = np.zeros((3, 3), dtype='float64') 
 
-        if self.element_type == 'pipe_1':
+        if self.element_attributes.structural_element_type == 'pipe_1':
             Qy = 0
             Qz = 0
             Iyz = 0
@@ -216,7 +212,8 @@ class PipeStructuralElement(StructuralElement):
             print('Only pipe_1 element types are allowed.')
 
         # Determinant of Jacobian (linear 1D trasform)
-        det_jacob = self.length / 2
+        L = self.length
+        det_jacob = L / 2
 
         #Fluid/Insulation inertia effects
         rho_insulation = cross_section.insulation_density
@@ -264,15 +261,15 @@ class PipeStructuralElement(StructuralElement):
         return principal_axis.T @ Me @ principal_axis
     
 
-    def compute_Te_matrix(self, element_attributes: "StructuralElementAttributes"):
+    def compute_Te_matrix(self):
         """
         This method computes the Te matrix for stress stiffening updating.
         """
 
         L = self.length
 
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
+        material = self.material
+        cross_section = self.cross_section
 
         E = material.elasticity_modulus
         G = material.shear_modulus
@@ -342,7 +339,7 @@ class PipeStructuralElement(StructuralElement):
         return Te_matrix
 
 
-    def stiffness_matrix_pipes_variable_section(self, element_attributes: "StructuralElementAttributes"):
+    def stiffness_matrix_pipes_variable_section(self):
         """
         This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -357,8 +354,8 @@ class PipeStructuralElement(StructuralElement):
         stiffness_matrix_beam : Beam element stiffness matrix in the local coordinate system.
         """
 
-        material = element_attributes.material
-        # cross_section = element_attributes.cross_section
+        material = self.material
+        # cross_section = self.cross_section
 
         E = material.elasticity_modulus
         mu = material.mu_parameter
@@ -407,7 +404,7 @@ class PipeStructuralElement(StructuralElement):
             aly = 1 / res_y
             alz = 1 / res_z
             
-            if self.element_type in ['pipe_1', 'valve']:
+            if self.element_attributes.structural_element_type in ['pipe_1', 'valve']:
                 Qy = 0
                 Qz = 0
                 Iyz = 0
@@ -419,11 +416,11 @@ class PipeStructuralElement(StructuralElement):
             Ue = np.zeros(DOF_PER_ELEMENT, dtype=float)
             K_geo = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-            if self.static_analysis_evaluated:
-                self.static_analysis_evaluated = False
+            if self.element_attributes.static_analysis_evaluated:
+                self.element_attributes.static_analysis_evaluated = False
                 Ue = self.static_element_results_lcs()
-                mat_K_geo = self.compute_Te_matrix(element_attributes)
-                Fp_x = self.force_vector_stress_stiffening(element_attributes, vector_gcs=False)
+                mat_K_geo = self.compute_Te_matrix()
+                Fp_x = self.force_vector_stress_stiffening(vector_gcs=False)
                 Te = (E * A / L) * (Ue[6] - Ue[0]) - Fp_x
                 K_geo = (Te / L) * mat_K_geo
 
@@ -478,7 +475,7 @@ class PipeStructuralElement(StructuralElement):
         return self.transf_matrix_offset_shear_left @ Ke @ self.transf_matrix_offset_shear_right
 
 
-    def mass_matrix_pipes_variable_section(self, element_attributes: "StructuralElementAttributes"):
+    def mass_matrix_pipes_variable_section(self, element_attributes):
         """
         This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -492,11 +489,11 @@ class PipeStructuralElement(StructuralElement):
         --------
         mass_matrix_beam : Beam element mass matrix in the local coordinate system.
         """
-        L   = self.length
+        L = self.length
 
-        fluid = element_attributes.fluid
-        material = element_attributes.material
-        # cross_section = element_attributes.cross_section
+        fluid = self.fluid
+        material = self.material
+        # cross_section = self.cross_section
 
         rho = material.density
 
@@ -548,7 +545,7 @@ class PipeStructuralElement(StructuralElement):
             else:
                 Gfl = np.zeros((3,3), dtype='float64') 
 
-            if self.element_type == 'pipe_1':
+            if self.element_attributes.structural_element_type == 'pipe_1':
                 Qy = 0
                 Qz = 0
                 Iyz = 0

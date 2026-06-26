@@ -2,11 +2,10 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pulse.model.node import Node
 from pulse.model.elements.structural_element import DOF_PER_ELEMENT, DOF_PER_NODE_STRUCTURAL, StructuralElement
 
 if TYPE_CHECKING:
-    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
+    from pulse.model.elements.element_attributes import ElementAttributes
 
 
 class ExpansionJointStructuralElement(StructuralElement):
@@ -44,13 +43,13 @@ class ExpansionJointStructuralElement(StructuralElement):
         Structural forces and moments on the nodes.
         Default is zeros(12).
     """
-    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
-        super().__init__(first_node, last_node, index, **kwargs)
+    def __init__(self, element_attributes: "ElementAttributes", **kwargs):
+        super().__init__(element_attributes, **kwargs)
 
-        self.element_type = "expansion_joint"
+        self.expansion_joint_data = element_attributes.expansion_joint_data
 
 
-    def matrices_gcs(self, element_attributes: "StructuralElementAttributes", frequencies: np.ndarray | None = None):
+    def matrices_gcs(self, frequencies: np.ndarray | None = None):
         """
         This method returns the expansion joint element stiffness and mass matrices in the global coordinate system.
 
@@ -64,27 +63,23 @@ class ExpansionJointStructuralElement(StructuralElement):
 
         """
 
-        self.element_attributes = element_attributes
-
         R = self.element_rotation_matrix
         Rt = self.element_rotation_matrix_inverse
 
-        stiffness = Rt @ self.stiffness_matrix_expansion_joint_harmonic(element_attributes, frequencies=frequencies) @ R
-        mass = Rt @ self.mass_matrix_expansion_joint(element_attributes) @ R  
+        stiffness = Rt @ self.stiffness_matrix_expansion_joint_harmonic(frequencies=frequencies) @ R
+        mass = Rt @ self.mass_matrix_expansion_joint() @ R  
 
         return stiffness, mass
 
 
-    def stiffness_matrix_expansion_joint_harmonic(self, element_attributes: "StructuralElementAttributes", frequencies: np.ndarray | None = None):
+    def stiffness_matrix_expansion_joint_harmonic(self, frequencies: np.ndarray | None = None):
 
-        expansion_joint_data = element_attributes.expansion_joint_data
-
-        L_e = expansion_joint_data.joint_length / self.length
+        L_e = self.expansion_joint_data.joint_length / self.length
         n_freq = 1 if frequencies is None else frequencies.size
 
         K_matrix = np.zeros((n_freq, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
 
-        kx, kyz, krx, kryz = expansion_joint_data.values
+        kx, kyz, krx, kryz = self.expansion_joint_data.values
 
         K1 = kx * L_e
         K2 = K3 = kyz / L_e
@@ -108,14 +103,12 @@ class ExpansionJointStructuralElement(StructuralElement):
         return K_matrix
 
 
-    def mass_matrix_expansion_joint(self, element_attributes: "StructuralElementAttributes"):
+    def mass_matrix_expansion_joint(self):
 
-        expansion_joint_data = element_attributes.expansion_joint_data
-
-        L_e = expansion_joint_data.joint_length / self.length
+        L_e = self.expansion_joint_data.joint_length / self.length
         M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        M1 = M2 = M3 = expansion_joint_data.joint_mass / (2 * L_e)
+        M1 = M2 = M3 = self.expansion_joint_data.joint_mass / (2 * L_e)
         indexes = np.array([0, 1, 2, 6, 7, 8], dtype=int)
 
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]

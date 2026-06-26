@@ -2,18 +2,18 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node, distance
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.properties.fluid import Fluid
 from pulse.utils.rotations import rotation_matrix_3x3_by_deltas
-
-if TYPE_CHECKING:
-    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 
 zeros_3x3 = np.zeros((3,3), dtype=float)
+
+if TYPE_CHECKING:
+    from pulse.model.elements.element_attributes import ElementAttributes
 
 
 class StructuralElement:
@@ -51,14 +51,13 @@ class StructuralElement:
         Structural forces and moments on the nodes.
         Default is zeros(12).
     """
-    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
+    def __init__(self, element_attributes: "ElementAttributes", **kwargs):
 
-        self.first_node = first_node
-        self.last_node = last_node
-        self.index = index
+        self.element_attributes = element_attributes
 
-        self.element_type: str = 'pipe_1'
-        self.element_attributes: None | "StructuralElementAttributes" = None
+        self.first_node = element_attributes.first_node
+        self.last_node = element_attributes.last_node
+        self.index = element_attributes.index
 
         self._initialize()
 
@@ -70,57 +69,43 @@ class StructuralElement:
         self._Bts = None
 
         self.transf_mat = None
-
         self.transf_matrix_offset_shear_left = None
         self.transf_matrix_offset_shear_right = None
-
-        self.static_analysis_evaluated = False
-
-
-    @property
-    def length(self) -> float:
-        """
-        This method returns the element length.
-
-        Returns
-        -------
-        float
-            Element length.
-        """
-        return distance(self.first_node, self.last_node) 
 
 
     @ property
     def delta_x(self) -> np.ndarray:
-        return self.last_node.x - self.first_node.x
+        return self.element_attributes.delta_x
 
 
     @ property
     def delta_y(self) -> np.ndarray:
-        return self.last_node.y - self.first_node.y
+        return self.element_attributes.delta_y
 
 
     @ property
     def delta_z(self) -> np.ndarray:
-        return self.last_node.z - self.first_node.z
+        return self.element_attributes.delta_z
 
 
     @ property
-    def center_coordinates(self) -> np.ndarray:
-        return np.array([(self.last_node.x + self.first_node.x) / 2, 
-                         (self.last_node.y + self.first_node.y) / 2,
-                         (self.last_node.z + self.first_node.z) / 2 ], dtype=float)
+    def length(self) -> float:
+        return self.element_attributes.length
 
 
-    @property
-    def directional_vector(self) -> np.ndarray:
-        return np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
+    @ property
+    def cross_section(self):
+        return self.element_attributes.cross_section
 
 
-    @property
-    def normalized_directional_vector(self) -> np.ndarray:
-        v = np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
-        return v / np.linalg.norm(v)
+    @ property
+    def material(self):
+        return self.element_attributes.material
+
+
+    @ property
+    def fluid(self):
+        return self.element_attributes.fluid
 
 
     @property
@@ -145,26 +130,16 @@ class StructuralElement:
 
     @ property
     def element_rotation_matrix(self) -> np.ndarray:
-        """
-        This method returns the transformation matrix that perform a rotation from the element's local coordinate system to the global coordinate system.
-
-        Returns
-        -------
-        array
-            Rotation matrix
-        """
-        R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-        if self.transf_mat is None:
-            self.transf_mat = self.compute_transf_submatrix()
-            # print(f"The transf_mat from element {self.index} has been updated.")
-
-        R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.transf_mat
-        return R
+        return self.element_attributes.element_rotation_matrix
 
 
     @property
     def element_rotation_matrix_inverse(self) -> np.ndarray:
-        return self.element_rotation_matrix.T
+        return self.element_attributes.element_rotation_matrix_inverse
+
+
+    def matrices_gcs(self):
+        pass
 
 
     def compute_transf_submatrix(self) -> np.ndarray:
@@ -176,14 +151,11 @@ class StructuralElement:
 
 
     def element_results_gcs(self) -> np.ndarray:
-        values = np.zeros(DOF_PER_ELEMENT, dtype=float)
-        values[:DOF_PER_NODE_STRUCTURAL] = self.first_node.nodal_solution_gcs
-        values[DOF_PER_NODE_STRUCTURAL:] = self.last_node.nodal_solution_gcs
-        return values
+        return self.element_attributes.element_results_gcs()
 
 
     def element_results_lcs(self):
-        return self.element_rotation_matrix @ self.element_results_gcs()
+        return self.element_attributes.element_results_lcs()
 
 
     def static_element_results_gcs(self) -> np.ndarray:
@@ -219,64 +191,6 @@ class StructuralElement:
         return np.array([theta_x, theta_y, theta_z], dtype=float)
 
 
-    def mean_rotations_at_local_coordinate_system(self) -> np.ndarray:
-        results_lcs = self.element_results_lcs()
-        theta_x = (results_lcs[3] + results_lcs[-3])/2
-        theta_y = (results_lcs[4] + results_lcs[-2])/2
-        theta_z = (results_lcs[5] + results_lcs[-1])/2
-        return np.array([theta_x, theta_y, theta_z], dtype=float)
-
-
-    def rotations_at_local_coordinate_system_decoupled(self, element_attributes: "StructuralElementAttributes") -> np.ndarray:
-
-        results_lcs = self.element_results_lcs()
-        [_, node_id, _, decoupled_rotations] = element_attributes.decoupling_info
-
-        for index, value in enumerate(decoupled_rotations):
-            if index == 0:
-                if value:
-                    if node_id == self.last_node.external_index:
-                        theta_x = results_lcs[3]
-                    else:
-                        theta_x = results_lcs[-3]
-                else:
-                    theta_x = (results_lcs[3] + results_lcs[-3]) / 2
-
-            if index == 1:
-                if value:
-                    if node_id == self.last_node.external_index:
-                        theta_y = results_lcs[4]
-                    else:
-                        theta_y = results_lcs[-2]
-                else:
-                    theta_y = (results_lcs[4] + results_lcs[-2]) / 2
-
-            if index == 2:
-                if value:
-                    if node_id == self.last_node.external_index:
-                        theta_z = results_lcs[5]
-                    else:
-                        theta_z = results_lcs[-1]
-                else:
-                    theta_z = (results_lcs[5] + results_lcs[-1]) / 2
-
-        # print(f"Rotations (first node #{self.first_node.external_index}): {np.array([results_lcs[:3]], dtype=float)}")
-        # print(f"Rotations (last node #{self.last_node.external_index}): {np.array([results_lcs[-3:]], dtype=float)}")
-
-        return np.array([theta_x, theta_y, theta_z], dtype=float)
-
-
-    def section_normal_vectors_at_lcs(self) -> np.ndarray:
-        theta_x, theta_y, theta_z = self.mean_rotations_at_local_coordinate_system()
-        L_ = np.sqrt(1-(np.sin(theta_y)**2))
-        L = 1
-        dx = L_*np.cos(theta_z)
-        dy = L_*np.sin(theta_z)
-        dz = -L*np.sin(theta_y)
-        uvw = np.array([dx, dy*np.cos(theta_x) - dz*np.sin(theta_x), dy*np.sin(theta_x) + dz*np.cos(theta_x)], dtype=float)   
-        return uvw
-
-
     def deformed_element_length(self, deltas: np.ndarray) -> float:
         return np.linalg.norm(deltas)
 
@@ -298,7 +212,7 @@ class StructuralElement:
         return rows.reshape(-1), cols.reshape(-1)
 
 
-    def force_vector_gcs(self, element_attributes: "StructuralElementAttributes") -> np.ndarray:
+    def force_vector_gcs(self) -> np.ndarray:
         """
         This method returns the element force vector in the global coordinate system.
 
@@ -308,10 +222,10 @@ class StructuralElement:
             Force vector in the global coordinate system.
         """
         Rt = self.element_rotation_matrix_inverse
-        return Rt @ self.get_distributed_load(element_attributes)
+        return Rt @ self.get_distributed_load()
 
 
-    def get_distributed_load(self, element_attributes: "StructuralElementAttributes") -> np.ndarray:
+    def get_distributed_load(self) -> np.ndarray:
         """
         This method returns the element load vector in the local coordinate system. The loads are forces and moments according to the degree of freedom.
 
@@ -326,8 +240,8 @@ class StructuralElement:
             Only pipe_1 element type is allowed.
         """
 
-        cross_section = element_attributes.cross_section
-        loaded_forces = element_attributes.loaded_forces
+        cross_section = self.cross_section
+        loaded_forces = self.element_attributes.loaded_forces
 
         R = self.element_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
 
@@ -336,7 +250,7 @@ class StructuralElement:
         eload_lcs = eload_lcs.reshape(-1, 1)
 
         ## Numerical integration by Gauss quadrature
-        L = self.length
+        L = self.element_attributes.length
         integrations_points = 2
         points, weigths = gauss_quadrature(integrations_points)
 
@@ -355,8 +269,8 @@ class StructuralElement:
 
         principal_axis = cross_section.principal_axis
 
-        if element_attributes.force_offset:
-            if element_attributes.is_section_variable:
+        if self.element_attributes.force_offset:
+            if self.element_attributes.is_section_variable:
                 if self.transf_matrix_offset_shear_left is None:
                     self.process_offset_transformation_matrices()
                 return self.transf_matrix_offset_shear_left @ Fe
@@ -366,9 +280,7 @@ class StructuralElement:
         return Fe
 
 
-    def force_vector_acoustic_gcs(
-        self, element_attributes: "StructuralElementAttributes", frequencies: np.ndarray, pressures: np.ndarray, pressure_external: float
-    ) -> np.ndarray:
+    def force_vector_acoustic_gcs(self, frequencies: np.ndarray, pressures: np.ndarray, pressure_external: float) -> np.ndarray:
         """
         This method returns the element load vector due to the internal acoustic pressure field in the global 
         coordinate system. The loads are forces and moments according to the degree of freedom. 
@@ -387,8 +299,8 @@ class StructuralElement:
             Load vector in the global coordinate system.
         """
 
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
+        material = self.material
+        cross_section = self.cross_section
 
         rows = DOF_PER_ELEMENT
         cols = len(frequencies)
@@ -399,21 +311,21 @@ class StructuralElement:
         A = cross_section.area
 
         # p_avg = (pressures[0] + pressures[1])/2
-        if element_attributes.capped_end:
-            capped_end = 1 if element_attributes.capped_end else 0
+        if self.element_attributes.capped_end:
+            capped_end = 1 if self.element_attributes.capped_end else 0
 
-        if self.element_type == 'pipe_1':
+        if self.element_attributes.structural_element_type == 'pipe_1':
             stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
-            if element_attributes.wall_formulation == "thick_wall":
+            if self.element_attributes.wall_formulation == "thick_wall":
                 force = A * (capped_end - 2 * nu) * stress_axial
 
-            elif element_attributes.wall_formulation == "thin_wall":
+            elif self.element_attributes.wall_formulation == "thin_wall":
                 force = A * (capped_end * stress_axial - nu * pressures * (Do / (Do - Di) - 1))
 
             else:
                 raise TypeError('Only thin and thick wall formulation types are allowable.')
 
-        elif self.element_type in ['expansion_joint','valve']:
+        elif self.element_attributes.structural_element_type in ['expansion_joint','valve']:
             nu = 0
             force = A * (capped_end - 2*nu) * pressures
 
@@ -426,15 +338,15 @@ class StructuralElement:
 
         R = self.element_rotation_matrix
 
-        if self.element_type == 'pipe_1':
+        if self.element_attributes.structural_element_type == 'pipe_1':
             principal_axis = cross_section.principal_axis
-        elif self.element_type in ['expansion_joint', 'valve']:
+        elif self.element_attributes.structural_element_type in ['expansion_joint', 'valve']:
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            raise TypeError(f'Invalid element type: {self.element_type}')
+            raise TypeError(f'Invalid element type: {self.element_attributes.structural_element_type}')
 
-        if element_attributes.force_offset:
-            if element_attributes.is_section_variable:
+        if self.element_attributes.force_offset:
+            if self.element_attributes.is_section_variable:
                 if self.transf_matrix_offset_shear_left is None:
                     self.process_offset_transformation_matrices()
                 return R.T @ self.transf_matrix_offset_shear_left @ aux
@@ -444,7 +356,7 @@ class StructuralElement:
         return R.T @ aux
 
 
-    def force_vector_stress_stiffening(self, element_attributes: "StructuralElementAttributes", vector_gcs: bool = True) -> np.ndarray:
+    def force_vector_stress_stiffening(self, vector_gcs: bool = True) -> np.ndarray:
         """
         This method returns description
         Returns
@@ -453,8 +365,8 @@ class StructuralElement:
             Load vector in the global coordinate system.
         """
 
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
+        material = self.material
+        cross_section = self.cross_section
 
         rows = DOF_PER_ELEMENT
         aux = np.zeros([rows, 1])
@@ -464,15 +376,15 @@ class StructuralElement:
         A = cross_section.area
         nu = material.poisson_ratio
 
-        P_in = element_attributes.internal_pressure
-        P_out = element_attributes.external_pressure
+        P_in = self.element_attributes.internal_pressure
+        P_out = self.element_attributes.external_pressure
 
         if self.element_type in ['pipe_1', 'valve']:
             axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
         else:
             return aux
 
-        capped_end = 1 if element_attributes.capped_end else 0
+        capped_end = 1 if self.element_attributes.capped_end else 0
 
         if self.element_type in ['pipe_1', 'valve']:
             principal_axis = cross_section.principal_axis
@@ -483,7 +395,7 @@ class StructuralElement:
         R = self.element_rotation_matrix
 
         if vector_gcs:
-            if element_attributes.force_offset:
+            if self.element_attributes.force_offset:
                 aux = R.T @ (principal_axis.T @ aux)
             else:
                 aux = R.T @ aux
@@ -491,15 +403,15 @@ class StructuralElement:
             aux = 1
             capped_end = 0
 
-        if element_attributes.wall_formulation == "thick_wall":
+        if self.element_attributes.wall_formulation == "thick_wall":
             return (capped_end - 2*nu) * axial_stress * A * aux
-        elif element_attributes.wall_formulation == "thin_wall":
+        elif self.element_attributes.wall_formulation == "thin_wall":
             return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
         else:
             raise TypeError('Only thin and thick wall formulation types are allowable.')
 
 
-    def get_self_weighted_load(self, element_attributes: "StructuralElementAttributes", gravity_vector: np.ndarray) -> np.ndarray:
+    def get_self_weighted_load(self, gravity_vector: np.ndarray) -> np.ndarray:
         """
         This method returns the self-weighted loads for static analysis.
         Returns
@@ -511,9 +423,9 @@ class StructuralElement:
         if np.sum(gravity_vector) == 0:
             return np.zeros((12,1), dtype=float)
 
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
-        fluid = element_attributes.fluid
+        material = self.material
+        cross_section = self.cross_section
+        fluid = self.fluid
 
         rho = material.density
         A = cross_section.area
@@ -525,7 +437,7 @@ class StructuralElement:
         if self.element_type in ["pipe_1", "valve"]:
             A_ins = cross_section.area_insulation
             rho_ins = cross_section.insulation_density
-            if isinstance(fluid, Fluid) and element_attributes.adding_mass_effect:
+            if isinstance(fluid, Fluid) and self.element_attributes.adding_mass_effect:
                 rho_fluid = fluid.density
                 A_fluid = cross_section.area_fluid
 
@@ -538,7 +450,7 @@ class StructuralElement:
         eload_lcs = eload_lcs.reshape(-1, 1)
 
         ## Numerical integration by Gauss quadrature
-        L = self.length
+        L = self.element_attributes.length
         integrations_points = 2
         points, weigths = gauss_quadrature(integrations_points)
 
@@ -552,14 +464,14 @@ class StructuralElement:
             phi, _ = shape_function(point)
             N = np.c_[phi[0] * aux_eyes, phi[1] * aux_eyes]
             Fe_sw += (N.T @ eload_lcs) * det_jacobian * weigth
-        
-        if self.element_type == 'pipe_1':
+
+        if self.element_attributes.structural_element_type == 'pipe_1':
             principal_axis = cross_section.principal_axis
         else:
             principal_axis = np.eye(DOF_PER_ELEMENT)
 
-        if element_attributes.force_offset:
-            if element_attributes.is_section_variable:
+        if self.element_attributes.force_offset:
+            if self.element_attributes.is_section_variable:
                 return self.transf_matrix_offset_shear_left @ Fe_sw
 
             return principal_axis.T @ Fe_sw
@@ -596,7 +508,7 @@ class StructuralElement:
         # delta_zo *= -1
 
         # process matrix transformation to account the shear center differences effect
-        Le = self.length
+        Le = self.element_attributes.length
         delta_xo = 0
         L_A = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
         L_G = L_A - delta_xo

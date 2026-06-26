@@ -3,11 +3,10 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pulse.model.node import Node
 from pulse.model.elements.structural_element import DOF_PER_ELEMENT, StructuralElement
 
 if TYPE_CHECKING:
-    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
+    from pulse.model.elements.element_attributes import ElementAttributes
 
 
 class ValveStructuralElement(StructuralElement):
@@ -45,13 +44,13 @@ class ValveStructuralElement(StructuralElement):
         Structural forces and moments on the nodes.
         Default is zeros(12).
     """
-    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
-        super().__init__(first_node, last_node, index, **kwargs)
+    def __init__(self, element_attributes: "ElementAttributes", **kwargs):
+        super().__init__(element_attributes, **kwargs)
 
-        self.element_type = "valve"
+        self.valve_data = element_attributes.valve_data
 
 
-    def matrices_gcs(self, element_attributes: "StructuralElementAttributes"):
+    def matrices_gcs(self):
         """
         This method returns the element stiffness and mass matrices according to the 
         3D Timoshenko beam theory in the global coordinate system.
@@ -71,29 +70,26 @@ class ValveStructuralElement(StructuralElement):
         mass_matrix_gcs : Element mass matrix in the global coordinate system.
         """
 
-        self.element_attributes = element_attributes
-
         R = self.element_rotation_matrix
         Rt = self.element_rotation_matrix_inverse
 
-        stiffness = Rt @ self.stiffness_matrix_valve(element_attributes) @ R
-        mass = Rt @ self.mass_matrix_valve(element_attributes) @ R
+        stiffness = Rt @ self.stiffness_matrix_valve() @ R
+        mass = Rt @ self.mass_matrix_valve() @ R
 
         return stiffness, mass
 
 
-    def stiffness_matrix_valve(self, element_attributes: "StructuralElementAttributes"):
-        k_stiff = element_attributes.valve_data.valve_stiffening_factor
-        return k_stiff * self.stiffness_matrix_pipes(element_attributes) 
+    def stiffness_matrix_valve(self):
+        k_stiff = self.valve_data.valve_stiffening_factor
+        return k_stiff * self.stiffness_matrix_valve() 
 
 
-    def mass_matrix_valve(self, element_attributes: "StructuralElementAttributes"):
+    def mass_matrix_valve(self):
 
-        valve_data = element_attributes.valve_data
-        L_e = valve_data.valve_length / self.length
+        L_e = self.valve_data.valve_length / self.element_attributes.length
 
         indexes = np.array([0, 1, 2, 6, 7, 8], dtype=int)
-        M1 = M2 = M3 = valve_data.valve_mass / (2 * L_e)
+        M1 = M2 = M3 = self.valve_data.valve_mass / (2 * L_e)
 
         M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         M_matrix[indexes, indexes] = [M1, M2, M3, M1, M2, M3]

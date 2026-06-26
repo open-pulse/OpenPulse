@@ -2,21 +2,19 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pulse.model.node import Node, NodePosition
+from pulse.model.node import NodePosition
 from pulse.model.elements.structural_element import DOF_PER_ELEMENT, StructuralElement, symmetrize
 
 if TYPE_CHECKING:
-    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
+    from pulse.model.elements.element_attributes import ElementAttributes
 
 
 class BeamStructuralElement(StructuralElement):
-    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
-        super().__init__(first_node, last_node, index, **kwargs)
-
-        self.element_type = "beam_1"
+    def __init__(self, element_attributes: "ElementAttributes", **kwargs):
+        super().__init__(element_attributes, **kwargs)
 
 
-    def matrices_gcs(self, element_attributes: "StructuralElementAttributes"):
+    def matrices_gcs(self):
         """
         This method returns the element stiffness and mass matrices for beam analytic
         formulation in the global coordinate system.
@@ -31,18 +29,16 @@ class BeamStructuralElement(StructuralElement):
 
         """
 
-        self.element_attributes = element_attributes
-
         R = self.element_rotation_matrix
         Rt = self.element_rotation_matrix_inverse
 
-        stiffness = Rt @ self.stiffness_matrix_beam(element_attributes) @ R
-        mass = Rt @ self.mass_matrix_beam(element_attributes) @ R
+        stiffness = Rt @ self.stiffness_matrix_beam() @ R
+        mass = Rt @ self.mass_matrix_beam() @ R
 
         return stiffness, mass
 
 
-    def stiffness_matrix_beam(self, element_attributes: "StructuralElementAttributes"):
+    def stiffness_matrix_beam(self):
         """
         This method returns the beam element stiffness matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is suitable for any beam cross section data.
@@ -60,8 +56,8 @@ class BeamStructuralElement(StructuralElement):
         # Element length
         L   = self.length
 
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
+        material = self.material
+        cross_section = self.cross_section
 
         # Material properities
         E   = material.elasticity_modulus
@@ -135,7 +131,7 @@ class BeamStructuralElement(StructuralElement):
         ke[[4,10],[2,2]] = - 6 * beta_13_a / L**2
         ke[[8,10],[4,8]] =   6 * beta_13_a / L**2
 
-        if element_attributes.decoupling_info is None:
+        if self.element_attributes.decoupling_info is None:
             Ke = symmetrize(ke)
 
         else:
@@ -144,12 +140,12 @@ class BeamStructuralElement(StructuralElement):
             # Ke_decoup = self.decouple_rotations(ke, node_position, decouple_mask)
             # Ke = symmetrize(Ke_decoup)
 
-            Ke = symmetrize(ke) * element_attributes.decoupling_matrix
+            Ke = symmetrize(ke) * self.element_attributes.decoupling_matrix
 
         return principal_axis.T @ Ke @ principal_axis
 
 
-    def mass_matrix_beam(self, element_attributes: "StructuralElementAttributes"):
+    def mass_matrix_beam(self):
         """
         This method returns the beam element mass matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is suitable for any beam cross section data.
@@ -164,8 +160,8 @@ class BeamStructuralElement(StructuralElement):
         mass_matrix_pipes : Pipe element mass matrix in the local coordinate system.
         """
 
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
+        material = self.material
+        cross_section = self.cross_section
 
         # Element length
         L   = self.length
@@ -271,7 +267,7 @@ class BeamStructuralElement(StructuralElement):
         me[11, 5] =  gamma_12 * (A * a_12u_6 / 420 + I_3 * a_12t_4 / 30)
         me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
 
-        Me = symmetrize(me) * element_attributes.decoupling_matrix
+        Me = symmetrize(me) * self.element_attributes.decoupling_matrix
 
         return principal_axis.T @ Me @ principal_axis
 
@@ -329,7 +325,7 @@ class BeamStructuralElement(StructuralElement):
         return K_mod
 
 
-    def get_shear_coefficient(self, element_attributes: "StructuralElementAttributes"):
+    def get_shear_coefficient(self):
         """
         This method returns the shear coefficient according to the beam cross section. This coefficient is traditionally introduced in the Timoshenko beam theory.
 
@@ -347,8 +343,8 @@ class BeamStructuralElement(StructuralElement):
             shear coefficient
         """
 
-        cross_section = element_attributes.cross_section
-        poisson = element_attributes.material.poisson_ratio
+        cross_section = self.cross_section
+        poisson = self.material.poisson_ratio
 
         section_info = cross_section.section_info
 

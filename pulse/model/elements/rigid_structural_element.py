@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL, Node
 from pulse.model.elements.structural_element import StructuralElement
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 if TYPE_CHECKING:
-    from pulse.model.elements.structural_element_attributes import StructuralElementAttributes
+    from pulse.model.elements.element_attributes import ElementAttributes
 
 
 NODES_PER_ELEMENT = 2
@@ -50,13 +50,11 @@ class RigidStructuralElement(StructuralElement):
         Structural forces and moments on the nodes.
         Default is zeros(12).
     """
-    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
-        super().__init__(first_node, last_node, index, **kwargs)
-
-        self.element_type = "rigid_element"
+    def __init__(self, element_attributes: "ElementAttributes", **kwargs):
+        super().__init__(element_attributes, **kwargs)
 
 
-    def matrices_gcs(self, element_attributes: "StructuralElementAttributes"):
+    def matrices_gcs(self):
         """
         This method returns the element stiffness and mass matrices of
         the rigid element.
@@ -71,16 +69,16 @@ class RigidStructuralElement(StructuralElement):
 
         """
 
-        stiffness = self.stiffness_matrix_rigid_element(element_attributes)
+        stiffness = self.stiffness_matrix_rigid_element()
         mass = self.mass_matrix_rigid_element()
 
         return stiffness, mass
 
 
-    def stiffness_matrix_rigid_element(self, element_attributes: "StructuralElementAttributes"):
+    def stiffness_matrix_rigid_element(self):
         
-        material = element_attributes.material
-        cross_section = element_attributes.cross_section
+        material = self.material
+        cross_section = self.cross_section
 
         E = material.elasticity_modulus
         Iyy = cross_section.second_moment_area_y
@@ -88,7 +86,7 @@ class RigidStructuralElement(StructuralElement):
         # Iyz = cross_section.second_moment_area_yz
 
         d = self.length
-        k = element_attributes.k_factor
+        k = self.element_attributes.k_factor
 
         T = np.array([
             [ 1, 0, 0, 0, 0, -d],
