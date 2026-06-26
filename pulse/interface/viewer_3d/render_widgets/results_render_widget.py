@@ -109,7 +109,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.mesh_picker.update_bounds()
         project = app().project
 
-        if not project.get_structural_elements():
+        if not project.model.preprocessor.element_attributes:
             return
 
         # Default behavior

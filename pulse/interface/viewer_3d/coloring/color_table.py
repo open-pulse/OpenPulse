@@ -17,7 +17,7 @@ from pulse.interface.viewer_3d.coloring.color_palettes import (
     PuOR_colors, 
     )
 
-from pulse.model.elements.structural_element import StructuralElement
+from pulse.model.elements.element_attributes import ElementAttributes
 
 class ColorTable(vtkLookupTable):
     def __init__(self, data, min_max_values, colormap, **kwargs):
@@ -30,10 +30,10 @@ class ColorTable(vtkLookupTable):
         self.colormap = colormap
 
         if isinstance(data, dict):
-            self.valueVector = list(data.values())
-            self.dictData = data
+            self.value_vector = list(data.values())
+            self.dict_data = data
         else:
-            self.valueVector = data
+            self.value_vector = data
 
         self.SetTableRange(self.min_value, self.max_value)
         self.set_colormap(self.colormap)
@@ -91,7 +91,7 @@ class ColorTable(vtkLookupTable):
         self.Build()
 
     def is_empty(self):
-        return len(self.valueVector) == 0
+        return len(self.value_vector) == 0
 
     def distance_to(self, cord1, cord2):
         return np.linalg.norm(cord1 - cord2)
@@ -100,43 +100,42 @@ class ColorTable(vtkLookupTable):
         if self.is_empty():
             return [255, 255, 255]
 
-        value = self.valueVector[node.global_index]
+        value = self.value_vector[node.global_index]
         color_temp = [255, 255, 255]
         self.GetColor(value, color_temp)
         color_temp = [int(i * 255) for i in color_temp]
         return
 
-    def get_element_color(self, element: StructuralElement):
+    def get_element_color(self, element_attributes: ElementAttributes):
 
-        index = element.index
+        index = element_attributes.index
 
-        first_gid = element.first_node.global_index
-        last_gid = element.last_node.global_index
+        first_gid = element_attributes.first_node.global_index
+        last_gid = element_attributes.last_node.global_index
 
         if self.is_empty():
             return [255, 255, 255]
 
-        color_temp = [0, 0, 0]
-
+        element_type = element_attributes.structural_element_type
         if self.stress_field_plot:
-            if element.element_type in ["beam_1", "expansion_joint", "valve"]:
+            if element_type in ["beam_1", "expansion_joint", "valve"]:
                 return [255, 255, 255]
             else:
-                value = np.real(self.dictData[index])
+                value = np.real(self.dict_data[index])
 
         elif self.pressure_field_plot:
-            element_attributes = self.project.model.preprocessor.structural_element_attributes.get(index)
-
-            if element.element_type == "beam_1":
+            if element_type == "beam_1":
                 return [255, 255, 255]
 
             elif element_attributes.turned_off:
                 return [255, 255, 255]
 
-            value = (self.valueVector[first_gid] + self.valueVector[last_gid]) / 2
+            value = (self.value_vector[first_gid] + self.value_vector[last_gid]) / 2
 
         else:
-            value = (self.valueVector[first_gid] + self.valueVector[last_gid]) / 2
+            value = (self.value_vector[first_gid] + self.value_vector[last_gid]) / 2
+
+        color_temp = [0, 0, 0]
 
         self.GetColor(value, color_temp)
         color_temp = [int(i * 255) for i in color_temp]

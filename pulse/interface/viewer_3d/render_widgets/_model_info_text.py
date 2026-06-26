@@ -191,7 +191,7 @@ def elements_info_text() -> str:
 
         info_text += cross_section_info_text(
             element_attributes.cross_section,
-            element_attributes.element_type,
+            element_attributes.structural_element_type,
             element_attributes.xaxis_rotation_angle,
             element_attributes.expansion_joint_data,
             element_attributes.valve_data,
