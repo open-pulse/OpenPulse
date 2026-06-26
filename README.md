@@ -1,5 +1,7 @@
 <p align="center">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OP_gamma.PNG?raw=true" alt="OpenPulse logo" width="600"/>
+   <img src="https://media.githubusercontent.com/media/MOPT-UFSC/molde/main/data/open_pulse/png/open_pulse_wide_colored_other_background.png" alt="OpenPulse logo" width="600"/>
+
+<a href="https://doi.org/10.5281/zenodo.20936703"><img src="https://zenodo.org/badge/219502409.svg" alt="DOI"></a>
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
