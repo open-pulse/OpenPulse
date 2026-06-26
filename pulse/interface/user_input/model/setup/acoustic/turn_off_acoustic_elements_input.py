@@ -153,7 +153,7 @@ class TurnOffAcousticElementsInput(ElementsInput, TurnOffAcousticElementsInput_U
     def actions_to_finalize(self):
         self.load_elements_info()
         app().project.file.write_element_properties_in_file()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
 
     def load_elements_info(self):
 

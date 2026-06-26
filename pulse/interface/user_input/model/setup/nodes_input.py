@@ -27,7 +27,7 @@ class NodesInput(UserInput):
 
         app().project.file.write_nodal_properties_in_file()
 
-    def actions_to_finalize(self, reset_camera: bool = True):
+    def actions_to_finalize(self, reset_camera: bool = False):
         app().project.file.write_nodal_properties_in_file()
         app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera)

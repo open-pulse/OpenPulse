@@ -792,7 +792,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         app().project.file.write_nodal_properties_in_file()
         app().project.file.write_imported_table_data_in_file()
         app().main_window.set_selection()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
         self.load_compressor_excitation_info()
 
     def remove_properties_from_node(self, node_id: int):
