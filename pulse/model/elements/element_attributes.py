@@ -94,7 +94,6 @@ class ElementAttributes:
 
         self.acoustic_link_diameters = list()
 
-
     def reset_render_related_attributes(self):
     
         self.undeformed_rotation_rx: None | np.ndarray = None
@@ -103,10 +102,8 @@ class ElementAttributes:
 
         self.section_parameters_render: list | None = list()
 
-
     def update_delta_pressure(self, delta_pressure):
         self.delta_pressure = delta_pressure
-
 
     @property
     def is_section_variable(self):

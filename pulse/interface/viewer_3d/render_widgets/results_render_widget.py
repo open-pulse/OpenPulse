@@ -509,7 +509,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 picked_lines.difference_update([-1])
 
         if self.visualization_filter.points:
-            points_indexes = set(app().project.get_geometry_points().keys())
+            points_indexes = set(app().project.model.preprocessor.get_geometry_points().keys())
             picked_nodes.intersection_update(points_indexes)
 
         # give priority to node selection

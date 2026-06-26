@@ -89,7 +89,8 @@ class ElementLinesActor(GhostActor):
         rigid_ids = set()
         for structure in self.project.pipeline.structures:
             if structure.extra_info.get("structural_element_type") == "rigid_element":
-                rigid_ids.update(self.preprocessor.mesh.elements_from_line.get(structure.tag, []))
+                rigid_ids.update(self.mesh.elements_from_line.get(structure.tag))
+
         return rigid_ids
 
     def clear_colors(self):

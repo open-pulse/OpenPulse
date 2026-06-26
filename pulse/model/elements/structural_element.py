@@ -72,40 +72,41 @@ class StructuralElement:
         self.transf_matrix_offset_shear_left = None
         self.transf_matrix_offset_shear_right = None
 
-
     @ property
     def delta_x(self) -> np.ndarray:
         return self.element_attributes.delta_x
-
 
     @ property
     def delta_y(self) -> np.ndarray:
         return self.element_attributes.delta_y
 
-
     @ property
     def delta_z(self) -> np.ndarray:
         return self.element_attributes.delta_z
-
 
     @ property
     def length(self) -> float:
         return self.element_attributes.length
 
-
     @ property
     def cross_section(self):
         return self.element_attributes.cross_section
-
 
     @ property
     def material(self):
         return self.element_attributes.material
 
-
     @ property
     def fluid(self):
         return self.element_attributes.fluid
+
+    @ property
+    def structural_element_type(self):
+        return self.element_attributes.structural_element_type
+
+    @ property
+    def acoustic_element_type(self):
+        return self.element_attributes.acoustic_element_type
 
 
     @property
@@ -264,7 +265,7 @@ class StructuralElement:
             N = np.c_[phi[0] * aux_eyes, phi[1] * aux_eyes]
             Fe += (N.T @ eload_lcs) * det_jacobian * weigth
 
-        if self.element_type != "pipe_1":
+        if self.structural_element_type != "pipe_1":
             return np.zeros((DOF_PER_ELEMENT, 1), dtype=float)
 
         principal_axis = cross_section.principal_axis
@@ -314,7 +315,7 @@ class StructuralElement:
         if self.element_attributes.capped_end:
             capped_end = 1 if self.element_attributes.capped_end else 0
 
-        if self.element_attributes.structural_element_type == 'pipe_1':
+        if self.structural_element_type == 'pipe_1':
             stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
             if self.element_attributes.wall_formulation == "thick_wall":
                 force = A * (capped_end - 2 * nu) * stress_axial
@@ -325,7 +326,7 @@ class StructuralElement:
             else:
                 raise TypeError('Only thin and thick wall formulation types are allowable.')
 
-        elif self.element_attributes.structural_element_type in ['expansion_joint','valve']:
+        elif self.structural_element_type in ['expansion_joint','valve']:
             nu = 0
             force = A * (capped_end - 2*nu) * pressures
 
@@ -338,12 +339,12 @@ class StructuralElement:
 
         R = self.element_rotation_matrix
 
-        if self.element_attributes.structural_element_type == 'pipe_1':
+        if self.structural_element_type == 'pipe_1':
             principal_axis = cross_section.principal_axis
-        elif self.element_attributes.structural_element_type in ['expansion_joint', 'valve']:
+        elif self.structural_element_type in ['expansion_joint', 'valve']:
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            raise TypeError(f'Invalid element type: {self.element_attributes.structural_element_type}')
+            raise TypeError(f'Invalid element type: {self.structural_element_type}')
 
         if self.element_attributes.force_offset:
             if self.element_attributes.is_section_variable:
@@ -379,17 +380,17 @@ class StructuralElement:
         P_in = self.element_attributes.internal_pressure
         P_out = self.element_attributes.external_pressure
 
-        if self.element_type in ['pipe_1', 'valve']:
+        if self.structural_element_type in ['pipe_1', 'valve']:
             axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
         else:
             return aux
 
         capped_end = 1 if self.element_attributes.capped_end else 0
 
-        if self.element_type in ['pipe_1', 'valve']:
+        if self.structural_element_type in ['pipe_1', 'valve']:
             principal_axis = cross_section.principal_axis
         else:
-            raise TypeError(f'Invalid element type: {self.element_type}')
+            raise TypeError(f'Invalid element type: {self.structural_element_type}')
 
         aux[0], aux[6] = -1, 1
         R = self.element_rotation_matrix
@@ -434,7 +435,7 @@ class StructuralElement:
         rho_fluid = rho_ins = 0.
         g = gravity_vector
 
-        if self.element_type in ["pipe_1", "valve"]:
+        if self.structural_element_type in ["pipe_1", "valve"]:
             A_ins = cross_section.area_insulation
             rho_ins = cross_section.insulation_density
             if isinstance(fluid, Fluid) and self.element_attributes.adding_mass_effect:
@@ -465,7 +466,7 @@ class StructuralElement:
             N = np.c_[phi[0] * aux_eyes, phi[1] * aux_eyes]
             Fe_sw += (N.T @ eload_lcs) * det_jacobian * weigth
 
-        if self.element_attributes.structural_element_type == 'pipe_1':
+        if self.structural_element_type == 'pipe_1':
             principal_axis = cross_section.principal_axis
         else:
             principal_axis = np.eye(DOF_PER_ELEMENT)

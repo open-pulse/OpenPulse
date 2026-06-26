@@ -84,7 +84,7 @@ class PipeStructuralElement(StructuralElement):
         aly = 1 / res_y
         alz = 1 / res_z
 
-        if self.element_type in ['pipe_1', 'valve']:
+        if self.structural_element_type in ['pipe_1', 'valve']:
             Qy = 0
             Qz = 0
             Iyz = 0
@@ -203,7 +203,7 @@ class PipeStructuralElement(StructuralElement):
         else:
             Gfl = np.zeros((3, 3), dtype='float64') 
 
-        if self.element_attributes.structural_element_type == 'pipe_1':
+        if self.structural_element_type == 'pipe_1':
             Qy = 0
             Qz = 0
             Iyz = 0
@@ -404,7 +404,7 @@ class PipeStructuralElement(StructuralElement):
             aly = 1 / res_y
             alz = 1 / res_z
             
-            if self.element_attributes.structural_element_type in ['pipe_1', 'valve']:
+            if self.structural_element_type in ['pipe_1', 'valve']:
                 Qy = 0
                 Qz = 0
                 Iyz = 0
@@ -545,7 +545,7 @@ class PipeStructuralElement(StructuralElement):
             else:
                 Gfl = np.zeros((3,3), dtype='float64') 
 
-            if self.element_attributes.structural_element_type == 'pipe_1':
+            if self.structural_element_type == 'pipe_1':
                 Qy = 0
                 Qz = 0
                 Iyz = 0

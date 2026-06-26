@@ -272,7 +272,7 @@ class Mesh:
             self.nodes_from_gmsh_lines[tag] = [self.map_nodes[node] for node in line_nodes]
 
         dt = perf_counter() - t0
-        print(f"Time to process : {dt}")
+        # print(f"Time to process '_process_gmsh_lines_mesh_data': {dt}")
 
         # t0 = perf_counter()
 
