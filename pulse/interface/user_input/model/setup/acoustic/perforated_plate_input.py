@@ -233,24 +233,26 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
         self.checkBoxEvent_dimensionless()
 
     def get_area_porosity(self, element_id: int):
-        element = self.preprocessor.structural_elements[element_id]
-        if element.element_type == "pipe_1":
-            cross_section = self.preprocessor.get_element_cross_section(element_id)
-            if cross_section is None:
-                return None
+        structural_element_type = self.preprocessor.get_structural_element_type(element_id)
+        if structural_element_type != "pipe_1":
+            return
 
-            d_in = cross_section.inner_diameter
-            if self.lineEdit_hole_diameter.text() != "":
-                str_hole_diameter = self.lineEdit_hole_diameter.text()
-                str_hole_diameter = str_hole_diameter.replace(",", ".")
+        cross_section = self.preprocessor.get_element_cross_section(element_id)
+        if cross_section is None:
+            return
 
-                try:
-                    hole_diameter = float(str_hole_diameter)
-                    area_porosity = (hole_diameter / d_in) ** 2
-                except Exception:
-                    return None
+        d_in = cross_section.inner_diameter
+        if self.lineEdit_hole_diameter.text() != "":
+            str_hole_diameter = self.lineEdit_hole_diameter.text()
+            str_hole_diameter = str_hole_diameter.replace(",", ".")
 
-                return area_porosity
+            try:
+                hole_diameter = float(str_hole_diameter)
+                area_porosity = (hole_diameter / d_in) ** 2
+            except Exception:
+                return
+
+            return area_porosity
 
     def single_hole_perforated_plate_callback(self):
         key = self.checkBox_single_hole.isChecked()

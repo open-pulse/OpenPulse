@@ -479,20 +479,12 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
 
     def check_node_id(self, lineEdit: QLineEdit):
 
-        stop, node_id = self.before_run.check_selected_ids(
-            lineEdit.text(), "nodes", single_id=True
-        )
-
+        stop, node_id = self.before_run.check_selected_ids(lineEdit.text(), "nodes", single_id=True)
         if stop:
             return True, None
 
-        neigh_elements = (
-            app().project.model.preprocessor.structural_elements_connected_to_node[
-                node_id
-            ]
-        )
-
-        if len(neigh_elements) == 1:
+        element_ids = app().project.model.preprocessor.elements_connected_to_node.get(node_id)
+        if len(element_ids) == 1:
             return stop, node_id
 
         else:

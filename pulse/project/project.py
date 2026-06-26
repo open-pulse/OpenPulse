@@ -244,15 +244,6 @@ class Project:
 
         return False
 
-    def get_structural_elements(self):
-        return self.model.preprocessor.structural_elements
-    
-    def get_structural_element(self, element_id):
-        return self.model.preprocessor.structural_elements[element_id]
-
-    def get_acoustic_elements(self):
-        return self.model.preprocessor.acoustic_elements 
-
     def get_acoustic_element(self, element_id):
         return self.model.preprocessor.acoustic_elements[element_id]
 
@@ -271,23 +262,16 @@ class Project:
                     return
 
                 node_id = self.model.preprocessor.get_node_id_by_coordinates(coords)
-                neigh_elements = self.model.preprocessor.structural_elements_connected_to_node[node_id]
     
-                for element in neigh_elements:
+                for element_id in self.model.preprocessor.elements_connected_to_node.get(node_id, list()):
 
-                    element_line = self.model.preprocessor.mesh.line_from_element[element.index]
-                    _data = self.model.properties.line_properties[element_line]
+                    line_id = self.model.preprocessor.mesh.line_from_element[element_id]
+                    _data = self.model.properties.line_properties[line_id]
 
                     if "corner_coords" in _data.keys():
-                        lines_neighboors[line_id, "curve"].append(element_line)
+                        lines_neighboors[line_id, "curve"].append(line_id)
                     else:
-                        lines_neighboors[line_id, "line"].append(element_line)
-
-    def get_geometry_points(self):
-        points = dict()
-        for i in self.model.preprocessor.mesh.geometry_points:
-            points[i] = self.model.preprocessor.nodes[i]
-        return points
+                        lines_neighboors[line_id, "line"].append(line_id)
 
     def is_there_a_valid_solution(self):
 

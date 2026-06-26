@@ -50,8 +50,6 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
         self.pipe_to_beam = False
         self.beam_to_pipe = False
 
-        self.element_type = "pipe_1"
-
     def _config_widgets(self):
         #
         self.pushButton_remove.setDisabled(True)

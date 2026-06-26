@@ -151,8 +151,8 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
 
     def get_fluids_from_node(self, node_id: int) -> list[Fluid]:
         fluids = list()
-        for element in  self.model.preprocessor.structural_elements_connected_to_node.get(node_id, list()):
-            fluid = self.preprocessor.get_element_fluid(element.index)
+        for element_id in self.model.preprocessor.elements_connected_to_node.get(node_id):
+            fluid = self.preprocessor.get_element_fluid(element_id)
             if fluid in fluids:
                 continue
 
@@ -162,8 +162,8 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
     
     def get_diameters_from_node(self, node_id: int) -> list[float]:
         diameters = list()
-        for element in  self.model.preprocessor.structural_elements_connected_to_node.get(node_id, list()):
-            cross_section = self.preprocessor.get_element_cross_section(element.index)
+        for element_id in self.model.preprocessor.elements_connected_to_node.get(node_id):
+            cross_section = self.preprocessor.get_element_cross_section(element_id)
             if cross_section.section_type_label != "pipe":
                 continue
 

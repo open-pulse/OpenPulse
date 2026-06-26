@@ -596,12 +596,13 @@ class LoadProject:
                     continue
 
                 if property in ["radiation_impedance", "specific_impedance"]:        
-                    neigh_elements = self.preprocessor.structural_elements_connected_to_node.get(new_node_id)
-                    if isinstance(neigh_elements, list):
-                        if len(neigh_elements) != 1:
-                            internal_impedances.append((new_node_id, coords))
-                            property_to_remove[property] = args                 
-                            continue
+                    element_ids = self.preprocessor.elements_connected_to_node.get(new_node_id)
+
+                    # remove these nodal properties if they do not belong to end nodes
+                    if len(element_ids) != 1:
+                        internal_impedances.append((new_node_id, coords))
+                        property_to_remove[property] = args                 
+                        continue
 
             aux_nodal[new_key] = data
     
@@ -656,28 +657,31 @@ class LoadProject:
         non_mapped_elements = list()
 
         for (property, element_id), data in self.properties.element_properties.items():
-            if property in ["element_length_correction", "B2P_rotation_decoupling"]:
+            if property not in ["element_length_correction", "B2P_rotation_decoupling"]:
+                continue
 
-                if "coords" in data.keys():
-                    coords = np.array(data["coords"], dtype=float)
-                    node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+            if not isinstance(data, dict):
+                continue
 
-                    if isinstance(node_id, int):
-                        if property == "B2P_rotation_decoupling":
-                            neigh_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
-                        else:
-                            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
+            coords = data.get("coords")
+            if coords is None:
+                continue
 
-                        for element in neigh_elements:
-                            if property == "B2P_rotation_decoupling":
-                                if element.element_type != "beam_1":
-                                    continue
+            coords = np.array(data["coords"], dtype=float)
+            node_id = self.preprocessor.get_node_id_by_coordinates(coords)
 
-                            new_key = (property, element.index)
-                            aux_elements[new_key] = data
+            if isinstance(node_id, int):
+                for element_id in self.preprocessor.elements_connected_to_node[node_id]:
+                    element_attributes = self.preprocessor.element_attributes.get(element_id)
+                    if property == "B2P_rotation_decoupling":
+                        if element_attributes.element_type != "beam_1":
+                            continue
 
-                    else:
-                        non_mapped_elements.append((element_id, node_id))
+                    new_key = (property, element_attributes.index)
+                    aux_elements[new_key] = data
+
+            else:
+                non_mapped_elements.append((element_id, node_id))
 
         pp_removed = list()
         for (property, element_id), data in self.properties.element_properties.items():
@@ -706,8 +710,8 @@ class LoadProject:
                 length = np.linalg.norm(coords_1 - coords_2)
 
                 for _element_id in elements_from_lines:
-                    element = self.preprocessor.structural_elements[_element_id]
-                    ecc = element.center_coordinates
+                    element_attributes = self.preprocessor.element_attributes.get(_element_id)
+                    ecc = element_attributes.center_coordinates
 
                     if np.linalg.norm(coords_1 - ecc) < length:
                         elements_inside_bounds[_element_id].append("first_node")

@@ -5,14 +5,11 @@ from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface import error_title
-from pulse.interface.ui_generated.plots.results.acoustic.plot_shaking_forces_ui import (
-    PlotShakingForces_UI,
-)
-from pulse.interface.user_input.plots.general.frequency_response_plotter import (
-    FrequencyResponsePlotter,
-)
+from pulse.interface.ui_generated.plots.results.acoustic.plot_shaking_forces_ui import PlotShakingForces_UI
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.elements.build_element import StructuralElementBuilder
 
 
 class ShakingForcesCriteriaInput(PlotShakingForces_UI):
@@ -89,14 +86,14 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
 
             # load the acoustic harmonic solution
             acoustic_solution = app().project.get_acoustic_solution()
-            element = app().project.model.preprocessor.structural_elements[element_id]
-            element_attributes = app().project.model.preprocessor.structural_element_attributes.get(element_id)
+            element_attributes = app().project.model.preprocessor.element_attributes.get(element_id)
 
-            pressure_first = acoustic_solution[element.first_node.global_index, :]
-            pressure_last = acoustic_solution[element.last_node.global_index, :]
+            pressure_first = acoustic_solution[element_attributes.first_node.global_index, :]
+            pressure_last = acoustic_solution[element_attributes.last_node.global_index, :]
             pressure = np.c_[pressure_first, pressure_last].T
 
-            pressure_loads += element.force_vector_acoustic_gcs(element_attributes, self.frequencies, pressure, pressure_external)
+            element = StructuralElementBuilder(element_attributes).build_element()
+            pressure_loads += element.force_vector_acoustic_gcs(self.frequencies, pressure, pressure_external)
 
         F_x = pressure_loads[0] + pressure_loads[6]
         F_y = pressure_loads[1] + pressure_loads[7]

@@ -197,16 +197,15 @@ class VolumeVelocityInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
     def are_there_multiple_cross_sections(self, node_ids: list[int]):
         for node_id in node_ids:
-            neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node.get(node_id)
-            if isinstance(neigh_elements, list):
-                if len(neigh_elements) != 1:
-                    self.hide()
-                    title = "Multiple cross-sections detected"
-                    message = "At least one multiple cross-section was detected in the neighborhood "
-                    message += "of the nodes entered. The surface velocity normalization "
-                    message += "is only allowed for nodes sharing equal cross-sections."
-                    PrintMessageInput([warning_title, title, message])
-                    return True
+            element_ids = app().project.model.preprocessor.elements_connected_to_node.get(node_id)
+            if len(element_ids) != 1:
+                self.hide()
+                title = "Multiple cross-sections detected"
+                message = "At least one multiple cross-section was detected in the neighborhood "
+                message += "of the nodes entered. The surface velocity normalization "
+                message += "is only allowed for nodes sharing equal cross-sections."
+                PrintMessageInput([warning_title, title, message])
+                return True
 
     def get_volume_velocity(self, node_id: int, value: float) -> float:
         if self.comboBox_input_type.currentIndex() == InputType.VOLUME_VELOCITY:

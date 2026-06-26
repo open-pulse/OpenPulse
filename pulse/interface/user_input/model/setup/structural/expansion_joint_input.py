@@ -543,20 +543,19 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                 ]
 
             cross_section = None
-            element_type = None
+            structural_element_type = None
 
             for element_id in element_ids:
-                if element_id not in line_elements:
-                    element = self.preprocessor.structural_elements[element_id]
-                    cross_section = self.preprocessor.get_element_cross_section(element_id)
-                    element_type = element.element_type
-                    break
+                if element_id in line_elements:
+                    continue
 
-            if element_type == "pipe_1" and isinstance(cross_section, CrossSection):
+                structural_element_type = self.preprocessor.get_element_cross_section(element_id)
+                cross_section = self.preprocessor.get_element_cross_section(element_id)
+                break
+
+            if structural_element_type == "pipe_1" and isinstance(cross_section, CrossSection):
                 self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
-                self.preprocessor.set_structural_element_type_by_lines(
-                    line_id, "pipe_1"
-                )
+                self.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
 
                 pipe_info = {
                     "structure_name": "pipe",
@@ -564,11 +563,9 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                     "section_parameters": cross_section.section_parameters,
                 }
 
-                self.properties._set_line_property(
-                    "structural_element_type", element_type, line_id
-                )
+                self.properties._set_line_property("structural_element_type", structural_element_type, line_id)
                 self.properties._set_multiple_line_properties(pipe_info, line_id)
-    
+
     def remove_expansion_joint_properties(self, line_ids: int | list[int]):
         self.properties._remove_line_property("structure_name", line_ids)
         self.properties._remove_line_property("expansion_joint_info", line_ids)

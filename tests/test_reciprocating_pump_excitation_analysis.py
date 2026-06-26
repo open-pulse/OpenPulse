@@ -139,21 +139,19 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
     correction_types = ["side_branch", "expansion", "side_branch"]
 
     for i, coords in enumerate(points_coords):
-
         node_id = preprocessor.get_node_id_by_coordinates(coords)
-        neigh_elements = model.preprocessor.acoustic_elements_connected_to_node[node_id]
+        element_ids = model.preprocessor.elements_connected_to_node.get(node_id)
         correction_type = correction_types_ids[correction_types[i]]
 
-        element_ids = [int(element.index) for element in neigh_elements]
-
         if correction_type in [1, 2]:
-            if len(neigh_elements) != 3:
+            if len(element_ids) != 3:
                 continue
 
         else:
-            if len(neigh_elements) == 2:
-                cross_e0 = neigh_elements[0].cross_section
-                cross_e1 = neigh_elements[1].cross_section
+            if len(element_ids) == 2:
+                cross_e0 = preprocessor.get_element_cross_section(element_ids[0])
+                cross_e1 = preprocessor.get_element_cross_section(element_ids[1])
+
                 inside_diam_0 = cross_e0.outer_diameter - 2 * cross_e0.thickness
                 inside_diam_1 = cross_e1.outer_diameter - 2 * cross_e1.thickness
 
@@ -161,9 +159,9 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
                     continue
 
         data = {
-                "coords" : list(coords),
-                "correction_type" : correction_type,
-                }
+            "coords": list(coords),
+            "correction_type": correction_type,
+        }
 
         model.preprocessor.set_element_length_correction_by_element(element_ids, data)
         model.properties._set_element_property("element_length_correction", data, element_ids)
