@@ -39,8 +39,8 @@ class Node:
         Node index displayed to the user.
         Default is None.
     """
-    def __init__(self, x, y, z, **kwargs):
-        
+    def __init__(self, x: np.ndarray, y: np.ndarray, z: np.ndarray, **kwargs):
+
         self.x = x
         self.y = y
         self.z = z

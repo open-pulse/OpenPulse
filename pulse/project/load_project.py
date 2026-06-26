@@ -674,7 +674,7 @@ class LoadProject:
                 for element_id in self.preprocessor.elements_connected_to_node[node_id]:
                     element_attributes = self.preprocessor.element_attributes.get(element_id)
                     if property == "B2P_rotation_decoupling":
-                        if element_attributes.element_type != "beam_1":
+                        if element_attributes.structural_element_type != "beam_1":
                             continue
 
                     new_key = (property, element_attributes.index)

@@ -9,7 +9,7 @@ from pulse.interface.ui_generated.plots.results.acoustic.plot_shaking_forces_ui 
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.elements.build_element import StructuralElementBuilder
+from pulse.model.elements.elements_builder import build_structural_element
 
 
 class ShakingForcesCriteriaInput(PlotShakingForces_UI):
@@ -92,7 +92,7 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
             pressure_last = acoustic_solution[element_attributes.last_node.global_index, :]
             pressure = np.c_[pressure_first, pressure_last].T
 
-            element = StructuralElementBuilder(element_attributes).build_element()
+            element = build_structural_element(element_attributes)
             pressure_loads += element.force_vector_acoustic_gcs(self.frequencies, pressure, pressure_external)
 
         F_x = pressure_loads[0] + pressure_loads[6]

@@ -261,7 +261,7 @@ class BeforeRun():
         for index, element_attributes in self.element_attributes.items():
             line_id = self.model.mesh.line_from_element[index]
 
-            if element_attributes.element_type not in ["wide_duct", "LRF_fluid_equivalent", "LRF_full"]:
+            if element_attributes.structural_element_type not in ["wide_duct", "LRF_fluid_equivalent", "LRF_full"]:
                 continue
 
             if self.preprocessor.get_structural_element_type(index) != "pipe":

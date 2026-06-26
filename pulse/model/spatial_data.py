@@ -14,9 +14,6 @@ class SpatialData:
     last_node: Node
 
     xaxis_rotation = 0
-    transf_mat = None
-    section_directional_vectors = None
-    deformed_rotation_xyz = None
 
     @property
     def length(self):
