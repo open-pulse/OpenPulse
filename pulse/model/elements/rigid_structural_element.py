@@ -4,15 +4,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pulse.model.elements.structural_element import StructuralElement
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 if TYPE_CHECKING:
     from pulse.model.elements.element_attributes import ElementAttributes
-
-
-NODES_PER_ELEMENT = 2
-DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
-ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 
 
 class RigidStructuralElement(StructuralElement):
