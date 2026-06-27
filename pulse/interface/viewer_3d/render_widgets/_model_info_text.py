@@ -170,7 +170,7 @@ def elements_info_text() -> str:
     elif len(elements) == 1:
         _id, *_ = elements
 
-        element_attributes = project.model.preprocessor.element_attributes.get(_id)
+        element_attributes = project.model.preprocessor.elements_attributes.get(_id)
         first_node = element_attributes.first_node
         last_node = element_attributes.last_node
 

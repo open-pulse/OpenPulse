@@ -11,6 +11,7 @@ from pulse.interface.user_input.numeric_checks.double_validator import StrictDou
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model import RadiationImpedanceType
+from pulse.model.elements.acoustic.acoustic_calculator import AcousticCalculator
 from pulse.model.properties.fluid import Fluid
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
@@ -60,7 +61,6 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         self.current_line_edit = None
 
         self.frequencies = self.model.frequencies
-        self.elements = self.preprocessor.acoustic_elements
         self.analysis_method = app().project.analysis_method
 
     def _config_window(self):
@@ -284,12 +284,14 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         inner_diameter = list()
 
         for (index, _, int_dia) in data:
-            element = self.elements[index]
-            fluid = element.fluid
+            element_attributes = self.preprocessor.elements_attributes.get(index)
+            fluid = element_attributes.fluid
 
             inner_diameter.append(int_dia)
             density.append(fluid.density)
-            speed_of_sound.append(element.speed_of_sound_corrected())
+
+            act_calculator = AcousticCalculator(element_attributes)
+            speed_of_sound.append(act_calculator.speed_of_sound_corrected())
 
         if not inner_diameter:
             return None, None, None

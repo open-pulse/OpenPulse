@@ -65,7 +65,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 continue
 
             node = self.preprocessor.nodes[node_id]
-            element_attributes = self.preprocessor.element_attributes.get(element_ids[0])
+            element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
             orientation = element_attributes.last_node.coordinates - element_attributes.first_node.coordinates
 
             if node != element_attributes.first_node:
@@ -95,7 +95,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                 continue
 
             node = self.preprocessor.nodes[node_id]
-            element_attributes = self.preprocessor.element_attributes.get(element_ids[0])
+            element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
             orientation = element_attributes.last_node.coordinates - element_attributes.first_node.coordinates
 
             if node != element_attributes.first_node:
@@ -147,7 +147,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             if property_name != "perforated_plate":
                 continue
 
-            element_attributes = self.preprocessor.element_attributes.get(element_id)
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
             if element_attributes is None:
                 continue
 

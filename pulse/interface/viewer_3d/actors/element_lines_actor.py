@@ -33,12 +33,12 @@ class ElementLinesActor(GhostActor):
         return app().project.model.mesh
 
     @property
-    def element_attributes(self):
-        return app().project.model.preprocessor.element_attributes
+    def elements_attributes(self):
+        return app().project.model.preprocessor.elements_attributes
 
     def build(self):
 
-        all_elements = np.array(list(self.element_attributes.keys()), dtype=int)
+        all_elements = np.array(list(self.elements_attributes.keys()), dtype=int)
         visible_elements = all_elements[~np.isin(all_elements, self.hidden_elements)]
 
         self._key_index = {j: i for i, j in enumerate(visible_elements)}
@@ -50,7 +50,7 @@ class ElementLinesActor(GhostActor):
         element_index.SetName("element_index")
 
         for i, index in enumerate(visible_elements):
-            element_attributes = self.element_attributes.get(index)
+            element_attributes = self.elements_attributes.get(index)
             if self.show_deformed:
                 x0, y0, z0 = element_attributes.first_node.deformed_coordinates
                 x1, y1, z1 = element_attributes.last_node.deformed_coordinates

@@ -88,7 +88,7 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
         element_id = selected_elements[0]
         self.lineEdit_element_id.setText(str(element_id))
 
-        element_attributes = self.preprocessor.element_attributes.get(element_id)
+        element_attributes = self.preprocessor.elements_attributes.get(element_id)
         if element_attributes is None:
             return
 
@@ -148,7 +148,7 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
             return
 
         tjoint_node_id = None
-        element_atributes = self.preprocessor.element_attributes.get(element_id)
+        element_atributes = self.preprocessor.elements_attributes.get(element_id)
 
         node_ids = [element_atributes.first_node.external_index, element_atributes.last_node.external_index]
 
@@ -201,7 +201,7 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
                 continue
 
             element_id = int(item.text(0))
-            element_attributes = self.preprocessor.element_attributes.get(element_id)
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
             element_attributes.decoupling_matrix = decoupling_matrix_default
             element_attributes.decoupling_info = None
@@ -237,7 +237,7 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
                 element_ids.append(element_id)
 
         for element_id in element_ids:
-            element_attributes = self.preprocessor.element_attributes.get(element_id)
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
             element_attributes.decoupling_matrix = decoupling_matrix_default
             element_attributes.decoupling_info = None

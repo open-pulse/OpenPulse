@@ -5,6 +5,10 @@ from math import pi
 import numpy as np
 from scipy.special import jv
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.model.elements.element_attributes import ElementAttributes
+
 
 @dataclass
 class ExpansionJointData:
@@ -23,6 +27,16 @@ class ValveData:
     valve_length: float = 0
     valve_mass: float = 0
     valve_stiffening_factor: float = 10
+
+
+@dataclass
+class AcousticLinkData:
+    coords: np.ndarray
+    indexes_rows: list | np.ndarray
+    indexes_cols:  list | np.ndarray
+    element_attributes : "ElementAttributes"
+    diameters: list
+    length: float
 
 
 @dataclass
@@ -69,7 +83,7 @@ class PerforatedPlateData:
 
 class PerforatedPlateFormulation(IntEnum):
     OPENPULSE = 0
-    MELING = 1
+    MELLING = 1
     COMMON_PIPE = 2
 
 

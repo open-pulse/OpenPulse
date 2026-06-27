@@ -476,7 +476,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             if element_id in line_elements:
                 continue
 
-            element_attributes = self.preprocessor.element_attributes.get(element_id)
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
             if element_attributes is None:
                 continue
 

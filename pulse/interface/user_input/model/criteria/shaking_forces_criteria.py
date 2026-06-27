@@ -10,6 +10,7 @@ from pulse.interface.user_input.plots.general.frequency_response_plotter import 
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.elements.elements_builder import build_structural_element
+from pulse.model.elements.structural_element import DOF_PER_ELEMENT
 
 
 class ShakingForcesCriteriaInput(PlotShakingForces_UI):
@@ -77,16 +78,13 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
             element_ids.extend(elements_from_line)
         
         pressure_external = 0.
-
-        rows = app().project.model.preprocessor.DOFS_ELEMENT
-        cols = len(self.frequencies)
-        pressure_loads = np.zeros((rows, cols), dtype=complex)
+        pressure_loads = np.zeros((DOF_PER_ELEMENT, len(self.frequencies)), dtype=complex)
 
         for row, element_id in enumerate(element_ids):
 
             # load the acoustic harmonic solution
             acoustic_solution = app().project.get_acoustic_solution()
-            element_attributes = app().project.model.preprocessor.element_attributes.get(element_id)
+            element_attributes = app().project.model.preprocessor.elements_attributes.get(element_id)
 
             pressure_first = acoustic_solution[element_attributes.first_node.global_index, :]
             pressure_last = acoustic_solution[element_attributes.last_node.global_index, :]

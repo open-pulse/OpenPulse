@@ -77,7 +77,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.remove_all_actors()
         self.mesh_picker.update_bounds()
 
-        if not self.preprocessor.element_attributes:
+        if not self.preprocessor.elements_attributes:
             return
 
         self.nodes_actor = NodesActor()
@@ -375,7 +375,7 @@ class MeshRenderWidget(CommonRenderWidget):
         if len(elements) == 1:
             self.element_axes_actor.VisibilityOn()
             element_id, *_ = elements
-            element_attributes = self.preprocessor.element_attributes.get(element_id)
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
             self.element_axes_actor.position_from_element(element_attributes)
 
         self.update_info_text()

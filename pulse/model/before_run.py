@@ -18,7 +18,7 @@ class BeforeRun():
         self.preprocessor = app().project.model.preprocessor
 
         self.nodes = self.preprocessor.nodes
-        self.element_attributes = self.preprocessor.element_attributes
+        self.elements_attributes = self.preprocessor.elements_attributes
 
     def check_modal_analysis_imported_data(self):
         message = ""
@@ -50,7 +50,7 @@ class BeforeRun():
                 _size = len(self.model.mesh.lines_from_model)
 
             elif selection_type == "elements":
-                _size = len(self.element_attributes)
+                _size = len(self.elements_attributes)
 
             elif selection_type == "nodes":
                 _size = len(self.nodes)
@@ -74,7 +74,7 @@ class BeforeRun():
                                 self.model.mesh.elements_from_line[typed_id]
 
                             elif selection_type == "elements":
-                                self.element_attributes.get(typed_id)
+                                self.elements_attributes.get(typed_id)
 
                             elif selection_type == "nodes":
                                 self.nodes[typed_id]
@@ -106,7 +106,7 @@ class BeforeRun():
         self.check_set_material = False
         self.check_poisson = False
         lines_without_materials = list()
-        for index, element_attributes in self.preprocessor.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             line_id = self.model.mesh.line_from_element.get(index)
             if line_id is None:
                 continue
@@ -125,7 +125,7 @@ class BeforeRun():
         """
         self.check_poisson = False
         lines_without_poisson = list()
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             line_id = self.model.mesh.line_from_element[index]
             material = element_attributes.material
 
@@ -147,7 +147,7 @@ class BeforeRun():
         lines_without_cross_sections = list()
         elements_without_cross_sections = defaultdict(list)
 
-        for index, element_attributes in self.preprocessor.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             line_id = self.model.mesh.line_from_element[index]
             material = element_attributes.material
             cross_section = element_attributes.cross_section
@@ -203,7 +203,7 @@ class BeforeRun():
         lines_without_cross_sections = list()
         elements_without_cross_sections = defaultdict(list)
 
-        for index, element_attributes in self.preprocessor.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             line_id = self.model.mesh.line_from_element[index]
             structural_element_type = element_attributes.structural_element_type
 
@@ -258,7 +258,7 @@ class BeforeRun():
         """
         self.check_all_fluid_inputs = False
         lines_without_fluids = list()
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             line_id = self.model.mesh.line_from_element[index]
 
             if element_attributes.structural_element_type not in ["wide_duct", "LRF_fluid_equivalent", "LRF_full"]:
@@ -349,7 +349,7 @@ class BeforeRun():
         list_min_valid_freq = list()
 
         for index in self.preprocessor.get_acoustic_elements():
-            element_attributes = self.element_attributes.get(index)
+            element_attributes = self.elements_attributes.get(index)
             if element_attributes.flag_plane_wave:
                 list_plane_wave.append(index)
             if element_attributes.flag_wide_duct:
@@ -800,7 +800,7 @@ class BeforeRun():
             list_elements = element_ids.copy()
             list_elements.remove(selected_element)
 
-            selected_element_attributes = self.preprocessor.element_attributes.get(selected_element)
+            selected_element_attributes = self.elements_attributes.get(selected_element)
             u = selected_element_attributes.normalized_directional_vector
 
             for element_id in list_elements:
@@ -811,7 +811,7 @@ class BeforeRun():
                 line_data_0 = self.model.properties.line_properties[line_0]
                 line_data_1 = self.model.properties.line_properties[line_1]
 
-                element_attributes = self.preprocessor.element_attributes.get(element_id)
+                element_attributes = self.elements_attributes.get(element_id)
                 v = element_attributes.normalized_directional_vector
 
                 dot_uv = abs(round(np.dot(u, v), 6))

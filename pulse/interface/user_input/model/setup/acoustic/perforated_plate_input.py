@@ -439,7 +439,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
             elements_diameter = list()
             elements_lengths = list()
             for element_id in element_ids:
-                element = app().project.model.preprocessor.acoustic_elements[element_id]
+                element = self.preprocessor.elements_attributes.get(element_id)
                 elements_diameter.append(element.cross_section.inner_diameter)
                 elements_lengths.append(element.length)
 
@@ -621,9 +621,9 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                     perforated_plate.dimensionless_impedance = self.imported_values
 
                 coords = list()
-                element = self.preprocessor.acoustic_elements[element_id]
-                coords.extend(list(np.round(element.first_node.coordinates, 5)))
-                coords.extend(list(np.round(element.last_node.coordinates, 5)))
+                element_attributes = self.preprocessor.elements_attributes.get(element_id)
+                coords.extend(list(np.round(element_attributes.first_node.coordinates, 5)))
+                coords.extend(list(np.round(element_attributes.last_node.coordinates, 5)))
 
                 self.perforated_plate_inputs["coords"] = coords
 
@@ -733,13 +733,13 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
 
     def get_response(self, element_id: int, impedance: bool = False, absorption: bool = False):
 
-        element = app().project.model.preprocessor.acoustic_elements[element_id]
+        element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
         if absorption: 
-            return get_perforated_plate_acoustic_absortion(element, self.frequencies)
+            return get_perforated_plate_acoustic_absortion(element_attributes, self.frequencies)
 
         elif impedance:
-            return get_perforated_plate_impedance(element, self.frequencies)
+            return get_perforated_plate_impedance(element_attributes, self.frequencies)
 
     def plot_impedance_callback(self):
 

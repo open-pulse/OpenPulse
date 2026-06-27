@@ -52,7 +52,7 @@ class MeshPicker:
             x, y, z = node.coordinates
             self.nodes_bounds[key] = (x, x, y, y, z, z)
 
-        for key, element_attributes in preprocessor.element_attributes.items():
+        for key, element_attributes in preprocessor.elements_attributes.items():
             coords_first = element_attributes.first_node.coordinates
             coords_last = element_attributes.last_node.coordinates
 
@@ -201,7 +201,7 @@ class MeshPicker:
 
     def _pick_tube_element(self, x: float, y: float, target_actor: vtkActor):
         picker = vtkPropPicker()
-        elements_attributes = app().project.model.preprocessor.element_attributes
+        elements_attributes = app().project.model.preprocessor.elements_attributes
 
         pickability = self._narrow_pickability_to_actor(target_actor)
         picker.Pick(x, y, 0, self.mesh_render_widget.renderer)

@@ -35,7 +35,7 @@ class TubeActor(vtkActor):
         super().__init__()
 
         self.user_preferences = app().main_window.config.user_preferences
-        self.element_attributes = app().project.model.preprocessor.element_attributes
+        self.elements_attributes = app().project.model.preprocessor.elements_attributes
 
         self.hidden_elements = kwargs.get("hidden_elements", set())
         self.build()
@@ -49,16 +49,16 @@ class TubeActor(vtkActor):
         return app().project.model.preprocessor
 
     def get_element_attributes(self, element_id: int):
-        return self.preprocessor.element_attributes.get(element_id)
+        return self.preprocessor.elements_attributes.get(element_id)
 
     def build(self):
         
-        all_elements = np.array(list(self.element_attributes.keys()), dtype=int)
+        all_elements = np.array(list(self.elements_attributes.keys()), dtype=int)
         visible_elements = all_elements[~np.isin(all_elements, self.hidden_elements)]
 
         self._key_index = {j: i for i, j in enumerate(visible_elements)}
 
-        # visible_elements = {i: e for i, e in self.element_attributes.items() if (i not in self.hidden_elements)}
+        # visible_elements = {i: e for i, e in self.elements_attributes.items() if (i not in self.hidden_elements)}
         # self._key_index = {j: i for i, j in enumerate(visible_elements.keys())}
 
         data = vtkPolyData()
@@ -81,7 +81,7 @@ class TubeActor(vtkActor):
 
         section_index = dict()
         for element_id in visible_elements:
-            element_attributes = self.preprocessor.element_attributes.get(element_id)
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
             points.InsertNextPoint(self.get_element_coordinates(element_attributes.first_node))
             rotations.InsertNextTuple(self.get_element_rotations(element_id))
@@ -194,9 +194,9 @@ class TubeActor(vtkActor):
         return None
 
     def _get_tube_sides(self):
-        if len(self.element_attributes) > 100_000:
+        if len(self.elements_attributes) > 100_000:
             return 10
-        elif len(self.element_attributes) > 10_000:
+        elif len(self.elements_attributes) > 10_000:
             return 20
         else:
             return 30
@@ -251,7 +251,7 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element_attributes in self.element_attributes.items():
+        for i, element_attributes in self.elements_attributes.items():
             index = self._key_index.get(i)
             if index is None:
                 continue
@@ -268,7 +268,7 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element_attributes in self.element_attributes.items():
+        for i, element_attributes in self.elements_attributes.items():
             index = self._key_index.get(i)
             if index is None:
                 continue
@@ -294,7 +294,7 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element in self.self.element_attributes.items():
+        for i, element in self.elements_attributes.items():
             index = self._key_index.get(i)
             if index is None:
                 continue

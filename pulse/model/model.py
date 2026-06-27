@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 
-from pulse.model.acoustic_element import AcousticElement
+from pulse.model.elements.acoustic.acoustic_element import AcousticElement
 from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
 from pulse.model.elements.structural_element import StructuralElement
 
@@ -191,8 +191,8 @@ class Model:
             element = None
             if len(element_ids) == 2:
 
-                first_element = self.preprocessor.element_attributes.get(element_ids[0])
-                last_element = self.preprocessor.element_attributes.get(element_ids[1])
+                first_element = self.preprocessor.elements_attributes.get(element_ids[0])
+                last_element = self.preprocessor.elements_attributes.get(element_ids[1])
 
                 if 'beam_1' in [first_element.structural_element_type, last_element.structural_element_type]:
                     continue
@@ -217,7 +217,7 @@ class Model:
                     element = first_element
 
             elif len(element_ids) == 1:
-                first_element = self.preprocessor.element_attributes.get(element_ids[0])
+                first_element = self.preprocessor.elements_attributes.get(element_ids[0])
                 if first_element.structural_element_type == "beam_1":
                     continue
 
@@ -241,7 +241,7 @@ class Model:
                         inner_diameter = 0
 
             if isinstance(element, AcousticElement | StructuralElement):
-                element_attributes = self.preprocessor.element_attributes.get(element.index)
+                element_attributes = self.preprocessor.elements_attributes.get(element.index)
                 section_info = element_attributes.cross_section.section_info
 
                 if element_attributes.structural_element_type == 'expansion_joint':
