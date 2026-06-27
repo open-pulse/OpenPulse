@@ -22,11 +22,13 @@ class ElementAttributes:
         self.first_node = first_node
         self.last_node = last_node
 
-        self.reset_common_attributes()
+        self.reset_all_attributes()
+
+    def reset_all_attributes(self):
+        self.reset_render_related_attributes()
         self.reset_structural_element_attributes()
         self.reset_acoustic_element_attributes()
-
-        self.reset_render_related_attributes()
+        self.reset_common_attributes()
 
     def reset_common_attributes(self):
         self.fluid: Fluid | None = None
@@ -75,10 +77,24 @@ class ElementAttributes:
 
     def reset_acoustic_element_attributes(self):
 
-        self.acoustic_element_type: Literal["undamped"] = "undamped"
+        self.acoustic_element_type: Literal[
+            "undamped",
+            "proportional",
+            "wide_duct",
+            "LRF_fluid_equivalent",
+            "damped_liquid",
+            "LRF_full",
+            "undamped_mean_flow",
+            "mean_flow",
+            "peters",
+            "howe",
+        ] = "undamped"
+
+        self.acoustic_element_formulation: Literal["FETM", "FEM"] = "FETM"
+
         self.proportional_damping: str | None = 0
-        self.volumetric_flow_rate: float = 0
-        self.length_correction_data: str | None = None
+        self.volumetric_flow_rate: float | None = 0
+        self.length_correction_data = dict()
 
         self.pp_impedance = None
 
