@@ -5,14 +5,13 @@ from pulse.interface.user_input.model.setup.structural.expansion_joint_input imp
 from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit, convert_pressure_unit
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.acoustic_element import NODES_PER_ELEMENT, AcousticElement
 from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
-from pulse.model.data_classes.data_classes import ExpansionJointData, PerforatedPlateData, ValveData
+from pulse.model.data_classes.data_classes import AcousticLinkData, ExpansionJointData, PerforatedPlateData, ValveData
 from pulse.model.elements.element_attributes import ElementAttributes
-from pulse.model.elements.structural_element import StructuralElement
 from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node, NodePosition
+from pulse.model.elements.structural_element import NODES_PER_ELEMENT
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
@@ -45,17 +44,9 @@ class Preprocessor:
         This method reset the class default values.
         """
 
-        self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
-
         self.nodes: dict[int, Node] = dict()
 
-        self.element_attributes: dict[int, ElementAttributes] = dict()
-
-        self.acoustic_elements: dict[int, AcousticElement] = dict()
-        self.acoustic_element_attributes: dict[int, ElementAttributes] = dict()
-
-        self.structural_to_acoustic_element: dict[StructuralElement, AcousticElement] = dict()
-        self.acoustic_to_structural_element: dict[AcousticElement, StructuralElement] = dict()
+        self.elements_attributes: dict[int, ElementAttributes] = dict()
 
         self.connectivity_matrix = np.array([], dtype=float)
         self.nodal_coordinates_matrix = np.array([], dtype=int)
@@ -84,11 +75,11 @@ class Preprocessor:
 
     @property
     def number_acoustic_elements(self):
-        return len(self.element_attributes)
+        return len(self.elements_attributes)
 
     @property
     def number_structural_elements(self):
-        return len(self.element_attributes)
+        return len(self.elements_attributes)
 
     def generate(self):
         """
@@ -147,7 +138,7 @@ class Preprocessor:
 
         self.number_nodes = len(self.nodes)
 
-    def _create_structural_elements(self, indexes, connectivities, map_nodes: dict, map_elements: dict):
+    def _create_elements_attributes(self, indexes, connectivities, map_nodes: dict, map_elements: dict):
         """
         This method generate the mesh structural elements.
 
@@ -166,7 +157,7 @@ class Preprocessor:
             Dictionary maps global element indexes.
         """
         self.map_elements = map_elements
-        self.element_attributes.clear()
+        self.elements_attributes.clear()
 
         # self.element_coordinates = np.array((2, len(map_elements), 3), dtype=float)
         for i, connect in zip(indexes, split_sequence(connectivities, 2)):
@@ -177,55 +168,26 @@ class Preprocessor:
             last_node  = self.nodes.get(last_node_id)
 
             element_index = map_elements[i]
-            self.element_attributes[element_index] = ElementAttributes(element_index, first_node, last_node)
-
-    def _create_acoustic_elements(self, indexes, connectivities, map_nodes: dict, map_elements: dict):
-        """
-        This method generate the mesh acoustic elements.
-
-        Parameters
-        ----------
-        indexes : List
-            Nodes global indexes.
-            
-        connectivities : array
-            Connectivity matrix that relates the elements and its nodes.
-            
-        map_nodes : dict
-            Dictionary maps global indexes to external indexes.
-            
-        map_elements : dict
-            Dictionary maps global element indexes.
-        """
-        self.map_elements = map_elements
-        self.acoustic_elements.clear()
-        for i, connect in zip(indexes, split_sequence(connectivities, 2)):
-            first_node_id = map_nodes.get(connect[0])
-            last_node_id = map_nodes.get(connect[1])
-
-            first_node = self.nodes.get(first_node_id)
-            last_node  = self.nodes.get(last_node_id)
-
-            self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
+            self.elements_attributes[element_index] = ElementAttributes(element_index, first_node, last_node)
 
     def get_element_material(self, element_id: int) -> Material | None:
-        element_attributes = self.element_attributes.get(element_id)
+        element_attributes = self.elements_attributes.get(element_id)
         return None if element_attributes is None else element_attributes.material
 
     def get_element_fluid(self, element_id: int) -> Fluid | None:
-        element_attributes = self.element_attributes.get(element_id)
+        element_attributes = self.elements_attributes.get(element_id)
         return None if element_attributes is None else element_attributes.fluid
 
     def get_element_cross_section(self, element_id: int) -> CrossSection | None:
-        element_attributes = self.element_attributes.get(element_id)
+        element_attributes = self.elements_attributes.get(element_id)
         return None if element_attributes is None else element_attributes.cross_section
 
     def get_structural_element_type(self, element_id: int) -> str | None:
-        element_attributes = self.element_attributes.get(element_id)
+        element_attributes = self.elements_attributes.get(element_id)
         return None if element_attributes is None else element_attributes.structural_element_type
 
     def get_acoustic_element_type(self, element_id: int) -> str | None:
-        element_attributes = self.element_attributes.get(element_id)
+        element_attributes = self.elements_attributes.get(element_id)
         return None if element_attributes is None else element_attributes.acoustic_element_type
 
     def get_model_statistics(self):
@@ -253,8 +215,8 @@ class Preprocessor:
         first_element_ID = self.mesh.elements_from_line[line_id][0]
         last_element_ID = self.mesh.elements_from_line[line_id][-1]
 
-        element_attributes_first = self.element_attributes.get(first_element_ID)
-        element_attributes_last = self.element_attributes.get(last_element_ID)
+        element_attributes_first = self.elements_attributes.get(first_element_ID)
+        element_attributes_last = self.elements_attributes.get(last_element_ID)
 
         list_nodes = [
             element_attributes_first.first_node,
@@ -294,7 +256,7 @@ class Preprocessor:
         self.neighbors.clear()
         self.elements_connected_to_node.clear()
 
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             first_node = element_attributes.first_node
             last_node = element_attributes.last_node
 
@@ -336,7 +298,7 @@ class Preprocessor:
         # neighbor_diameters = dict()
         neighbor_diameters = defaultdict(list)
 
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             first_node = element_attributes.first_node
             last_node = element_attributes.last_node
             # neighbor_diameters.setdefault(first, list())
@@ -362,7 +324,7 @@ class Preprocessor:
         """
 
         neighbor_diameters = defaultdict(list)
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
 
             #TODO: remove as soon as possible
             if element_attributes.structural_element_type == "ridig_element":
@@ -520,7 +482,7 @@ class Preprocessor:
         """
         self.dict_first_node_to_element_index = defaultdict(list)
         self.dict_last_node_to_element_index = defaultdict(list)
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             first_node_index = element_attributes.first_node.external_index
             last_node_index = element_attributes.last_node.external_index
             self.dict_first_node_to_element_index[first_node_index].append(index)
@@ -567,7 +529,7 @@ class Preprocessor:
         """
         connectivity = np.zeros((self.number_structural_elements, NODES_PER_ELEMENT+1))
         if reordering:
-            for i, element_attributes in enumerate(self.element_attributes.values()):
+            for i, element_attributes in enumerate(self.elements_attributes.values()):
                 first_node = element_attributes.first_node
                 last_node  = element_attributes.last_node
                 # first_external = element.first_node.external_index
@@ -575,7 +537,7 @@ class Preprocessor:
                 connectivity[i, :] = i + 1, first_node.global_index, last_node.global_index
 
         else:
-            for i, element_attributes in enumerate(self.element_attributes.values()):
+            for i, element_attributes in enumerate(self.elements_attributes.values()):
                 first_node = element_attributes.first_node
                 last_node  = element_attributes.last_node
                 connectivity[i, :] = i + 1, first_node.external_index, last_node.external_index
@@ -642,7 +604,7 @@ class Preprocessor:
 
         """
         self.center_coordinates_matrix = np.zeros((self.number_structural_elements, 4))
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             self.center_coordinates_matrix[index-1, 0] = index
             self.center_coordinates_matrix[index-1, 1:] = element_attributes.center_coordinates
 
@@ -696,7 +658,7 @@ class Preprocessor:
             Integers that place the columns.
         """
 
-        rows, cols = len(self.acoustic_elements), DOF_PER_NODE_ACOUSTIC * NODES_PER_ELEMENT
+        rows, cols = len(self.elements_attributes), DOF_PER_NODE_ACOUSTIC * NODES_PER_ELEMENT
         cols_nodes = self.connectivity_matrix[:, 1:].astype(int)
         cols_dofs = cols_nodes.reshape(-1,1)
         cols_dofs = cols_dofs.reshape(rows, cols)
@@ -705,16 +667,6 @@ class Preprocessor:
         ind_i = cols_dofs.reshape(-1,1) @ np.ones((1,cols), dtype=int) 
 
         return ind_i.flatten(), ind_j.flatten()
-
-    def map_structural_to_acoustic_elements(self):
-        """
-        """
-        self.structural_to_acoustic_element.clear()
-        self.acoustic_to_structural_element.clear()
-        for index, element_attributes in self.element_attributes.items():
-            continue
-            # self.acoustic_to_structural_element[self.acoustic_elements[index]] = element
-            # self.structural_to_acoustic_element[element] = self.acoustic_elements[index]
 
     def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-6):
         """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
@@ -746,7 +698,7 @@ class Preprocessor:
                 return None, None
 
         list_elements_ids = list()
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             if element_attributes.first_node.external_index in list_nodes_ids:
                 if element_attributes.last_node.external_index in list_nodes_ids:
                     list_elements_ids.append(index)
@@ -768,7 +720,7 @@ class Preprocessor:
         ---------- 
                                
         """
-        element_attributes = self.element_attributes.get(element_id)
+        element_attributes = self.elements_attributes.get(element_id)
         node_id = element_attributes.first_node.external_index
         last_node = element_attributes.last_node
 
@@ -824,10 +776,10 @@ class Preprocessor:
             Default is False.
         """
 
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.structural_element_type = element_type
 
-    def set_structural_element_force_offset_by_elements(self, elements, force_offset):
+    def set_structural_element_force_offset_by_elements(self, elements: list[int], force_offset: bool):
         """
         This method assigns a structural element wall formulation to a list of selected elements.
 
@@ -840,10 +792,10 @@ class Preprocessor:
             Structural element type to be attributed to the listed elements.
 
         """
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.force_offset = bool(force_offset)
 
-    def set_structural_element_wall_formulation_by_elements(self, elements, wall_formulation):
+    def set_structural_element_wall_formulation_by_elements(self, elements: list[int], wall_formulation: str):
         """
         This method assigns a structural element wall formulation to a list of selected elements.
 
@@ -856,10 +808,12 @@ class Preprocessor:
             Structural element type to be attributed to the listed elements.
 
         """
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.wall_formulation = wall_formulation
 
-    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, volumetric_flow_rate=None):
+    def set_acoustic_element_type_by_element(
+        self, elements: list[int], element_type: str, proportional_damping: float | None = None, volumetric_flow_rate: float | None = None
+    ):
         """
         This method attributes acoustic element type to a list of elements.
 
@@ -867,32 +821,30 @@ class Preprocessor:
         ----------
         elements : list
             Acoustic elements indexes.
-            
+
         element_type : str, ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent', 'LRF_full']
             Acoustic element type to be attributed to the listed elements.
-            
+
         proportional_damping : float, optional
             Acoustic proportional damping coefficient. It must be attributed to the elements of type 'proportional'.
             Default is None.
-            
+
         remove : bool, optional
             True if the element_type have to be removed from the acoustic element type dictionary. False otherwise.
             Default is False.
         """
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.acoustic_element_type = element_type
             element_attributes.proportional_damping = proportional_damping
-
-            if element_attributes.structural_element_type != "beam_1":
-                element_attributes.volumetric_flow_rate = volumetric_flow_rate
+            element_attributes.volumetric_flow_rate = volumetric_flow_rate if element_attributes.structural_element_type != "beam_1" else None
 
     def set_cross_section_by_elements(
-            self, 
-            elements: list[int], 
-            cross_section: CrossSection | list[CrossSection],
-            update_properties: bool = False,
-            sections_mapping: bool = False,
-            ):
+        self,
+        elements: list[int],
+        cross_section: CrossSection | list[CrossSection],
+        update_properties: bool = False,
+        sections_mapping: bool = False,
+    ):
         """
         This method attributes cross section object to a list of acoustic and structural elements.
 
@@ -922,7 +874,7 @@ class Preprocessor:
                 if not isinstance(_cross_section, CrossSection):
                     continue
 
-                for element_attributes in slicer(self.element_attributes, [element]):
+                for element_attributes in slicer(self.elements_attributes, [element]):
 
                     # reset the section parameters for rendering
                     element_attributes.cross_section = _cross_section
@@ -937,7 +889,7 @@ class Preprocessor:
 
         else:
 
-            for element_attributes in slicer(self.element_attributes, elements):
+            for element_attributes in slicer(self.elements_attributes, elements):
                 element_attributes.cross_section = cross_section
 
                 if not sections_mapping:
@@ -994,8 +946,8 @@ class Preprocessor:
             for line_id in line_ids:
                 elements_from_line = self.mesh.elements_from_line[line_id]
 
-                element_attributes_first = self.element_attributes.get(elements_from_line[0])
-                element_attributes_last = self.element_attributes.get(elements_from_line[-1])
+                element_attributes_first = self.elements_attributes.get(elements_from_line[0])
+                element_attributes_last = self.elements_attributes.get(elements_from_line[-1])
 
                 coord_first_1 = element_attributes_first.first_node.coordinates
                 coord_last_1 = element_attributes_last.last_node.coordinates
@@ -1028,7 +980,7 @@ class Preprocessor:
 
                 for index, element_id in enumerate(elements_from_line):
 
-                    element_attributes = self.element_attributes[element_id]
+                    element_attributes = self.elements_attributes[element_id]
                     first_node = element_attributes.first_node
                     last_node = element_attributes.last_node
 
@@ -1090,7 +1042,7 @@ class Preprocessor:
             d_out_flange, t_flange, offset_y_flange, offset_z_flange, *_ = valve_info.get("flange_section_parameters")
 
             for element_id in line_elements:
-                element_attributes = self.element_attributes.get(element_id)
+                element_attributes = self.elements_attributes.get(element_id)
                 center_coords = element_attributes.center_coordinates
 
                 if np.linalg.norm(center_coords-start_coords) <= flange_length:
@@ -1119,10 +1071,10 @@ class Preprocessor:
         diameters = get_V_linear_distribution(d_out_body, N)
 
         for i, element_id in enumerate(valve_flange_elements):
-            self.element_attributes.get(element_id).section_parameters_render = [d_out_flange, t_flange, offset_y_flange, offset_z_flange, 0, 0]
+            self.elements_attributes.get(element_id).section_parameters_render = [d_out_flange, t_flange, offset_y_flange, offset_z_flange, 0, 0]
 
         for i, element_id in enumerate(valve_body_elements):
-            self.element_attributes.get(element_id).section_parameters_render = [diameters[i], t_body, offset_y_body, offset_z_body, 0, 0]
+            self.elements_attributes.get(element_id).section_parameters_render = [diameters[i], t_body, offset_y_body, offset_z_body, 0, 0]
 
     def set_cross_sections_to_expansion_joint(self, line_id: int, expansion_joint_info: dict):
 
@@ -1209,7 +1161,7 @@ class Preprocessor:
         material : Material object
             Material data.
         """
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.material = material
 
     def set_material_by_lines(self, line_ids: (int | list | tuple), material):
@@ -1231,7 +1183,7 @@ class Preprocessor:
             self.set_material_by_element(elements, material)
 
     def set_force_by_element(self, elements, loads):
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.loaded_forces = loads
 
     def set_B2P_rotation_decoupling(self, element_id: int, data: dict):
@@ -1281,7 +1233,7 @@ class Preprocessor:
             ], dtype=float)
 
         node = self.nodes[node_id]
-        element_attributes = self.element_attributes.get(element_id)
+        element_attributes = self.elements_attributes.get(element_id)
         local_dofs = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
 
         if node in [element_attributes.first_node]:
@@ -1300,7 +1252,7 @@ class Preprocessor:
         mat_base[ij, :] = 0
         mat_base[:, ij] = 0
 
-        element_attributes = self.element_attributes.get(element_id)
+        element_attributes = self.elements_attributes.get(element_id)
 
         element_attributes.decoupling_matrix = mat_base
         element_attributes.decoupling_info = [element_id, node_id, node_position, decoupled_rotations]
@@ -1316,7 +1268,7 @@ class Preprocessor:
             Default is False.
         """
 
-        for element_attributes in self.element_attributes.values():
+        for element_attributes in self.elements_attributes.values():
             element_attributes.adding_mass_effect = enable
 
     def set_capped_end_by_elements(self, elements, value):
@@ -1334,7 +1286,7 @@ class Preprocessor:
         selection : ?????
             ??????
         """      
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.capped_end = value
  
     def set_capped_end_by_lines(self, line_ids: (int | list | tuple), value: bool):
@@ -1354,7 +1306,7 @@ class Preprocessor:
             line_ids = [line_ids]
 
         for elements in slicer(self.mesh.elements_from_line, line_ids):
-            for element_attributes in slicer(self.element_attributes, elements):
+            for element_attributes in slicer(self.elements_attributes, elements):
                 element_attributes.capped_end = value
 
 
@@ -1374,7 +1326,7 @@ class Preprocessor:
             lines = [lines]
 
         for elements in slicer(self.mesh.elements_from_line, lines):
-            for element_attributes in slicer(self.element_attributes, elements):
+            for element_attributes in slicer(self.elements_attributes, elements):
                 element_attributes.wall_formulation = wall_formulation
 
     def set_structural_element_force_offset_by_lines(self, lines: int | list[int], force_offset: bool):
@@ -1393,7 +1345,7 @@ class Preprocessor:
             lines = [lines]
 
         for elements in slicer(self.mesh.elements_from_line, lines):
-            for element_attributes in slicer(self.element_attributes, elements):
+            for element_attributes in slicer(self.elements_attributes, elements):
                 element_attributes.force_offset = bool(force_offset)
 
     def modify_stress_stiffening_effect(self, _bool):
@@ -1441,7 +1393,7 @@ class Preprocessor:
         """
         self.modify_stress_stiffening_effect(True)
 
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.external_pressure = external_pressure
             element_attributes.internal_pressure = internal_pressure
 
@@ -1466,7 +1418,7 @@ class Preprocessor:
 
         for line_id in line_ids:
             for elements in slicer(self.mesh.elements_from_line, line_id):
-                for element_attributes in slicer(self.element_attributes, elements):
+                for element_attributes in slicer(self.elements_attributes, elements):
                     if isinstance(parameters, dict):
                         element_attributes.expansion_joint_data = ExpansionJointData(**parameters)
                     else:
@@ -1493,7 +1445,7 @@ class Preprocessor:
 
         for line_id in line_ids:
             for elements in slicer(self.mesh.elements_from_line, line_id):
-                for element_attributes in slicer(self.element_attributes, elements):
+                for element_attributes in slicer(self.elements_attributes, elements):
                     if isinstance(valve_data, dict):
                         element_attributes.valve_data = ValveData(**valve_data)
                     else:
@@ -1513,7 +1465,7 @@ class Preprocessor:
             Fluid data.
         """
         #TODO: check inconsistencies for beam elements
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.fluid = fluid
 
     def set_fluid_by_lines(self, line_ids: (int | list | tuple), fluid):
@@ -1557,7 +1509,7 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        for element_attributes in slicer(self.element_attributes, element_ids):
+        for element_attributes in slicer(self.elements_attributes, element_ids):
             element_attributes.length_correction_data = data
 
     def set_perforated_plate_by_elements(self, elements: int | list | tuple, perforated_plate: PerforatedPlateData):
@@ -1565,7 +1517,7 @@ class Preprocessor:
         if isinstance(elements, int):
             elements = [elements]
 
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.perforated_plate_data = perforated_plate
             element_attributes.delta_pressure = 0
             element_attributes.pp_impedance = None
@@ -1584,7 +1536,7 @@ class Preprocessor:
             self.set_beam_xaxis_rotation_by_elements(elements, angle)
 
     def set_beam_xaxis_rotation_by_elements(self, elements, angle):
-        for element_attributes in slicer(self.element_attributes, elements):
+        for element_attributes in slicer(self.elements_attributes, elements):
             element_attributes.beam_xaxis_rotation = angle
 
     def set_elements_to_ignore_in_acoustic_analysis(self, element_ids: int | list, turned_off: bool):
@@ -1593,7 +1545,7 @@ class Preprocessor:
         if isinstance(element_ids, int):
             element_ids = [element_ids]
 
-        for element_attributes in slicer(self.element_attributes, element_ids):
+        for element_attributes in slicer(self.elements_attributes, element_ids):
             element_attributes.turned_off = turned_off
 
     def get_acoustic_elements_global_dofs(self):
@@ -1607,7 +1559,7 @@ class Preprocessor:
             Acoustic global degrees of freedom associated to beam element.
         """ 
         pipe_gdofs = dict()
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
 
             if element_attributes.turned_off:
                 continue
@@ -1662,10 +1614,9 @@ class Preprocessor:
             Acoustic elements list.
         """
         acoustic_elements = list()
-        self.map_structural_to_acoustic_elements()
-        for index, element_attributes in self.element_attributes.items():
 
-            if element_attributes.structural_element_type == 'beam_1':
+        for index, element_attributes in self.elements_attributes.items():
+            if element_attributes.structural_element_type == "beam_1":
                 continue
 
             if element_attributes.turned_off:
@@ -1673,7 +1624,7 @@ class Preprocessor:
 
             acoustic_elements.append(index)
 
-        return acoustic_elements   
+        return acoustic_elements
 
     def get_nodes_relative_to_acoustic_elements(self) -> list:
         """
@@ -1688,7 +1639,7 @@ class Preprocessor:
         acoustic_nodes = dict()
 
         for index in self.get_acoustic_elements():
-            element_attributes = self.element_attributes.get(index)
+            element_attributes = self.elements_attributes.get(index)
             first_node = element_attributes.first_node.external_index
             last_node = element_attributes.last_node.external_index
             acoustic_nodes[first_node] = element_attributes.first_node
@@ -1706,7 +1657,7 @@ class Preprocessor:
             Beam elements objects.
         """
         list_elements = list()
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             if element_attributes.structural_element_type == 'beam_1':
                 list_elements.append(index)
 
@@ -1837,69 +1788,66 @@ class Preprocessor:
             return link_data
 
 
-    def get_psd_acoustic_link_data(self, node_ids: list):
+    def get_psd_acoustic_link_data(self, node_ids: list) -> None | AcousticLinkData:
         """
         """
-        if len(node_ids) == 2:
+        if len(node_ids) != 2:
+            return
 
-            coords = list()
-            
-            ext_id1 = min(node_ids) 
-            ext_id2 = max(node_ids)
+        coords = list()
+        
+        ext_id1 = min(node_ids) 
+        ext_id2 = max(node_ids)
 
-            neigh_elem_node_1 = self.elements_connected_to_node.get(ext_id1)
-            neigh_elem_node_2 = self.elements_connected_to_node.get(ext_id2)
+        neigh_elem_node_1 = self.elements_connected_to_node.get(ext_id1)
+        neigh_elem_node_2 = self.elements_connected_to_node.get(ext_id2)
 
-            if len(neigh_elem_node_1) == 1:
-                element_pipe = neigh_elem_node_1[0]
-                element_volume = neigh_elem_node_2[0]
+        if len(neigh_elem_node_1) == 1:
+            element_pipe = neigh_elem_node_1[0]
+            element_volume = neigh_elem_node_2[0]
 
-                cross_section_pipe = self.get_element_cross_section(element_pipe)
-                cross_section_volume = self.get_element_cross_section(element_volume)
+            cross_section_pipe = self.get_element_cross_section(element_pipe)
+            cross_section_volume = self.get_element_cross_section(element_volume)
 
-                d_minor = cross_section_pipe.inner_diameter
-                d_major = cross_section_volume.inner_diameter
+            d_minor = cross_section_pipe.inner_diameter
+            d_major = cross_section_volume.inner_diameter
 
-            elif len(neigh_elem_node_2) == 1:
-                element_pipe = neigh_elem_node_2[0]
-                element_volume = neigh_elem_node_1[0]
+        elif len(neigh_elem_node_2) == 1:
+            element_pipe = neigh_elem_node_2[0]
+            element_volume = neigh_elem_node_1[0]
 
-                cross_section_pipe = self.get_element_cross_section(element_pipe)
-                cross_section_volume = self.get_element_cross_section(element_volume)
+            cross_section_pipe = self.get_element_cross_section(element_pipe)
+            cross_section_volume = self.get_element_cross_section(element_volume)
 
-                d_minor = cross_section_pipe.inner_diameter
-                d_major = cross_section_volume.inner_diameter
+            d_minor = cross_section_pipe.inner_diameter
+            d_major = cross_section_volume.inner_diameter
 
-            else:
-                return
+        else:
+            return
+        
+        node_1 = self.nodes[ext_id1]
+        node_2 = self.nodes[ext_id2]
 
-            int_id1 = self.nodes[ext_id1].global_index
-            int_id2 = self.nodes[ext_id2].global_index
+        int_id1 = node_1.global_index
+        int_id2 = node_2.global_index
 
-            indexes_i = [ int_id1, int_id2, int_id1, int_id2 ] 
-            indexes_j = [ int_id1, int_id1, int_id2, int_id2 ]
+        indexes_i = [ int_id1, int_id2, int_id1, int_id2 ] 
+        indexes_j = [ int_id1, int_id1, int_id2, int_id2 ]
 
-            pipe_element_attributes = self.element_attributes.get(element_pipe)
-            pipe_element_attributes.acoustic_link_diameters = [d_minor, d_major]
+        pipe_element_attributes = self.elements_attributes.get(element_pipe)
+        pipe_element_attributes.acoustic_link_diameters = [d_minor, d_major]
 
-            coords_1 = self.nodes[ext_id1].coordinates
-            coords_2 = self.nodes[ext_id2].coordinates
+        coords_1 = node_1.coordinates
+        coords_2 = node_2.coordinates
 
-            coords.append(list(np.round(coords_1, 5)))
-            coords.append(list(np.round(coords_2, 5)))
+        coords.append(list(np.round(coords_1, 5)))
+        coords.append(list(np.round(coords_2, 5)))
+        length = np.linalg.norm(coords_2 - coords_1)
 
-            node_ids = (ext_id1, ext_id2)
+        node_ids = (ext_id1, ext_id2)
+        diameters = [d_minor, d_major]
 
-            data = {
-                    "coords" : coords,
-                    "indexes_i" : indexes_i,
-                    "indexes_j" : indexes_j,
-                    "element_pipe" : pipe_element_attributes,
-                    "diameters" : [d_minor, d_major]
-                    }
-
-            return data
-
+        return AcousticLinkData(coords, indexes_i, indexes_j, pipe_element_attributes, diameters, length)
 
     def get_psd_structural_link_data(self, node_ids: list, k=1e9, kr=1e8):
         """
@@ -2011,7 +1959,7 @@ class Preprocessor:
 
         logging.info("Processing the cross-sections [25%]")
 
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             e_type = element_attributes.structural_element_type
 
             if e_type in ["beam_1", "expansion_joint", "rigid_element"]:
@@ -2085,7 +2033,7 @@ class Preprocessor:
         acoustic_etype_to_elements = defaultdict(list)
         structural_etype_to_elements = defaultdict(list)
 
-        for index, element_attributes in self.element_attributes.items():
+        for index, element_attributes in self.elements_attributes.items():
             structural_element_type = element_attributes.structural_element_type
             structural_etype_to_number_elements[structural_element_type] += 1
             structural_etype_to_elements[structural_element_type].append(index)
@@ -2116,7 +2064,7 @@ class Preprocessor:
         for node in self.nodes.values():  
             node.static_nodal_solution_gcs = nodal_solution[node.global_dof, 0]
 
-        for element_attributes in self.element_attributes.values():
+        for element_attributes in self.elements_attributes.values():
             element_attributes.static_analysis_evaluated = True
 
     def get_cross_sections_from_node(self, node_id: int) -> list[CrossSection]:
@@ -2137,7 +2085,7 @@ class Preprocessor:
         delta_data = np.zeros((n_el, 3), dtype=float)
         xaxis_rotation_angle = np.zeros(n_el, dtype=float)
    
-        for index, (element_id, element_attributes) in enumerate(self.element_attributes.items()):
+        for index, (element_id, element_attributes) in enumerate(self.elements_attributes.items()):
             delta_data[index, :] = element_attributes.delta_x, element_attributes.delta_y, element_attributes.delta_z
             xaxis_rotation_angle[index] = element_attributes.xaxis_rotation_angle
 
@@ -2164,8 +2112,8 @@ class Preprocessor:
         the element rotation matrix.
         """
         rotation_data = np.zeros((self.number_structural_elements, 3), dtype=float)
-        for i, (index, element_attributes) in enumerate(self.element_attributes.items()):
-            element_attributes = self.element_attributes.get(index)
+        for i, (index, element_attributes) in enumerate(self.elements_attributes.items()):
+            element_attributes = self.elements_attributes.get(index)
             if element_attributes.decoupling_info is None:
                 rotation_data[i, :] = element_attributes.mean_rotations_at_local_coordinate_system()
             else:
