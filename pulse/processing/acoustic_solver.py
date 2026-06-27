@@ -38,7 +38,6 @@ class AcousticSolver:
 
         self.all_dofs = len(model.preprocessor.nodes)
         self.assembly = AssemblyAcoustic(model)
-        self.acoustic_elements = model.preprocessor.acoustic_elements
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
@@ -74,17 +73,17 @@ class AcousticSolver:
             if property != "perforated_plate":
                 continue
 
-            element_attributes = self.model.preprocessor.element_attributes.get(element_id)
+            element_attributes = self.model.preprocessor.elements_attributes.get(element_id)
             if element_attributes.perforated_plate_data.nonlinear_effects:
                 elements.append(element_attributes)
 
         return elements
 
-    def get_global_matrices(self):
+    def get_global_matrices_for_harmonic_analysis(self):
         """
         This method updates the acoustic global matrices.
         """
-        self.K, self.Kr = self.assembly.get_global_matrices()
+        self.K, self.Kr = self.assembly.get_global_matrices_for_harmonic_analysis()
         self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
         self.K_link, self.Kr_link = self.assembly.get_fetm_link_matrices()
         self.T_link, self.Tr_link = self.assembly.get_fetm_transfer_matrices()
@@ -203,7 +202,7 @@ class AcousticSolver:
 
         self.warning_modal_prescribed_pressures = ""
 
-        K, M = self.assembly.get_global_matrices_modal()
+        K, M = self.assembly.get_global_matrices_for_modal_analysis()
         K_link, M_link = self.assembly.get_link_global_matrices_modal()
         C, _ = self.assembly.get_lumped_matrices_for_FEM()
 
@@ -321,7 +320,7 @@ class AcousticSolver:
 
         if cond_1 or cond_2:
 
-            self.get_global_matrices()
+            self.get_global_matrices_for_harmonic_analysis()
             volume_velocity = self.get_combined_volume_velocity()
 
             rows = self.K[0].shape[0]
@@ -357,10 +356,11 @@ class AcousticSolver:
 
         for (property, element_id) in self.model.properties.element_properties.keys():
             if property == "perforated_plate":
-                element = self.model.preprocessor.acoustic_elements[element_id]
-                element.reset()
+                continue
+                # element_attributes = self.model.preprocessor.elements_attributes.get(element_id)
+                # element.reset()
 
-        self.get_global_matrices()
+        self.get_global_matrices_for_harmonic_analysis()
         volume_velocity = self.get_combined_volume_velocity()
 
         rows = self.K[0].shape[0]
@@ -488,7 +488,7 @@ class AcousticSolver:
 
             else:
                 self.update_plot_2d_data()
-                self.get_global_matrices()
+                self.get_global_matrices_for_harmonic_analysis()
                 solution = np.zeros((rows, cols), dtype=complex)
 
     def initialize_plot_2d(self):
