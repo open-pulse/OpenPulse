@@ -28,7 +28,7 @@ class AfterRun:
 
         if self.project.analysis_id in [3, 5, 6]:
             static_pressure = [[] for _ in range(len(self.nodes))]
-            for element_attributes in self.preprocessor.element_attributes.values():
+            for element_attributes in self.preprocessor.elements_attributes.values():
 
                 fluid = element_attributes.fluid
                 first_node = element_attributes.first_node

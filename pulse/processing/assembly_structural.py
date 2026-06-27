@@ -163,7 +163,7 @@ class AssemblyStructural:
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        for k, (index, element_attributes) in enumerate(self.preprocessor.element_attributes.items()):
+        for k, (index, element_attributes) in enumerate(self.preprocessor.elements_attributes.items()):
 
             # build the structural element
             element = build_structural_element(element_attributes)
@@ -399,7 +399,7 @@ class AssemblyStructural:
         loads = np.zeros((total_dof, cols), dtype=complex)
 
         # stress stiffening loads
-        for index, element_attributes in self.preprocessor.element_attributes.items():
+        for index, element_attributes in self.preprocessor.elements_attributes.items():
             element = build_structural_element(element_attributes)
             position = element.global_dof
             loads[position] += element.force_vector_stress_stiffening()
@@ -435,7 +435,7 @@ class AssemblyStructural:
             loads = np.zeros((total_dof, cols), dtype=complex)
         
             # elementary loads - element integration
-            for index, element_attributes in self.preprocessor.element_attributes.items():
+            for index, element_attributes in self.preprocessor.elements_attributes.items():
                 element = build_structural_element(element_attributes)
                 position = element.global_dof
 
@@ -508,7 +508,7 @@ class AssemblyStructural:
             return self.get_global_loads_for_static_analysis()
 
         # distributed loads
-        for element_attributes in self.preprocessor.element_attributes.values():
+        for element_attributes in self.preprocessor.elements_attributes.values():
             element = build_structural_element(element_attributes)
             position = element.global_dof 
             loads[position] += element.get_distributed_load()
@@ -546,7 +546,7 @@ class AssemblyStructural:
         
         # acoustic-structural loads
         if self.acoustic_solution is not None:
-            for element_attributes in self.preprocessor.element_attributes.values():
+            for element_attributes in self.preprocessor.elements_attributes.values():
                 pressure_first = self.acoustic_solution[element_attributes.first_node.global_index, :]
                 pressure_last = self.acoustic_solution[element_attributes.last_node.global_index, :]
                 pressure = np.c_[pressure_first, pressure_last].T
