@@ -85,7 +85,7 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     preprocessor.set_cross_section_by_lines(line_id, cross_section)
     preprocessor.set_structural_element_type_by_lines(line_id, "beam_1")
 
-    element_attributes = model.preprocessor.element_attributes.get(1)
+    element_attributes = model.preprocessor.elements_attributes.get(1)
     element = build_structural_element(element_attributes)
 
     Ke, Me = element.matrices_gcs()

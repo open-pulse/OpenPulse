@@ -663,7 +663,7 @@ class StructuralSolver:
 
         p0 = external_pressure
 
-        for element_attributes in self.model.preprocessor.element_attributes.values():
+        for element_attributes in self.model.preprocessor.elements_attributes.values():
             element = build_structural_element(element_attributes)
 
             if element_attributes.structural_element_type in ["beam_1", "expansion_joint", "valve"]:
@@ -690,7 +690,7 @@ class StructuralSolver:
 
             rot = element.element_rotation_matrix
 
-            element_attributes = self.model.preprocessor.element_attributes.get(element.index)
+            element_attributes = self.model.preprocessor.elements_attributes.get(element.index)
 
             cross_section = element_attributes.cross_section
             material = element_attributes.material

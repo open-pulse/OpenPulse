@@ -672,7 +672,7 @@ class LoadProject:
 
             if isinstance(node_id, int):
                 for element_id in self.preprocessor.elements_connected_to_node[node_id]:
-                    element_attributes = self.preprocessor.element_attributes.get(element_id)
+                    element_attributes = self.preprocessor.elements_attributes.get(element_id)
                     if property == "B2P_rotation_decoupling":
                         if element_attributes.structural_element_type != "beam_1":
                             continue
@@ -710,7 +710,7 @@ class LoadProject:
                 length = np.linalg.norm(coords_1 - coords_2)
 
                 for _element_id in elements_from_lines:
-                    element_attributes = self.preprocessor.element_attributes.get(_element_id)
+                    element_attributes = self.preprocessor.elements_attributes.get(_element_id)
                     ecc = element_attributes.center_coordinates
 
                     if np.linalg.norm(coords_1 - ecc) < length:

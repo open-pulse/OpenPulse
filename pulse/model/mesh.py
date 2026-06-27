@@ -184,9 +184,11 @@ class Mesh:
             # self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
             # self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
 
+            ## TODO: we can replace the self.nodes attribute with a proper coordinates matrix
+            # and the connectivity matrix should be used to build actors rather than looping self.elements_attributes
+
             self.project.model.preprocessor._create_nodes(nodes_tags, coords, self.map_nodes)
-            self.project.model.preprocessor._create_structural_elements(elements_tags[0], connectivity[0], self.map_nodes, self.map_elements)
-            self.project.model.preprocessor._create_acoustic_elements(elements_tags[0], connectivity[0], self.map_nodes, self.map_elements)                       
+            self.project.model.preprocessor._create_elements_attributes(elements_tags[0], connectivity[0], self.map_nodes, self.map_elements)                    
             self.project.model.preprocessor.update_number_divisions()
 
         except Exception as log_error:

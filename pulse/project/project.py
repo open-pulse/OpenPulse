@@ -244,9 +244,6 @@ class Project:
 
         return False
 
-    def get_acoustic_element(self, element_id):
-        return self.model.preprocessor.acoustic_elements[element_id]
-
     def set_perforated_plate_convergence_data_log(self, data):
         self.perforated_plate_data_log = data
 
