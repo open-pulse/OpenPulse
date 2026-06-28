@@ -258,7 +258,7 @@ class ModelSetupItems(CommonMenuItems):
                 app().main_window.plot_lines_with_cross_sections()
 
     def enable_actions_according_to_import_type(self):
-        import_type = app().project.model.mesh.import_type
+        import_type = app().project.model.project_setup.import_type
         if import_type == 0:
             pass
 

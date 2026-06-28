@@ -1,22 +1,24 @@
-from pulse import app, VERSION, TEMP_PROJECT_DIR
+from typing import TYPE_CHECKING
+
+from pulse import TEMP_PROJECT_DIR, app
 from pulse.model import AnalysisID
+from pulse.model.data_classes.project_setup_data_classes import ImportType, MesherSetup, ProjectSetup
 from pulse.utils.common_utils import get_color_rgb, get_list_of_values_from_string
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.project.project import Project
 
 import json
 import os
-import h5py
-import numpy as np
 import shutil
 import zipfile
-
 from configparser import ConfigParser
 from contextlib import contextmanager
 from copy import deepcopy
 from pathlib import Path
+
+import h5py
+import numpy as np
 from PIL import Image
 
 
@@ -154,7 +156,8 @@ class ProjectFile:
 
     # ── Project setup ─────────────────────────────────────────────────────────
 
-    def write_project_setup_in_file(self, data: dict, geometry_path=""):
+    def write_project_setup_in_file(self, project_setup: dict):
+        geometry_path = project_setup.get("geometry_path", "")
 
         if geometry_path != "":
             basename = os.path.basename(geometry_path)
@@ -167,13 +170,6 @@ class ProjectFile:
 
             self._copy_to_dir(internal_path, geometry_path)
 
-        project_setup = self._read_file(self.project_setup_filename)
-        if project_setup is None:
-            project_setup = dict()
-
-        project_setup["mesher_setup"] = data
-        project_setup["version"] = VERSION
-
         self._write_file(self.project_setup_filename, project_setup)
         self.project_data_modified_callback()
 
@@ -181,27 +177,30 @@ class ProjectFile:
 
         data = self._read_file(self.project_setup_filename)
 
-        if "mesher_setup" in data.keys():
-            project_setup = data["mesher_setup"]
+        project_setup = data.get("project_setup")
+        if not isinstance(project_setup, dict):
+            return ""
+        
+        geometry_filename = project_setup.get("geometry_filename")
+        geometry_path = self.path / f"geometry_file/{geometry_filename}"
 
-            if "geometry_filename" in project_setup.keys():
-
-                geometry_filename = project_setup["geometry_filename"]
-                geometry_path = self.path / "geometry_file" / geometry_filename
-
-                if geometry_path.exists():
-                    return str(geometry_path)
+        if geometry_path.exists():
+            return str(geometry_path)
 
     def read_project_setup_from_file(self):
         return self._read_file(self.project_setup_filename)
     
-    def read_mesher_setup_from_file(self) -> dict:
+    def read_mesher_setup_from_file(self) -> None | MesherSetup:
         project_setup = self._read_file(self.project_setup_filename)
         if not isinstance(project_setup, dict):
-            return dict()
+            return
 
-        return project_setup.get("mesher_setup", dict())
-        
+        mesh_setup = project_setup.get("mesher_setup")
+        if mesh_setup is None:
+            return
+
+        return MesherSetup(**mesh_setup)
+    
     def write_model_setup_in_file(self, project_setup: dict):
         self._write_file(self.project_setup_filename, project_setup)
         self.project_data_modified_callback()
@@ -548,66 +547,39 @@ class ProjectFile:
     def check_pipeline_data(self):
 
         project_setup = self.read_project_setup_from_file()
-        if project_setup is None:
+        if not isinstance(project_setup, dict):
             return False
-
-        mesher_setup = project_setup["mesher_setup"]
-        import_type = mesher_setup["import_type"]
 
         lines_data = self.read_line_properties_from_file()
         if lines_data is None:
             return False
 
-        if lines_data:
-            for line_id, data in lines_data.items():
-                data: dict
-                if import_type == 0:
-                    return True
-                else:
-                    keys_to_check = ["start_coords", "end_coords"]
-                    for key in keys_to_check:
-                        if key not in data.keys():
-                            return False
-            return True
-        else:
+        if not lines_data:
             return False
 
-    def modify_project_attributes(self, **kwargs):
+        import_type = project_setup.get("import_type")
 
-        project_name = kwargs.get('project_name', None)
-        import_type = kwargs.get('import_type', None)
-        length_unit = kwargs.get('length_unit', None)
-        element_size = kwargs.get('element_size', None)
-        geometry_tolerance = kwargs.get('geometry_tolerance', None)
-        geometry_filename = kwargs.get('geometry_filename', None)
+        for line_data in lines_data.values():
+            line_data: dict
+            if import_type == ImportType.CAD_FILE:
+                return True
+            
+            keys_to_check = ["start_coords", "end_coords"]
+            for key in keys_to_check:
+                coords = line_data.get(key)
+                if coords is None:
+                    return False
 
+        return True
+
+    def modify_project_attributes(self, new_project_setup: ProjectSetup):
         project_setup = self.read_project_setup_from_file()
-        if project_setup is None:
+        if not isinstance(project_setup, dict):
             return
 
-        if "mesher_setup" in project_setup.keys():
-
-            data = project_setup["mesher_setup"]
-
-            if project_name is not None:
-                data['project_name'] = project_name
-
-            if import_type is not None:
-                data['import_type'] = import_type
-
-            if length_unit is not None:
-                data['length_unit'] = length_unit
-
-            if element_size is not None:
-                data['element_size'] = element_size
-
-            if geometry_tolerance is not None:
-                data['geometry_tolerance'] = geometry_tolerance
-
-            if geometry_filename is not None:
-                data['geometry_filename'] = geometry_filename
-
-            self.write_project_setup_in_file(data)
+        # update the project_setup to maintain the analysis_setup
+        project_setup.update(new_project_setup.as_dict())
+        self.write_project_setup_in_file(project_setup)
 
     def load_analysis_file(self):
         return self.read_analysis_setup_from_file()

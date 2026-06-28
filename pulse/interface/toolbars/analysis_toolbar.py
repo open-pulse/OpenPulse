@@ -1,17 +1,16 @@
+import logging
+from typing import Literal
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QAction, QFont, QIcon
 from PySide6.QtWidgets import QComboBox, QLabel, QPushButton, QToolBar, QWidget
-from PySide6.QtCore import Signal, Qt
-from PySide6.QtGui import QAction, QIcon, QFont
 
-from pulse import app, ICON_DIR
-from pulse.model import AnalysisID
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-
+from pulse import ICON_DIR, app
 from pulse.interface.user_input.analysis.harmonic_analysis_setup_input import HarmonicAnalysisSetupInput
 from pulse.interface.user_input.analysis.modal_analysis_input import ModalAnalysisInput
 from pulse.interface.user_input.analysis.static_analysis_input import StaticAnalysisInput
-
-import logging
-from typing import Literal
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.model import AnalysisID
 
 AnalysisType = Literal[
     "",
@@ -83,10 +82,10 @@ class AnalysisToolbar(QToolBar):
         self.reset_solution_action = QAction(self.reset_solution_icon, "Reset Solution", self)
         #
         self.configure_analysis_action.setToolTip("Configure the analysis")
-        self.run_analysis_action.setToolTip("Run the analysis")
         self.reset_solution_action.setToolTip("Reset Solution")
-        self.run_analysis_action.setDisabled(True)
+        self.run_analysis_action.setToolTip("Run the analysis")
         self.reset_solution_action.setEnabled(True)
+        self.run_analysis_action.setDisabled(True)
 
     def _configure_appearance(self):
         self.setMinimumHeight(40)
@@ -306,7 +305,7 @@ class AnalysisToolbar(QToolBar):
         elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
             self.combo_box_analysis_type.setCurrentIndex(2)
 
-        if analysis_id in[AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.STRUCTURAL_MODAL, AnalysisID.STRUCTURAL_STATIC]:
+        if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.STRUCTURAL_MODAL, AnalysisID.STRUCTURAL_STATIC]:
             self.combo_box_physical_domain.setCurrentIndex(0)
         elif analysis_id in [AnalysisID.ACOUSTIC_MODAL, AnalysisID.ACOUSTIC_HARMONIC]:
             self.combo_box_physical_domain.setCurrentIndex(1)

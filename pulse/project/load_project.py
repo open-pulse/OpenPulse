@@ -11,7 +11,8 @@ from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
 from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
-from pulse.model.data_classes.data_classes import PerforatedPlateData
+from pulse.model.data_classes.model_setup_data_classes import PerforatedPlateData
+from pulse.model.data_classes.project_setup_data_classes import MesherSetup, ProjectSetup
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 
@@ -51,7 +52,7 @@ class LoadProject:
         #
         self.reset_model_properties()
         #
-        self.load_mesh_setup_from_file()
+        self.load_project_setup_from_file()
         self.load_imported_table_data_from_file()
         #
         self.load_fluids_library()
@@ -412,7 +413,7 @@ class LoadProject:
             return True
 
         if "version" in project_setup.keys():
-            file_version = project_setup["version"]
+            file_version = project_setup.get("version")
         else:
             #TODO: remove this as soon as possible
             file_version = VERSION
@@ -426,14 +427,21 @@ class LoadProject:
             return True
 
 
-    def load_mesh_setup_from_file(self):
+    def load_project_setup_from_file(self):
 
-        project_setup = self.project.file.read_project_setup_from_file()
-        if project_setup is None:
-            return
+        project_setup_dict = self.project.file.read_project_setup_from_file()
+        mesher_setup: dict = project_setup_dict.get("mesher_setup", dict())
 
-        if "mesher_setup" in project_setup.keys():
-            self.preprocessor.mesh.set_mesher_setup(mesher_setup=project_setup["mesher_setup"])
+        import_type = project_setup_dict.get("import_type")
+
+        project_setup = ProjectSetup()
+        project_setup.import_type = mesher_setup.get("import_type") if import_type is None else import_type
+        project_setup.geometry_filename = project_setup_dict.get("geometry_filename", "")
+        project_setup.geometry_path = project_setup_dict.get("geometry_path", "")
+        project_setup.version = project_setup_dict.get("version", VERSION)
+        project_setup.mesher_setup = MesherSetup(**project_setup_dict.get("mesher_setup", dict()))
+
+        self.project.model.set_project_setup(project_setup)
 
 
     def load_inertia_load_setup(self):

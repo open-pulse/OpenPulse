@@ -8,7 +8,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
-from pulse.model.data_classes.data_classes import AcousticLinkData, ExpansionJointData, PerforatedPlateData, ValveData
+from pulse.model.data_classes.model_setup_data_classes import AcousticLinkData, ExpansionJointData, PerforatedPlateData, ValveData
 from pulse.model.elements.element_attributes import ElementAttributes
 from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node, NodePosition
 from pulse.model.elements.structural_element import NODES_PER_ELEMENT
@@ -81,13 +81,13 @@ class Preprocessor:
     def number_structural_elements(self):
         return len(self.elements_attributes)
 
-    def generate(self):
+    def generate(self, import_type: int, geometry_path: str = ""):
         """
         It loads geometry file or data and process the mesh.            
         """
 
         self.reset_variables()
-        self.mesh.generate()
+        self.mesh.generate(import_type, geometry_path = geometry_path)
 
         # t0 = perf_count()
         self._load_neighbors()

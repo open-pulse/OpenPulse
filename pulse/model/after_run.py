@@ -3,6 +3,7 @@ import numpy as np
 from pulse import app
 from pulse.interface import warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model import AnalysisID
 
 
 class AfterRun:
@@ -26,7 +27,8 @@ class AfterRun:
         if self.solution_acoustic is None:
             return
 
-        if self.project.analysis_id in [3, 5, 6]:
+        if AnalysisID(self.project.analysis_id).is_harmonic():
+
             static_pressure = [[] for _ in range(len(self.nodes))]
             for element_attributes in self.preprocessor.elements_attributes.values():
 
@@ -66,8 +68,4 @@ class AfterRun:
         self.check_the_acoustic_criterias_related_to_nodes()
 
     def highlight_selection(self, nodes=None, elements=None, lines=None):
-        app().main_window.set_selection(
-                                        nodes = nodes,
-                                        elements = elements,
-                                        lines = lines  
-                                        )
+        app().main_window.set_selection(nodes=nodes, elements=elements, lines=lines)

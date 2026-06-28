@@ -50,6 +50,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
+from pulse.model.data_classes.project_setup_data_classes import ImportType
 
 
 class GeometryDesignerWidget(GeometryDesignerWidget_UI):
@@ -718,12 +719,14 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         geometry_handler.set_length_unit(self.length_unit)
         geometry_handler.export_model_data_file()
 
-        app().project.file.modify_project_attributes(
-            length_unit=self.length_unit,
-            element_size=0.01,
-            geometry_tolerance=1e-6,
-            import_type=1,
-        )
+        project_setup = app().project.project_setup
+        project_setup.import_type = ImportType.BUILT_IN
+        mesher_setup = project_setup.mesher_setup
+        mesher_setup.length_unit = self.length_unit
+        mesher_setup.element_size = 0.01
+        mesher_setup.geometry_tolerance = 1e-6
+
+        app().project.set_project_setup(project_setup)
 
         self._load_project()
 

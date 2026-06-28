@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
 # from pulse.model.mesh_utils import ElementConnectivityData, get_connectivity
+from pulse.model.data_classes.project_setup_data_classes import MesherSetup
 
 if TYPE_CHECKING:
     from pulse.project.project import Project
@@ -14,7 +15,7 @@ from enum import IntEnum
 
 import gmsh
 import numpy as np
-from time import perf_counter
+# from time import perf_counter
 
 class ImportType(IntEnum):
     CAD_FILE = 0
@@ -28,8 +29,9 @@ class Mesh:
         self.project = project
         # self.preprocessor = project.model.preprocessor
 
+        self.mesher_setup = MesherSetup()
+
         self.reset_variables()
-        self.set_mesher_setup()
 
     def reset_variables(self):
         """
@@ -54,28 +56,32 @@ class Mesh:
         self.section_nodal_coordinates = np.array([])
         self.section_connectivities = dict()
 
-    def set_element_size(self, element_size):
-        self.element_size = element_size
+    @property
+    def element_size(self):
+        return self.mesher_setup.element_size
 
-    def set_mesher_setup(self, **kwargs):
-        mesher_setup = kwargs.get("mesher_setup", dict())
-        self.element_size = mesher_setup.get('element_size', 0.01)
-        self.tolerance = mesher_setup.get('geometry_tolerance', 1e-6)
-        self.length_unit = mesher_setup.get('length_unit', 'meter')
-        self.import_type = mesher_setup.get("import_type", ImportType.BUILT_IN)
-        self.geometry_path = mesher_setup.get('geometry_path', "")
+    @property
+    def geometry_tolerance(self):
+        return self.mesher_setup.geometry_tolerance
 
-    def generate(self):
+    @property
+    def length_unit(self):
+        return self.mesher_setup.length_unit
+
+    def set_mesher_setup(self, mesher_setup: MesherSetup):
+        self.mesher_setup = mesher_setup
+
+    def generate(self, import_type: ImportType, geometry_path: str = ""):
         """
         This method loads geometry file or data and process the mesh.
         """
         self.reset_variables()
 
-        if self.import_type == ImportType.CAD_FILE:
-            if not os.path.exists(self.geometry_path):
+        if import_type == ImportType.CAD_FILE:
+            if not os.path.exists(geometry_path):
                 return
 
-            self._load_cad_geometry_on_gmsh()
+            self._load_cad_geometry_on_gmsh(geometry_path)
 
         self._create_gmsh_geometry()
         self._set_gmsh_options()
@@ -88,13 +94,13 @@ class Mesh:
         self._save_geometry_points()
         self._finalize_gmsh()
     
-    def _load_cad_geometry_on_gmsh(self):
+    def _load_cad_geometry_on_gmsh(self, geometry_path: str):
         """
         This method initializes mesher algorithm gmsh.
         """
         geometry_handler = GeometryHandler(self.project)
         geometry_handler.set_length_unit(self.length_unit)
-        geometry_handler.open_cad_file(str(self.geometry_path))
+        geometry_handler.open_cad_file(str(geometry_path))
 
     def _create_gmsh_geometry(self):
         """
@@ -127,8 +133,8 @@ class Mesh:
         # else:
         #     length = self.element_size
 
-        gmsh.option.setNumber('Geometry.Tolerance', self.tolerance)
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', 0.5*length)
+        gmsh.option.setNumber('Geometry.Tolerance', self.geometry_tolerance)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', 0.5 * length)
         gmsh.option.setNumber('Mesh.CharacteristicLengthMax', length)
         gmsh.option.setNumber('Mesh.CharacteristicLengthExtendFromBoundary', 1)
         gmsh.option.setNumber('Mesh.MeshSizeFromPoints', 1)
@@ -157,14 +163,10 @@ class Mesh:
             from pulse.editor.structures.rigid_element import RigidElement
             for structure in self.project.pipeline.structures:
                 if isinstance(structure, RigidElement):
-                    structure.define_gmsh_mesh_constraints()
+                    structure.define_gmsh_mesh_constraints()()
 
-            # for (dim, tag) in gmsh.model.getEntities(0):
-            #     try:
-            #         pcoords = gmsh.model.getValue(0, tag, [])
-            #         gmsh.model.removeEntities([(dim, tag)])
-            #     except Exception:
-            #         pass
+            self._remove_orphan_points()
+            self._remove_orphan_points()
 
             # generate mesh for 1D elements
             gmsh.model.mesh.generate(1)
@@ -194,6 +196,23 @@ class Mesh:
         except Exception as log_error:
             from traceback import print_exception
             print_exception(log_error)
+
+    def _remove_orphan_points(self):
+
+        orphan_points = list()
+        for dim, tag in gmsh.model.getEntities(dim=0):
+            upward, _ = gmsh.model.getAdjacencies(dim, tag)
+
+            if len(upward) == 0:
+                orphan_points.append(tag)
+
+        # for orphan_point in orphan_points:
+        #     point_coords = gmsh.model.getValue(0, orphan_point, [])
+        #     print(orphan_point, point_coords)
+
+        dim_tags = [(0, orphan_point) for orphan_point in orphan_points]
+        gmsh.model.occ.remove(dim_tags, recursive=False)
+        gmsh.model.occ.synchronize()
 
     def _process_section_mesh(self):
         """
@@ -257,39 +276,39 @@ class Mesh:
         This method maps the elements and nodes for each GMSH line.
 
         """
-        t0 = perf_counter()
+        # t0 = perf_counter()
 
         self.elements_from_gmsh_lines.clear()
         self.nodes_from_gmsh_lines.clear()
 
         for dim, tag in gmsh.model.getEntities(1):
 
-            _, list_line_elements, _ = gmsh.model.mesh.getElements(dim, tag)
-            if list_line_elements:
+            _, elements_tags, _ = gmsh.model.mesh.getElements(dim, tag)
+            if not elements_tags:
+                continue
 
-                line_elements = list_line_elements[0]
-                self.elements_from_gmsh_lines[tag] = [self.map_elements[element] for element in line_elements]
+            self.elements_from_gmsh_lines[tag] = [self.map_elements[element] for element in elements_tags[0]]
 
             line_nodes, _coords, _ = gmsh.model.mesh.getNodes(dim, tag, True)
             self.nodes_from_gmsh_lines[tag] = [self.map_nodes[node] for node in line_nodes]
 
-        dt = perf_counter() - t0
+        # dt = perf_counter() - t0
         # print(f"Time to process '_process_gmsh_lines_mesh_data': {dt}")
 
         # t0 = perf_counter()
 
-        # indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, includeBoundary=True)
-        # total_nodes = np.unique(indexes).size
+        # nodes_tags, nodes_coords, _ = gmsh.model.mesh.getNodes(1, -1, includeBoundary=True)
+        # total_nodes = np.unique(nodes_tags).size
 
-        # unit_length_factor = 1
         # self.nodal_coordinates = np.zeros((total_nodes, 4))
-        # self.nodal_coordinates[indexes - 1, 1:] = coords.reshape(-1, 3) * unit_length_factor
-        # self.nodal_coordinates[indexes - 1, :1] = indexes.reshape(-1, 1) - 1
+        # self.nodal_coordinates[nodes_tags - 1, 1:] = convert_length_unit(nodes_coords.reshape(-1, 3), "mm", "meter")
+        # self.nodal_coordinates[nodes_tags - 1, :1] = nodes_tags.reshape(-1, 1) - 1
+        # # print(total_nodes, np.min(nodes_tags), np.max(nodes_tags))
 
-        # nodes_from_lines = gmsh.model.mesh.getNodes(dim=1, includeBoundary=True)[0]
+        # # # nodes_from_lines = gmsh.model.mesh.getNodes(dim=1, includeBoundary=True)[0]
 
-        # if isinstance(nodes_from_lines, np.ndarray):
-        #     self.nodes_from_lines = np.unique(nodes_from_lines) - 1
+        # # # if isinstance(nodes_from_lines, np.ndarray):
+        # # #     self.nodes_from_lines = np.unique(nodes_from_lines) - 1
 
         # connectivity_data = dict()
 
@@ -315,8 +334,15 @@ class Mesh:
         # dt = perf_counter() - t0
         # print(f"Time to process : {dt}")
 
-        # print(self.nodal_coordinates)
-        # print(np.unique(self.lines_connectivity[:, 4:]).size)
+        # # print(self.nodal_coordinates)
+        # # print(np.unique(self.lines_connectivity[:, 4:]))
+        # # self.map_elements_from_lines()
+
+    def map_elements_from_lines(self):
+        self.elements_from_line.clear()
+        for line_id in np.unique(self.lines_connectivity[:, 1]).astype(int):
+            rows = np.where(self.lines_connectivity[:, 1] == line_id)[0]
+            self.elements_from_line[line_id] = self.lines_connectivity[rows, 0]
 
     def _concatenate_line_elements(self):
         """
@@ -392,7 +418,6 @@ class Mesh:
         This method finalize the mesher gmsh algorithm.
         """
         gmsh.finalize()
-        self.length_unit = "meter"
 
     def get_geometry_statistics(self):
         return len(self.geometry_points), len(self.lines_from_model)

@@ -16,6 +16,7 @@ from pulse.model.model import Model
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.project.load_project import LoadProject
+from pulse.model.data_classes.project_setup_data_classes import ProjectSetup
 
 from time import perf_counter
 
@@ -25,6 +26,8 @@ class Project:
 
         self.pipeline = Pipeline()
         self.model = Model(self)
+
+        self.project_setup = ProjectSetup()
 
         # default animation settings
         self.frames = 40
@@ -67,6 +70,10 @@ class Project:
 
         self.reset_solvers()
         self.reset_solutions()
+
+    def set_project_setup(self, project_setup: ProjectSetup):
+        self.project_setup = project_setup
+        self.file.modify_project_attributes(project_setup)
 
     def reset_solvers(self):
         self.acoustic_solver = None
@@ -126,15 +133,12 @@ class Project:
     def initial_load_project_actions(self):
 
         try:
-
             self.reset(reset_all = True)
             self.loader.load_analysis_results()
 
             if self.file.check_pipeline_data():
                 self.process_geometry_and_mesh()
                 return True
-            else:
-                return False
 
         except Exception as log_error:
             from traceback import print_exception
@@ -143,7 +147,8 @@ class Project:
             title = "Error while processing initial load project actions"
             message = str(log_error)
             PrintMessageInput([error_title, title, message])
-            return False
+        
+        return False
 
     def load_project(self):
 
@@ -178,7 +183,10 @@ class Project:
 
     def process_geometry_and_mesh(self):
         # t0 = time()
-        self.model.preprocessor.generate()
+        import_type = self.project_setup.import_type
+        geometry_path = self.project_setup.geometry_path
+
+        self.model.preprocessor.generate(import_type, geometry_path = geometry_path)
         self.model.preprocessor.process_all_transformation_matrices()
         if app() is None:
             return
@@ -190,14 +198,37 @@ class Project:
     def is_analysis_setup_complete(self):
 
         analysis_setup = self.file.read_analysis_setup_from_file()
+        if not isinstance(analysis_setup, dict):
+            return False
 
-        if isinstance(analysis_setup, dict):
-            analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+        analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
 
-            if analysis_id in [
-                AnalysisID.STRUCTURAL_MODAL,
-                AnalysisID.ACOUSTIC_MODAL,
-            ]:
+        if AnalysisID(analysis_id).is_modal():
+            if "number_of_modes" not in analysis_setup.keys():
+                return False
+
+            if not isinstance(analysis_setup["number_of_modes"], int):
+                return False
+
+            if "sigma_factor" in analysis_setup.keys():
+                if not isinstance(analysis_setup["sigma_factor"], int | float):
+                    return False
+            else:
+                return False
+
+            return True
+
+        elif AnalysisID(analysis_id).is_harmonic():
+
+            for f_type in ["f_min", "f_max", "f_step"]:    
+                if f_type in analysis_setup.keys():
+                    if not isinstance(analysis_setup[f_type], int | float):
+                        return False
+                else:
+                    return False
+                
+            if self.analysis_method == "mode_superposition":
+
                 if "number_of_modes" not in analysis_setup.keys():
                     return False
 
@@ -207,42 +238,11 @@ class Project:
                 if "sigma_factor" in analysis_setup.keys():
                     if not isinstance(analysis_setup["sigma_factor"], int | float):
                         return False
-                else:
-                    return False
 
-                return True
-
-            elif analysis_id in [
-                AnalysisID.STRUCTURAL_HARMONIC,
-                AnalysisID.ACOUSTIC_HARMONIC,
-                AnalysisID.COUPLED_HARMONIC,
-                ]:
-
-                for f_type in ["f_min", "f_max", "f_step"]:    
-                    if f_type in analysis_setup.keys():
-                        if not isinstance(analysis_setup[f_type], int | float):
-                            return False
-                    else:
-                        return False
-                    
-                if self.analysis_method == "mode_superposition":
-
-                    if "number_of_modes" not in analysis_setup.keys():
-                        return False
-
-                    if not isinstance(analysis_setup["number_of_modes"], int):
-                        return False
-
-                    if "sigma_factor" in analysis_setup.keys():
-                        if not isinstance(analysis_setup["sigma_factor"], int | float):
-                            return False
-
-                return True
-            
-            elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
-                return True
-
-        return False
+            return True
+        
+        elif AnalysisID(analysis_id).is_static():
+            return True
 
     def set_perforated_plate_convergence_data_log(self, data):
         self.perforated_plate_data_log = data
@@ -536,10 +536,20 @@ class Project:
                 if self.acoustic_solver.nl_pp_elements:
                     sleep(1)
 
-    def run_analysis(self):
-        return LoadingWindow(self.build_model_and_solve).run()
+    def run_analysis(self, running_by_script: bool = False):
+        if LoadingWindow(self.build_model_and_solve).run(running_by_script = running_by_script):
+            return True
 
-    def build_model_and_solve(self, running_by_script=False):
+        if running_by_script:
+            return
+
+        logging.info("Post-processing the obtained results [90%]")
+        self.check_warnings()
+
+        logging.info("Processing the post solution checks [95%]")
+        self.post_solution_actions()
+
+    def build_model_and_solve(self, running_by_script: bool = False):
 
         t0 = perf_counter()
 
@@ -575,14 +585,6 @@ class Project:
             self.reset_solutions()
             self.model.preprocessor.stop_processing = False
             return
-
-        if not running_by_script:
-
-            logging.info("Post-processing the obtained results [90%]")
-            self.check_warnings()
-
-            logging.info("Processing the post solution checks [95%]")
-            self.post_solution_actions()
 
         dt = perf_counter() - t0
         print(f"Time to solve the model: {dt} [s]")

@@ -2,6 +2,7 @@
 from typing import TYPE_CHECKING
 
 from pulse.model import AnalysisID
+from pulse.model.data_classes.project_setup_data_classes import ProjectSetup
 from pulse.model.mesh import Mesh
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.preprocessor import Preprocessor
@@ -12,9 +13,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 
-from pulse.model.elements.acoustic.acoustic_element import AcousticElement
 from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
-from pulse.model.elements.structural_element import StructuralElement
 
 
 class Model:
@@ -95,6 +94,10 @@ class Model:
     @property
     def global_damping(self):
         return self.analysis_setup.get("global_damping", (0., 0., 0.))
+
+    def set_project_setup(self, project_setup: ProjectSetup):
+        self.project_setup = project_setup
+        self.mesh.set_mesher_setup(project_setup.mesher_setup)
 
     def set_analysis_setup(self, analysis_setup: dict):
 

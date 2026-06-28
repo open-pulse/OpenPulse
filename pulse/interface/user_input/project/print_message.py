@@ -22,7 +22,12 @@ class PrintMessageInput(PrintMessage_UI):
         self._config_widgets()
         self._set_texts()
         self._adjust_size(kwargs)
+        self.execute_callback()
+
+    def execute_callback(self):
+        app().main_window.hide_dialogs()
         self.exec()
+        app().main_window.restore_open_dialogs()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

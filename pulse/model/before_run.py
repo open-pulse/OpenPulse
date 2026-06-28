@@ -395,7 +395,6 @@ class BeforeRun():
                 app().main_window.set_selection(elements = lists_elements[index])
                 PrintMessageInput([window_title, title, list_messages[index]])
 
-
     def check_is_there_a_problem(self, analysis_id: int):
 
         title = " Insufficient model inputs "
