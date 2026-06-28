@@ -5,7 +5,7 @@ import numpy as np
 
 from pulse.model.node import Node
 from pulse.model.cross_section import CrossSection
-from pulse.model.data_classes.data_classes import ExpansionJointData, PerforatedPlateData, ValveData
+from pulse.model.data_classes.model_setup_data_classes import ExpansionJointData, PerforatedPlateData, ValveData
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.model.elements.structural_element import DOF_PER_ELEMENT, DOF_PER_NODE_STRUCTURAL

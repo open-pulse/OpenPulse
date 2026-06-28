@@ -3,7 +3,7 @@ import numpy as np
 from numpy import pi, sqrt
 
 from pulse.model.elements.acoustic.acoustic_element import AcousticElement, j2_j0
-from pulse.model.data_classes.data_classes import PerforatedPlateData, PerforatedPlateFormulation
+from pulse.model.data_classes.model_setup_data_classes import PerforatedPlateData, PerforatedPlateFormulation
 from pulse.model.elements.element_attributes import ElementAttributes
 
 

@@ -3,19 +3,12 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import (
-    RadiationImpedanceInput_UI,
-)
-from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
-    AcousticNodesInput,
-)
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
+from pulse.interface import warning_title
+from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import RadiationImpedanceInput_UI
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import AcousticNodesInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model import RadiationImpedanceType
-
-warning_title = "Warning"
+from pulse.model.elements.acoustic.acoustic_calculator import RadiationImpedanceType
 
 
 class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):

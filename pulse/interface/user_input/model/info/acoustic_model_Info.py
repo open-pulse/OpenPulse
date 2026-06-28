@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.model import RadiationImpedanceType
+from pulse.model.elements.acoustic.acoustic_calculator import RadiationImpedanceType
 from pulse.interface.ui_generated.model.info.acoustic_model_info_ui import AcousticModelInfo_UI
 
 import numpy as np

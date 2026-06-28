@@ -5,7 +5,6 @@ from numpy import pi, sqrt
 from scipy.optimize import fsolve, root
 from scipy.special import hankel1, jn_zeros, jv
 
-from pulse.model import RadiationImpedanceType
 from pulse.model.elements.element_attributes import ElementAttributes
 
 
@@ -13,6 +12,12 @@ class ElementLengthCorrection(IntEnum):
     EXPANSION = 0
     SIDE_BRANCH = 1
     LOOP = 2
+
+
+class RadiationImpedanceType(IntEnum):
+    ANECHOIC = 0
+    FLANGED = 1
+    UNFLANGED = 2
 
 
 class AcousticCalculator:
