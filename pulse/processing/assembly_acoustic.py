@@ -3,13 +3,17 @@ import numpy as np
 from scipy.sparse import csr_matrix
 
 from pulse.model import AnalysisID
+from pulse.model.elements.acoustic.acoustic_calculator import (
+    AcousticCalculator,
+    RadiationImpedanceType,
+    length_correction_for_branches,
+    length_correction_for_expansions,
+)
 from pulse.model.elements.acoustic.acoustic_element import DOF_PER_ELEMENT, ENTRIES_PER_ELEMENT, ElementLengthCorrection
-from pulse.model.model import Model
-from pulse.model.node import DOF_PER_NODE_ACOUSTIC
-
 from pulse.model.elements.element_attributes import ElementAttributes
 from pulse.model.elements.elements_builder import build_acoustic_element
-from pulse.model.elements.acoustic.acoustic_calculator import AcousticCalculator, length_correction_for_branches, length_correction_for_expansions
+from pulse.model.model import Model
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC
 
 
 class AssemblyAcoustic:
@@ -411,8 +415,6 @@ class AssemblyAcoustic:
 
             elif property == "radiation_impedance":
                 impedance_type = data.get("impedance_type")
-
-                # TODO: build the acoustic element
                 element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
 
                 act_calculator = AcousticCalculator(element_attributes)
@@ -485,11 +487,10 @@ class AssemblyAcoustic:
             List of lumped admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
         """
 
-        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
-
         area_fluid = None
         ind_Clump = list()
         data_Clump = list()
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
 
         # processing external elements by node
         for (property, *args), data in self.model.properties.nodal_properties.items():
@@ -514,18 +515,16 @@ class AssemblyAcoustic:
                 impedance = data["values"][0]
 
             elif property == "radiation_impedance":
+
                 impedance_type = data.get("impedance_type")
-                
-                if impedance_type in ["flanged", "unflanged"]:
-                    if self.model.project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-                        # TODO: show a message after the solution has been finished
+                if impedance_type != RadiationImpedanceType.ANECHOIC:
+                    if not AnalysisID(self.model.analysis_id).is_modal():
                         continue
 
-                    # TODO: build the acoustic element
-                    element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
+                element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
 
-                    act_calculator = AcousticCalculator(element_attributes)
-                    impedance = act_calculator.get_radiation_impedance(impedance_type, self.frequencies)
+                act_calculator = AcousticCalculator(element_attributes)
+                impedance = act_calculator.get_radiation_impedance(impedance_type, self.frequencies)
 
             ind_Clump.append(position)
             Z = self.get_array_of_values(impedance, self.frequencies)
@@ -542,6 +541,7 @@ class AssemblyAcoustic:
                 full_C = [csr_matrix((total_dof, total_dof), dtype=complex)]
             else:
                 full_C = [csr_matrix((total_dof, total_dof), dtype=complex) for _ in self.frequencies]
+
         else:
             full_C = [csr_matrix((data, (ind_Clump, ind_Clump)), shape=[total_dof, total_dof], dtype=complex) for data in data_Clump]
 
