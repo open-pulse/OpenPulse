@@ -176,6 +176,7 @@ class AssemblyStructural:
 
             else:
                 mat_Ke[k, :, :], mat_Me[k, :, :] = element.matrices_gcs()
+                element_attributes.matrices_for_stresses_recover = element.matrices_for_stresses_recover
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])

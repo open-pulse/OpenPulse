@@ -259,7 +259,7 @@ def get_structural_response(model: "Model", solution: np.ndarray, column: int, *
         data[ind+2, column],
         data[ind+3, column], 
         data[ind+4, column], 
-        data[ind+5, column] 
+        data[ind+5, column],
         ]).T*factor
 
     nodes = model.preprocessor.nodes

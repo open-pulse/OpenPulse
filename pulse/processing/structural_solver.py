@@ -8,7 +8,7 @@ from pulse.interface import error_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.model import Model
 from pulse.processing.assembly_structural import AssemblyStructural
-from pulse.model.elements.elements_builder import build_structural_element
+# from pulse.model.elements.elements_builder import build_structural_element
 
 
 class StructuralSolver:
@@ -663,40 +663,41 @@ class StructuralSolver:
 
         p0 = external_pressure
 
-        for element_attributes in self.model.preprocessor.elements_attributes.values():
-            element = build_structural_element(element_attributes)
+        for index, element_attributes in self.model.preprocessor.elements_attributes.items():
+            # element = build_structural_element(element_attributes)
 
             if element_attributes.structural_element_type in ["beam_1", "expansion_joint", "valve"]:
-                nodal_stresses[element.index] = np.zeros((7, len(_frequencies)))
+                nodal_stresses[index] = np.zeros((7, len(_frequencies)))
 
             elif element_attributes.structural_element_type != "pipe_1":
                 continue
 
-            # Internal Loads
-            structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
+            Dab = element_attributes.matrices_for_stresses_recover.Dab
+            Bab = element_attributes.matrices_for_stresses_recover.Bab
+            Dts = element_attributes.matrices_for_stresses_recover.Dts
+            Bts = element_attributes.matrices_for_stresses_recover.Bts
 
-            if self.solution is None:
-                title = "Empty solution"
-                message = "A strutural analysis must be performed to obtain the stress field."
-                PrintMessageInput([error_title, title, message])
-                return {}
-
-            u = self.solution[structural_dofs, :]
-            Dab = element._Dab
-            Bab = element._Bab
-
-            Dts = element._Dts
-            Bts = element._Bts
-
-            rot = element.element_rotation_matrix
-
-            element_attributes = self.model.preprocessor.elements_attributes.get(element.index)
+            rot = element_attributes.element_rotation_matrix
 
             cross_section = element_attributes.cross_section
             material = element_attributes.material
             wall_formulation = element_attributes.wall_formulation
 
             T = cross_section.principal_axis_translation
+
+            first_node = element_attributes.first_node
+            last_node = element_attributes.last_node
+
+            # Internal Loads
+            structural_dofs = np.r_[first_node.structural_global_dof, last_node.structural_global_dof]
+
+            if self.solution is None:
+                title = "Empty solution"
+                message = "A strutural analysis must be performed to obtain the stress field."
+                PrintMessageInput([error_title, title, message])
+                return dict()
+
+            u = self.solution[structural_dofs, :]
 
             normal = Dab @ Bab @ T @ rot @ u
             shear = Dts @ Bts @ T @ rot @ u
@@ -713,7 +714,7 @@ class StructuralSolver:
             J = cross_section.polar_moment_area
             nu = material.poisson_ratio
 
-            acoustic_dofs = np.r_[element.first_node.global_index, element.last_node.global_index]
+            acoustic_dofs = np.r_[first_node.acoustic_global_dof, last_node.acoustic_global_dof]
 
             if self.acoustic_solution is not None:
                 p = self.acoustic_solution[acoustic_dofs, :]
@@ -730,7 +731,7 @@ class StructuralSolver:
                 hoop_stress = pm
                 radial_stress = -nu * np.pi * (do / (do - di) - 1)
 
-            nodal_stresses[element.index] = np.c_[
+            nodal_stresses[index] = np.c_[
                 internal_load[0] / area - radial_stress,
                 internal_load[1] * ro / Iy,
                 internal_load[2] * ro / Iz,

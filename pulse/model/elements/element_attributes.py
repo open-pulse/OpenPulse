@@ -1,14 +1,15 @@
 
 # from dataclasses import dataclass, field
 from typing import Literal
+
 import numpy as np
 
-from pulse.model.node import Node
 from pulse.model.cross_section import CrossSection
 from pulse.model.data_classes.model_setup_data_classes import ExpansionJointData, PerforatedPlateData, ValveData
+from pulse.model.elements.structural_element import DOF_PER_ELEMENT, DOF_PER_NODE_STRUCTURAL, MatricesForStressesRecover
+from pulse.model.node import Node
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.model.elements.structural_element import DOF_PER_ELEMENT, DOF_PER_NODE_STRUCTURAL
 from pulse.utils.rotations import rotation_matrix_3x3_by_deltas
 
 decoupling_matrix_default = np.ones((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=int)
@@ -28,6 +29,7 @@ class ElementAttributes:
         self.reset_render_related_attributes()
         self.reset_structural_element_attributes()
         self.reset_acoustic_element_attributes()
+        self.reset_matrices_for_stresses_recover()
         self.reset_common_attributes()
 
     def reset_common_attributes(self):
@@ -117,6 +119,9 @@ class ElementAttributes:
         self.undeformed_rotation_rz: None | np.ndarray = None
 
         self.section_parameters_render: list | None = list()
+
+    def reset_matrices_for_stresses_recover(self):
+        self.matrices_for_stresses_recover: MatricesForStressesRecover | None = None
 
     def update_delta_pressure(self, delta_pressure):
         self.delta_pressure = delta_pressure

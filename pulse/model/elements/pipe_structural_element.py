@@ -1,15 +1,16 @@
-# from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pulse.model.elements.element_attributes import ElementAttributes
+from pulse.model.elements.structural_element import (
+    DOF_PER_ELEMENT,
+    DOF_PER_NODE_STRUCTURAL,
+    MatricesForStressesRecover,
+    StructuralElement,
+    gauss_quadrature,
+    shape_function,
+)
 from pulse.model.properties.fluid import Fluid
-from pulse.model.elements.structural_element import StructuralElement, gauss_quadrature, shape_function
-from pulse.model.elements.structural_element import DOF_PER_NODE_STRUCTURAL, DOF_PER_ELEMENT
-
-# if TYPE_CHECKING:
-#     from pulse.model.elements.element_attributes import ElementAttributes
-
 
 
 class PipeStructuralElement(StructuralElement):
@@ -100,16 +101,12 @@ class PipeStructuralElement(StructuralElement):
             [Qz ,     0, alz*A],
             ], dtype=float)
 
-        self._Dts = Dts
-
         # Axial and Bending
         Dab = E*np.array([  
             [A  ,   Qy,  -Qz],
             [Qy ,   Iy, -Iyz],
             [-Qz, -Iyz,   Iz],
             ], dtype=float)
-
-        self._Dab = Dab
 
         ## Numerical integration by Gauss quadrature
         integrations_points = 1
@@ -132,14 +129,13 @@ class PipeStructuralElement(StructuralElement):
         for point, weigth in zip(points, weigths):
 
             # Shape function and its derivative
-            phi, derivative_phi = shape_function( point )
+            phi, derivative_phi = shape_function(point)
             dphi = inv_jacob * derivative_phi
 
             # Axial and Bending B-matrix
             Bab = np.zeros([3, 12])
             Bab[[0, 1, 2], [0, 4, 5]] = dphi[0]  # 1st node
             Bab[[0, 1, 2], [6, 10, 11]] = dphi[1]  # 2nd node
-            self._Bab = Bab
 
             # Torsional and Shear B-matrix
             Bts = np.zeros((3, 12))
@@ -149,12 +145,13 @@ class PipeStructuralElement(StructuralElement):
             Bts[[0, 1, 2], [9, 7, 8]] = dphi[1]  # 2nd node
             Bts[[1], [11]] = -phi[1]
             Bts[[2], [10]] = phi[1]
-            self._Bts = Bts
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
             Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
 
         Ke = Kabe + Ktse + K_geo
+
+        self.matrices_for_stresses_recover = MatricesForStressesRecover(Bab, Bts, Dab, Dts)
 
         return principal_axis.T @ Ke @ principal_axis
 
@@ -433,8 +430,6 @@ class PipeStructuralElement(StructuralElement):
                 [-Qy, aly*A,     0],
                 [ Qz,     0, alz*A],
                 ], dtype=float)
-            
-            self._Dts = Dts
 
             # Axial and Bending
             Dab = E*np.array([  
@@ -443,13 +438,10 @@ class PipeStructuralElement(StructuralElement):
                 [-Qz, -Iyz,   Iz],
                 ], dtype=float)
 
-            self._Dab = Dab
-
             # Axial and Bending B-matrix
             Bab = np.zeros([3, 12], dtype=float)
             Bab[[0,1,2],[0,4,5]] = dphi[0] # 1st node
             Bab[[0,1,2],[6,10,11]] = dphi[1] # 2nd node
-            self._Bab = Bab
 
             # Torsional and Shear B-matrix
             Bts = np.zeros((3,12))
@@ -459,7 +451,6 @@ class PipeStructuralElement(StructuralElement):
             Bts[[0,1,2],[9,7,8]] = dphi[1] # 2nd node
             Bts[[1],[11]] = -phi[1]
             Bts[[2],[10]] = phi[1]
-            self._Bts = Bts
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
             Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
@@ -467,6 +458,8 @@ class PipeStructuralElement(StructuralElement):
             index += 1
 
         Ke = Kabe + Ktse + K_geo
+
+        self.matrices_for_stresses_recover = MatricesForStressesRecover(Bab, Bts, Dab, Dts)
 
         return self.transf_matrix_offset_shear_left @ Ke @ self.transf_matrix_offset_shear_right
 

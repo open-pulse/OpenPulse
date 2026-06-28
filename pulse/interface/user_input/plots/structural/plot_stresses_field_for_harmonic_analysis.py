@@ -71,6 +71,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
             def callback():
                 logging.info("Processing the cross-sections [75%]")
                 app().project.model.preprocessor.process_cross_sections_mapping()
+
             LoadingWindow(callback).run()
 
             self.structural_solver = app().project.get_structural_solver()

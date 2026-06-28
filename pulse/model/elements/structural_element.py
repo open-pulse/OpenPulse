@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -14,6 +15,14 @@ zeros_3x3 = np.zeros((3,3), dtype=float)
 
 if TYPE_CHECKING:
     from pulse.model.elements.element_attributes import ElementAttributes
+
+
+@dataclass
+class MatricesForStressesRecover:
+    Bab: np.ndarray | None = None
+    Bts: np.ndarray | None = None
+    Dab: np.ndarray | None = None
+    Dts: np.ndarray | None = None
 
 
 class StructuralElement:
@@ -63,10 +72,7 @@ class StructuralElement:
 
     def _initialize(self):
 
-        self._Dab = None
-        self._Bab = None
-        self._Dts = None
-        self._Bts = None
+        self.matrices_for_stresses_recover: MatricesForStressesRecover | None = None
 
         self.transf_mat = None
         self.transf_matrix_offset_shear_left = None
@@ -120,8 +126,8 @@ class StructuralElement:
             Element global degrees of freedom.
         """
         global_dof = np.zeros(DOF_PER_ELEMENT, dtype=int)
-        global_dof[:DOF_PER_NODE_STRUCTURAL] = self.first_node.global_dof
-        global_dof[DOF_PER_NODE_STRUCTURAL:] = self.last_node.global_dof
+        global_dof[:DOF_PER_NODE_STRUCTURAL] = self.first_node.structural_global_dof
+        global_dof[DOF_PER_NODE_STRUCTURAL:] = self.last_node.structural_global_dof
         return global_dof
 
     # @property

@@ -617,11 +617,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def _compute_stress_field(self, frequency_index, phase_step):
         project = app().project
-        preprocessor = project.model.preprocessor
+        model = project.model
         solution = project.get_structural_solution()
 
         *_, self._magnification_factor, _delta = get_structural_response(
-            preprocessor,
+            model,
             solution,
             frequency_index,
             phase_step=phase_step,
