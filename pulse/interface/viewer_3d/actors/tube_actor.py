@@ -139,9 +139,9 @@ class TubeActor(vtkActor):
 
         if cross_section.section_type_label in ["pipe", "bend", "arc_bend", "reducer"]:
             if section_parameters_render is None:
-                section_parameters = cross_section.section_parameters
-
-            d_out, t, offset_y, offset_z, *_ = section_parameters
+                d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
+            else:
+                d_out, t, offset_y, offset_z, *_ = section_parameters_render
 
             return cross_section_sources.pipe_data(length, d_out, t, offset_y, offset_z, sides=tube_sides)
 

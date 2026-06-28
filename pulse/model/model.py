@@ -188,43 +188,18 @@ class Model:
         """
         for element_ids in self.preprocessor.elements_connected_to_node.values():
 
-            element = None
-            if len(element_ids) == 2:
+            n_elem = len(element_ids)
 
-                first_element = self.preprocessor.elements_attributes.get(element_ids[0])
-                last_element = self.preprocessor.elements_attributes.get(element_ids[1])
+            if n_elem == 1:
 
-                if 'beam_1' in [first_element.structural_element_type, last_element.structural_element_type]:
+                element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
+                if element_attributes.structural_element_type == "beam_1":
                     continue
 
-                first_cross = self.preprocessor.get_element_cross_section(first_element.index)
-                last_cross = self.preprocessor.get_element_cross_section(first_element.index)
+                first_node = element_attributes.first_node
+                last_node = element_attributes.last_node
 
-                if (first_cross, last_cross).count(None):
-                    continue
-
-                first_outer_diameter = first_cross.outer_diameter
-                first_inner_diameter = first_cross.inner_diameter
-                last_outer_diameter = last_cross.outer_diameter
-                last_inner_diameter = last_cross.inner_diameter
-
-                if first_outer_diameter < last_inner_diameter:
-                    inner_diameter = first_inner_diameter 
-                    element = last_element
-
-                if last_outer_diameter < first_inner_diameter:
-                    inner_diameter = last_inner_diameter 
-                    element = first_element
-
-            elif len(element_ids) == 1:
-                first_element = self.preprocessor.elements_attributes.get(element_ids[0])
-                if first_element.structural_element_type == "beam_1":
-                    continue
-
-                first_node = first_element.first_node
-                last_node = first_element.last_node
-
-                cross_section = first_element.cross_section
+                cross_section = element_attributes.cross_section
                 if cross_section is None:
                     continue
 
@@ -240,16 +215,44 @@ class Model:
                     if self.properties.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
                         inner_diameter = 0
 
-            if isinstance(element, AcousticElement | StructuralElement):
-                element_attributes = self.preprocessor.elements_attributes.get(element.index)
-                section_info = element_attributes.cross_section.section_info
+            elif n_elem == 2:
 
-                if element_attributes.structural_element_type == 'expansion_joint':
-                    if isinstance(section_info, ExpansionJointCrossSection):
-                        element_attributes.section_parameters_render = section_info._as_list()
+                first_element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
+                last_element_attributes = self.preprocessor.elements_attributes.get(element_ids[1])
 
-                else:
-                    outer_diameter, _, offset_y, offset_z, t_ins, *_ = section_info.section_parameters
-                    thickness = (outer_diameter - inner_diameter) / 2
+                if 'beam_1' in [first_element_attributes.structural_element_type, last_element_attributes.structural_element_type]:
+                    continue
 
-                    element_attributes.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
+                first_cross = first_element_attributes.cross_section
+                last_cross = last_element_attributes.cross_section
+
+                if (first_cross, last_cross).count(None):
+                    continue
+
+                first_outer_diameter = first_cross.outer_diameter
+                first_inner_diameter = first_cross.inner_diameter
+                last_outer_diameter = last_cross.outer_diameter
+                last_inner_diameter = last_cross.inner_diameter
+
+                if first_outer_diameter < last_inner_diameter:
+                    inner_diameter = first_inner_diameter 
+                    element_attributes = last_element_attributes
+
+                if last_outer_diameter < first_inner_diameter:
+                    inner_diameter = last_inner_diameter 
+                    element_attributes = first_element_attributes
+
+            else:
+                continue
+
+            section_info = element_attributes.cross_section.section_info
+
+            if element_attributes.structural_element_type == 'expansion_joint':
+                if isinstance(section_info, ExpansionJointCrossSection):
+                    element_attributes.section_parameters_render = section_info._as_list()
+
+            else:
+                outer_diameter, _, offset_y, offset_z, t_ins, *_ = section_info.section_parameters
+                thickness = (outer_diameter - inner_diameter) / 2
+
+                element_attributes.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
