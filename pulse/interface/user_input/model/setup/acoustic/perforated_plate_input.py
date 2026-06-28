@@ -10,7 +10,7 @@ from pulse.interface.user_input.model.setup.elements_input import ElementsInput
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.data_classes.data_classes import PerforatedPlateData, PerforatedPlateFormulation
+from pulse.model.data_classes.model_setup_data_classes import PerforatedPlateData, PerforatedPlateFormulation
 from pulse.postprocessing.plot_acoustic_data import get_perforated_plate_acoustic_absortion, get_perforated_plate_impedance
 
 

@@ -7,8 +7,9 @@ from molde.utils import TreeInfo, format_long_sequence
 
 from pulse import app
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
-from pulse.model import AnalysisID, RadiationImpedanceType
+from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
+from pulse.model.elements.acoustic.acoustic_calculator import RadiationImpedanceType
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 
