@@ -193,16 +193,6 @@ class Preprocessor:
     def get_model_statistics(self):
         return len(self.nodes), self.number_acoustic_elements, self.number_structural_elements
 
-    def _create_dict_gdofs_to_external_indexes(self):
-        # t0 = perf_count()
-        self.gdofs_to_external_indexes = dict()
-        for external_index, node in self.nodes.items():
-            for gdof in node.global_dof:
-                self.gdofs_to_external_indexes[gdof] = external_index
-        # dt = perf_count()-t0
-        # print(len(self.gdofs_to_external_indexes))
-        # print("Time to process: ", dt)
-
     def get_line_length(self, line_id: int):
         """
         This method returns the length of a given line ID.
@@ -2062,7 +2052,7 @@ class Preprocessor:
         """
 
         for node in self.nodes.values():  
-            node.static_nodal_solution_gcs = nodal_solution[node.global_dof, 0]
+            node.static_nodal_solution_gcs = nodal_solution[node.structural_global_dof, 0]
 
         for element_attributes in self.elements_attributes.values():
             element_attributes.static_analysis_evaluated = True

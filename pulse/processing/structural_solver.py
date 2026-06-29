@@ -570,7 +570,7 @@ class StructuralSolver:
                 data: dict
                 node_id = args[0]
                 node = self.model.preprocessor.nodes[node_id]
-                _global_dofs_springs.append(node.global_dof)
+                _global_dofs_springs.append(node.structural_global_dof)
                 values = data["values"]
 
                 if "table_names" in data.keys():
@@ -582,7 +582,7 @@ class StructuralSolver:
 
                 node_id = args[0]
                 node = self.model.preprocessor.nodes[node_id]
-                _global_dofs_dampers.append(node.global_dof)
+                _global_dofs_dampers.append(node.structural_global_dof)
                 values = data["values"]
 
                 if "table_names" in data.keys():

@@ -67,7 +67,7 @@ class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
     def _update_lineEdit(self, selected_nodes : list):
         node_id = selected_nodes[0]
         node = self.project.model.preprocessor.nodes[node_id]
-        results = self.solution[node.global_dof, 0]
+        results = self.solution[node.structural_global_dof, 0]
         self.lineEdit_response_ux.setText("{:.6e}".format(results[0]))
         self.lineEdit_response_uy.setText("{:.6e}".format(results[1]))
         self.lineEdit_response_uz.setText("{:.6e}".format(results[2]))

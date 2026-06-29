@@ -295,7 +295,7 @@ class AssemblyStructural:
 
             if len(args) == 1:
                 node_id = args[0]
-                position = self.preprocessor.nodes[node_id].global_dof
+                position = self.preprocessor.nodes[node_id].structural_global_dof
 
             elif len(args) == 2:
                 node_ids = args
@@ -459,7 +459,7 @@ class AssemblyStructural:
 
                         node_id = args[0]
                         node = self.preprocessor.nodes[node_id]
-                        position = node.global_dof
+                        position = node.structural_global_dof
                         values = data["values"]
 
                         if "table_names" in data.keys():
@@ -524,7 +524,7 @@ class AssemblyStructural:
 
             node_id = args[0]
             node = self.preprocessor.nodes[node_id]
-            position = node.global_dof
+            position = node.structural_global_dof
             values = data["values"]
 
             if "table_names" in data.keys():
@@ -536,7 +536,7 @@ class AssemblyStructural:
 
         # for node in self.preprocessor.nodes.values():
         #     if node.there_are_nodal_loads:
-        #         position = node.global_dof
+        #         position = node.structural_global_dof
         #         if node.loaded_table_for_nodal_loads:
         #             temp_loads = [np.zeros_like(_frequencies) if bc is None else bc for bc in values]
         #         else:
