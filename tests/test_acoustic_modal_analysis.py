@@ -1,10 +1,15 @@
 import numpy as np
 
 from pulse.model import AnalysisID
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pulse.project.project import Project
 
 
 def test_acoustic_modal_analysis(example2_project, num_regression):
-    project, mesher_setup = example2_project
+    project = example2_project
+    project: "Project"
     model = project.model
 
     analysis_setup = {
@@ -16,7 +21,7 @@ def test_acoustic_modal_analysis(example2_project, num_regression):
 
     project.file.write_line_properties_in_file()
     project.file.write_nodal_properties_in_file()
-    project.file.write_project_setup_in_file(mesher_setup)
+    project.file.write_project_setup_in_file(model.project_setup.as_dict())
     project.file.write_analysis_setup_in_file(analysis_setup)
 
     project.build_model_and_solve(running_by_script=True)

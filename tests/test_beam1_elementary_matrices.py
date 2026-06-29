@@ -1,13 +1,14 @@
-from pulse.model.cross_section import CrossSection
-from pulse.model.properties.material import Material
-from pulse.project.project import Project
-from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
-from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
-from pulse.model.elements.elements_builder import build_structural_element
+from pathlib import Path
 
 import numpy as np
 
-from pathlib import Path
+from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
+from pulse.model.data_classes.project_setup_data_classes import ImportType, MesherSetup, ProjectSetup
+from pulse.model.elements.elements_builder import build_structural_element
+from pulse.model.properties.material import Material
+from pulse.project.project import Project
 
 
 def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Path):
@@ -18,7 +19,6 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
 
     ## Define usefull objects
     model = project.model
-    mesh = model.mesh
     preprocessor = model.preprocessor
 
     section_label = "rectangular_beam"
@@ -54,20 +54,17 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     # geometry_path = get_example_file_path("iges_files/run_by_script/reciprocating_pump_piping.step")
     project.file.write_line_properties_in_file()
 
-    ## Configure the mesher setup
-    mesher_setup = {
-                    "element_size" : 0.02,
-                    "geometry_tolerance" : 1e-6,
-                    "length_unit" : "meter",
-                    "import_type" : 1,
-                    # "geometry_path" : str(geometry_path)
-                    }
+    ## Configure the project setup
+    project_setup = ProjectSetup(
+        import_type = ImportType.BUILT_IN,
+        # geometry_path = str(geometry_path),
+        mesher_setup = MesherSetup(0.02, 1e-6, "meter"))
 
     project.reset(reset_all=True)
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
+    project.set_project_setup(project_setup)
 
-    ## Process the geometry and mesh
-    preprocessor.generate()
+    # ## Process the geometry and mesh
+    model.process_geometry_and_mesh()
 
     ## Define the material
     materials = create_materials()
@@ -125,7 +122,7 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     )
 
     project.file.write_line_properties_in_file()
-    project.file.write_project_setup_in_file(mesher_setup)
+    project.file.write_project_setup_in_file(project_setup.as_dict())
     project.file.write_analysis_setup_in_file(model.analysis_setup)
 
 
