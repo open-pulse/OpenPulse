@@ -111,6 +111,7 @@ class MesherSetupInput(MesherSetupInput_UI):
             mesher_setup.element_size = element_size
             mesher_setup.geometry_tolerance = geometry_tolerance
             app().project.set_project_setup(project_setup)
+            app().project.file.modify_project_attributes(project_setup)
 
             logging.info("Processing the mesh... [75%]")
             self.process_mesh_and_load_project()
@@ -138,6 +139,8 @@ class MesherSetupInput(MesherSetupInput_UI):
         app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
+
         app().project.save_path = self.cache_save_path
 
     def undo_mesh_actions(self):
@@ -146,6 +149,7 @@ class MesherSetupInput(MesherSetupInput_UI):
         mesher_setup.element_size = self.cache_element_size
         mesher_setup.geometry_tolerance = self.cache_geometry_tolerance
         app().project.set_project_setup(project_setup)
+        app().project.file.modify_project_attributes(project_setup)
         app().project.loader.load_project_setup_from_file()
         app().project.initial_load_project_actions()
         app().project.loader.load_project_data()

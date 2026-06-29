@@ -1324,6 +1324,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         else:
             self.preprocessor.mesh._create_gmsh_geometry()
 
+        app().main_window.update_status_bar_info()
         self.load_psd_info()
 
     def keyPressEvent(self, event):

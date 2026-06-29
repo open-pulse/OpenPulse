@@ -727,6 +727,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         mesher_setup.geometry_tolerance = 1e-6
 
         app().project.set_project_setup(project_setup)
+        app().project.file.modify_project_attributes(project_setup)
 
         self._load_project()
 
@@ -959,6 +960,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         app().project.initial_load_project_actions()
         app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
+        app().main_window.update_status_bar_info()
         self.complete = True
 
     def forbidden_structure(self):

@@ -401,6 +401,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         app().main_window.update_plots()
+
         self.complete = True
 
     def configure_orifice_plate(self, line_ids: list):

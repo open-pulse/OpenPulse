@@ -1114,6 +1114,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.load_pulsation_damper_info()
 
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

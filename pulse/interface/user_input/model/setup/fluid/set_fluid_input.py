@@ -179,6 +179,8 @@ class SetFluidInput(SetFluidInput_UI):
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
 
+        app().main_window.update_plots()
+
         self.complete = True
 
         if self.state_properties or all_lines_assignment:
