@@ -38,6 +38,7 @@ class ImportGeometry():
         project_setup.geometry_filename = geometry_path.name
 
         app().project.set_project_setup(project_setup)
+        app().project.file.modify_project_attributes(project_setup)
 
         self.save_geometry_and_load_project(geometry_path)
 
@@ -47,10 +48,12 @@ class ImportGeometry():
         app().project.loader.load_project_data()
         app().project.model.mesh.set_mesher_setup(project_setup.mesher_setup)
         #
-        app().project.process_geometry_and_mesh()
+        app().project.model.process_geometry_and_mesh()
         app().project.loader.load_mesh_dependent_properties()
         app().project.model.preprocessor.check_disconnected_lines()
         #
         app().main_window.use_model_setup_workspace()
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
+        #
         self.complete = True

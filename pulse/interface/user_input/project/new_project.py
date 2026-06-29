@@ -134,11 +134,14 @@ class NewProjectInput(NewProjectInput_UI):
 
             self.project.reset(reset_all = True)
             app().project.model.set_project_setup(project_setup)
+            app().project.file.modify_project_attributes(project_setup)
 
             if self.comboBox_start_project.currentIndex() == 1:
                 app().project.model.mesh._create_gmsh_geometry()
             else:
-                self.project.process_geometry_and_mesh()
+                self.project.model.process_geometry_and_mesh()
+
+            app().main_window.update_status_bar_info()
 
         except Exception as error_log:
 
@@ -202,6 +205,7 @@ class NewProjectInput(NewProjectInput_UI):
             app().main_window.use_model_setup_workspace()
 
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
 
         self.complete = True
 

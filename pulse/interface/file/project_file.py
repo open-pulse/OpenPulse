@@ -284,9 +284,9 @@ class ProjectFile:
 
             _analysis_setup[key] = data
 
-        project_setup["analysis_setup"] = _analysis_setup
-        self._write_file(self.project_setup_filename, project_setup)
+        project_setup.update({"analysis_setup" : _analysis_setup})
 
+        self._write_file(self.project_setup_filename, project_setup)
         self.project_data_modified_callback()
 
     def read_analysis_setup_from_file(self):
@@ -575,7 +575,7 @@ class ProjectFile:
     def modify_project_attributes(self, new_project_setup: ProjectSetup):
         project_setup = self.read_project_setup_from_file()
         if not isinstance(project_setup, dict):
-            return
+            project_setup = dict()
 
         # update the project_setup to maintain the analysis_setup
         project_setup.update(new_project_setup.as_dict())

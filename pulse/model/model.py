@@ -259,3 +259,10 @@ class Model:
                 thickness = (outer_diameter - inner_diameter) / 2
 
                 element_attributes.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
+
+    def process_geometry_and_mesh(self):
+        # t0 = time()
+        self.preprocessor.generate(self.project_setup.import_type, geometry_path=self.project_setup.geometry_path)
+        self.preprocessor.process_all_transformation_matrices()
+        # dt = time()-t0
+        # print(f"Time to process_geometry_and_mesh: {dt} [s]")

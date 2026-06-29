@@ -824,10 +824,7 @@ class MainWindow(MainWindow_UI):
 
     def update_export_geometry_file_access(self):
         import_type = app().project.model.project_setup.import_type
-        if import_type == 0:
-            self.action_export_geometry.setDisabled(True)
-        elif import_type == 1:
-            self.action_export_geometry.setDisabled(False)
+        self.action_export_geometry.setEnabled(bool(import_type))
 
     def action_import_geometry_callback(self):
         obj = ImportGeometry()

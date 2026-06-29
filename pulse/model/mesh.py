@@ -165,8 +165,7 @@ class Mesh:
                 if isinstance(structure, RigidElement):
                     structure.define_gmsh_mesh_constraints()()
 
-            self._remove_orphan_points()
-            self._remove_orphan_points()
+            # self._remove_orphan_points()
 
             # generate mesh for 1D elements
             gmsh.model.mesh.generate(1)
