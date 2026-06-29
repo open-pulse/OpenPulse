@@ -141,8 +141,6 @@ class NewProjectInput(NewProjectInput_UI):
             else:
                 self.project.model.process_geometry_and_mesh()
 
-            app().main_window.update_status_bar_info()
-
         except Exception as error_log:
 
             app().project.model.mesh.set_mesher_setup(MesherSetup())

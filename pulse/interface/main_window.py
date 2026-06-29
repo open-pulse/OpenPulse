@@ -1039,6 +1039,7 @@ class MainWindow(MainWindow_UI):
             self.update_results_workspace_button_accessibility()
             self.view_toolbar.action_front_view_callback()
             self.update_plots()
+            self.update_status_bar_info()
 
         LoadingWindow(tmp).run()
 

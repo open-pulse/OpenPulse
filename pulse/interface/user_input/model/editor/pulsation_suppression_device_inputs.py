@@ -852,6 +852,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.set_element_length_corrections(psd_label, device)
 
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
         # self.close()
 
     def build_device(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
@@ -1324,7 +1325,6 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         else:
             self.preprocessor.mesh._create_gmsh_geometry()
 
-        app().main_window.update_status_bar_info()
         self.load_psd_info()
 
     def keyPressEvent(self, event):

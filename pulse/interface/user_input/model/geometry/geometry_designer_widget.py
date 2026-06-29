@@ -732,6 +732,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self._load_project()
 
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
         app().main_window.use_model_setup_workspace()
         app().main_window.plot_lines_with_cross_sections()
         app().main_window.action_results_workspace.setDisabled(True)
@@ -960,7 +961,6 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         app().project.initial_load_project_actions()
         app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
-        app().main_window.update_status_bar_info()
         self.complete = True
 
     def forbidden_structure(self):
