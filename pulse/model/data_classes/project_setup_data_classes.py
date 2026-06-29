@@ -43,7 +43,7 @@ class MesherSetup:
 @dataclass
 class ProjectSetup:
     import_type: IntEnum = ImportType.BUILT_IN
-    version: str = VERSION,
+    version: str = VERSION
     geometry_filename: str = ""
     geometry_path: str = ""
     mesher_setup: MesherSetup = field(default_factory = MesherSetup)
