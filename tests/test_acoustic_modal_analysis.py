@@ -8,8 +8,7 @@ if TYPE_CHECKING:
 
 
 def test_acoustic_modal_analysis(example2_project, num_regression):
-    project = example2_project
-    project: "Project"
+    project: "Project" = example2_project
     model = project.model
 
     analysis_setup = {

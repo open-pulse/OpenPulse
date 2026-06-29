@@ -259,8 +259,6 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
     project.file.modify_project_attributes(project_setup)
     project.file.write_analysis_setup_in_file(model.analysis_setup)
 
-    return
-
     ## Build the mathematical model and solve it (it also saves the model results in the temp_pulse folder)
     project.build_model_and_solve(running_by_script=True)
 

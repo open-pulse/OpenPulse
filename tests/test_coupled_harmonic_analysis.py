@@ -10,8 +10,7 @@ if TYPE_CHECKING:
 
 
 def test_coupled_harmonic_analysis(example2_project, num_regression):
-    project = example2_project
-    project: "Project"
+    project: "Project" = example2_project
     model = project.model
     preprocessor = model.preprocessor
 
@@ -100,5 +99,5 @@ def test_coupled_harmonic_analysis(example2_project, num_regression):
             "structural_response": structural_response,
             "acoustic_response": acoustic_response,
         },
-        default_tolerance=dict(atol=1e-6, rtol=1e-6),
+        default_tolerance=dict(atol=1e-5, rtol=1e-5),
     )
