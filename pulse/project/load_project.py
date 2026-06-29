@@ -414,6 +414,8 @@ class LoadProject:
 
         if "version" in project_setup.keys():
             file_version = project_setup.get("version")
+            if isinstance(file_version, list):
+                file_version = file_version[0]
         else:
             #TODO: remove this as soon as possible
             file_version = VERSION
