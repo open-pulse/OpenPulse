@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from pulse import app
 from pulse.editor import Pipeline
 from pulse.editor.structures import (
     ALL_STRUCTURE_TYPES,
@@ -196,8 +195,6 @@ class GeometryHandler:
         self.pipeline.add_structures(structures)
         self.pipeline.commit()
         self.pipeline.merge_coincident_points()
-        if app() is not None:
-            app().main_window.update_plots()
 
     def export_cad_file(self, path):
         self.create_geometry()
@@ -253,12 +250,13 @@ class GeometryHandler:
         element_size = convert_length_unit(_element_size, self.length_unit, "m")
 
         if self.length_unit !=  "meter":
-            project_setup = app().project.project_setup
+            project_setup = self.project.project_setup
             project_setup.import_type = ImportType.BUILT_IN
             mesher_setup = project_setup.mesher_setup
             mesher_setup.length_unit = "meter"
             mesher_setup.element_size = element_size
             self.project.set_project_setup(project_setup)
+            self.project.file.modify_project_attributes(project_setup)
 
         if len(self.merged_points):
             self.print_merged_nodes_message()
@@ -674,10 +672,11 @@ class GeometryHandler:
 
         self.project.file.write_line_properties_in_file()
 
-        project_setup = app().project.project_setup
+        project_setup = self.project.project_setup
         project_setup.import_type = ImportType.BUILT_IN
 
         self.project.set_project_setup(project_setup)
+        self.project.file.modify_project_attributes(project_setup)
 
     def get_pipeline_data(self, structure):
 

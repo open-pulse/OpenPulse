@@ -3,7 +3,7 @@ import logging
 from collections import defaultdict
 from pathlib import Path
 
-from pulse import TEMP_PROJECT_DIR, app
+from pulse import TEMP_PROJECT_DIR
 from pulse.editor import Pipeline
 from pulse.interface import error_title, warning_title
 from pulse.interface.file.project_file import ProjectFile
@@ -73,7 +73,7 @@ class Project:
 
     def set_project_setup(self, project_setup: ProjectSetup):
         self.project_setup = project_setup
-        self.file.modify_project_attributes(project_setup)
+        self.model.set_project_setup(project_setup)
 
     def reset_solvers(self):
         self.acoustic_solver = None
@@ -137,7 +137,7 @@ class Project:
             self.loader.load_analysis_results()
 
             if self.file.check_pipeline_data():
-                self.process_geometry_and_mesh()
+                self.model.process_geometry_and_mesh()
                 return True
 
         except Exception as log_error:
@@ -178,22 +178,8 @@ class Project:
             if self.loader.load_project_data():
                 return
 
-            self.process_geometry_and_mesh()
+            self.model.process_geometry_and_mesh()
             self.loader.load_mesh_dependent_properties()
-
-    def process_geometry_and_mesh(self):
-        # t0 = time()
-        import_type = self.project_setup.import_type
-        geometry_path = self.project_setup.geometry_path
-
-        self.model.preprocessor.generate(import_type, geometry_path = geometry_path)
-        self.model.preprocessor.process_all_transformation_matrices()
-        if app() is None:
-            return
-
-        app().main_window.update_status_bar_info()
-        # dt = time()-t0
-        # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
     def is_analysis_setup_complete(self):
 
