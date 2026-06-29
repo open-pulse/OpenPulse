@@ -184,7 +184,7 @@ class Project:
     def is_analysis_setup_complete(self):
 
         analysis_setup = self.file.read_analysis_setup_from_file()
-        if not isinstance(analysis_setup, dict):
+        if not analysis_setup:
             return False
 
         analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)

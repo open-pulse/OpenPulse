@@ -823,7 +823,7 @@ class MainWindow(MainWindow_UI):
         self.visualization_changed.emit()
 
     def update_export_geometry_file_access(self):
-        import_type = app().project.model.project_setup.import_type
+        import_type = app().project.project_setup.import_type
         self.action_export_geometry.setEnabled(bool(import_type))
 
     def action_import_geometry_callback(self):

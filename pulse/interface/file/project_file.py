@@ -293,7 +293,7 @@ class ProjectFile:
 
         project_setup = self._read_file(self.project_setup_filename)
         if not isinstance(project_setup, dict):
-            return dict()
+            return
 
         return project_setup.get("analysis_setup", dict())
 
