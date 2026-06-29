@@ -1,17 +1,15 @@
 
+from pathlib import Path
+
+import numpy as np
+import pytest
+from matplotlib import pyplot as plt
+
 from pulse.model import AnalysisID
 from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
-from pulse.project.project import Project
-
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.utils.signal_processing import *
-
-import pytest
-import numpy as np
-
-from pathlib import Path
-from matplotlib import pyplot as plt
+from pulse.project.project import Project
+from pulse.utils.signal_processing import process_iFFT_of_onesided_spectrum
 
 # Setting up model
  
@@ -261,9 +259,10 @@ def plot_data(plot_data: dict, x_label: str, y_label: str, title: str):
 
 def remove_files_from_temporary_folder():
 
-    from pulse import TEMP_PROJECT_DIR
+    from os import listdir, path, remove
     from shutil import rmtree
-    from os import path, remove, listdir
+
+    from pulse import TEMP_PROJECT_DIR
 
     if TEMP_PROJECT_DIR.exists():
         for filename in listdir(TEMP_PROJECT_DIR).copy():

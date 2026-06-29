@@ -56,7 +56,9 @@ def current_model(datadir: Path):
     preprocessor.set_cross_section_by_elements('all', cross_section)
 
     # Apply prescribed 
-    node_id = 103
+    # node_id = 103
+    # coords = preprocessor.nodes[node_id].coordinates
+    node_id = preprocessor.get_node_id_by_coordinates((0.0,0.0,0))
     coords = preprocessor.nodes[node_id].coordinates
     prescribed_dofs = [0j, 0j, 0j, 0j, 0j, 0j]
     real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
@@ -72,7 +74,7 @@ def current_model(datadir: Path):
     model.properties._set_nodal_property("prescribed_dofs", data, node_id)
     
     # Apply nodal loads
-    node_id = preprocessor.get_node_id_by_coordinates((1.0,0.5,0))# 150 #152
+    node_id = preprocessor.get_node_id_by_coordinates((1.0,0.5,0)) #152
     load_values = [1+0j, 0j, 0j, 0j, 0j, 0j]
 
     coords = preprocessor.nodes[node_id].coordinates
