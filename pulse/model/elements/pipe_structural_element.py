@@ -464,7 +464,7 @@ class PipeStructuralElement(StructuralElement):
         return self.transf_matrix_offset_shear_left @ Ke @ self.transf_matrix_offset_shear_right
 
 
-    def mass_matrix_pipes_variable_section(self, element_attributes):
+    def mass_matrix_pipes_variable_section(self):
         """
         This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory 
         in the local coordinate system. This formulation is optimized for pipe cross section data.
@@ -522,7 +522,7 @@ class PipeStructuralElement(StructuralElement):
             Ais = section.area_insulation
 
             rho_insulation = section.insulation_density
-            if isinstance(fluid, Fluid) and element_attributes.adding_mass_effect:
+            if isinstance(fluid, Fluid) and self.element_attributes.adding_mass_effect:
                 rho_fluid = fluid.density
                 Ai = section.area_fluid
                 Gfl = rho_fluid*np.array([
