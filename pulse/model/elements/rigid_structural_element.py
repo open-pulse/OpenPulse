@@ -79,16 +79,19 @@ class RigidStructuralElement(StructuralElement):
         # Izz = cross_section.second_moment_area_y
         # Iyz = cross_section.second_moment_area_yz
 
-        d = self.length
         k = self.element_attributes.k_factor
 
+        dx = self.delta_x
+        dy = self.delta_y
+        dz = self.delta_z
+
         T = np.array([
-            [ 1, 0, 0, 0, 0, -d],
-            [ 0, 1, 0, 0, 0, 0 ],
-            [ 0, 0, 1, 0, 0, 0 ],
-            [-d, 0, 0, 1, 0, 0 ],
-            [ 0, 0, 0, 0, 1, 0 ],
-            [ 0, 0, 0, 0, 0, 1 ]
+            [ 1, 0, 0,   0,  dz, -dy ],
+            [ 0, 1, 0, -dz,   0,  dx ],
+            [ 0, 0, 1,  dy, -dx,   0 ],
+            [ 0, 0, 0,   1,   0,   0 ],
+            [ 0, 0, 0,   0,   1,   0 ],
+            [ 0, 0, 0,   0,   0,   1 ]
             ], dtype = float)
 
         stiffness = ((E * Iyy) / (k - 1)) * np.block([

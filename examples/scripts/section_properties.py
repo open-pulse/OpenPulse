@@ -11,16 +11,16 @@ from sectionproperties.pre.library import (
     tapered_flange_i_section,
 )
 
-geom = tapered_flange_channel(
-    d=10,
-    b=3.5,
-    t_f=0.575,
-    t_w=0.475,
-    r_r=0.575,
-    r_f=0.4,
-    alpha=8,
-    n_r=16,
-)
+# geom = tapered_flange_channel(
+#     d=10,
+#     b=3.5,
+#     t_f=0.575,
+#     t_w=0.475,
+#     r_r=0.575,
+#     r_f=0.4,
+#     alpha=8,
+#     n_r=16,
+# )
 
 # geom = tapered_flange_i_section(
 #     d=10,
@@ -34,7 +34,7 @@ geom = tapered_flange_channel(
 # )
 
 # geom = circular_section(d=50, n=64)
-# geom = circular_hollow_section(0.200, 0.010, 120)
+geom = circular_hollow_section(0.200, 0.010, 120)
 # geom = rectangular_hollow_section(0.200, 0.200, 0.010, 0, 2, 0)
 # geom = cee_section(0.200, 0.100, 0, 0.01, 0.0, 64)
 
@@ -42,7 +42,7 @@ geom = tapered_flange_channel(
 geom = geom.shift_section(-0.1, -0.1)
 
 geom.plot_geometry()
-geom.create_mesh(mesh_sizes=[10e-2])
+geom.create_mesh(mesh_sizes=[10e-5])
 
 section = Section(geometry=geom)
 section.display_mesh_info()
