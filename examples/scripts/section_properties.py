@@ -34,6 +34,7 @@ from sectionproperties.pre.library import (
 # )
 
 # geom = circular_section(d=50, n=64)
+# geom = circular_hollow_section(0.0889, 0.00762, 120)
 geom = circular_hollow_section(0.200, 0.010, 120)
 # geom = rectangular_hollow_section(0.200, 0.200, 0.010, 0, 2, 0)
 # geom = cee_section(0.200, 0.100, 0, 0.01, 0.0, 64)

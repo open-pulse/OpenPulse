@@ -657,6 +657,8 @@ class CrossSection:
         # print(f"res_yz: {self.res_yz}")
         # print(f"shear_y: {self.y_shear}")
         # print(f"shear_z: {self.z_shear}")
+        # print(f"A_shear_y: {self.area / self.res_y}")
+        # print(f"A_shear_z: {self.area / self.res_z}")
 
     def offset_rotation(self, el_type = 'pipe_1', avg_data=[]):
         """
