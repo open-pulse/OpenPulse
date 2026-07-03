@@ -191,6 +191,7 @@ class Model:
         """
         for element_ids in self.preprocessor.elements_connected_to_node.values():
 
+            element_attributes = None
             n_elem = len(element_ids)
 
             if n_elem == 1:
@@ -232,20 +233,54 @@ class Model:
                 if (first_cross, last_cross).count(None):
                     continue
 
-                first_outer_diameter = first_cross.outer_diameter
-                first_inner_diameter = first_cross.inner_diameter
-                last_outer_diameter = last_cross.outer_diameter
-                last_inner_diameter = last_cross.inner_diameter
+                if first_cross.section_info == last_cross.section_info:
+                    continue
 
-                if first_outer_diameter < last_inner_diameter:
-                    inner_diameter = first_inner_diameter 
-                    element_attributes = last_element_attributes
+                else:
 
-                if last_outer_diameter < first_inner_diameter:
-                    inner_diameter = last_inner_diameter 
-                    element_attributes = first_element_attributes
+                    first_outer_diameter = first_cross.outer_diameter
+                    first_inner_diameter = first_cross.inner_diameter
+                    last_outer_diameter = last_cross.outer_diameter
+                    last_inner_diameter = last_cross.inner_diameter
+
+                    if first_outer_diameter < last_inner_diameter:
+                        if last_cross.section_type_label == "expansion_joint":
+                            d_eff, *_ = last_cross.section_info.section_parameters
+                            _, _, offset_y, offset_z, t_ins, *_ = first_cross.section_info.section_parameters
+                            thickness = (1.25 * d_eff - first_inner_diameter ) / 2
+                            first_element_attributes.section_parameters_render = [1.25 * d_eff, thickness, offset_y, offset_z, t_ins]
+                            continue
+
+                        inner_diameter = first_inner_diameter 
+                        element_attributes = last_element_attributes
+
+                    elif last_outer_diameter < first_inner_diameter:
+                        if first_cross.section_type_label == "expansion_joint":
+                            d_eff, *_ = first_cross.section_info.section_parameters
+                            _, _, offset_y, offset_z, t_ins, *_ = last_cross.section_info.section_parameters
+                            thickness = (1.25 * d_eff - last_inner_diameter ) / 2
+                            last_element_attributes.section_parameters_render = [1.25 * d_eff, thickness, offset_y, offset_z, t_ins]
+                            continue
+
+                        inner_diameter = last_inner_diameter
+                        element_attributes = first_element_attributes
+
+                    elif first_cross.section_type_label == "expansion_joint":
+                        first_element_attributes.section_parameters_render = first_cross.section_info._as_list()
+                        continue
+
+                    elif last_cross.section_type_label == "expansion_joint":
+                        last_element_attributes.section_parameters_render = last_cross.section_info._as_list()
+                        continue
+
+                    if element_attributes is None:
+                        print(element_ids, first_cross.section_info, last_cross.section_info)
+                        continue
 
             else:
+                continue
+
+            if element_attributes is None:
                 continue
 
             section_info = element_attributes.cross_section.section_info
