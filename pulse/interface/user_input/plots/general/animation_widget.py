@@ -92,6 +92,11 @@ class AnimationWidget(AnimationWidget_UI):
         self.label_magnification_factor.setEnabled(enabled)
         self.label_factor.setEnabled(enabled)
 
+    def set_magnification_slider_visible(self, visible: bool):
+        self.magnification_factor_slider.setVisible(visible)
+        self.label_magnification_factor.setVisible(visible)
+        self.label_factor.setVisible(visible)
+
     def reset_sliders(self):
         # block the slider signal to avoid multiple render updates
         self.phase_slider.blockSignals(True)

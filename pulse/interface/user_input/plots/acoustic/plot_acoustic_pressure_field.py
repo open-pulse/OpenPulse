@@ -50,7 +50,7 @@ class PlotAcousticPressureField(PlotAcousticPressureFieldForHarmonicAnalysis_UI)
         self.animation_widget = AnimationWidget()
         self.grid_layout.addWidget(self.animation_widget)
         self.frame_animation.adjustSize()
-        self.animation_widget.set_magnification_slider_enabled(False)
+        self.animation_widget.set_magnification_slider_visible(False)
 
     def update_animation_widget_visibility(self):
         if not hasattr(self, "animation_widget"):

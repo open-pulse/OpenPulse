@@ -176,7 +176,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         widget = app().main_window.input_ui.shaking_forces_criteria()
         self.add_widget(widget)
 
-    def add_widget(self, widget: QWidget, fill=False):
+    def add_widget(self, widget: QWidget, fill: bool = False):
         if isinstance(self.bottom_widget, QWidget):
             self.bottom_widget.hide()
 
@@ -191,6 +191,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
             self.layout().setRowStretch(2, 1)
 
         self.adjustSize()
+        widget.show()
 
     def configure_render_according_to_plot_type(self, set_by: str):
 
