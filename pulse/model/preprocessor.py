@@ -57,6 +57,7 @@ class Preprocessor:
         # if isinstance(self.mesh, Mesh):
         self.mesh.reset_variables()
 
+        self.deformed_coordinates: None | np.ndarray = None
         self.deformed_section_rotations = None
         self.undeformed_section_rotations = None
         self.rotation_matrix_gcs_to_lcs = None

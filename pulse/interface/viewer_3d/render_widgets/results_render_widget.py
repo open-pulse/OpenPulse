@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QApplication
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse import ICON_DIR, app
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.actors import (
     ElementLinesActor,
@@ -28,7 +29,7 @@ from pulse.postprocessing.plot_structural_data import (
     get_min_max_resultant_displacements,
     get_min_max_stresses_values,
     get_stresses_to_plot,
-    get_structural_response,
+    get_structural_response_new,
 )
 from pulse.utils.interface_utils import VisualizationFilter
 
@@ -128,10 +129,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 unit_label = "Unit: [--]"
 
             deformed = True
-            color_table, self.is_complex_result = self._compute_displacement_field(
-                self.current_frequency_index,
-                self.current_phase_step,
-            )
+            color_table, self.is_complex_result = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
 
         elif self.analysis_mode == AnalysisMode.STRESS:
             if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
@@ -587,7 +585,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         ]
         return all([actor is not None for actor in actors])
 
-    def _compute_displacement_field(self, frequency_index, phase_step):
+    def _compute_displacement_field(self, frequency_index: int, phase_step: float):
 
         model = app().project.model
         solution = app().project.get_structural_solution()
@@ -596,20 +594,25 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         # effects. It interprets the structural analysis and puts the meaningfull
         # data inside the correspondent nodes.
         # The return values are just extra information.
-        _, _, u_def, self._magnification_factor, _ = get_structural_response(
+
+        animation_widget = app().main_window.results_viewer_widget.get_animation_widget()
+        if isinstance(animation_widget, AnimationWidget):
+            animation_widget.update_factor_label(max_value=self.r_xyz_abs)
+            magnification_factor = animation_widget.magnification_factor
+        else:
+            magnification_factor = 1
+
+        _, _, color_scalars, self._magnification_factor, _ = get_structural_response_new(
             model,
             solution,
             frequency_index,
             phase_step=phase_step,
             r_max=self.r_xyz_abs,
+            magnification_factor=magnification_factor,
         )
 
         min_max_values = (self.result_disp_min, self.result_disp_max)
-        color_table = ColorTable(
-            u_def,
-            min_max_values,
-            self.colormap,
-        )
+        color_table = ColorTable(color_scalars, min_max_values, self.colormap)
 
         is_complex_result = np.imag(solution).any()
 
@@ -620,12 +623,20 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         model = project.model
         solution = project.get_structural_solution()
 
-        *_, self._magnification_factor, _delta = get_structural_response(
+        animation_widget = app().main_window.results_viewer_widget.get_animation_widget()
+        if isinstance(animation_widget, AnimationWidget):
+            animation_widget.update_factor_label(max_value=self.r_xyz_abs)
+            magnification_factor = animation_widget.magnification_factor
+        else:
+            magnification_factor = 1
+
+        *_, self._magnification_factor, _delta = get_structural_response_new(
             model,
             solution,
             frequency_index,
             phase_step=phase_step,
             r_max=self.r_xyz_abs,
+            magnification_factor=magnification_factor,
         )
 
         stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(

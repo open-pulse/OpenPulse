@@ -53,10 +53,6 @@ class Node:
     def reset(self):
         
         # Structural boundary conditions and external lumped elements
-
-        self.deformed_coordinates = None
-        self.deformed_rotations_xyz_gcs = None
-        self.deformed_displacements_xyz_gcs = None
         self.nodal_solution_gcs = None
         self.static_nodal_solution_gcs = None
         self.acoustic_solution = None

@@ -18,6 +18,8 @@ class ElementLinesActor(GhostActor):
 
         self._rigid_elements = self._get_rigid_element_ids()
 
+        self.deformed_coordinates = app().project.model.preprocessor.deformed_coordinates
+
         self.build()
 
     @property
@@ -51,13 +53,11 @@ class ElementLinesActor(GhostActor):
 
         for i, index in enumerate(visible_elements):
             element_attributes = self.elements_attributes.get(index)
-            if self.show_deformed:
-                x0, y0, z0 = element_attributes.first_node.deformed_coordinates
-                x1, y1, z1 = element_attributes.last_node.deformed_coordinates
+            first_node = element_attributes.first_node
+            last_node = element_attributes.last_node
 
-            else:
-                x0, y0, z0 = element_attributes.first_node.coordinates
-                x1, y1, z1 = element_attributes.last_node.coordinates
+            x0, y0, z0 = self.deformed_coordinates[first_node.global_index, 1:] if self.show_deformed else first_node.coordinates
+            x1, y1, z1 = self.deformed_coordinates[ last_node.global_index, 1:] if self.show_deformed else last_node.coordinates
 
             lines.append((x0, y0, z0, x1, y1, z1))
             entity = self.mesh.line_from_element.get(index)

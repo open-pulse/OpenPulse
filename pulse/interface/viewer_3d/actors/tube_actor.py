@@ -36,6 +36,7 @@ class TubeActor(vtkActor):
 
         self.user_preferences = app().main_window.config.user_preferences
         self.elements_attributes = app().project.model.preprocessor.elements_attributes
+        self.deformed_coordinates = app().project.model.preprocessor.deformed_coordinates
 
         self.hidden_elements = kwargs.get("hidden_elements", set())
         self.build()

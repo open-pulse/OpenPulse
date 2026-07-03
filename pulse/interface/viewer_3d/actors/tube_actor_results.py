@@ -14,7 +14,7 @@ class TubeActorResults(TubeActor):
         super().__init__(**kwargs)
 
     def get_element_coordinates(self, node: Node) -> tuple[float, float, float]:
-        return node.deformed_coordinates if self.show_deformed else node.coordinates
+        return self.deformed_coordinates[node.global_index, 1:] if self.show_deformed else node.coordinates
 
     def get_element_rotations(self, element_id: int) -> tuple[float, float, float]:
         if self.show_deformed:

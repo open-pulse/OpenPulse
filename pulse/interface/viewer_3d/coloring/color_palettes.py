@@ -1,3 +1,17 @@
+COLORMAP_NAMES = [
+    "jet",
+    "viridis",
+    "inferno",
+    "magma",
+    "plasma",
+    "bwr",
+    "PiYG",
+    "PRGn",
+    "BrBG",
+    "PuOR",
+    "grayscale",
+]
+
 # Common
 grey_colors = [
     (0, 0, 0),
