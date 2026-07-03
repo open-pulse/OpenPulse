@@ -12,8 +12,9 @@ if TYPE_CHECKING:
 
 @dataclass
 class ExpansionJointData:
-    joint_length: float = 0
-    joint_mass: float = 0
+    ejoint_name: str = ""
+    ejoint_length: float = 0
+    ejoint_mass: float = 0
     effective_diameter: float = 0
     offset_y: float = 0
     offset_z: float = 0
@@ -24,6 +25,7 @@ class ExpansionJointData:
 
 @dataclass
 class ValveData:
+    valve_name: str = ""
     valve_length: float = 0
     valve_mass: float = 0
     valve_stiffening_factor: float = 10

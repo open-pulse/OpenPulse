@@ -1407,11 +1407,13 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
+        expansion_joint_data = ExpansionJointData(**parameters)
+
         for line_id in line_ids:
             for elements in slicer(self.mesh.elements_from_line, line_id):
                 for element_attributes in slicer(self.elements_attributes, elements):
                     if isinstance(parameters, dict):
-                        element_attributes.expansion_joint_data = ExpansionJointData(**parameters)
+                        element_attributes.expansion_joint_data = expansion_joint_data
                     else:
                         element_attributes.expansion_joint_data = None
 

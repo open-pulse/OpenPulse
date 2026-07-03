@@ -65,7 +65,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         general_validator = StrictDoubleValidator(1e-6, 1e8, 6)
         self.lineEdit_effective_diameter.setValidator(general_validator)
-        self.lineEdit_joint_mass.setValidator(general_validator)
+        self.lineEdit_ejoint_mass.setValidator(general_validator)
 
         offsets_validator = StrictDoubleValidator(-1e8, 1e8, 6)
         self.lineEdit_offset_y.setValidator(offsets_validator)
@@ -84,7 +84,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         self.lineEdit_expansion_joint_name.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_effective_diameter.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_joint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_ejoint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         self.reset_table_variables()
         self.create_widgets_lists()
@@ -172,9 +172,9 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
     def load_input_fields(self, joint_data: dict):
 
-        self.lineEdit_expansion_joint_name.setText(joint_data.get("expansion_joint_name"))
+        self.lineEdit_expansion_joint_name.setText(joint_data.get("ejoint_name"))
         self.lineEdit_effective_diameter.setText(str(joint_data.get("effective_diameter")))
-        self.lineEdit_joint_mass.setText(str(joint_data.get("joint_mass")))
+        self.lineEdit_ejoint_mass.setText(str(joint_data.get("ejoint_mass")))
         self.lineEdit_axial_locking_criteria.setText(str(joint_data.get("axial_locking_criteria", 1)))
         self.comboBox_axial_stop_rod.setCurrentIndex(int(joint_data.get("rods_included", False)))
 
@@ -260,7 +260,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.lineEdit_expansion_joint_name.setFocus()
             return True
 
-        self.expansion_joint_info["expansion_joint_name"] = joint_name
+        self.expansion_joint_info["ejoint_name"] = joint_name
         axial_stop_rod = self.comboBox_axial_stop_rod.currentIndex() == AxialStopRod.INCLUDED
 
         if self.render_type == "model":
@@ -271,7 +271,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.lineEdit_effective_diameter,
             self.lineEdit_offset_y,
             self.lineEdit_offset_z,
-            self.lineEdit_joint_mass,
+            self.lineEdit_ejoint_mass,
         ]
 
         if axial_stop_rod:
@@ -287,7 +287,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             var_name = obj_name.split("lineEdit_")[1]
             self.expansion_joint_info[var_name] = float(text_value) if text_value != "" else 0
 
-        self.expansion_joint_info["rods"] = axial_stop_rod
+        self.expansion_joint_info["rods_included"] = axial_stop_rod
 
     def check_constant_values_to_stiffness(self):
 
@@ -439,7 +439,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                         self.expansion_joint_info.clear()
                         return
 
-                self.expansion_joint_info["joint_length"] = self.process_line_length(
+                self.expansion_joint_info["ejoint_length"] = self.process_line_length(
                     line_id
                 )
 
@@ -479,17 +479,17 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         for line_id, data in self.properties.line_properties.items():
             if "expansion_joint_info" in data.keys():
                 ej_info = data["expansion_joint_info"]
-                L = round(ej_info["joint_length"], 6)
+                L = round(ej_info["ejoint_length"], 6)
                 d_eff = ej_info["effective_diameter"]
-                mass = ej_info["joint_mass"]
-                rods = ej_info["rods"]
+                mass = ej_info["ejoint_mass"]
+                rods_included = ej_info["rods_included"]
 
                 if "table_names" in ej_info.keys():
                     pass
                 else:
                     pass
 
-                str_joint_info = f"{L}, {d_eff}, {mass}, {rods}, "
+                str_joint_info = f"{L}, {d_eff}, {mass}, {rods_included}, "
                 if "table_names" in ej_info.keys():
                     str_joint_info += "Table, Table, Table, Table"
                 else:

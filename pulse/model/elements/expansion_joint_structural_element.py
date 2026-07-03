@@ -74,7 +74,7 @@ class ExpansionJointStructuralElement(StructuralElement):
 
     def stiffness_matrix_expansion_joint_harmonic(self, frequencies: np.ndarray | None = None):
 
-        L_e = self.expansion_joint_data.joint_length / self.length
+        L_e = self.expansion_joint_data.ejoint_length / self.length
         n_freq = 1 if frequencies is None else frequencies.size
 
         K_matrix = np.zeros((n_freq, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
@@ -105,10 +105,10 @@ class ExpansionJointStructuralElement(StructuralElement):
 
     def mass_matrix_expansion_joint(self):
 
-        L_e = self.expansion_joint_data.joint_length / self.length
+        L_e = self.expansion_joint_data.ejoint_length / self.length
         M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        M1 = M2 = M3 = self.expansion_joint_data.joint_mass / (2 * L_e)
+        M1 = M2 = M3 = self.expansion_joint_data.ejoint_mass / (2 * L_e)
         indexes = np.array([0, 1, 2, 6, 7, 8], dtype=int)
 
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]

@@ -298,20 +298,13 @@ class LoadProject:
         if not isinstance(prop_data, dict):
             return
 
-        prop_data["joint_length"] = self.properties.get_line_length(line_id)
+        prop_data["ejoint_length"] = self.properties.get_line_length(line_id)
 
         if "effective_diameter" not in prop_data.keys():
             return
     
-        self.preprocessor.add_expansion_joint_by_lines(
-            line_id, 
-            prop_data,
-            )
-
-        self.preprocessor.set_cross_sections_to_expansion_joint(
-            line_id, 
-            prop_data,
-            )
+        self.preprocessor.add_expansion_joint_by_lines(line_id, prop_data)
+        self.preprocessor.set_cross_sections_to_expansion_joint(line_id, prop_data)
 
 
     def load_valves(self, line_id: int, data: dict):
