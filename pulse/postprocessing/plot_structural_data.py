@@ -12,6 +12,12 @@ from math import pi
 
 N_div = 20
 
+DISP_INDEXES = [0, 1, 2]
+ROT_INDEXES = [3, 4, 5]
+
+LOCAL_DOFS = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
+DISP_LOCAL_DOFS = np.arange(int(DOF_PER_NODE_STRUCTURAL/2), dtype=int)
+
 
 def get_preprocessor():
     project = app().main_window.project
@@ -162,11 +168,129 @@ def get_min_max_resultant_displacements(solution: np.ndarray, column: int, **kwa
     return r_xyz, r_min, r_max, r_xyz_max
 
 
-def get_structural_response(model: "Model", solution: np.ndarray, column: int, **kwargs) -> np.ndarray:
+# def get_structural_response(model: "Model", solution: np.ndarray, column: int, **kwargs) -> np.ndarray:
 
-    phase_step = kwargs.get("phase_step", None)
+#     phase_step = kwargs.get("phase_step", None)
+#     r_max = kwargs.get("r_max", None)
+#     new_scf = kwargs.get("new_scf", None)
+#     Normalize = kwargs.get("Normalize", True)
+
+#     absolute_animation = kwargs.get("absolute_animation", False)
+#     ux_animation = kwargs.get("ux_animation", False)
+#     uy_animation = kwargs.get("uy_animation", False)
+#     uz_animation = kwargs.get("uz_animation", False)
+
+#     color_scale_setup = get_color_scale_setup()
+#     try:
+#         if color_scale_setup:
+#             absolute_animation = color_scale_setup["absolute_animation"]
+#             ux_animation = color_scale_setup["ux_animation"]
+#             uy_animation = color_scale_setup["uy_animation"]
+#             uz_animation = color_scale_setup["uz_animation"]
+#     except Exception:
+#         absolute_animation = True
+
+#     rows = int(solution.shape[0]/DOF_PER_NODE_STRUCTURAL)
+#     ind = np.arange(0, solution.shape[0], DOF_PER_NODE_STRUCTURAL, dtype=int)
+
+#     u_x, u_y, u_z = solution[ind+0, column], solution[ind+1, column], solution[ind+2, column]
+    
+#     if r_max is None:
+#         _, r_max = get_min_max_resultant_displacements(solution, column)
+
+#     # min_max_values_all = [r_min, r_max]
+
+#     phases = np.angle(solution)
+#     _phases = np.array([
+#         phases[ind+0, column], 
+#         phases[ind+1, column], 
+#         phases[ind+2, column], 
+#         phases[ind+3, column], 
+#         phases[ind+4, column], 
+#         phases[ind+5, column]
+#         ]).T
+
+#     _idx_max = np.argmax(np.abs(solution[:, column]))
+#     _delta = -np.angle(solution[_idx_max, column])
+
+#     if new_scf is None:
+#         scf = model.preprocessor.structure_principal_diagonal / 50
+
+#     if Normalize:
+#         if r_max == 0:
+#             r_max = 1
+#     else:
+#         r_max, scf = 1, 1
+
+#     coord_def = np.zeros((rows,4), dtype=float)
+#     coord = model.preprocessor.nodal_coordinates_matrix
+#     connect = model.preprocessor.connectivity_matrix
+
+#     magnif_factor = scf/r_max
+#     if phase_step is None:
+#         factor = magnif_factor
+#     else:
+#         factor = magnif_factor*np.cos(phase_step + _phases + _delta)
+    
+#     # deformed coordinates
+#     coord_def[:,0] = coord[:,0]
+#     coord_def[:,1] = coord[:,1] + np.abs(u_x) * factor[:, 0]
+#     coord_def[:,2] = coord[:,2] + np.abs(u_y) * factor[:, 1]
+#     coord_def[:,3] = coord[:,3] + np.abs(u_z) * factor[:, 2]
+
+#     model.preprocessor.deformed_coordinates = coord_def
+
+#     if absolute_animation:
+#         # absolute r_xyz_plot = |[Ux, Uy, Uz]|
+#         r_xyz_plot = ((
+#             (np.abs(u_x) * factor[:, 0])**2 + 
+#             (np.abs(u_y) * factor[:, 1])**2 + 
+#             (np.abs(u_z) * factor[:, 2])**2
+#             )**(1/2)) / magnif_factor
+
+#     elif ux_animation:
+#         r_xyz_plot = np.abs(u_x) * factor[:, 0] / magnif_factor
+
+#     elif uy_animation:
+#         r_xyz_plot = np.abs(u_y) * factor[:, 1] / magnif_factor
+
+#     elif uz_animation:
+#         r_xyz_plot = np.abs(u_z) * factor[:, 2] / magnif_factor
+
+#     else:
+#         r_xyz_plot, *args = get_min_max_resultant_displacements(solution, column)
+
+#     data = np.abs(solution)
+#     nodal_solution_gcs = np.array([ 
+#         data[ind+0, column], 
+#         data[ind+1, column], 
+#         data[ind+2, column],
+#         data[ind+3, column], 
+#         data[ind+4, column], 
+#         data[ind+5, column],
+#         ]).T*factor
+
+#     nodes = model.preprocessor.nodes
+
+#     disp_indexes = [0, 1, 2]
+#     rot_indexes = [3, 4, 5]
+
+#     for node in nodes.values():
+#         global_index = node.global_index
+#         node.deformed_coordinates = coord_def[global_index, 1:]       
+#         node.nodal_solution_gcs = nodal_solution_gcs[global_index, :]
+#         node.deformed_displacements_xyz_gcs = nodal_solution_gcs[global_index, disp_indexes]
+#         node.deformed_rotations_xyz_gcs = nodal_solution_gcs[global_index, rot_indexes]
+
+#     model.preprocessor.process_element_cross_sections_orientation_to_plot()
+
+#     return connect, coord_def, r_xyz_plot, magnif_factor, _delta
+
+
+def get_structural_response_new(model: "Model", solution: np.ndarray, column: int, phase_step: float = 0, **kwargs) -> np.ndarray:
+
     r_max = kwargs.get("r_max", None)
-    new_scf = kwargs.get("new_scf", None)
+    magnification_factor = kwargs.get("magnification_factor", 1)
     Normalize = kwargs.get("Normalize", True)
 
     absolute_animation = kwargs.get("absolute_animation", False)
@@ -184,31 +308,38 @@ def get_structural_response(model: "Model", solution: np.ndarray, column: int, *
     except Exception:
         absolute_animation = True
 
-    rows = int(solution.shape[0]/DOF_PER_NODE_STRUCTURAL)
-    ind = np.arange(0, solution.shape[0], DOF_PER_NODE_STRUCTURAL, dtype=int)
+    coords = model.preprocessor.nodal_coordinates_matrix
+    connect = model.preprocessor.connectivity_matrix
 
-    u_x, u_y, u_z = solution[ind+0, column], solution[ind+1, column], solution[ind+2, column]
-    
     if r_max is None:
         _, r_max = get_min_max_resultant_displacements(solution, column)
 
-    # min_max_values_all = [r_min, r_max]
+    amplitudes = np.abs(solution[:, column])
+    phases_rad = np.angle(solution[:, column])
 
-    phases = np.angle(solution)
-    _phases = np.array([
-        phases[ind+0, column], 
-        phases[ind+1, column], 
-        phases[ind+2, column], 
-        phases[ind+3, column], 
-        phases[ind+4, column], 
-        phases[ind+5, column]
-        ]).T
+    phase_shift = -phases_rad[np.argmax(amplitudes)]
+    cossines_phases = np.cos(phases_rad + phase_step + phase_shift)
 
-    _idx_max = np.argmax(np.abs(solution[:, column]))
-    _delta = -np.angle(solution[_idx_max, column])
+    _nodal_solution = amplitudes * cossines_phases
 
-    if new_scf is None:
-        scf = model.preprocessor.structure_principal_diagonal / 50
+    uxyz_indexes = np.arange(coords.shape[0], dtype=int).reshape(-1, 1) * DOF_PER_NODE_STRUCTURAL + DISP_LOCAL_DOFS
+
+    if absolute_animation:
+        r_xyz_plot = np.linalg.norm(_nodal_solution[uxyz_indexes.flatten()].reshape(-1, 3),  axis=1)
+
+    elif ux_animation:
+        r_xyz_plot = _nodal_solution[uxyz_indexes[:, 0]]
+
+    elif uy_animation:
+        r_xyz_plot = _nodal_solution[uxyz_indexes[:, 1]]
+
+    elif uz_animation:
+        r_xyz_plot = _nodal_solution[uxyz_indexes[:, 2]]
+
+    else:
+        r_xyz_plot, *args = get_min_max_resultant_displacements(solution, column)
+
+    scf = model.preprocessor.structure_principal_diagonal / 50
 
     if Normalize:
         if r_max == 0:
@@ -216,67 +347,29 @@ def get_structural_response(model: "Model", solution: np.ndarray, column: int, *
     else:
         r_max, scf = 1, 1
 
-    coord_def = np.zeros((rows,4), dtype=float)
-    coord = model.preprocessor.nodal_coordinates_matrix
-    connect = model.preprocessor.connectivity_matrix
+    # amplification factor
+    mag_fact = magnification_factor * (scf / r_max)
 
-    magnif_factor = scf/r_max
-    if phase_step is None:
-        factor = magnif_factor
-    else:
-        factor = magnif_factor*np.cos(phase_step + _phases + _delta)
-    
+    modif_nodal_solution = _nodal_solution * mag_fact
+
     # deformed coordinates
-    coord_def[:,0] = coord[:,0]
-    coord_def[:,1] = coord[:,1] + np.abs(u_x) * factor[:, 0]
-    coord_def[:,2] = coord[:,2] + np.abs(u_y) * factor[:, 1]
-    coord_def[:,3] = coord[:,3] + np.abs(u_z) * factor[:, 2]
+    coord_def = np.zeros_like(coords, dtype=float)
+    coord_def[:, 1] = coords[:, 0]
+    coord_def[:, 1] = coords[:, 1] + modif_nodal_solution[uxyz_indexes[:, 0]]
+    coord_def[:, 2] = coords[:, 2] + modif_nodal_solution[uxyz_indexes[:, 1]]
+    coord_def[:, 3] = coords[:, 3] + modif_nodal_solution[uxyz_indexes[:, 2]]
 
-    if absolute_animation:
-        # absolute r_xyz_plot = |[Ux, Uy, Uz]|
-        r_xyz_plot = ((
-            (np.abs(u_x) * factor[:, 0])**2 + 
-            (np.abs(u_y) * factor[:, 1])**2 + 
-            (np.abs(u_z) * factor[:, 2])**2
-            )**(1/2)) / magnif_factor
+    model.preprocessor.deformed_coordinates = coord_def
 
-    elif ux_animation:
-        r_xyz_plot = np.abs(u_x) * factor[:, 0] / magnif_factor
-
-    elif uy_animation:
-        r_xyz_plot = np.abs(u_y) * factor[:, 1] / magnif_factor
-
-    elif uz_animation:
-        r_xyz_plot = np.abs(u_z) * factor[:, 2] / magnif_factor
-
-    else:
-        r_xyz_plot, *args = get_min_max_resultant_displacements(solution, column)
-
-    data = np.abs(solution)
-    nodal_solution_gcs = np.array([ 
-        data[ind+0, column], 
-        data[ind+1, column], 
-        data[ind+2, column],
-        data[ind+3, column], 
-        data[ind+4, column], 
-        data[ind+5, column],
-        ]).T*factor
-
-    nodes = model.preprocessor.nodes
-
-    disp_indexes = [0, 1, 2]
-    rot_indexes = [3, 4, 5]
-
-    for node in nodes.values():
+    for node in model.preprocessor.nodes.values():
         global_index = node.global_index
-        node.deformed_coordinates = coord_def[global_index, 1:]       
-        node.nodal_solution_gcs = nodal_solution_gcs[global_index, :]
-        node.deformed_displacements_xyz_gcs = nodal_solution_gcs[global_index, disp_indexes]
-        node.deformed_rotations_xyz_gcs = nodal_solution_gcs[global_index, rot_indexes]
+        g_dofs = LOCAL_DOFS + global_index * DOF_PER_NODE_STRUCTURAL
+        # node.deformed_coordinates = coord_def[global_index, 1:]
+        node.nodal_solution_gcs = modif_nodal_solution[g_dofs]
 
     model.preprocessor.process_element_cross_sections_orientation_to_plot()
 
-    return connect, coord_def, r_xyz_plot, magnif_factor, _delta
+    return connect, coord_def, r_xyz_plot, mag_fact, phase_shift
 
 
 def get_reactions(reactions: dict, node_id: int, dof_index: int, **kwargs):
