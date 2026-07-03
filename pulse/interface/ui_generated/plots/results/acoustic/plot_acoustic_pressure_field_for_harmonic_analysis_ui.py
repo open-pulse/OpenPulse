@@ -302,8 +302,8 @@ class Ui_Form(object):
         self.comboBox_colormaps.setItemText(9, QCoreApplication.translate("Form", u"PuOr diverging scale", None))
         self.comboBox_colormaps.setItemText(10, QCoreApplication.translate("Form", u" Grayscale", None))
 
-        self.comboBox_color_scale.setItemText(0, QCoreApplication.translate("Form", u"Animation (absolute)", None))
-        self.comboBox_color_scale.setItemText(1, QCoreApplication.translate("Form", u"Animation (non absolute)", None))
+        self.comboBox_color_scale.setItemText(0, QCoreApplication.translate("Form", u"Animation (non absolute)", None))
+        self.comboBox_color_scale.setItemText(1, QCoreApplication.translate("Form", u"Animation (absolute)", None))
         self.comboBox_color_scale.setItemText(2, QCoreApplication.translate("Form", u"Absolute values", None))
         self.comboBox_color_scale.setItemText(3, QCoreApplication.translate("Form", u"Real values", None))
         self.comboBox_color_scale.setItemText(4, QCoreApplication.translate("Form", u"Imaginary values", None))

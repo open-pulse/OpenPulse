@@ -35,7 +35,7 @@ class Ui_Form(object):
         self.gridLayout = QGridLayout(self.frame)
         self.gridLayout.setSpacing(4)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(4, 6, 4, 4)
+        self.gridLayout.setContentsMargins(4, 6, 4, 6)
         self.frame_2 = QFrame(self.frame)
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setMinimumSize(QSize(0, 80))
