@@ -65,12 +65,8 @@ class ElementLinesActor(GhostActor):
                 print(f"Warning: the element [{i}] is not associated with a line")
                 continue
 
-            print(elem_id, (x0, y0, z0), (x1, y1, z1))
-
-            index = self._key_index.get(elem_id)
-
             entity_index.InsertNextTuple1(entity)
-            element_index.InsertNextTuple1(index)
+            element_index.InsertNextTuple1(elem_id)
 
         data = LinesData(lines)
         data.GetCellData().AddArray(entity_index)
