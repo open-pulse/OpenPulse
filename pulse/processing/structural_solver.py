@@ -668,8 +668,9 @@ class StructuralSolver:
 
             if element_attributes.structural_element_type in ["beam_1", "expansion_joint", "valve"]:
                 nodal_stresses[index] = np.zeros((7, len(_frequencies)))
+                continue
 
-            elif element_attributes.structural_element_type != "pipe_1":
+            if element_attributes.structural_element_type != "pipe_1":
                 continue
 
             Dab = element_attributes.matrices_for_stresses_recover.Dab
