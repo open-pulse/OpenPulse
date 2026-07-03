@@ -116,8 +116,6 @@ class ElementLinesActor(GhostActor):
         elements = set(elements) if elements else set()
         lines = set(lines) if lines else set()
 
-        print(elements, lines)
-
         n_cells = data.GetNumberOfCells()
         element_indexes: vtkIntArray = data.GetCellData().GetArray("element_index")
         entity_indexes: vtkIntArray = data.GetCellData().GetArray("entity_index")

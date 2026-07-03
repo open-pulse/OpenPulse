@@ -177,10 +177,10 @@ class Mesh:
             _elements_tags = np.unique(elements_tags[0])
 
             # self.map_nodes = dict(zip(_nodes_tags, np.arange(_nodes_tags.size, dtype=int)))
-            # self.map_elements = dict(zip(_elements_tags, np.arange(_elements_tags.size, dtype=int)))
+            self.map_elements = dict(zip(_elements_tags, np.arange(_elements_tags.size, dtype=int)))
 
             self.map_nodes = dict(zip(_nodes_tags, np.arange(1, _nodes_tags.size + 1, 1, dtype=int)))
-            self.map_elements = dict(zip(_elements_tags, np.arange(1, _elements_tags.size + 1, 1, dtype=int)))
+            # self.map_elements = dict(zip(_elements_tags, np.arange(1, _elements_tags.size + 1, 1, dtype=int)))
 
             # self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
             # self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))

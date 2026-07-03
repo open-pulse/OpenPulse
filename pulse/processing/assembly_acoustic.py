@@ -244,12 +244,14 @@ class AssemblyAcoustic:
         data_Kd = np.zeros([len(self.frequencies), total_entries], dtype = complex)
         # data_Kd = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
 
-        for k, (index, element_attributes) in enumerate(self.preprocessor.elements_attributes.items()):
+        #NOTE: the element_index starts from zero
+
+        for k, (elem_index, element_attributes) in enumerate(self.preprocessor.elements_attributes.items()):
 
             if element_attributes.structural_element_type in ["beam_1", "rigid_element"]:
                 continue
 
-            start = (index - 1) * ENTRIES_PER_ELEMENT
+            start = elem_index * ENTRIES_PER_ELEMENT
             end = start + ENTRIES_PER_ELEMENT
 
             element_attributes.acoustic_element_formulation = "FETM"
@@ -570,7 +572,7 @@ class AssemblyAcoustic:
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
 
-        for k, element_attributes in enumerate(self.preprocessor.elements_attributes.values()):
+        for elem_id, element_attributes in self.preprocessor.elements_attributes.items():
 
             if element_attributes.structural_element_type in ["beam_1", "rigid_element"]:
                 continue
@@ -581,7 +583,7 @@ class AssemblyAcoustic:
             # build the acoustic element
             element = build_acoustic_element(element_attributes)
 
-            mat_Ke[k, :, :], mat_Me[k, :, :] = element.fem_elementary_matrices(length_correction=length_correction)
+            mat_Ke[elem_id, :, :], mat_Me[elem_id, :, :] = element.fem_elementary_matrices(length_correction=length_correction)
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])

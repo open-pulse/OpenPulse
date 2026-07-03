@@ -18,9 +18,9 @@ class TubeActorResults(TubeActor):
 
     def get_element_rotations(self, element_id: int) -> tuple[float, float, float]:
         if self.show_deformed:
-            return self.preprocessor.deformed_section_rotations[element_id - 1, :]
+            return self.preprocessor.deformed_section_rotations[element_id, :]
 
-        return self.preprocessor.undeformed_section_rotations[element_id - 1, :]
+        return self.preprocessor.undeformed_section_rotations[element_id, :]
 
     def create_element_data(self, element_attributes: ElementAttributes):
 

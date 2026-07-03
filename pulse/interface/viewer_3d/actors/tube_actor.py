@@ -131,7 +131,7 @@ class TubeActor(vtkActor):
         return node.coordinates
 
     def get_element_rotations(self, element_id: int) -> tuple[float, float, float]:
-        return self.preprocessor.undeformed_section_rotations[element_id - 1, :]
+        return self.preprocessor.undeformed_section_rotations[element_id, :]
 
     def create_element_data(self, element_attributes: ElementAttributes):
 
@@ -245,8 +245,8 @@ class TubeActor(vtkActor):
             line_elements = line_to_elements[line]
             elements |= set(line_elements)
 
-        for element in elements:
-            index = self._key_index.get(element)
+        for elem_id in elements:
+            index = self._key_index.get(elem_id)
             colors.SetTuple(index, color)
 
         data.GetPointData().SetScalars(colors)
@@ -258,8 +258,8 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element_attributes in self.elements_attributes.items():
-            index = self._key_index.get(i)
+        for elem_id, element_attributes in self.elements_attributes.items():
+            index = self._key_index.get(elem_id)
             if index is None:
                 continue
 
@@ -275,8 +275,8 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element_attributes in self.elements_attributes.items():
-            index = self._key_index.get(i)
+        for elem_id, element_attributes in self.elements_attributes.items():
+            index = self._key_index.get(elem_id)
             if index is None:
                 continue
 
@@ -301,12 +301,12 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element in self.elements_attributes.items():
-            index = self._key_index.get(i)
+        for elem_id, element_attributes in self.elements_attributes.items():
+            index = self._key_index.get(elem_id)
             if index is None:
                 continue
 
-            fluid = self.preprocessor.get_element_fluid(element.index)
+            fluid = element_attributes.fluid
             if fluid is None:
                 colors.SetTuple(index, (255, 255, 255))
                 continue

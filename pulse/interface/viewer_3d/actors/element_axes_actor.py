@@ -25,7 +25,7 @@ class ElementAxesActor(vtkAxesActor):
 
         length = element_attributes.length
         coords = element_attributes.center_coordinates
-        rx, ry, rz = self.undeformed_section_rotations[element_attributes.index - 1, :]
+        rx, ry, rz = self.undeformed_section_rotations[element_attributes.index, :]
 
         transform = vtkTransform()
         transform.Translate(coords)

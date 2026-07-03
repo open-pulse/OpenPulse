@@ -44,7 +44,7 @@ class AnimationWidget(AnimationWidget_UI):
         self.magnification_factor_slider.setOrientation(Qt.Orientation.Horizontal)
         self.magnification_factor_slider.setCursor(Qt.PointingHandCursor)
         self.magnification_factor_slider.setMinimum(0)
-        self.magnification_factor_slider.setMaximum(32)
+        self.magnification_factor_slider.setMaximum(64)
         self.magnification_factor_slider.setValue(16)
         self.magnification_factor_slider.setSingleStep(1)
 
