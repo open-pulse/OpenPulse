@@ -274,7 +274,7 @@ class Model:
                         continue
 
                     if element_attributes is None:
-                        print(element_ids, first_cross.section_info, last_cross.section_info)
+                        # print(element_ids, first_cross.section_info, last_cross.section_info)
                         continue
 
             else:
@@ -301,3 +301,14 @@ class Model:
         self.preprocessor.process_all_transformation_matrices()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
+
+    def get_rigid_elements(self):
+        rigid_elements = set()
+        for line_id, elements_from_line in self.mesh.elements_from_line.items():
+            structural_element_type = self.properties._get_property("structural_element_type", line_id=line_id)
+            if structural_element_type != "rigid_element":
+                continue
+
+            rigid_elements |= set(elements_from_line)
+
+        return rigid_elements

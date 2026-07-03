@@ -16,8 +16,7 @@ class ElementLinesActor(GhostActor):
         self.show_deformed = show_deformed
         self.hidden_elements = kwargs.get("hidden_elements", set())
 
-        self._rigid_elements = self._get_rigid_element_ids()
-
+        self.rigid_elements = self.model.get_rigid_elements()
         self.deformed_coordinates = app().project.model.preprocessor.deformed_coordinates
 
         self.build()
@@ -31,8 +30,8 @@ class ElementLinesActor(GhostActor):
         return app().project
 
     @property
-    def mesh(self):
-        return app().project.model.mesh
+    def model(self):
+        return app().project.model
 
     @property
     def elements_attributes(self):
@@ -60,7 +59,7 @@ class ElementLinesActor(GhostActor):
             x1, y1, z1 = self.deformed_coordinates[ last_node.global_index, 1:] if self.show_deformed else last_node.coordinates
 
             lines.append((x0, y0, z0, x1, y1, z1))
-            entity = self.mesh.line_from_element.get(elem_id)
+            entity = self.model.mesh.line_from_element.get(elem_id)
             if entity is None:
                 print(f"Warning: the element [{i}] is not associated with a line")
                 continue
@@ -85,22 +84,23 @@ class ElementLinesActor(GhostActor):
         self.GetProperty().SetLineWidth(6)
         self.make_ghost()
 
-    def _get_rigid_element_ids(self):
-        rigid_ids = set()
-        for structure in self.project.pipeline.structures:
-            if structure.extra_info.get("structural_element_type") == "rigid_element":
-                rigid_ids.update(self.mesh.elements_from_line.get(structure.tag))
+    # def _get_rigid_element_ids(self):
+    #     rigid_ids = set()
+    #     for structure in self.project.pipeline.structures:
+    #         if structure.extra_info.get("structural_element_type") == "rigid_element":
+    #             rigid_ids.update(self.mesh.elements_from_line.get(structure.tag))
 
-        return rigid_ids
+    #     return rigid_ids
 
     def clear_colors(self):
-        lines_color = self.user_preferences.lines_color.to_rgb()
-
         data = self.GetMapper().GetInput()
+        lines_color = self.user_preferences.lines_color.to_rgb()
         set_polydata_colors(data, lines_color)
 
-        if self._rigid_elements:
-            self.set_color(PURPLE_7.to_rgb(), elements=self._rigid_elements)
+        if not self.rigid_elements:
+            return
+
+        self.set_color(PURPLE_7.to_rgb(), elements=self.rigid_elements)
 
     def set_color(self, color, elements=None, lines=None):
         mapper = self.GetMapper()
