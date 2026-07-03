@@ -9,14 +9,20 @@ from pulse.interface.user_input.plots.general.animation_widget import AnimationW
 from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
 from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressesFieldForStaticAnalysis
 from pulse.interface.user_input.plots.structural.plot_stresses_field_for_harmonic_analysis import PlotStressesFieldForHarmonicAnalysis
-from pulse.interface.user_input.plots.structural.plot_stresses_for_harmonic_analysis import PlotStressesForHarmonicAnalysis
-from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
+from pulse.model import AnalysisID
 
 
 class ResultsViewerWidget(LeftMenuWidget_UI):
     def __init__(self):
         super().__init__()
+
+        self.plot_structural_modal = PlotStructuralModeShape()
+        self.plot_structural_harmonic = PlotNodalResultsFieldForHarmonicAnalysis()
+        self.plot_acoustic_modal = PlotAcousticModeShape()
+        self.plot_acoustic_harmonic = PlotAcousticPressureField()
+        self.plot_stresses_harmonic = PlotStressesFieldForHarmonicAnalysis()
+        self.plot_stresses_static = PlotStressesFieldForStaticAnalysis()
 
         self._reset()
         self._define_qt_variables()
@@ -68,13 +74,18 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def add_structural_mode_shape_widget(self):
         self.configure_render_according_to_plot_type("tubes")
-        widget = app().main_window.input_ui.plot_structural_mode_shapes()
-        self.add_widget(widget, fill=True)
+        self.top_widget.setFixedHeight(120)
+        self.current_widget = self.plot_structural_modal
+        self.plot_structural_modal.load_natural_frequencies()
+        self.plot_structural_modal.load_user_preference_colormap()
+        self.add_widget(self.plot_structural_modal, fill=True)
 
     def add_displacement_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
-        widget = app().main_window.input_ui.plot_displacement_field()
-        self.add_widget(widget, fill=True)
+        self.current_widget = self.plot_structural_harmonic
+        self.plot_structural_harmonic.load_frequencies()
+        self.plot_structural_harmonic.load_user_preference_colormap()
+        self.add_widget(self.plot_structural_harmonic, fill=True)
 
     def add_structural_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -83,8 +94,15 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def add_stress_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
-        widget = app().main_window.input_ui.plot_stress_field()
-        self.add_widget(widget, fill=True)
+
+        if AnalysisID(app().project.analysis_id).is_static():
+            self.current_widget = self.plot_stresses_static
+        else:
+            self.current_widget = self.plot_stresses_harmonic
+
+        self.current_widget.load_frequencies()
+        self.current_widget.load_user_preference_colormap()
+        self.add_widget(self.current_widget, fill=True)
 
     def add_stress_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -98,13 +116,17 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
     def add_acoustic_mode_shape_widget(self):
         self.configure_render_according_to_plot_type("tubes")
-        widget = app().main_window.input_ui.plot_acoustic_mode_shapes()
-        self.add_widget(widget, fill=True)
+        self.current_widget = self.plot_acoustic_modal
+        self.plot_acoustic_modal.load_natural_frequencies()
+        self.plot_acoustic_modal.load_user_preference_colormap()
+        self.add_widget(self.plot_acoustic_modal, fill=True)
 
     def add_acoustic_pressure_field_widget(self):
         self.configure_render_according_to_plot_type("tubes")
-        widget = app().main_window.input_ui.plot_acoustic_pressure_field()
-        self.add_widget(widget, fill=True)
+        self.current_widget = self.plot_acoustic_harmonic
+        self.plot_acoustic_harmonic.load_frequencies()
+        self.plot_acoustic_harmonic.load_user_preference_colormap()
+        self.add_widget(self.plot_acoustic_harmonic, fill=True)
 
     def add_acoustic_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
@@ -213,3 +235,9 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
 
         return None
 
+    def clear_treeWidgets_of_frequencies(self):
+        self.plot_structural_modal.treeWidget_frequencies.clear()
+        self.plot_structural_harmonic.treeWidget_frequencies.clear()
+        self.plot_stresses_harmonic.treeWidget_frequencies.clear()
+        self.plot_acoustic_modal.treeWidget_frequencies.clear()
+        self.plot_acoustic_harmonic.treeWidget_frequencies.clear()

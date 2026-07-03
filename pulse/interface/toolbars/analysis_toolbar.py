@@ -260,6 +260,7 @@ class AnalysisToolbar(QToolBar):
         logging.info("Post-processing results... [95/100]")
         app().main_window.results_viewer_widget.results_viewer_items._update_items()
         self.set_pushbutton_reset_solution_enabled()
+        app().main_window.results_viewer_widget.clear_treeWidgets_of_frequencies()
 
     def update_run_analysis_button(self):
 

@@ -8,6 +8,7 @@ from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.plot_stresses_field_for_static_analysis_ui import PlotStressesFieldForStaticAnalysis_UI
 from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.viewer_3d.coloring.color_palettes import COLORMAP_NAMES
 
 
 class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
@@ -15,38 +16,24 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         super().__init__(*args, **kwargs)
         self._config_window()
         self._initialize()
-        self._load_structural_solver()
         self._add_animation_widget()
         self._create_connections()
-        self.update_plot()
-        self.load_user_preference_colormap()
 
     def _initialize(self):
 
         self.stress_data = list()
-        self.keys = np.arange(7)
+        self.keys = np.arange(7, dtype=int)
         self.selected_index = None
 
-        self.colormaps = ["jet",
-                          "viridis",
-                          "inferno",
-                          "magma",
-                          "plasma",
-                          "bwr",
-                          "PiYG",
-                          "PRGn",
-                          "BrBG",
-                          "PuOR",
-                          "grayscale",
-                          ]
-
-        self.labels = np.array(["Normal axial",
-                                "Normal bending y",
-                                "Normal bending z",
-                                "Hoop",
-                                "Torsional shear",
-                                "Transversal shear xy",
-                                "Transversal shear xz"])
+        self.labels = np.array([
+            "Normal axial",
+            "Normal bending y",
+            "Normal bending z",
+            "Hoop",
+            "Torsional shear",
+            "Transversal shear xy",
+            "Transversal shear xz"],
+            )
 
     def _load_structural_solver(self):
 
@@ -100,19 +87,28 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
     def load_user_preference_colormap(self):
         try:
             colormap = app().config.user_preferences.color_map
-            if colormap in self.colormaps:
-                index = self.colormaps.index(colormap)
+            if colormap in COLORMAP_NAMES:
+                index = COLORMAP_NAMES.index()
                 self.comboBox_colormaps.setCurrentIndex(index)
 
-        except:
+        except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):
-        index = self.comboBox_colormaps.currentIndex()
-        colormap = self.colormaps[index]
-        app().main_window.results_widget.set_colormap(colormap)
+        colormap = self.get_colormap()
+        app().config.user_preferences.color_map = colormap
         app().config.update_config_file()
-        self.update_plot()
+        try:
+            app().main_window.results_widget.set_colormap(colormap)
+            self.update_plot()
+        except AttributeError:
+            pass
+
+    def get_colormap(self) -> str:
+        index = self.comboBox_colormaps.currentIndex()
+        if not (0 <= index < len(COLORMAP_NAMES)):
+            return "jet"
+        return COLORMAP_NAMES[index]
 
     def get_stress_data(self):
 
@@ -161,11 +157,13 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         self.get_stress_data()
         app().main_window.results_widget.clear_cache()
 
+    def load_frequencies(self):
+        self._load_structural_solver()
+        self.update_plot()
+
     def confirm_button(self):
         self.update_plot()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.update_plot()
-        elif event.key() == Qt.Key_Escape:
-            self.close()

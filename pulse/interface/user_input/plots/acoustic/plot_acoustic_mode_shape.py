@@ -4,10 +4,9 @@ from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.acoustic_mode_shape_ui import (
-    AcousticModeShape_UI,
-)
+from pulse.interface.ui_generated.plots.results.acoustic.acoustic_mode_shape_ui import AcousticModeShape_UI
 from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
+from pulse.interface.viewer_3d.coloring.color_palettes import COLORMAP_NAMES
 
 
 class PlotAcousticModeShape(AcousticModeShape_UI):
@@ -17,25 +16,10 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         self._create_connections()
         self._config_widgets()
         self._add_animation_widget()
-        self.load_natural_frequencies()
-        self.load_user_preference_colormap()
-        self.select_first_frequency()
+        
 
     def _initialize(self):
         self.mode_index = None
-        self.colormaps = [
-            "jet",
-            "viridis",
-            "inferno",
-            "magma",
-            "plasma",
-            "bwr",
-            "PiYG",
-            "PRGn",
-            "BrBG",
-            "PuOR",
-            "grayscale",
-        ]
 
     def _create_connections(self):
         #
@@ -81,6 +65,7 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         self.animation_widget = AnimationWidget()
         self.grid_layout.addWidget(self.animation_widget)
         self.frame_animation.adjustSize()
+        self.animation_widget.set_magnification_slider_enabled(False)
             
     def update_animation_widget_visibility(self):
         if not hasattr(self, "animation_widget"):
@@ -91,17 +76,28 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
     def load_user_preference_colormap(self):
         try:
             colormap = app().config.user_preferences.color_map
-            if colormap in self.colormaps:
-                index = self.colormaps.index(colormap)
+            if colormap in COLORMAP_NAMES:
+                index = COLORMAP_NAMES.index()
                 self.comboBox_colormaps.setCurrentIndex(index)
+
         except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):
+        colormap = self.get_colormap()
+        app().config.user_preferences.color_map = colormap
+        app().config.update_config_file()
+        try:
+            app().main_window.results_widget.set_colormap(colormap)
+            self.update_plot()
+        except AttributeError:
+            pass
+
+    def get_colormap(self) -> str:
         index = self.comboBox_colormaps.currentIndex()
-        colormap = self.colormaps[index]
-        app().main_window.results_widget.set_colormap(colormap)
-        self.update_plot()
+        if not (0 <= index < len(COLORMAP_NAMES)):
+            return "jet"
+        return COLORMAP_NAMES[index]
 
     def update_plot(self):
 
@@ -160,6 +156,8 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
             
             self.treeWidget_frequencies.addTopLevelItem(new)
 
+        self.select_first_frequency()
+
     def select_first_frequency(self):
         if self.treeWidget_frequencies.topLevelItemCount() == 0:
             return
@@ -188,5 +186,3 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.update_plot()
-    #     elif event.key() == Qt.Key_Escape:
-    #         self.close()
