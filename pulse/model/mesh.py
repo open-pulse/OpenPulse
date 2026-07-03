@@ -163,7 +163,7 @@ class Mesh:
             from pulse.editor.structures.rigid_element import RigidElement
             for structure in self.project.pipeline.structures:
                 if isinstance(structure, RigidElement):
-                    structure.define_gmsh_mesh_constraints()()
+                    structure.define_gmsh_mesh_constraints()
 
             # self._remove_orphan_points()
 
