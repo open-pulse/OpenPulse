@@ -59,8 +59,14 @@ class TubeActor(vtkActor):
 
         self._key_index = {j: i for i, j in enumerate(visible_elements)}
 
-        # visible_elements = {i: e for i, e in self.elements_attributes.items() if (i not in self.hidden_elements)}
-        # self._key_index = {j: i for i, j in enumerate(visible_elements.keys())}
+        # visible_elements2 = {i: e for i, e in self.elements_attributes.items() if (i not in self.hidden_elements)}
+        # self._key_index2 = {j: i for i, j in enumerate(visible_elements2.keys())}
+
+        # aux_1 = np.array([list(self._key_index.values()), list(self._key_index2.values())]).T
+        # aux_2 = np.array([list(self._key_index.keys()), list(self._key_index2.keys())]).T
+
+        # print(np.max(aux_1[:, 0] - aux_1[:, 1]))
+        # print(np.max(aux_2[:, 0] - aux_2[:, 1]))
 
         data = vtkPolyData()
         mapper = vtkGlyph3DMapper()

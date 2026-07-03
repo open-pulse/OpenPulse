@@ -51,8 +51,8 @@ class ElementLinesActor(GhostActor):
         element_index = vtkUnsignedIntArray()
         element_index.SetName("element_index")
 
-        for i, index in enumerate(visible_elements):
-            element_attributes = self.elements_attributes.get(index)
+        for i, elem_id in enumerate(visible_elements):
+            element_attributes = self.elements_attributes.get(elem_id)
             first_node = element_attributes.first_node
             last_node = element_attributes.last_node
 
@@ -60,13 +60,17 @@ class ElementLinesActor(GhostActor):
             x1, y1, z1 = self.deformed_coordinates[ last_node.global_index, 1:] if self.show_deformed else last_node.coordinates
 
             lines.append((x0, y0, z0, x1, y1, z1))
-            entity = self.mesh.line_from_element.get(index)
+            entity = self.mesh.line_from_element.get(elem_id)
             if entity is None:
                 print(f"Warning: the element [{i}] is not associated with a line")
                 continue
 
+            print(elem_id, (x0, y0, z0), (x1, y1, z1))
+
+            index = self._key_index.get(elem_id)
+
             entity_index.InsertNextTuple1(entity)
-            element_index.InsertNextTuple1(i)
+            element_index.InsertNextTuple1(index)
 
         data = LinesData(lines)
         data.GetCellData().AddArray(entity_index)
@@ -115,6 +119,8 @@ class ElementLinesActor(GhostActor):
 
         elements = set(elements) if elements else set()
         lines = set(lines) if lines else set()
+
+        print(elements, lines)
 
         n_cells = data.GetNumberOfCells()
         element_indexes: vtkIntArray = data.GetCellData().GetArray("element_index")
