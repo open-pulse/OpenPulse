@@ -1701,14 +1701,14 @@ class Preprocessor:
         node_1 = self.nodes[node_id1]
         node_2 = self.nodes[node_id2]
 
-        nodes_gdofs = np.array([node_1.global_dof, node_2.global_dof]).flatten()
+        nodes_gdofs = np.array([node_1.structural_global_dof, node_2.structural_global_dof], dtype=int).flatten()
         reord_gdofs = np.sort(nodes_gdofs)
-        if  list(nodes_gdofs) == list(reord_gdofs):
-            first_node = node_1
-            last_node = node_2
-        else:
-            first_node = node_2
-            last_node = node_1
+
+        is_equal = np.array_equal(nodes_gdofs, reord_gdofs)
+
+        first_node = node_1 if is_equal else node_2
+        last_node = node_2 if is_equal else node_1
+
         return reord_gdofs, first_node, last_node
 
     def get_structural_links_data(self, node_ids: list, data: dict):
