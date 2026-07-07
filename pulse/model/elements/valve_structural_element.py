@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pulse.model.elements.structural_element import DOF_PER_ELEMENT, StructuralElement
+from pulse.model.elements.pipe_structural_element import PipeStructuralElement
 
 if TYPE_CHECKING:
     from pulse.model.elements.element_attributes import ElementAttributes
@@ -80,12 +81,19 @@ class ValveStructuralElement(StructuralElement):
 
 
     def stiffness_matrix_valve(self):
+        """
+        This method returns the valve stiffness elementary matrix in local coordinates system
+        computed as the pipe stiffness and amplified by the valve stiffness factor.
+        """
+        Ke_pipe = PipeStructuralElement(self.element_attributes).stiffness_matrix_pipes()
         k_stiff = self.valve_data.valve_stiffening_factor
-        return k_stiff * self.stiffness_matrix_valve() 
+        return k_stiff * Ke_pipe
 
 
     def mass_matrix_valve(self):
-
+        """
+        This method returns the valve mass elementary matrix in local coordinates system.
+        """
         L_e = self.valve_data.valve_length / self.element_attributes.length
 
         indexes = np.array([0, 1, 2, 6, 7, 8], dtype=int)
