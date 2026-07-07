@@ -1388,7 +1388,7 @@ class Preprocessor:
             element_attributes.external_pressure = external_pressure
             element_attributes.internal_pressure = internal_pressure
 
-    def add_expansion_joint_by_lines(self, line_ids: (int | list), parameters: (None | dict)):
+    def add_expansion_joint_by_lines(self, line_ids: (int | list), data: (None | dict)):
         """
         This method .
 
@@ -1397,7 +1397,7 @@ class Preprocessor:
         line_ids : list
             Lines/entities indexes.
 
-        parameters : list
+        data : dict or None
             ????????.
             
         remove : bool, optional
@@ -1407,17 +1407,14 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
-        expansion_joint_data = ExpansionJointData(**parameters)
+        expansion_joint_data = ExpansionJointData(**data) if isinstance(data, dict) else None
 
         for line_id in line_ids:
             for elements in slicer(self.mesh.elements_from_line, line_id):
                 for element_attributes in slicer(self.elements_attributes, elements):
-                    if isinstance(parameters, dict):
-                        element_attributes.expansion_joint_data = expansion_joint_data
-                    else:
-                        element_attributes.expansion_joint_data = None
+                    element_attributes.expansion_joint_data = expansion_joint_data
 
-    def add_valve_by_lines(self, line_ids: (int | list), valve_data: dict):
+    def add_valve_by_lines(self, line_ids: (int | list), data: dict):
         """
         This method .
 
@@ -1426,7 +1423,7 @@ class Preprocessor:
         lines : list
             Lines/entities indexes.
 
-        valve_data : list
+        data : dict
             ????????.
             
         remove : bool, optional
@@ -1436,13 +1433,12 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
+        valve_data = ValveData(**data) if isinstance(data, dict) else None
+
         for line_id in line_ids:
             for elements in slicer(self.mesh.elements_from_line, line_id):
                 for element_attributes in slicer(self.elements_attributes, elements):
-                    if isinstance(valve_data, dict):
-                        element_attributes.valve_data = ValveData(**valve_data)
-                    else:
-                        element_attributes.valve_data = None
+                    element_attributes.valve_data = valve_data
 
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements: list[int], fluid: Fluid):
