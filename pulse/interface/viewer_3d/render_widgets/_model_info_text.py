@@ -322,8 +322,8 @@ def cross_section_info_text(
 
     elif structural_element_type == "valve":
         if isinstance(valve_info, dict):
-            effective_diameter = valve_info.get("valve_effective_diameter")
-            thickness = valve_info.get("valve_wall_thickness")
+            effective_diameter = valve_info.get("effective_diameter")
+            thickness = valve_info.get("wall_thickness")
             offset_y = valve_info.get("offset_y", 0.)
             offset_z = valve_info.get("offset_z", 0.)
             # insulation_thickness = valve_info.get("insulation_thickness", 0)
