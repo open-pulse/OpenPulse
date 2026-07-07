@@ -12,6 +12,7 @@ from pulse.interface.user_input.model.setup.structural.structural_lines_input im
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.cross_section import CrossSection
+from pulse.model.data_classes.model_setup_data_classes import AcousticBehavior
 
 
 class TabIndex(IntEnum):
@@ -22,13 +23,6 @@ class TabIndex(IntEnum):
 class FlangeSetup(IntEnum):
     UNFLANGED = 0
     FLANGED = 1
-
-
-class AcousticBehavior(IntEnum):
-    OPEN = 0
-    PARTIALLY_CLOSED = 1
-    CLOSED = 2
-
 
 
 class ValvesInput(StructuralLinesInput, ValveInput_UI):
@@ -211,26 +205,26 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.treeWidget_valves_info.clear()
 
         for line_id, data in self.properties.line_properties.items():
-            if "valve_info" in data.keys():
-                valve_info = data.get("valve_info")
-                if not isinstance(valve_info, dict):
-                    continue
+            if "valve_info" not in data.keys():
+                continue
 
-                valve_name = valve_info.get("valve_name")
-                mass = valve_info.get("valve_mass")
-                stiffening_factor = valve_info.get("stiffening_factor")
-                acoustic_effects = valve_info.get("acoustic_behavior")
-                effective_diameter = valve_info.get("valve_effective_diameter")
+            valve_info = data.get("valve_info")
+            if not isinstance(valve_info, dict):
+                continue
 
-                parameters = str(
-                    [effective_diameter, stiffening_factor, mass, acoustic_effects]
-                )
+            valve_name = valve_info.get("valve_name")
+            mass = valve_info.get("valve_mass")
+            stiffening_factor = valve_info.get("stiffening_factor")
+            acoustic_effects = valve_info.get("acoustic_behavior")
+            effective_diameter = valve_info.get("effective_diameter")
 
-                item = QTreeWidgetItem([valve_name, str(line_id), parameters])
-                for i in range(3):
-                    item.setTextAlignment(i, Qt.AlignCenter)
+            parameters = str([effective_diameter, stiffening_factor, mass, acoustic_effects])
 
-                self.treeWidget_valves_info.addTopLevelItem(item)
+            item = QTreeWidgetItem([valve_name, str(line_id), parameters])
+            for i in range(3):
+                item.setTextAlignment(i, Qt.AlignCenter)
+
+            self.treeWidget_valves_info.addTopLevelItem(item)
 
         self.update_tab_visibility()
 
@@ -284,9 +278,9 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
         line_edits = [
             self.lineEdit_valve_mass,
-            self.lineEdit_stiffening_factor,
-            self.lineEdit_valve_effective_diameter,
-            self.lineEdit_valve_wall_thickness,
+            self.lineEdit_valve_stiffening_factor,
+            self.lineEdit_effective_diameter,
+            self.lineEdit_wall_thickness,
             self.lineEdit_offset_y,
             self.lineEdit_offset_z,
             ]
@@ -439,8 +433,8 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
     def add_section_parameters_into_valve_info(self):
 
-        d_in = self.valve_info.get("valve_effective_diameter")
-        t = round(self.valve_info.get("valve_wall_thickness"), 6)
+        d_in = self.valve_info.get("effective_diameter")
+        t = round(self.valve_info.get("wall_thickness"), 6)
         offset_y = round(self.valve_info.get("offset_y"), 6)
         offset_z = round(self.valve_info.get("offset_z"), 6)
 
