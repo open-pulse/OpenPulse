@@ -1,13 +1,18 @@
 from dataclasses import dataclass, field
 from enum import IntEnum
-from math import pi
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.special import jv
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.model.elements.element_attributes import ElementAttributes
+
+
+class AcousticBehavior(IntEnum):
+    OPEN = 0
+    PARTIALLY_CLOSED = 1
+    CLOSED = 2
 
 
 @dataclass
@@ -29,6 +34,18 @@ class ValveData:
     valve_length: float = 0
     valve_mass: float = 0
     valve_stiffening_factor: float = 10
+    effective_diameter: float = 0,
+    wall_thickness: float = 0,
+    offset_y: float = 0,
+    offset_z: float = 0,
+    flange_diameter: float = 0,
+    flange_length: float = 0,
+    body_section_parameters: list = field(default_factory=list)
+    flange_section_parameters: list = field(default_factory=list)
+
+    acoustic_behavior: AcousticBehavior = AcousticBehavior.CLOSED,
+    orifice_plate_thickness: float = 0,
+    blocking_length: float = 0,
 
 
 @dataclass
@@ -60,9 +77,9 @@ class PerforatedPlateData:
     @property
     def foks_delta(self):
         if self.single_hole:
-            return pi * self.hole_diameter / 4
+            return np.pi * self.hole_diameter / 4
 
-        return pi * self.hole_diameter * Foks_function(np.sqrt(self.area_porosity)) / 4
+        return np.pi * self.hole_diameter * Foks_function(np.sqrt(self.area_porosity)) / 4
 
     def radiation_impedance(self, wave_number):
         dividend = jv(1, wave_number * self.hole_diameter)
@@ -70,7 +87,7 @@ class PerforatedPlateData:
         return (1 - dividend / divisor) / self.area_porosity
 
     def flow_impedance(self, mach):
-        return (4 * mach) / (3 * pi * self.area_porosity * self.discharge_coefficient**2)
+        return (4 * mach) / (3 * np.pi * self.area_porosity * self.discharge_coefficient**2)
 
     def nonlinear_impedance(self, speed_of_sound, u_n):
         num = u_n * (1 - self.area_porosity**2) * self.correction_factor
