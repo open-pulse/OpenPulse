@@ -302,4 +302,4 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
         self.preprocessor.process_all_rotation_matrices()
         app().project.file.write_line_properties_in_file()
         self.load_lines_info()
-        app().main_window.update_plots()
+        app().main_window.update_plots(False)
