@@ -33,6 +33,7 @@ from pulse.interface.user_input.model.geometry.options import (
     PointOptions,
     RectangularBeamOptions,
     ReducerOptions,
+    RigidElementOptions,
     StructureOptions,
     TBeamOptions,
     ValveOptions,
@@ -86,6 +87,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             ExpansionJointOptions,
             ValveOptions,
             PointOptions,
+            RigidElementOptions,
         ]
 
         # Initialize the StructureOptions classes

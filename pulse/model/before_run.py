@@ -153,6 +153,10 @@ class BeforeRun():
                     lines_without_materials.append(line_id)
 
             if element.cross_section is None:
+                #TODO: remove as soon as possible
+                if element.element_type == "rigid_element":
+                    continue
+
                 if element.element_type:
                     self.check_set_crossSection = True
                     if element.index not in elements_without_cross_sections[line_id]:
@@ -205,6 +209,9 @@ class BeforeRun():
                         lines_without_fluids.append(line_id)
 
             if element.cross_section is None:
+                #TODO: remove as soon as possible
+                if structural_element.element_type == "rigid_element":
+                    continue
 
                 self.check_set_crossSection = True
                 if element.index not in elements_without_cross_sections[line_id]:

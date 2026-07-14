@@ -4,7 +4,6 @@ from typing import Callable
 
 from .point import Point
 from .structure import Structure
-import numpy as np
 
 
 class LinearStructure(Structure):
