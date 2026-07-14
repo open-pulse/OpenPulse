@@ -192,10 +192,7 @@ class StructuralElement:
 
     def mean_rotations_at_global_coordinate_system(self) -> np.ndarray:
         results_gcs = self.element_results_gcs()
-        theta_x = (results_gcs[3] + results_gcs[-3])/2
-        theta_y = (results_gcs[4] + results_gcs[-2])/2
-        theta_z = (results_gcs[5] + results_gcs[-1])/2
-        return np.array([theta_x, theta_y, theta_z], dtype=float)
+        return (results_gcs[3:6] + results_gcs[-3:]) / 2
 
 
     def deformed_element_length(self, deltas: np.ndarray) -> float:

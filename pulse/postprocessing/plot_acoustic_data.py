@@ -3,7 +3,9 @@ from pulse.model.node import DOF_PER_NODE_ACOUSTIC
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from pulse.model.acoustic_element import AcousticElement
+    from pulse.model.elements.acoustic.acoustic_element import AcousticElement
+    from pulse.model.preprocessor import Preprocessor
+
 
 import numpy as np
 from math import pi
@@ -26,14 +28,14 @@ def get_color_scale_setup():
     return project.color_scale_setup
 
 
-def get_acoustic_frf(preprocessor, solution, node, **kwargs):
+def get_acoustic_frf(preprocessor: "Preprocessor", solution: np.ndarray, node: int, **kwargs):
 
     absolute = kwargs.get("absolute", False)
     real_values = kwargs.get("real_values", False)
     imag_values = kwargs.get("imag_values", False)
     dB_scale = kwargs.get("dB_scale", False)
 
-    position = preprocessor.nodes[node].global_index * DOF_PER_NODE_ACOUSTIC
+    position = preprocessor.nodes[node].index * DOF_PER_NODE_ACOUSTIC
     if absolute:
         return np.abs(solution[position])
     elif real_values:
@@ -47,7 +49,7 @@ def get_acoustic_frf(preprocessor, solution, node, **kwargs):
         return solution[position]
 
 
-def get_max_min_values_of_pressures(solution, column, **kwargs):
+def get_max_min_values_of_pressures(solution: np.ndarray, column: int, **kwargs):
 
     absolute = kwargs.get("absolute", False)
     real_values = kwargs.get("real_values", False)
@@ -95,7 +97,7 @@ def get_max_min_values_of_pressures(solution, column, **kwargs):
     return p_min, p_max
 
 
-def get_acoustic_response(preprocessor, solution, column, **kwargs):
+def get_acoustic_response(preprocessor: "Preprocessor", solution: np.ndarray, column: int, **kwargs):
 
     phase_step = kwargs.get("phase_step", False)
     absolute = kwargs.get("absolute", False)
@@ -110,8 +112,8 @@ def get_acoustic_response(preprocessor, solution, column, **kwargs):
         imag_values = color_scale_setup["imag_values"]
         absolute_animation = color_scale_setup["absolute_animation"]
     
-    coord = preprocessor.nodal_coordinates_matrix
-    connect = preprocessor.connectivity_matrix
+    coord = preprocessor.mesh.nodal_coordinates
+    connect = preprocessor.mesh.get_connectivity_matrix()
 
     data = solution.T[column]
     

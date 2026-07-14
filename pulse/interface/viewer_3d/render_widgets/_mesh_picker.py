@@ -128,17 +128,16 @@ class MeshPicker:
         picker.AreaPick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
         extractor.SetFrustum(picker.GetFrustum())
 
-        elements_to_line = app().project.model.mesh.line_from_element
         picked_lines = set()
 
         for element, bound in self.line_bounds.items():
-            entity = elements_to_line[element]
 
-            if entity in picked_lines:
+            line_id = app().project.model.mesh.get_line_from_element(element)
+            if line_id in picked_lines:
                 continue
 
             if extractor.OverallBoundsTest(bound):
-                picked_lines.add(entity)
+                picked_lines.add(line_id)
 
         return picked_lines
 

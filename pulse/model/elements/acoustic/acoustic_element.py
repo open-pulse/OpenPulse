@@ -86,8 +86,8 @@ class AcousticElement(AcousticCalculator):
             Indexes of the global degree of freedom.
         """
         global_dof = np.zeros(DOF_PER_ELEMENT, dtype=int)
-        global_dof[:DOF_PER_NODE] = self.first_node.global_index
-        global_dof[DOF_PER_NODE:] = self.last_node.global_index
+        global_dof[:DOF_PER_NODE] = self.first_node.index
+        global_dof[DOF_PER_NODE:] = self.last_node.index
         return global_dof
 
     def global_matrix_indexes(self):

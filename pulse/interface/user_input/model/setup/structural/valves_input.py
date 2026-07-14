@@ -248,7 +248,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
         for element_id in app().main_window.list_selected_elements():
-            line = self.preprocessor.mesh.line_from_element[element_id]
+            line = self.preprocessor.mesh.get_line_from_element(element_id)
             elements_from_line[line].append(element_id)
 
         return elements_from_line

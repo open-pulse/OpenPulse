@@ -107,7 +107,7 @@ class BeforeRun():
         self.check_poisson = False
         lines_without_materials = list()
         for index, element_attributes in self.elements_attributes.items():
-            line_id = self.model.mesh.line_from_element.get(index)
+            line_id = self.model.mesh.get_line_from_element(index)
             if line_id is None:
                 continue
 
@@ -126,7 +126,7 @@ class BeforeRun():
         self.check_poisson = False
         lines_without_poisson = list()
         for index, element_attributes in self.elements_attributes.items():
-            line_id = self.model.mesh.line_from_element[index]
+            line_id = self.model.mesh.get_line_from_element(index)
             material = element_attributes.material
 
             if material.poisson_ratio == 0:
@@ -148,7 +148,7 @@ class BeforeRun():
         elements_without_cross_sections = defaultdict(list)
 
         for index, element_attributes in self.elements_attributes.items():
-            line_id = self.model.mesh.line_from_element[index]
+            line_id = self.model.mesh.get_line_from_element(index)
             material = element_attributes.material
             cross_section = element_attributes.cross_section
             structural_element_type = element_attributes.structural_element_type
@@ -204,7 +204,7 @@ class BeforeRun():
         elements_without_cross_sections = defaultdict(list)
 
         for index, element_attributes in self.elements_attributes.items():
-            line_id = self.model.mesh.line_from_element[index]
+            line_id = self.model.mesh.get_line_from_element(index)
             structural_element_type = element_attributes.structural_element_type
 
             if element_attributes.fluid is None:
@@ -259,7 +259,7 @@ class BeforeRun():
         self.check_all_fluid_inputs = False
         lines_without_fluids = list()
         for index, element_attributes in self.elements_attributes.items():
-            line_id = self.model.mesh.line_from_element[index]
+            line_id = self.model.mesh.get_line_from_element(index)
 
             if element_attributes.structural_element_type not in ["wide_duct", "LRF_fluid_equivalent", "LRF_full"]:
                 continue
@@ -792,7 +792,7 @@ class BeforeRun():
 
             element_ids = self.preprocessor.elements_connected_to_node[node_id]
             for element_id in element_ids:
-                if self.preprocessor.mesh.line_from_element[element_id] == current_line:
+                if self.preprocessor.mesh.get_line_from_element(element_id) == current_line:
                     selected_element = element_id
                     break
 
@@ -804,8 +804,8 @@ class BeforeRun():
 
             for element_id in list_elements:
 
-                line_0 = self.preprocessor.mesh.line_from_element[selected_element]
-                line_1 = self.preprocessor.mesh.line_from_element[element_id]
+                line_0 = self.preprocessor.mesh.get_line_from_element(selected_element)
+                line_1 = self.preprocessor.mesh.get_line_from_element(element_id)
 
                 line_data_0 = self.model.properties.line_properties[line_0]
                 line_data_1 = self.model.properties.line_properties[line_1]

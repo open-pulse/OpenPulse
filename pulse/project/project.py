@@ -248,7 +248,7 @@ class Project:
     
                 for element_id in self.model.preprocessor.elements_connected_to_node.get(node_id, list()):
 
-                    line_id = self.model.preprocessor.mesh.line_from_element[element_id]
+                    line_id = self.model.preprocessor.mesh.get_line_from_element(element_id)
                     _data = self.model.properties.line_properties[line_id]
 
                     if "corner_coords" in _data.keys():
