@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
-# from pulse.model.mesh_utils import ElementConnectivityData, get_connectivity
+from pulse.model.mesh_utils import ElementConnectivityData, get_connectivity
 from pulse.model.data_classes.project_setup_data_classes import MesherSetup
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ from enum import IntEnum
 
 import gmsh
 import numpy as np
-# from time import perf_counter
+from time import perf_counter
 
 class ImportType(IntEnum):
     CAD_FILE = 0
@@ -41,7 +41,9 @@ class Mesh:
         self.geometry_points = list()
         self.lines_from_model = list()
 
-        self.line_from_element = dict()
+        # self.line_from_element = dict()
+        self.line_from_element: np.ndarray | None = None
+
         self.elements_from_line = defaultdict(list)
         self.lines_from_node = defaultdict(list)
         self.nodes_from_line = defaultdict(list)
@@ -87,8 +89,8 @@ class Mesh:
         self._set_gmsh_options()
 
         self._process_mesh()
-        self._process_gmsh_lines_mesh_data()
-        self._concatenate_line_elements()
+        # self._process_gmsh_lines_mesh_data()
+        # self._concatenate_line_elements()
         # self._concatenate_line_nodes()
 
         self._save_geometry_points()
@@ -165,7 +167,7 @@ class Mesh:
                 if isinstance(structure, RigidElement):
                     structure.define_gmsh_mesh_constraints()
 
-            # self._remove_orphan_points()
+            self._remove_orphan_points()
 
             # generate mesh for 1D elements
             gmsh.model.mesh.generate(1)
@@ -177,19 +179,21 @@ class Mesh:
             _elements_tags = np.unique(elements_tags[0])
 
             # self.map_nodes = dict(zip(_nodes_tags, np.arange(_nodes_tags.size, dtype=int)))
+            self.map_nodes = dict(zip(np.arange(_nodes_tags.size, dtype=int), np.arange(_nodes_tags.size, dtype=int)))
             self.map_elements = dict(zip(_elements_tags, np.arange(_elements_tags.size, dtype=int)))
 
-            self.map_nodes = dict(zip(_nodes_tags, np.arange(1, _nodes_tags.size + 1, 1, dtype=int)))
+            # self.map_nodes = dict(zip(_nodes_tags, np.arange(1, _nodes_tags.size + 1, 1, dtype=int)))
             # self.map_elements = dict(zip(_elements_tags, np.arange(1, _elements_tags.size + 1, 1, dtype=int)))
-
-            # self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
-            # self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
 
             ## TODO: we can replace the self.nodes attribute with a proper coordinates matrix
             # and the connectivity matrix should be used to build actors rather than looping self.elements_attributes
 
-            self.project.model.preprocessor._create_nodes(nodes_tags, coords, self.map_nodes)
-            self.project.model.preprocessor._create_elements_attributes(elements_tags[0], connectivity[0], self.map_nodes, self.map_elements)                    
+            self._post_process_mesh_data()
+
+            self.project.model.preprocessor._create_nodes_new()
+            self.project.model.preprocessor._create_elements_attributes_new()
+            # self.project.model.preprocessor._create_nodes(nodes_tags, coords, self.map_nodes)
+            # self.project.model.preprocessor._create_elements_attributes(elements_tags[0], connectivity[0], self.map_nodes, self.map_elements)
             self.project.model.preprocessor.update_number_divisions()
 
         except Exception as log_error:
@@ -275,7 +279,7 @@ class Mesh:
         This method maps the elements and nodes for each GMSH line.
 
         """
-        # t0 = perf_counter()
+        t0 = perf_counter()
 
         self.elements_from_gmsh_lines.clear()
         self.nodes_from_gmsh_lines.clear()
@@ -291,90 +295,157 @@ class Mesh:
             line_nodes, _coords, _ = gmsh.model.mesh.getNodes(dim, tag, True)
             self.nodes_from_gmsh_lines[tag] = [self.map_nodes[node] for node in line_nodes]
 
-        # dt = perf_counter() - t0
-        # print(f"Time to process '_process_gmsh_lines_mesh_data': {dt}")
+        dt = perf_counter() - t0
+        print(f"Time to process '_process_gmsh_lines_mesh_data': {dt}")
 
-        # t0 = perf_counter()
 
-        # nodes_tags, nodes_coords, _ = gmsh.model.mesh.getNodes(1, -1, includeBoundary=True)
-        # total_nodes = np.unique(nodes_tags).size
-
-        # self.nodal_coordinates = np.zeros((total_nodes, 4))
-        # self.nodal_coordinates[nodes_tags - 1, 1:] = convert_length_unit(nodes_coords.reshape(-1, 3), "mm", "meter")
-        # self.nodal_coordinates[nodes_tags - 1, :1] = nodes_tags.reshape(-1, 1) - 1
-        # # print(total_nodes, np.min(nodes_tags), np.max(nodes_tags))
-
-        # # # nodes_from_lines = gmsh.model.mesh.getNodes(dim=1, includeBoundary=True)[0]
-
-        # # # if isinstance(nodes_from_lines, np.ndarray):
-        # # #     self.nodes_from_lines = np.unique(nodes_from_lines) - 1
-
-        # connectivity_data = dict()
-
-        # for dim, tag in gmsh.model.getEntities(1):
-        #     elements_data = dict()
-        #     element_types, element_indexes, connectivities = gmsh.model.mesh.getElements(dim, tag)
-
-        #     if not element_indexes:
-        #         continue
-
-        #     for i, element_type in enumerate(element_types):
-        #         _, _, _, nodes_per_element, _, _ = gmsh.model.mesh.getElementProperties(element_type)
-
-        #         array_connectivities = np.array(connectivities[i]).reshape(-1, nodes_per_element)
-        #         array_connectivities -= 1
-
-        #         elements_data[element_type] = ElementConnectivityData(element_indexes[i], array_connectivities) 
-
-        #     connectivity_data[dim, tag] = elements_data
-
-        # self.lines_connectivity, self.map_line_elements = get_connectivity(connectivity_data)
-  
-        # dt = perf_counter() - t0
-        # print(f"Time to process : {dt}")
-
-        # # print(self.nodal_coordinates)
-        # # print(np.unique(self.lines_connectivity[:, 4:]))
-        # # self.map_elements_from_lines()
-
-    def map_elements_from_lines(self):
-        self.elements_from_line.clear()
-        for line_id in np.unique(self.lines_connectivity[:, 1]).astype(int):
-            rows = np.where(self.lines_connectivity[:, 1] == line_id)[0]
-            self.elements_from_line[line_id] = self.lines_connectivity[rows, 0]
-
-    def _concatenate_line_elements(self):
+    def _post_process_mesh_data(self):
         """
+        This method maps the elements and nodes for each GMSH line.
+
+        """
+        t0 = perf_counter()
+
+        nodes_tags, nodes_coords, _ = gmsh.model.mesh.getNodes(1, -1, includeBoundary=True)
+        total_nodes = np.unique(nodes_tags).size
+
+        self.nodal_coordinates = np.zeros((total_nodes, 4), dtype=float)
+        self.nodal_coordinates[nodes_tags - 1, 1:] = convert_length_unit(nodes_coords.reshape(-1, 3), "mm", "meter")
+        self.nodal_coordinates[nodes_tags - 1, :1] = nodes_tags.reshape(-1, 1) - 1
+        # print(total_nodes, np.min(nodes_tags), np.max(nodes_tags))
+
+        # nodes_from_lines = gmsh.model.mesh.getNodes(dim=1, includeBoundary=True)[0]
+
+        # if isinstance(nodes_from_lines, np.ndarray):
+        #     self.nodes_from_lines = np.unique(nodes_from_lines) - 1
+
+        connectivity_data = dict()
+
+        for dim, tag in gmsh.model.getEntities(1):
+            elements_data = dict()
+            element_types, element_indexes, connectivities = gmsh.model.mesh.getElements(dim, tag)
+
+            if not element_indexes:
+                continue
+
+            for i, element_type in enumerate(element_types):
+                _, _, _, nodes_per_element, _, _ = gmsh.model.mesh.getElementProperties(element_type)
+
+                array_connectivities = np.array(connectivities[i]).reshape(-1, nodes_per_element)
+                array_connectivities -= 1
+
+                elements_data[element_type] = ElementConnectivityData(element_indexes[i], array_connectivities) 
+
+            connectivity_data[dim, tag] = elements_data
+
+        self.lines_connectivity, self.map_line_elements = get_connectivity(connectivity_data)
+
+        dt = perf_counter() - t0
+        print(f"Time to process : {dt}")
+
+        # print(self.nodal_coordinates)
+        # print(np.unique(self.lines_connectivity[:, 4:]))
+
+        self.map_elements_to_lines()
+        self.map_nodes_to_lines()
+
+    def map_elements_to_lines(self):
+        """
+        This method maps elements to the lines and vice versa.
         """
         self.elements_from_line.clear()
         elements_to_ignore_on_acoustic_analysis = list()
-        for tag, line_elements in self.elements_from_gmsh_lines.items():
+        for tag in np.unique(self.lines_connectivity[:, 1]).astype(int):
+
             line_id = self.lines_mapping.get(tag)
             if line_id is None:
                 continue
 
+            rows = np.where(self.lines_connectivity[:, 1] == tag)[0]
+            line_elements = self.lines_connectivity[rows, 0]
             self.elements_from_line[line_id].extend(line_elements)
+
             if tag in self.valve_internal_lines.keys():
                 elements_to_ignore_on_acoustic_analysis.extend(line_elements)
-
-        self.line_from_element.clear()
-        for _line_id, element_ids in self.elements_from_line.items():
-            for element_id in element_ids:
-                self.line_from_element[element_id] = _line_id
 
         self.lines_from_model = list(self.elements_from_line.keys())
         self.project.model.preprocessor.set_elements_to_ignore_in_acoustic_analysis(elements_to_ignore_on_acoustic_analysis, True)
 
-    def _concatenate_line_nodes(self):
+        n_elem = self.lines_connectivity.shape[0]
+        self.line_from_element = np.zeros((n_elem, 2), dtype=int)
+
+        for _line_id, element_ids in self.elements_from_line.items():
+            self.line_from_element[element_ids, 0] = element_ids
+            self.line_from_element[element_ids, 1] = _line_id
+
+    def map_nodes_to_lines(self):
         """
+        This method maps nodes to the lines and vice versa.
         """
         self.lines_from_node.clear()
         self.nodes_from_line.clear()
-        for tag, line_nodes in self.nodes_from_gmsh_lines.items():
-            line_id = self.lines_mapping[tag]
-            self.nodes_from_line[line_id].extend(line_nodes)
+
+        for line_id, elements_from_line in self.elements_from_line.items():
+            line_nodes = np.unique(self.lines_connectivity[elements_from_line, 4:]).astype(int)
+            self.nodes_from_line[line_id] = line_nodes
+
             for node_id in line_nodes:
                 self.lines_from_node[node_id].append(line_id)
+
+    def get_connectivity_matrix(self):
+        return self.lines_connectivity[:, [0, 4, 5]]
+
+    def get_element_nodes_indexes(self, element_id: int):
+        return self.lines_connectivity[element_id, 4:]
+
+    def get_node_coordinates(self, node_id: int) -> np.ndarray:
+        if node_id >= self.nodal_coordinates.shape[0]:
+            return None
+
+        return self.nodal_coordinates[node_id, 1:]
+
+    def get_element_nodes_coordinates(self, element_id: int):
+        node_ids = self.get_element_nodes_indexes(element_id)
+        return self.nodal_coordinates[node_ids, 1:]
+    
+    def get_line_from_element(self, element_id: int) -> None | int:
+        if element_id >= self.line_from_element.shape[0]:
+            return None
+
+        return self.line_from_element[element_id, 1]
+
+    # def _concatenate_line_elements(self):
+    #     """
+    #     """
+    #     self.elements_from_line.clear()
+    #     elements_to_ignore_on_acoustic_analysis = list()
+    #     for tag, line_elements in self.elements_from_gmsh_lines.items():
+    #         line_id = self.lines_mapping.get(tag)
+    #         if line_id is None:
+    #             continue
+
+    #         self.elements_from_line[line_id].extend(line_elements)
+    #         if tag in self.valve_internal_lines.keys():
+    #             elements_to_ignore_on_acoustic_analysis.extend(line_elements)
+
+    #     self.line_from_element.clear()
+    #     for _line_id, element_ids in self.elements_from_line.items():
+    #         for element_id in element_ids:
+    #             self.line_from_element[element_id] = _line_id
+
+    #     self.lines_from_model = list(self.elements_from_line.keys())
+    #     self.project.model.preprocessor.set_elements_to_ignore_in_acoustic_analysis(elements_to_ignore_on_acoustic_analysis, True)
+
+    # def _concatenate_line_nodes(self):
+    #     """
+    #     """
+    #     self.lines_from_node.clear()
+    #     self.nodes_from_line.clear()
+    #     for tag, line_nodes in self.nodes_from_gmsh_lines.items():
+    #         line_id = self.lines_mapping[tag]
+    #         self.nodes_from_line[line_id].extend(line_nodes)
+    #         for node_id in line_nodes:
+    #             self.lines_from_node[node_id].append(line_id)
 
     def _process_line_nodes(self):
         """
@@ -384,7 +455,7 @@ class Mesh:
         for node_id, element_ids in self.project.model.preprocessor.elements_connected_to_node.items():
             for element_id in element_ids:
 
-                line_id = self.line_from_element.get(element_id)
+                line_id = self.get_line_from_element(element_id)
                 if line_id is None:
                     continue
 
