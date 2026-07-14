@@ -60,7 +60,7 @@ class AssemblyStructural:
                 node = self.preprocessor.nodes[node_id]
                 values = data["values"]
 
-                starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
+                starting_position = node.index * DOF_PER_NODE_STRUCTURAL
                 internal_dofs = [i for i, value in enumerate(values) if value is not None]
 
                 dofs = starting_position + np.array(internal_dofs)
@@ -548,8 +548,8 @@ class AssemblyStructural:
         # acoustic-structural loads
         if self.acoustic_solution is not None:
             for element_attributes in self.preprocessor.elements_attributes.values():
-                pressure_first = self.acoustic_solution[element_attributes.first_node.global_index, :]
-                pressure_last = self.acoustic_solution[element_attributes.last_node.global_index, :]
+                pressure_first = self.acoustic_solution[element_attributes.first_node.index, :]
+                pressure_last = self.acoustic_solution[element_attributes.last_node.index, :]
                 pressure = np.c_[pressure_first, pressure_last].T
                 position = element.global_dof
 

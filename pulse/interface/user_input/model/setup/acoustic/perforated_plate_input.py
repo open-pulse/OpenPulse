@@ -625,6 +625,9 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                 coords.extend(list(np.round(element_attributes.first_node.coordinates, 5)))
                 coords.extend(list(np.round(element_attributes.last_node.coordinates, 5)))
 
+                # element_coords = self.preprocessor.mesh.get_element_nodes_coordinates(element_id)
+                # coords.extend(list(np.round(element_coords.flatten(), 5)))
+
                 self.perforated_plate_inputs["coords"] = coords
 
                 self.preprocessor.set_perforated_plate_by_elements(

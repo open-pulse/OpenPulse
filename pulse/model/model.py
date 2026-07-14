@@ -209,13 +209,13 @@ class Model:
 
                 inner_diameter = cross_section.inner_diameter
 
-                if len(self.preprocessor.neighbors[first_node]) == 1:
-                    first_node_id = first_node.external_index
+                if len(self.preprocessor.neighbors_nodes[first_node.index]) == 1:
+                    first_node_id = first_node.index
                     if self.properties.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
                         inner_diameter = 0
 
-                elif len(self.preprocessor.neighbors[last_node]) == 1:
-                    last_node_id = last_node.external_index
+                elif len(self.preprocessor.neighbors_nodes[last_node.index]) == 1:
+                    last_node_id = last_node.index
                     if self.properties.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
                         inner_diameter = 0
 

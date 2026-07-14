@@ -163,9 +163,7 @@ class ElementAttributes:
 
     @ property
     def center_coordinates(self) -> np.ndarray:
-        return np.array([(self.last_node.x + self.first_node.x) / 2, 
-                         (self.last_node.y + self.first_node.y) / 2,
-                         (self.last_node.z + self.first_node.z) / 2 ], dtype=float)
+        return (self.first_node.coordinates + self.last_node.coordinates) / 2
 
     @property
     def directional_vector(self):
@@ -212,10 +210,7 @@ class ElementAttributes:
 
     def mean_rotations_at_local_coordinate_system(self) -> np.ndarray:
         results_lcs = self.element_results_lcs()
-        theta_x = (results_lcs[3] + results_lcs[-3]) / 2
-        theta_y = (results_lcs[4] + results_lcs[-2]) / 2
-        theta_z = (results_lcs[5] + results_lcs[-1]) / 2
-        return np.array([theta_x, theta_y, theta_z], dtype=float)
+        return (results_lcs[3:6] + results_lcs[-3:]) / 2
 
     def rotations_at_local_coordinate_system_decoupled(self) -> np.ndarray:
 
@@ -226,7 +221,7 @@ class ElementAttributes:
 
         for j, value in enumerate(decoupled_rotations):
             if value:
-                if node_id == self.last_node.external_i:
+                if node_id == self.last_node.index:
                     theta = results_lcs[3 + j]
                 else:
                     theta = results_lcs[-3 + j]
@@ -235,8 +230,8 @@ class ElementAttributes:
 
             avg_rotation[j] = theta
 
-        # print(f"Rotations (first node #{self.first_node.external_index}): {np.array([results_lcs[:3]], dtype=float)}")
-        # print(f"Rotations (last node #{self.last_node.external_index}): {np.array([results_lcs[-3:]], dtype=float)}")
+        # print(f"Rotations (first node #{self.first_node.index}): {np.array([results_lcs[:3]], dtype=float)}")
+        # print(f"Rotations (last node #{self.last_node.index}): {np.array([results_lcs[-3:]], dtype=float)}")
 
         return avg_rotation
 

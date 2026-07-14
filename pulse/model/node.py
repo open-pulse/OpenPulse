@@ -39,14 +39,12 @@ class Node:
         Node index displayed to the user.
         Default is None.
     """
-    def __init__(self, x: np.ndarray, y: np.ndarray, z: np.ndarray, **kwargs):
-
+    def __init__(self, index: int, x: np.ndarray, y: np.ndarray, z: np.ndarray, **kwargs):
+        
+        self.index = index
         self.x = x
         self.y = y
         self.z = z
-
-        self.global_index = kwargs.get('global_index', None)
-        self.external_index = kwargs.get('external_index', None)
 
         self.reset()
 
@@ -100,7 +98,7 @@ class Node:
         --------
         local_dof : Structural degrees of freedom in the local coordinate system.
         """
-        return np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int) + self.global_index * DOF_PER_NODE_STRUCTURAL
+        return np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int) + self.index * DOF_PER_NODE_STRUCTURAL
 
     @property
     def acoustic_global_dof(self):
@@ -116,7 +114,7 @@ class Node:
         --------
         local_dof : Structural degrees of freedom in the local coordinate system.
         """
-        return np.arange(DOF_PER_NODE_ACOUSTIC, dtype=int) + self.global_index * DOF_PER_NODE_ACOUSTIC
+        return np.arange(DOF_PER_NODE_ACOUSTIC, dtype=int) + self.index * DOF_PER_NODE_ACOUSTIC
 
     def distance_to(self, other: "Node"):
         """

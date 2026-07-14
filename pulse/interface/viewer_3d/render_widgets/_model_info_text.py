@@ -179,8 +179,8 @@ def elements_info_text() -> str:
         material = element_attributes.material
 
         tree = TreeInfo(f"ELEMENT {_id}")
-        tree.add_item( f"First Node - {first_node.external_index:>5}", "[{:.4f}, {:.4f}, {:.4f}]".format(*first_node.coordinates), "m" )
-        tree.add_item( f"Last Node  - {last_node.external_index:>5}", "[{:.4f}, {:.4f}, {:.4f}]".format(*last_node.coordinates), "m" )
+        tree.add_item( f"First Node - {first_node.index:>5}", "[{:.4f}, {:.4f}, {:.4f}]".format(*first_node.coordinates), "m" )
+        tree.add_item( f"Last Node  - {last_node.index:>5}", "[{:.4f}, {:.4f}, {:.4f}]".format(*last_node.coordinates), "m" )
 
         info_text += str(tree)
 

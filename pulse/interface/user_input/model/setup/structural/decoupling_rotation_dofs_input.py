@@ -97,8 +97,8 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
             return
     
         node_ids = [
-            element_attributes.first_node.external_index,
-            element_attributes.last_node.external_index,
+            element_attributes.first_node.index,
+            element_attributes.last_node.index,
         ]
 
         for node_id in node_ids:
@@ -150,7 +150,7 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
         tjoint_node_id = None
         element_atributes = self.preprocessor.elements_attributes.get(element_id)
 
-        node_ids = [element_atributes.first_node.external_index, element_atributes.last_node.external_index]
+        node_ids = [element_atributes.first_node.index, element_atributes.last_node.index]
 
         for node_id in node_ids:
             element_ids = self.preprocessor.elements_connected_to_node.get(node_id)

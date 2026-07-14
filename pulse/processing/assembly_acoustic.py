@@ -62,7 +62,7 @@ class AssemblyAcoustic:
                 node = self.preprocessor.nodes[node_id]
                 values = data["values"]
 
-                starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
+                starting_position = node.index * DOF_PER_NODE_ACOUSTIC
                 internal_dofs = [i for i, value in enumerate(values) if value is not None]
 
                 dofs = starting_position + np.array(internal_dofs)
@@ -170,8 +170,8 @@ class AssemblyAcoustic:
         last_node = element_attributes.last_node
         di_actual = element_attributes.cross_section.inner_diameter
 
-        diameters_first = np.array(self.neighbor_diameters[first_node.global_index])
-        diameters_last = np.array(self.neighbor_diameters[last_node.global_index])
+        diameters_first = np.array(self.neighbor_diameters[first_node.index])
+        diameters_last = np.array(self.neighbor_diameters[last_node.index])
 
         def get_element_correction(di_actual: float, di: float, diameters: list):
 
@@ -398,8 +398,9 @@ class AssemblyAcoustic:
                 continue
 
             node_id = args[0]
-            node = self.preprocessor.nodes[node_id]
-            position = node.global_index
+            # node = self.preprocessor.nodes[node_id]
+            # position = node.index
+            position = node_id
 
             element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
             if len(element_ids) != 1:
@@ -503,8 +504,9 @@ class AssemblyAcoustic:
                 continue
 
             node_id = args[0]
-            node = self.preprocessor.nodes[node_id]
-            position = node.global_index
+            # node = self.preprocessor.nodes[node_id]
+            # position = node.index
+            position = node_id
 
             element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
             if len(element_ids) != 1:
@@ -665,8 +667,9 @@ class AssemblyAcoustic:
                 continue
 
             node_id = args[0]
-            node = self.preprocessor.nodes[node_id]
-            position = node.global_index
+            # node = self.preprocessor.nodes[node_id]
+            # position = node.index
+            position = node_id
             values = data["values"][0]
 
             if isinstance(values, complex):

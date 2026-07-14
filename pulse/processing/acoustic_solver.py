@@ -421,8 +421,8 @@ class AcousticSolver:
 
             for i, element in enumerate(self.nl_pp_elements):
 
-                first_index = element.first_node.global_index
-                last_index = element.last_node.global_index
+                first_index = element.first_node.index
+                last_index = element.last_node.index
 
                 pressure_first = solution[first_index, :]
                 pressure_last = solution[last_index, :]

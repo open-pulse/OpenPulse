@@ -33,10 +33,10 @@ class PointsActor(GhostActor):
         data.Allocate(len(visible_nodes))
 
         for i, node in enumerate(visible_nodes.values()):
-            xyz = self.deformed_coordinates[node.global_index, 1:] if self.show_deformed else node.coordinates
+            xyz = self.deformed_coordinates[node.index, 1:] if self.show_deformed else node.coordinates
             points.InsertNextPoint(xyz)
             data.InsertNextCell(VTK_VERTEX, 1, [i])
-            node_index.InsertNextTuple1(node.external_index)
+            node_index.InsertNextTuple1(node.index)
 
         data.SetPoints(points)
         data.GetCellData().AddArray(node_index)

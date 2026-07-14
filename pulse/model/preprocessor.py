@@ -47,11 +47,12 @@ class Preprocessor:
         self.nodes: dict[int, Node] = dict()
 
         self.elements_attributes: dict[int, ElementAttributes] = dict()
+        self.elements_deltas: np.ndarray | None = None
 
-        self.connectivity_matrix = np.array([], dtype=float)
-        self.nodal_coordinates_matrix = np.array([], dtype=int)
+        # self.connectivity_matrix = np.array([], dtype=float)
+        # self.nodal_coordinates_matrix = np.array([], dtype=int)
 
-        self.neighbors: dict[Node, list] = defaultdict(list)
+        self.neighbors_nodes: dict[int, list[int]] = defaultdict(list)
         self.elements_connected_to_node: defaultdict[int, list[int]] = defaultdict(list)
 
         # if isinstance(self.mesh, Mesh):
@@ -65,7 +66,7 @@ class Preprocessor:
         self.stress_stiffening_enabled = False
 
         self.structure_principal_diagonal = None
-        self.nodal_coordinates_matrix_external = None
+        # self.nodal_coordinates_matrix_external = None
 
         self.pipe_gdofs = None
         self.unprescribed_pipe_indexes = None
@@ -91,20 +92,20 @@ class Preprocessor:
         self.mesh.generate(import_type, geometry_path = geometry_path)
 
         # t0 = perf_count()
-        self._load_neighbors()
-        self.mesh._process_line_nodes()
+        self._map_neighbors_nodes()
+        # self.mesh._process_line_nodes()
         # dt = perf_count() - t0
-        # print(f"Time to process _load_neighbors: {dt}")
+        # print(f"Time to process _map_neighbors_nodes: {dt}")
 
         # t0 = perf_count()
-        self._order_global_indexes()
-        self._mapping_nodes_indexes()
+        # self._order_global_indexes()
+        # self._mapping_nodes_indexes()
         # dt = perf_count() - t0
         # print(f"Time to process _order_global_indexes: {dt}")
 
-        self.get_nodal_coordinates_matrix()
-        self.get_connectivity_matrix()
-        self.get_dict_nodes_to_element_indexes()
+        # self.get_nodal_coordinates_matrix()
+        # self.get_connectivity_matrix()
+        # self.get_dict_nodes_to_element_indexes()
         self.get_principal_diagonal_structure_parallelepiped()
 
         # t0 = perf_count()
@@ -169,6 +170,57 @@ class Preprocessor:
             last_node  = self.nodes.get(last_node_id)
 
             element_index = map_elements[i]
+            self.elements_attributes[element_index] = ElementAttributes(element_index, first_node, last_node)
+
+    def _create_nodes_new(self):
+        """
+        This method generate the mesh nodes.
+
+        Parameters
+        ----------
+        indexes : List
+            Nodes global indexes.
+            
+        coords : array
+            Nodes coordinates.
+            
+        map_nodes : dict
+            Dictionary maps global indexes to external indexes.
+        """
+        self.nodes.clear()
+        for node_id, x, y, z in self.mesh.nodal_coordinates:
+            self.nodes[int(node_id)] = Node(int(node_id), x, y, z)
+
+    def _create_elements_attributes_new(self):
+        """
+        This method generate the mesh structural elements.
+
+        Parameters
+        ----------
+        indexes : List
+            Nodes global indexes.
+            
+        connectivities : array
+            Connectivity matrix that relates the elements and its nodes.
+            
+        map_nodes : dict
+            Dictionary maps global indexes to external indexes.
+            
+        map_elements : dict
+            Dictionary maps global element indexes.
+        """
+        self.elements_attributes.clear()
+
+        # print()
+        for element_index, _, _, _, *connect in self.mesh.lines_connectivity:
+            first_node = self.nodes.get(connect[0])
+            last_node  = self.nodes.get(connect[1])
+            # first_node = Node(connect[0], *self.mesh.get_node_coordinates(connect[0]))
+            # last_node = Node(connect[1], *self.mesh.get_node_coordinates(connect[1]))
+
+            # print(first_node.index - first_node_A.index, first_node.coordinates - first_node_A.coordinates)
+            # print(last_node.index - last_node_A.index, last_node.coordinates - last_node_A.coordinates)
+
             self.elements_attributes[element_index] = ElementAttributes(element_index, first_node, last_node)
 
     def get_element_material(self, element_id: int) -> Material | None:
@@ -240,22 +292,22 @@ class Preprocessor:
                         line_to_vertex_coords[line_id].append(list(vertex_node.coordinates))         
         return line_to_vertex_coords
 
-    def _load_neighbors(self):
+    def _map_neighbors_nodes(self):
         """
         This method updates the structural elements neighbors dictionary. The dictionary's keys and values are nodes objects.
         """
-        self.neighbors.clear()
+        self.neighbors_nodes.clear()
         self.elements_connected_to_node.clear()
 
         for index, element_attributes in self.elements_attributes.items():
-            first_node = element_attributes.first_node
-            last_node = element_attributes.last_node
+            first_node_index = element_attributes.first_node.index
+            last_node_index = element_attributes.last_node.index
 
-            self.neighbors[first_node].append(last_node)
-            self.neighbors[last_node].append(first_node)
+            self.neighbors_nodes[first_node_index].append(last_node_index)
+            self.neighbors_nodes[last_node_index].append(first_node_index)
 
-            self.elements_connected_to_node[first_node.external_index].append(index)
-            self.elements_connected_to_node[last_node.external_index].append(index)
+            self.elements_connected_to_node[first_node_index].append(index)
+            self.elements_connected_to_node[last_node_index].append(index)
 
     def update_number_divisions(self):
         """
@@ -299,8 +351,8 @@ class Preprocessor:
             outer_diameter = cross_section.outer_diameter
             inner_diameter = cross_section.inner_diameter
 
-            neighbor_diameters[first_node.external_index].append((index, outer_diameter, inner_diameter))
-            neighbor_diameters[last_node.external_index].append((index, outer_diameter, inner_diameter))
+            neighbor_diameters[first_node.index].append((index, outer_diameter, inner_diameter))
+            neighbor_diameters[last_node.index].append((index, outer_diameter, inner_diameter))
 
         return neighbor_diameters
 
@@ -325,8 +377,8 @@ class Preprocessor:
             if cross_section is None:
                 continue
 
-            first = element_attributes.first_node.global_index
-            last = element_attributes.last_node.global_index
+            first = element_attributes.first_node.index
+            last = element_attributes.last_node.index
             outer_diameter = cross_section.outer_diameter
             inner_diameter = cross_section.inner_diameter
 
@@ -340,200 +392,169 @@ class Preprocessor:
         This methods shearchs for disconnected lines inside sphere of radius r < (size/2) + tolerance.
         """
         element_size = self.mesh.element_size
-        if self.nodal_coordinates_matrix_external is not None:
-            coord_matrix = self.nodal_coordinates_matrix_external
-            list_node_ids = list()
-            for node, neigh_nodes in self.neighbors.items():
-                if len(neigh_nodes) == 1:
-                    coord = node.coordinates
-                    diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
-                    mask = diff < ((element_size / 2) + tolerance)
-                    if True in mask:
-                        try:
-                            external_indexes = coord_matrix[:,0][mask]
-                            if len(external_indexes) > 1:
-                                for external_index in external_indexes:
-                                    if len(self.neighbors[self.nodes[external_index]]) == 1:
-                                        list_node_ids.append(int(external_index))
-                        except Exception as _log_error:
-                            title = "Error while checking mesh at the line edges"
-                            message = str(_log_error)
-                            PrintMessageInput(["error", title, message])
+        if not isinstance(self.mesh.nodal_coordinates, np.ndarray):
+            return
 
-            if len(list_node_ids)>0:
-                title = "Problem detected in connectivity between neighbor nodes"
-                message = "At least one disconnected node has been detected at the edge of one line due "
-                message += "to the mismatch between the geometry 'keypoints' and the current mesh setup. " 
-                message += "We strongly recommend reducing the element size or correcting the problem "
-                message += "in the geometry file before proceeding with the model setup.\n\n"
-                message += f"List of disconnected node(s): \n{list_node_ids}"
-                PrintMessageInput(["warning", title, message])                
+        disconnected_nodes = list()
+        for node_id, neigh_nodes in self.neighbors_nodes.items():
+            if len(neigh_nodes) != 1:
+                continue
+
+            nodal_coords = self.mesh.nodal_coordinates
+            diff = np.linalg.norm(nodal_coords[:, 1:] - nodal_coords[node_id, 1:], axis=1)
+            mask = diff < (element_size / 2) + tolerance
+
+            if not np.any(mask):
+                continue
+
+            try:
+                external_indexes = nodal_coords[:, 0][mask]
+                if len(external_indexes) != 1:
+                    continue
+
+                for external_index in external_indexes:
+                    if external_indexes == node_id:
+                        continue
+
+                    if len(self.neighbors_nodes[external_index]) == 1:
+                        disconnected_nodes.append(int(external_index))
+
+            except Exception as _log_error:
+                title = "Error while checking mesh at the line edges"
+                message = str(_log_error)
+                PrintMessageInput(["error", title, message])
+
+        if disconnected_nodes:
+            title = "Problem detected in connectivity between neighbor nodes"
+            message = "At least one disconnected node has been detected at the edge of one line due "
+            message += "to the mismatch between the geometry 'keypoints' and the current mesh setup. " 
+            message += "We strongly recommend reducing the element size or correcting the problem "
+            message += "in the geometry file before proceeding with the model setup.\n\n"
+            message += f"List of disconnected node(s): \n{disconnected_nodes}"
+            PrintMessageInput(["warning", title, message])                
         
-    def get_line_from_node_id(self, node_ids):
+    def get_line_from_node_id(self, node_ids: int | list[int]) -> list[int]:
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
         
         line_ids = list()
         for node_id in node_ids:
+            line_ids.extend(self.mesh.lines_from_node.get(node_id))
 
-            if node_id in self.dict_first_node_to_element_index.keys():
-                element_id = self.dict_first_node_to_element_index[node_id]
-                for _id in element_id:
-                    line_id = self.mesh.line_from_element[_id]
-                    if line_id not in line_ids:
-                        line_ids.append(line_id)
-            
-            if node_id in self.dict_last_node_to_element_index.keys():
-                element_id = self.dict_last_node_to_element_index[node_id]
-                for _id in element_id:
-                    line_id = self.mesh.line_from_element[_id]
-                    if line_id not in line_ids:
-                        line_ids.append(line_id)
-
-        return line_ids
+        return list(np.unique(line_ids).astype(int))
          
     def _order_global_indexes(self):
         """
         This method updates the nodes global indexes numbering.
         """
-        # t0 = perf_count()
-        index = 0
-        stack = deque()
-        list_nodes = list(self.nodes.values())
-        old_version = False
+        return
+        # # t0 = perf_count()
+        # index = 0
+        # stack = deque()
+        # list_nodes = list(self.nodes.values())
 
-        if old_version:
+        # stack.appendleft(list_nodes[0].index) 
 
-            stack.appendleft(list_nodes[0])
-
-            while stack:
-
-                top = stack.pop()
-
-                if top in list_nodes:
-                    list_nodes.remove(top)
-
-                if top.global_index is None:
-                    # list_nodes.remove(top)
-                    top.global_index = index
-                    index += 1
-                else:
-                    continue
-                
-                for neighbor in self.neighbors[top]:
-                    if neighbor.global_index is None:
-                        stack.appendleft(neighbor)
-                
-                if len(stack) == 0:
-                    if len(list_nodes) > 0:
-                        stack.appendleft(list_nodes[0])
-                        
-                        #TODO: uncomment to rebegin from start or end nodes
-                        # for node in list_nodes:
-                        #     if len(self.neighbors[node]) == 1:
-                        #         stack.appendleft(node)
-        else:
-
-            stack.appendleft(list_nodes[0].external_index) 
-
-            while stack:
-            
-                top = self.nodes[stack.pop()]
+        # while stack:
         
-                if top.global_index is None:
-                    top.global_index = index
-                    index += 1
-                else:
-                    continue
-                
-                for neighbor in self.neighbors[top]:
-                    if neighbor.global_index is None:
-                        if neighbor.external_index not in stack:
-                            stack.appendleft(neighbor.external_index)
-                        
-                if len(stack) == 0:
-                    if index < self.number_nodes-1:
-                        for node in list_nodes:
-                            if node.global_index is None:
-                                stack.appendleft(node.external_index)
-                                break
+        #     top = self.nodes[stack.pop()]
+    
+        #     if top.index is None:
+        #         top.index = index
+        #         index += 1
+        #     else:
+        #         continue
+            
+        #     for neighbor in self.neighbors_nodes[top.index]:
+        #         if neighbor.index is None:
+        #             if neighbor.index not in stack:
+        #                 stack.appendleft(neighbor.index)
+                    
+        #     if len(stack) != 0:
+        #         continue
 
-                        #TODO: uncomment to begin from start or end nodes
-                        # for node in list_nodes:
-                        #     if len(self.neighbors[node]) == 1:
-                        #         stack.appendleft(node)   
+        #     if index < self.number_nodes - 1:
+        #         for node in list_nodes:
+        #             if node.index is None:
+        #                 stack.appendleft(node.index)
+        #                 break
 
-    def _mapping_nodes_indexes(self):
-        self.map_global_to_external_index = {node.global_index:node.external_index for node in self.nodes.values()}
+        #         #TODO: uncomment to begin from start or end nodes
+        #         # for node in list_nodes:
+        #         #     if len(self.neighbors_nodes[node]) == 1:
+        #         #         stack.appendleft(node)   
 
-    def get_dict_nodes_to_element_indexes(self):
-        """
-        This method updates the dictionary that maps the external node to the element index.
-        """
-        self.dict_first_node_to_element_index = defaultdict(list)
-        self.dict_last_node_to_element_index = defaultdict(list)
-        for index, element_attributes in self.elements_attributes.items():
-            first_node_index = element_attributes.first_node.external_index
-            last_node_index = element_attributes.last_node.external_index
-            self.dict_first_node_to_element_index[first_node_index].append(index)
-            self.dict_last_node_to_element_index[last_node_index].append(index)
+    # def _mapping_nodes_indexes(self):
+    #     self.map_global_to_external_index = {node.index:node.index for node in self.nodes.values()}
 
-    def get_nodal_coordinates_matrix(self, reordering=True):
-        """
-        This method updates the mesh nodes coordinates data. Coordinates matrix row structure:
-        ''[Node index, x-coordinate, y-coordinate, z-coordinate]''.
+    # def get_dict_nodes_to_element_indexes(self):
+    #     """
+    #     This method updates the dictionary that maps the external node to the element index.
+    #     """
+    #     self.dict_first_node_to_element_index = defaultdict(list)
+    #     self.dict_last_node_to_element_index = defaultdict(list)
+    #     for index, element_attributes in self.elements_attributes.items():
+    #         first_node_index = element_attributes.first_node.index
+    #         last_node_index = element_attributes.last_node.index
+    #         self.dict_first_node_to_element_index[first_node_index].append(index)
+    #         self.dict_last_node_to_element_index[last_node_index].append(index)
 
-        Parameters
-        ----------
-        reordering : bool, optional.
-            True if the nodes numbering is according to the global indexing. False otherwise.
-            Default is True.
-        """
-        # self.number_nodes = len(self.nodes)
-        nodal_coordinates = np.zeros((self.number_nodes, 4))
-        nodal_coordinates_external = nodal_coordinates
+    # def get_nodal_coordinates_matrix(self, reordering=True):
+    #     """
+    #     This method updates the mesh nodes coordinates data. Coordinates matrix row structure:
+    #     ''[Node index, x-coordinate, y-coordinate, z-coordinate]''.
 
-        # if reordering:
-        for external_index, node in self.nodes.items():
-            index = self.nodes[external_index].global_index
-            nodal_coordinates[index,:] = index, node.x, node.y, node.z
-            nodal_coordinates_external[index,:] = external_index, node.x, node.y, node.z
-        # else:               
-        #     for external_index, node in self.nodes.items():
-        #         index = self.nodes[external_index].global_index
-        #         nodal_coordinates[index,:] = external_index, node.x, node.y, node.z
+    #     Parameters
+    #     ----------
+    #     reordering : bool, optional.
+    #         True if the nodes numbering is according to the global indexing. False otherwise.
+    #         Default is True.
+    #     """
+    #     # self.number_nodes = len(self.nodes)
+    #     nodal_coordinates = np.zeros((self.number_nodes, 4))
+    #     nodal_coordinates_external = nodal_coordinates
 
-        self.nodal_coordinates_matrix = nodal_coordinates
-        self.nodal_coordinates_matrix_external = nodal_coordinates_external
+    #     # if reordering:
+    #     for external_index, node in self.nodes.items():
+    #         index = self.nodes[external_index].index
+    #         nodal_coordinates[index,:] = index, node.x, node.y, node.z
+    #         nodal_coordinates_external[index,:] = external_index, node.x, node.y, node.z
+    #     # else:               
+    #     #     for external_index, node in self.nodes.items():
+    #     #         index = self.nodes[external_index].index
+    #     #         nodal_coordinates[index,:] = external_index, node.x, node.y, node.z
 
-    def get_connectivity_matrix(self, reordering=True):
-        """
-        This method updates the mesh connectivity data. Connectivity matrix row structure:
-        ''[Element index, first node index, last node index]''.
+    #     self.nodal_coordinates_matrix = nodal_coordinates
+    #     self.nodal_coordinates_matrix_external = nodal_coordinates_external
 
-        Parameters
-        ----------
-        reordering : bool, optional.
-            True if the nodes numbering is according to the global indexing. False otherwise.
-            Default is True.
-        """
-        connectivity = np.zeros((self.number_structural_elements, NODES_PER_ELEMENT+1))
-        if reordering:
-            for i, element_attributes in enumerate(self.elements_attributes.values()):
-                first_node = element_attributes.first_node
-                last_node  = element_attributes.last_node
-                # first_external = element.first_node.external_index
-                # last_external  = element.last_node.external_index
-                connectivity[i, :] = i + 1, first_node.global_index, last_node.global_index
+    # def get_connectivity_matrix(self, reordering=True):
+    #     """
+    #     This method updates the mesh connectivity data. Connectivity matrix row structure:
+    #     ''[Element index, first node index, last node index]''.
 
-        else:
-            for i, element_attributes in enumerate(self.elements_attributes.values()):
-                first_node = element_attributes.first_node
-                last_node  = element_attributes.last_node
-                connectivity[i, :] = i + 1, first_node.external_index, last_node.external_index
+    #     Parameters
+    #     ----------
+    #     reordering : bool, optional.
+    #         True if the nodes numbering is according to the global indexing. False otherwise.
+    #         Default is True.
+    #     """
+    #     connectivity = np.zeros((self.number_structural_elements, NODES_PER_ELEMENT+1))
+    #     if reordering:
+    #         for i, element_attributes in enumerate(self.elements_attributes.values()):
+    #             first_node = element_attributes.first_node
+    #             last_node  = element_attributes.last_node
+    #             # first_external = element.first_node.index
+    #             # last_external  = element.last_node.index
+    #             connectivity[i, :] = i + 1, first_node.index, last_node.index
 
-        self.connectivity_matrix = connectivity.astype(int) 
+    #     else:
+    #         for i, element_attributes in enumerate(self.elements_attributes.values()):
+    #             first_node = element_attributes.first_node
+    #             last_node  = element_attributes.last_node
+    #             connectivity[i, :] = i + 1, first_node.index, last_node.index
+
+    #     self.connectivity_matrix = connectivity.astype(int) 
 
     def get_node_id_by_coordinates(self, coords: np.ndarray, radius=None):
         """
@@ -556,9 +577,8 @@ class Preprocessor:
         
         """
 
-        coord_matrix = self.nodal_coordinates_matrix_external
-        list_coordinates = coord_matrix[:, 1:].tolist()
-        external_indexes = coord_matrix[:, 0]
+        external_indexes = self.mesh.nodal_coordinates[:, 0]
+        list_coordinates = self.mesh.nodal_coordinates[:, 1:].tolist()
 
         if isinstance(coords, (np.ndarray, tuple)):
             coords = list(coords)
@@ -571,7 +591,7 @@ class Preprocessor:
             external_index = int(external_indexes[ind])
 
         else:
-            diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coords), axis=1)
+            diff = np.linalg.norm(self.mesh.nodal_coordinates[:,1:] - np.array(coords), axis=1)
             mask = diff < radius
 
             if not external_indexes[mask].any():
@@ -604,13 +624,14 @@ class Preprocessor:
         This method updates the principal structure diagonal parallelepiped attribute. 
         
         """
-        nodal_coordinates = self.nodal_coordinates_matrix.copy()
-        x_min, y_min, z_min = np.min(nodal_coordinates[:,1:], axis=0)
-        x_max, y_max, z_max = np.max(nodal_coordinates[:,1:], axis=0)
-        self.structure_principal_diagonal = np.sqrt((x_max-x_min)**2 + (y_max-y_min)**2 + (z_max-z_min)**2)
-        self.camera_rotation_center = [ (x_max + x_min)/2,
-                                        (y_max + y_min)/2,
-                                        (z_max + z_min)/2 ]
+        x_min, y_min, z_min = np.min(self.mesh.nodal_coordinates[:, 1:], axis=0)
+        x_max, y_max, z_max = np.max(self.mesh.nodal_coordinates[:, 1:], axis=0)
+        self.structure_principal_diagonal = np.sqrt((x_max - x_min) ** 2 + (y_max - y_min) ** 2 + (z_max - z_min) ** 2)
+        self.camera_rotation_center = [
+            (x_max + x_min) / 2,
+            (y_max + y_min) / 2,
+            (z_max + z_min) / 2,
+        ]
         # print('The base length is: {}[m]'.format(round(self.structure_principal_diagonal,6)))
 
     def get_global_structural_indexes(self):
@@ -627,12 +648,12 @@ class Preprocessor:
         """
 
         rows, cols = self.number_structural_elements, DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
-        cols_nodes = self.connectivity_matrix[:, 1:].astype(int)
-        cols_dofs = cols_nodes.reshape(-1,1)*DOF_PER_NODE_STRUCTURAL + np.arange(6, dtype=int)
+        cols_nodes = self.mesh.lines_connectivity[:, 4:]
+        cols_dofs = cols_nodes.reshape(-1, 1) * DOF_PER_NODE_STRUCTURAL + np.arange(6, dtype=int)
         cols_dofs = cols_dofs.reshape(rows, cols)
 
         ind_j = np.tile(cols_dofs, cols)
-        ind_i = cols_dofs.reshape(-1,1) @ np.ones((1,cols), dtype=int) 
+        ind_i = cols_dofs.reshape(-1, 1) @ np.ones((1, cols), dtype=int) 
 
         return ind_i.flatten(), ind_j.flatten()
 
@@ -650,105 +671,110 @@ class Preprocessor:
         """
 
         rows, cols = len(self.elements_attributes), DOF_PER_NODE_ACOUSTIC * NODES_PER_ELEMENT
-        cols_nodes = self.connectivity_matrix[:, 1:].astype(int)
-        cols_dofs = cols_nodes.reshape(-1,1)
+        cols_nodes = self.mesh.lines_connectivity[:, 4:]
+        cols_dofs = cols_nodes.reshape(-1, 1)
         cols_dofs = cols_dofs.reshape(rows, cols)
 
         ind_j = np.tile(cols_dofs, cols)
-        ind_i = cols_dofs.reshape(-1,1) @ np.ones((1,cols), dtype=int) 
+        ind_i = cols_dofs.reshape(-1, 1) @ np.ones((1, cols), dtype=int)
 
         return ind_i.flatten(), ind_j.flatten()
 
-    def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-6):
-        """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
-            node_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
-            avoids the problem of element size deviations resultant in the mesh generation algorithm.
+    # def get_neighbor_nodes_and_elements_by_node(self, node_id: int, length: float, tolerance: float = 1e-6):
+    #     """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
+    #         node_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
+    #         avoids the problem of element size deviations resultant in the mesh generation algorithm.
         
-        Parameters
-        ----------
+    #     Parameters
+    #     ----------
 
-        Returns
-        ---------- 
+    #     Returns
+    #     ---------- 
 
-        """ 
-        half_length = (length/2) + tolerance
-        node_central = self.nodes[node_id]
-        list_nodes_ids = [node_id]
-        stack = deque()
-        stack.appendleft(node_id)
+    #     """ 
+    #     half_length = (length/2) + tolerance
+    #     node_central = self.nodes[node_id]
+    #     list_nodes_ids = [node_id]
+    #     stack = deque()
+    #     stack.appendleft(node_id)
 
-        while stack:
-            nodes = self.neighbors[self.nodes[stack.pop()]]
-            if len(nodes) <= 2:
-                for node in nodes:
-                    if np.linalg.norm((node_central.coordinates - node.coordinates)) <= half_length:
-                        if node.external_index not in list_nodes_ids:
-                            list_nodes_ids.append(node.external_index)
-                            stack.appendleft(node.external_index)                    
-            else:
-                return None, None
+    #     while stack:
 
-        list_elements_ids = list()
-        for index, element_attributes in self.elements_attributes.items():
-            if element_attributes.first_node.external_index in list_nodes_ids:
-                if element_attributes.last_node.external_index in list_nodes_ids:
-                    list_elements_ids.append(index)
+    #         node_ids = self.neighbors_nodes[self.nodes[stack.pop()].index]
+    #         if len(node_ids) > 2:
+    #             return None, None
 
-            if len(list_elements_ids) == len(list_nodes_ids) - 1:
-                break
+    #         for node_id in node_ids:
+    #             if np.linalg.norm((node_central.coordinates - self.mesh.nodal_coordinates[node_id, 1:])) > half_length:
+    #                 continue
 
-        return list_nodes_ids, list_elements_ids
+    #             if node_id in list_nodes_ids:
+    #                 continue
 
-    def get_neighbor_nodes_and_elements_by_element(self, element_id, length, tolerance=1e-5):
-        """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
-            element_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
-            avoids the problem of element size deviations resultant in the mesh generation algorithm.
+    #             list_nodes_ids.append(node_id)
+    #             stack.appendleft(node_id)                    
 
-        Parameters
-        ---------- 
+    #     list_elements_ids = list()
+    #     for index, element_attributes in self.elements_attributes.items():
+    #         if element_attributes.first_node.index in list_nodes_ids:
+    #             if element_attributes.last_node.index in list_nodes_ids:
+    #                 list_elements_ids.append(index)
 
-        Returns
-        ---------- 
+    #         if len(list_elements_ids) == len(list_nodes_ids) - 1:
+    #             break
+
+    #     return list_nodes_ids, list_elements_ids
+
+    # def get_neighbor_nodes_and_elements_by_element(self, element_id, length, tolerance=1e-5):
+    #     """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
+    #         element_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
+    #         avoids the problem of element size deviations resultant in the mesh generation algorithm.
+
+    #     Parameters
+    #     ---------- 
+
+    #     Returns
+    #     ---------- 
                                
-        """
-        element_attributes = self.elements_attributes.get(element_id)
-        node_id = element_attributes.first_node.external_index
-        last_node = element_attributes.last_node
+    #     """
+    #     element_attributes = self.elements_attributes.get(element_id)
+    #     node_id = element_attributes.first_node.index
+    #     last_node = element_attributes.last_node
 
-        length_t = length + element_attributes.length
-        list_nodes_ids, list_elements_ids = self.get_neighbor_nodes_and_elements_by_node(node_id, length_t, tolerance=tolerance)
+    #     length_t = length + element_attributes.length
+    #     list_nodes_ids, list_elements_ids = self.get_neighbor_nodes_and_elements_by_node(node_id, length_t, tolerance=tolerance)
 
-        if list_nodes_ids is not None:
+    #     if list_nodes_ids is not None:
                 
-            for external_index in list_nodes_ids:
-                node = self.nodes[external_index]
-                if np.linalg.norm((last_node.coordinates - node.coordinates)) > ((length_t/2) + tolerance):
-                    list_nodes_ids.remove(node.external_index)
+    #         for external_index in list_nodes_ids:
+    #             node = self.nodes[external_index]
+    #             if np.linalg.norm((last_node.coordinates - node.coordinates)) > ((length_t/2) + tolerance):
+    #                 list_nodes_ids.remove(node.index)
 
-            for index in list_elements_ids:
-                if element_attributes.first_node.external_index in list_nodes_ids:
-                    continue
+    #         for index in list_elements_ids:
+    #             if element_attributes.first_node.index in list_nodes_ids:
+    #                 continue
                 
-                index = element_attributes.index
-                if index in list_elements_ids:
-                    list_elements_ids.remove(index)
+    #             index = element_attributes.index
+    #             if index in list_elements_ids:
+    #                 list_elements_ids.remove(index)
 
-                if element_attributes.last_node.external_index in list_nodes_ids:
-                    continue
+    #             if element_attributes.last_node.index in list_nodes_ids:
+    #                 continue
 
-                if index in list_elements_ids: 
-                    list_elements_ids.remove(index)
+    #             if index in list_elements_ids: 
+    #                 list_elements_ids.remove(index)
                     
-            return list_nodes_ids, list_elements_ids
-        else:
-            return None, None
+    #         return list_nodes_ids, list_elements_ids
+    #     else:
+    #         return None, None
 
     def _reset_global_indexes(self):
         """
         This method attributes None to global index of all mesh nodes.
         """
         for node in self.nodes.values():
-            node.global_index = None
+            node.index = None
 
     def set_structural_element_type_by_element(self, elements: list[int], element_type: str):
         """
@@ -912,106 +938,108 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
-        if isinstance(section_data, dict):
-            
-            section_parameters = section_data.get("section_parameters")
-            if section_parameters is None:
-                return
-            
-            if len(section_parameters) != 10:
-                return
+        if not isinstance(section_data, dict):
+            return
 
-            [
-                outer_diameter_initial,
-                thickness_initial,
-                offset_y_initial,
-                offset_z_initial,
-                outer_diameter_final,
-                thickness_final,
-                offset_y_final,
-                offset_z_final,
-                insulation_thickness,
-                insulation_density,
-            ] = section_parameters
+        section_parameters = section_data.get("section_parameters")
+        if section_parameters is None:
+            return
 
-            for line_id in line_ids:
-                elements_from_line = self.mesh.elements_from_line[line_id]
+        if len(section_parameters) != 10:
+            return
 
-                element_attributes_first = self.elements_attributes.get(elements_from_line[0])
-                element_attributes_last = self.elements_attributes.get(elements_from_line[-1])
+        [
+            outer_diameter_initial,
+            thickness_initial,
+            offset_y_initial,
+            offset_z_initial,
+            outer_diameter_final,
+            thickness_final,
+            offset_y_final,
+            offset_z_final,
+            insulation_thickness,
+            insulation_density,
+        ] = section_parameters
 
-                coord_first_1 = element_attributes_first.first_node.coordinates
-                coord_last_1 = element_attributes_last.last_node.coordinates
+        for line_id in line_ids:
+            elements_from_line = self.mesh.elements_from_line[line_id]
 
-                coord_first_2 = element_attributes_last.first_node.coordinates
-                coord_last_2 = element_attributes_first.last_node.coordinates
+            element_attributes_first = self.elements_attributes.get(elements_from_line[0])
+            element_attributes_last = self.elements_attributes.get(elements_from_line[-1])
 
-                lines_vertex_coords = self.get_lines_vertex_coordinates(_array=False)
-                vertex_coords = lines_vertex_coords[line_id]
+            coord_first_1 = element_attributes_first.first_node.coordinates
+            coord_last_1 = element_attributes_last.last_node.coordinates
 
-                N = len(elements_from_line)
-                if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
-                    outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(
-                        outer_diameter_initial, outer_diameter_final, N
-                    )
-                    thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
-                    offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
-                    offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
+            coord_first_2 = element_attributes_last.first_node.coordinates
+            coord_last_2 = element_attributes_first.last_node.coordinates
 
-                elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
-                    outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(
-                        outer_diameter_final, outer_diameter_initial, N
-                    )
-                    thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
-                    offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
-                    offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
+            # coords_1 = self.mesh.get_element_nodes_coordinates(elements_from_line[0])
+            # coords_2 = self.mesh.get_element_nodes_coordinates(elements_from_line[-1])
 
-                cross_sections_first = list()
-                # cross_sections_last = list()
+            # coord_first_1 = coords_1[0, :]
+            # coord_last_1 = coords_1[1, :]
+            # coord_first_2 = coords_2[0, :]
+            # coord_last_2 = coords_2[1, :]
 
-                for index, element_id in enumerate(elements_from_line):
+            lines_vertex_coords = self.get_lines_vertex_coordinates(_array=False)
+            vertex_coords = lines_vertex_coords[line_id]
 
-                    element_attributes = self.elements_attributes[element_id]
-                    first_node = element_attributes.first_node
-                    last_node = element_attributes.last_node
+            N = len(elements_from_line)
+            if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
+                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(
+                    outer_diameter_initial, outer_diameter_final, N
+                )
+                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
+                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
+                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
 
-                    section_parameters_first = [
-                        outer_diameter_first[index],
-                        thickness_first[index],
-                        offset_y_first[index],
-                        offset_z_first[index],
-                        insulation_thickness,
-                        insulation_density,
-                        "reducer",
-                        ]
+            elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
+                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(
+                    outer_diameter_final, outer_diameter_initial, N
+                )
+                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
+                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
+                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
 
-                    section_parameters_last = [
-                        outer_diameter_last[index],
-                        thickness_last[index],
-                        offset_y_last[index],
-                        offset_z_last[index],
-                        insulation_thickness,
-                        insulation_density,
-                        "reducer",
-                        ]
+            cross_sections_first = list()
+            # cross_sections_last = list()
 
-                    cross_section_first = CrossSection(
-                        element_type = "pipe_1",
-                        pipe_section_info = PipeCrossSection(*section_parameters_first),
-                    )
+            for index, element_id in enumerate(elements_from_line):
 
-                    cross_section_last = CrossSection(
-                        element_type = "pipe_1",
-                        pipe_section_info = PipeCrossSection(*section_parameters_last),
-                    )
+                element_attributes = self.elements_attributes[element_id]
+                first_node = element_attributes.first_node
+                last_node = element_attributes.last_node
 
-                    cross_sections_first.append(cross_section_first)
-                    # cross_sections_last.append(cross_section_last)
+                section_parameters_first = [
+                    outer_diameter_first[index],
+                    thickness_first[index],
+                    offset_y_first[index],
+                    offset_z_first[index],
+                    insulation_thickness,
+                    insulation_density,
+                    "reducer",
+                    ]
 
-                    first_node.cross_section = cross_section_first
-                    last_node.cross_section = cross_section_last
+                section_parameters_last = [
+                    outer_diameter_last[index],
+                    thickness_last[index],
+                    offset_y_last[index],
+                    offset_z_last[index],
+                    insulation_thickness,
+                    insulation_density,
+                    "reducer",
+                    ]
 
-                self.set_cross_section_by_elements(elements_from_line, cross_sections_first)
+                cross_section_first = CrossSection(element_type="pipe_1", pipe_section_info=PipeCrossSection(*section_parameters_first))
+                cross_section_last = CrossSection(element_type="pipe_1", pipe_section_info=PipeCrossSection(*section_parameters_last))
+
+                cross_sections_first.append(cross_section_first)
+                # cross_sections_last.append(cross_section_last)
+
+                first_node.cross_section = cross_section_first
+                last_node.cross_section = cross_section_last
+
+            self.set_cross_section_by_elements(elements_from_line, cross_sections_first)
 
     def set_cross_sections_to_valve_elements(self, line_id: int, data: dict):
 
@@ -1554,8 +1582,8 @@ class Preprocessor:
                 continue
 
             if element_attributes.structural_element_type in ['pipe_1', 'expansion_joint', 'valve']:
-                gdofs_node_first = element_attributes.first_node.global_index
-                gdofs_node_last = element_attributes.last_node.global_index
+                gdofs_node_first = element_attributes.first_node.index
+                gdofs_node_last = element_attributes.last_node.index
                 pipe_gdofs[gdofs_node_first] = gdofs_node_first 
                 pipe_gdofs[gdofs_node_last] = gdofs_node_last
 
@@ -1587,11 +1615,10 @@ class Preprocessor:
         bool
             ?????
         """
+        number_nodes = len(self.nodes)
         beam_gdofs, self.pipe_gdofs = self.get_beam_and_non_beam_elements_global_dofs()
-        if len(beam_gdofs) == self.number_nodes:
-            return True
-        else:
-            return False
+
+        return len(beam_gdofs) == number_nodes
 
     def get_acoustic_elements(self) -> list[int]:
         """
@@ -1629,8 +1656,8 @@ class Preprocessor:
 
         for index in self.get_acoustic_elements():
             element_attributes = self.elements_attributes.get(index)
-            first_node = element_attributes.first_node.external_index
-            last_node = element_attributes.last_node.external_index
+            first_node = element_attributes.first_node.index
+            last_node = element_attributes.last_node.index
             acoustic_nodes[first_node] = element_attributes.first_node
             acoustic_nodes[last_node] = element_attributes.last_node
 
@@ -1817,8 +1844,8 @@ class Preprocessor:
         node_1 = self.nodes[ext_id1]
         node_2 = self.nodes[ext_id2]
 
-        int_id1 = node_1.global_index
-        int_id2 = node_2.global_index
+        int_id1 = node_1.index
+        int_id2 = node_2.index
 
         indexes_i = [ int_id1, int_id2, int_id1, int_id2 ] 
         indexes_j = [ int_id1, int_id1, int_id2, int_id2 ]
@@ -1890,8 +1917,8 @@ class Preprocessor:
             coords = list()
             input_node_id, output_node_id = node_ids
 
-            int_id1 = self.nodes[input_node_id].global_index
-            int_id2 = self.nodes[output_node_id].global_index
+            int_id1 = self.nodes[input_node_id].index
+            int_id2 = self.nodes[output_node_id].index
 
             indexes_i = [ int_id1, int_id1, int_id2, int_id2 ] 
             indexes_j = [ int_id1, int_id2, int_id1, int_id2 ]
@@ -2095,14 +2122,21 @@ class Preprocessor:
 
         self.undeformed_section_rotations = np.array([rot_angles[:, 1], rot_angles[:, 0], rot_angles[:, 2]], dtype=float).T
 
-    def process_element_cross_sections_orientation_to_plot(self):
+    def process_element_cross_sections_orientation_to_plot(self, modif_nodal_solution: np.ndarray):
         """
         This method processes each element cross-seciton in accordance with
         the element rotation matrix.
         """
         rotation_data = np.zeros((self.number_structural_elements, 3), dtype=float)
+
         for i, (index, element_attributes) in enumerate(self.elements_attributes.items()):
-            element_attributes = self.elements_attributes.get(index)
+
+            # first_node = element_attributes.first_node
+            # last_node = element_attributes.last_node
+
+            # first_node.nodal_solution_gcs = modif_nodal_solution[first_node.structural_global_dof]
+            # last_node.nodal_solution_gcs = modif_nodal_solution[last_node.structural_global_dof]
+
             if element_attributes.decoupling_info is None:
                 rotation_data[i, :] = element_attributes.mean_rotations_at_local_coordinate_system()
             else:

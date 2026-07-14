@@ -55,16 +55,16 @@ class ElementLinesActor(GhostActor):
             first_node = element_attributes.first_node
             last_node = element_attributes.last_node
 
-            x0, y0, z0 = self.deformed_coordinates[first_node.global_index, 1:] if self.show_deformed else first_node.coordinates
-            x1, y1, z1 = self.deformed_coordinates[ last_node.global_index, 1:] if self.show_deformed else last_node.coordinates
+            x0, y0, z0 = self.deformed_coordinates[first_node.index, 1:] if self.show_deformed else first_node.coordinates
+            x1, y1, z1 = self.deformed_coordinates[ last_node.index, 1:] if self.show_deformed else last_node.coordinates
 
             lines.append((x0, y0, z0, x1, y1, z1))
-            entity = self.model.mesh.line_from_element.get(elem_id)
-            if entity is None:
+            line_id = self.model.mesh.get_line_from_element(elem_id)
+            if line_id is None:
                 print(f"Warning: the element [{i}] is not associated with a line")
                 continue
 
-            entity_index.InsertNextTuple1(entity)
+            entity_index.InsertNextTuple1(line_id)
             element_index.InsertNextTuple1(elem_id)
 
         data = LinesData(lines)

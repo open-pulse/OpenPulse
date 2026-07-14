@@ -253,7 +253,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
             self.load_nodal_coordinates_of_selected_point(node)
 
-            element_ids = self.preprocessor.elements_connected_to_node.get(node.external_index)
+            element_ids = self.preprocessor.elements_connected_to_node.get(node.index)
             if not element_ids:
                 return
 
@@ -271,7 +271,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
                 if node is None:
                     return
 
-                element_ids = self.preprocessor.elements_connected_to_node.get(node.external_index)
+                element_ids = self.preprocessor.elements_connected_to_node.get(node.index)
                 material = self.preprocessor.get_element_material(element_ids[0])
 
             material = self.preprocessor.get_element_material(element_ids[0])

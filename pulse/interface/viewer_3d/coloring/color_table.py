@@ -100,7 +100,7 @@ class ColorTable(vtkLookupTable):
         if self.is_empty():
             return [255, 255, 255]
 
-        value = self.value_vector[node.global_index]
+        value = self.value_vector[node.index]
         color_temp = [255, 255, 255]
         self.GetColor(value, color_temp)
         color_temp = [int(i * 255) for i in color_temp]
@@ -110,8 +110,8 @@ class ColorTable(vtkLookupTable):
 
         index = element_attributes.index
 
-        first_gid = element_attributes.first_node.global_index
-        last_gid = element_attributes.last_node.global_index
+        first_gid = element_attributes.first_node.index
+        last_gid = element_attributes.last_node.index
 
         if self.is_empty():
             return [255, 255, 255]

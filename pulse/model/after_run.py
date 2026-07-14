@@ -12,6 +12,7 @@ class AfterRun:
         self.main_window = app().main_window
         self.project = app().project
         self.model = app().project.model
+        self.mesh = app().project.model.mesh
         self.preprocessor = app().project.model.preprocessor
 
         self.load_model_and_analysis_data()
@@ -19,7 +20,6 @@ class AfterRun:
     def load_model_and_analysis_data(self):
         self.solution_acoustic = app().project.acoustic_solution
         self.frequencies = self.model.frequencies
-        self.map_nodes = self.preprocessor.map_global_to_external_index
         self.nodes = self.preprocessor.nodes
 
     def check_the_acoustic_criterias_related_to_elements(self, nl_criteria=0.08):
@@ -36,29 +36,30 @@ class AfterRun:
                 first_node = element_attributes.first_node
                 last_node = element_attributes.last_node
 
-                static_pressure[first_node.global_index].append(1e9 if fluid is None else fluid.pressure)
-                static_pressure[last_node.global_index].append(1e9 if fluid is None else fluid.pressure)
+                static_pressure[first_node.index].append(1e9 if fluid is None else fluid.pressure)
+                static_pressure[last_node.index].append(1e9 if fluid is None else fluid.pressure)
             
             aux = [min(p0) for p0 in static_pressure]
             static_pressure = np.array(aux).reshape(-1, 1)
             pressure_ratio = np.abs(self.solution_acoustic / static_pressure)
 
             criteria = pressure_ratio > nl_criteria
-            aux_freq = np.any(criteria, axis=0)
-            aux_nodes = np.any(criteria, axis=1)
-            self.list_freq = self.frequencies[aux_freq]
-            nodes_internal = np.arange(len(self.nodes))[aux_nodes]
-            self.list_nodes = [self.map_nodes[global_index] for global_index in nodes_internal]
-            self.list_nodes.sort()
+            if not np.any(criteria):
+                return
+
+            mask_freq = np.any(criteria, axis=0)
+            mask_nodes = np.any(criteria, axis=1)
+            invalid_frequencies = self.frequencies[mask_freq]
+            invalid_nodes_array = self.mesh.nodal_coordinates[:, 0][mask_nodes]
+            invalid_nodes = list(invalid_nodes_array)
     
-            if np.any(criteria):
-                self.main_window.plot_mesh()
-                self.highlight_selection(nodes = self.list_nodes)
-                title = "Acoustic nonlinearity criteria not satisfied"
-                message_nl = "The acoustic model is out of its linear validity range at "
-                message_nl += f"{len(self.list_nodes)} nodes and at {len(self.list_freq)} frequencies."
-                message_nl += "It is recommended to check the results carefully."
-                PrintMessageInput([warning_title, title, message_nl])
+            self.main_window.plot_mesh()
+            self.highlight_selection(nodes = invalid_nodes)
+            title = "Acoustic nonlinearity criteria not satisfied"
+            message_nl = "The acoustic model is out of its linear validity range at "
+            message_nl += f"{len(invalid_nodes)} nodes and at {len(invalid_frequencies)} frequencies."
+            message_nl += "It is recommended to check the results carefully."
+            PrintMessageInput([warning_title, title, message_nl])
 
     def check_the_acoustic_criterias_related_to_nodes(self):
         pass

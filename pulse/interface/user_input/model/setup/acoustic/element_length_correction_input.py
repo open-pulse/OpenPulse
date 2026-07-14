@@ -91,11 +91,11 @@ class AcousticElementLengthCorrectionInput(
         for element_id in element_ids:
             element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
-            first_node = element_attributes.first_node.external_index
+            first_node = element_attributes.first_node.index
             if first_node not in node_ids:
                 node_ids.append(first_node)
 
-            last_node = element_attributes.last_node.external_index
+            last_node = element_attributes.last_node.index
             if last_node not in node_ids:
                 node_ids.append(last_node)
 

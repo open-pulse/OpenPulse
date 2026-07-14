@@ -86,8 +86,8 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
             acoustic_solution = app().project.get_acoustic_solution()
             element_attributes = app().project.model.preprocessor.elements_attributes.get(element_id)
 
-            pressure_first = acoustic_solution[element_attributes.first_node.global_index, :]
-            pressure_last = acoustic_solution[element_attributes.last_node.global_index, :]
+            pressure_first = acoustic_solution[element_attributes.first_node.index, :]
+            pressure_last = acoustic_solution[element_attributes.last_node.index, :]
             pressure = np.c_[pressure_first, pressure_last].T
 
             element = build_structural_element(element_attributes)
