@@ -262,7 +262,7 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Build the mathematical model and solve it (it also saves the model results in the temp_pulse folder)
     project.build_model_and_solve(running_by_script=True)
 
-    acoustic_solution = project.acoustic_solution
+    acoustic_solution = project.model.acoustic_solution
 
     assert acoustic_solution is not None, "No acoustic solution returned"
     assert acoustic_solution.ndim == 2, "Acoustic solution must be 2D"

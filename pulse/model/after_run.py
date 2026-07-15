@@ -9,22 +9,35 @@ from pulse.model import AnalysisID
 class AfterRun:
     def __init__(self):
 
-        self.main_window = app().main_window
-        self.project = app().project
-        self.model = app().project.model
-        self.mesh = app().project.model.mesh
-        self.preprocessor = app().project.model.preprocessor
-
         self.load_model_and_analysis_data()
 
+    @property
+    def project(self):
+        return app().project
+
+    @property
+    def model(self):
+        return app().project.model
+
+    @property
+    def mesh(self):
+        return app().project.model.mesh
+
+    @property
+    def properties(self):
+        return app().project.model.properties
+
+    @property
+    def preprocessor(self):
+        return app().project.model.preprocessor
+
     def load_model_and_analysis_data(self):
-        self.solution_acoustic = app().project.acoustic_solution
         self.frequencies = self.model.frequencies
         self.nodes = self.preprocessor.nodes
 
     def check_the_acoustic_criterias_related_to_elements(self, nl_criteria=0.08):
 
-        if self.solution_acoustic is None:
+        if self.model.acoustic_solution is None:
             return
 
         if AnalysisID(self.project.analysis_id).is_harmonic():
@@ -53,7 +66,7 @@ class AfterRun:
             invalid_nodes_array = self.mesh.nodal_coordinates[:, 0][mask_nodes]
             invalid_nodes = list(invalid_nodes_array.astype(int))
     
-            self.main_window.plot_mesh()
+            app().main_window.plot_mesh()
             self.highlight_selection(nodes = invalid_nodes)
             title = "Acoustic nonlinearity criteria not satisfied"
             message_nl = "The acoustic model is out of its linear validity range at "

@@ -38,7 +38,7 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
 
             self.structural_solver = app().project.get_structural_solver()
             if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
+                self.structural_solver.solution = app().project.model.structural_solution
 
         else:
             self.structural_solver = app().project.structural_solver

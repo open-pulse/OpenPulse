@@ -36,12 +36,14 @@ class Model:
         self.properties = None
         self.psd_data = dict()
         self.analysis_setup = dict()
+        self.color_scale_setup = dict()
 
         self.f_min = 1
         self.f_max = 200
         self.f_step = 1
         self.frequencies = None
         self.list_frequencies = list()
+        self.stresses_values_for_color_table = None
 
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
@@ -50,13 +52,24 @@ class Model:
         self.external_nodal_loads = False
         self.element_distributed_load = False
 
+        self.reset_solutions()
         self.set_static_analysis_setup(dict())
+
+    def  reset_solutions(self):
+        self.acoustic_solution: np.ndarray | None = None
+        self.structural_solution: np.ndarray | None = None
 
     def set_gravity_vector(self, gravity_vector: np.ndarray):
         self.gravity_vector = gravity_vector
 
     def reset_analysis_setup(self):
         self.analysis_setup.clear()
+
+    def set_color_scale_setup(self, color_scale_setup: dict):
+        self.color_scale_setup = color_scale_setup
+
+    def set_stresses_values_for_color_table(self, values: np.ndarray):
+        self.stresses_values_for_color_table = values
 
     @property
     def analysis_id(self):
@@ -312,3 +325,9 @@ class Model:
             rigid_elements |= set(elements_from_line)
 
         return rigid_elements
+
+    def set_acoustic_solution(self, solution: np.ndarray):
+        self.acoustic_solution = solution
+
+    def set_structural_solution(self, solution: np.ndarray):
+        self.structural_solution = solution

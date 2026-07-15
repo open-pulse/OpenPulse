@@ -144,7 +144,7 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
                 logging.info("Processing global matrices [100%]")
 
                 if app().project.structural_solver.solution is None:
-                    app().project.structural_solver.solution = app().project.structural_solution
+                    app().project.structural_solver.solution = app().project.model.structural_solution
 
                 logging.info("Evaluating the structural reactions [20%]")
                 app().project.calculate_structural_reactions()

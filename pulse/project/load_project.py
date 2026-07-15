@@ -789,26 +789,26 @@ class LoadProject:
                         self.project.complex_natural_frequencies_acoustic = data["natural_frequencies"]
                     else:
                         self.project.natural_frequencies_acoustic = data["natural_frequencies"]
-                    self.project.acoustic_solution = data["modal_shape"]
+                    self.project.set_acoustic_solution(data["modal_shape"])
 
                 if key == "modal_structural":
                     str_modal_analysis = True
                     self.project.natural_frequencies_structural = data["natural_frequencies"]
-                    self.project.structural_solution = data["modal_shape"]
+                    self.project.set_structural_solution(data["modal_shape"])
 
                 if key == "harmonic_acoustic":
                     act_harmonic_analysis = True
                     self.model.frequencies = data["frequencies"]
-                    self.project.acoustic_solution = data["solution"]
+                    self.project.set_acoustic_solution(data["solution"])
 
                 if key == "harmonic_structural":
                     str_harmonic_analysis = True
                     self.model.frequencies = data["frequencies"]
-                    self.project.structural_solution = data["solution"]
+                    self.project.set_structural_solution(data["solution"])
 
                 if key == "static_structural":
                     # str_static_analysis = True
-                    self.project.structural_solution = data["solution"]
+                    self.project.set_structural_solution(data["solution"])
 
             logging.info("Updating analysis render [75%]")
             if act_modal_analysis:

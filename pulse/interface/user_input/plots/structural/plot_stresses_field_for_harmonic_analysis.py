@@ -56,7 +56,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
 
             self.structural_solver = app().project.get_structural_solver()
             if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
+                self.structural_solver.solution = app().project.model.structural_solution
 
         else:
             self.structural_solver = app().project.structural_solver
@@ -169,11 +169,12 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         stress_list = list(stress_field.values())
         min_stress = np.min(stress_list)
         max_stress = np.max(stress_list)
-            
-        app().project.set_stresses_values_for_color_table(stress_field)
+
+        app().project.model.set_stresses_values_for_color_table(stress_field)
         app().project.set_min_max_type_stresses(min_stress, max_stress, stress_label)
 
         color_scale_setup = self.get_user_color_scale_setup()
+        print(color_scale_setup)
         app().project.set_color_scale_setup(color_scale_setup)
         app().main_window.results_widget.show_stress_field(self.selected_index)
 

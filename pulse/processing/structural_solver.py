@@ -27,13 +27,13 @@ class StructuralSolver:
         Default is None.
     """
 
-    def __init__(self, model: Model, **kwargs):
+    def __init__(self, model: Model, acoustic_solution: np.ndarray | None = None):
 
         self.model = model
         self.frequencies = model.frequencies
 
-        self.acoustic_solution = kwargs.get("acoustic_solution", None)
-        self.assembly = AssemblyStructural(model, acoustic_solution=self.acoustic_solution)
+        self.acoustic_solution = acoustic_solution
+        self.assembly = AssemblyStructural(model, acoustic_solution=acoustic_solution)
 
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()       
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()       

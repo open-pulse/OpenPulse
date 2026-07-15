@@ -2,13 +2,8 @@ import numpy as np
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.criterias.reciprocating_pump_pulsation_criteria_widget_ui import (
-    ReciprocatingPumpPulsationCriteriaWidget_UI,
-)
-from pulse.interface.user_input.plots.general.frequency_response_plotter import (
-    FrequencyResponsePlotter,
-)
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
+from pulse.interface.ui_generated.criterias.reciprocating_pump_pulsation_criteria_widget_ui import ReciprocatingPumpPulsationCriteriaWidget_UI
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
 
 class ReciprocatingPumpPulsationCriteriaInput(ReciprocatingPumpPulsationCriteriaWidget_UI):
@@ -26,11 +21,8 @@ class ReciprocatingPumpPulsationCriteriaInput(ReciprocatingPumpPulsationCriteria
         self.selection_callback()
 
     def _initialize(self):
-
         self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.model.frequencies
-
-        self.solution = self.project.get_acoustic_solution()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -68,9 +60,9 @@ class ReciprocatingPumpPulsationCriteriaInput(ReciprocatingPumpPulsationCriteria
 
     def get_acoustic_pressure(self, node_id: int):
 
-        response = get_acoustic_frf(self.preprocessor, self.solution, node_id)
+        response = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(node_id)
         if complex(0) in response:
-            response += np.ones(len(response), dtype=float)*(1e-12)
+            response += np.ones(len(response), dtype=float) * (1e-12)
 
         return response
 

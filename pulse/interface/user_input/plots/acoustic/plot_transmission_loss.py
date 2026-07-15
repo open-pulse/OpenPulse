@@ -13,7 +13,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.elements.acoustic.acoustic_calculator import RadiationImpedanceType
 from pulse.model.elements.acoustic.acoustic_calculator import AcousticCalculator
 from pulse.model.properties.fluid import Fluid
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 
 class DataType(IntEnum):
@@ -39,6 +38,10 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         self.load_nodes_ids()
 
     @property
+    def project(self):
+        return app().project
+
+    @property
     def model(self):
         return app().project.model
 
@@ -51,17 +54,11 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         return app().project.model.preprocessor
 
     def _initialize(self):
-
-        self.solution = app().project.get_acoustic_solution()
-        self.before_run = app().project.get_pre_solution_model_checks()
-
+        self.before_run = self.project.get_pre_solution_model_checks()
         self.diameters_from_node = self.preprocessor.neighbor_elements_diameter()
 
         self.unit_label = "dB"
         self.current_line_edit = None
-
-        self.frequencies = self.model.frequencies
-        self.analysis_method = app().project.analysis_method
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -302,7 +299,7 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
 
     def compute_TL_or_NR(self):
 
-        P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
+        P_out = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(self.output_node_id)
 
         d_in, rho_in, c0_in = self.get_minor_inner_diameter_from_node(self.input_node_id)
         if (d_in, rho_in, c0_in).count(None):
@@ -340,11 +337,10 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
             return TL
 
         if index == 1:
-
-            P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_id)
-            Prms_in2 = np.real(P_in*np.conjugate(P_in))/2 + zero_shift
-            Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
-            NR = 10*np.log10(Prms_in2/Prms_out2)
+            P_in = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(self.input_node_id)
+            Prms_in2 = np.real(P_in * np.conjugate(P_in)) / 2 + zero_shift
+            Prms_out2 = np.real(P_out * np.conjugate(P_out)) / 2 + zero_shift
+            NR = 10 * np.log10(Prms_in2 / Prms_out2)
 
             return NR
 
@@ -395,7 +391,7 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
     def join_model_data(self):
 
         self.model_results = dict()
-        self.title = f"Acoustic frequency response - {self.analysis_method} method"
+        self.title = f"Acoustic frequency response - {self.project.analysis_method} method"
 
         if self.comboBox_processing_selector.currentIndex() == DataType.TRANSMISSION_LOSS:
             y_label = "Transmission loss"
@@ -412,7 +408,7 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         key = ("nodes", (self.input_node_id, self.output_node_id))
 
         self.model_results[key] = {
-            "x_data": self.frequencies,
+            "x_data": self.model.frequencies,
             "y_data": self.compute_TL_or_NR(),
             "x_label": "Frequency [Hz]",
             "y_label": y_label,

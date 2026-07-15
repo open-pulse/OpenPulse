@@ -11,7 +11,6 @@ from pulse.interface.user_input.plots.general.frequency_response_plotter import 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.properties.fluid import Fluid
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.utils.signal_processing import process_ifft_from_one_sided_spectrum_signal
 
 
@@ -24,6 +23,10 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
         self._initialize()        
         self._create_connections()
         self.selection_callback()
+
+    @property
+    def project(self):
+        return app().project
 
     @property
     def model(self):
@@ -41,16 +44,12 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
     def properties(self):
         return app().project.model.properties
 
-    @property
-    def nodal_solution(self):
-        return app().project.get_acoustic_solution()
-
     def _initialize(self):
 
         self.model_results = dict()
         self.comp_parameters = dict()
 
-        self.before_run = app().project.get_pre_solution_model_checks()
+        self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.model.frequencies
 
     def _config_window(self):
@@ -143,9 +142,9 @@ class AllowablePulsationsForReciprocatingCompressorInputs(AllowablePulsationsFor
         self.lineEdit_unfiltered_criteria.setText(str(round(unfiltered_criteria, 6)))
 
     def get_acoustic_pressure(self, node_id: int):
-        response = get_acoustic_frf(self.preprocessor, self.nodal_solution, node_id)
+        response = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(node_id)
         if complex(0) in response:
-            response += np.ones(len(response), dtype=float)*(1e-12)
+            response += np.ones(len(response), dtype=float) * (1e-12)
 
         return response
 

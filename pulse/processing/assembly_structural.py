@@ -24,12 +24,12 @@ class AssemblyStructural:
         Default is None.
     """
 
-    def __init__(self, model: Model, **kwargs):
+    def __init__(self, model: Model, acoustic_solution: np.ndarray | None = None):
 
         self.model = model
         self.preprocessor = model.preprocessor
         self.frequencies = model.frequencies
-        self.acoustic_solution = kwargs.get('acoustic_solution', None)
+        self.acoustic_solution = acoustic_solution
         self.no_table = True
 
         self.prescribed_indexes = self.get_prescribed_indexes()

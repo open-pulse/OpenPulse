@@ -21,16 +21,6 @@ from pulse.interface.viewer_3d.actors import (
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.interface.viewer_3d.render_tools import RenderTool, SelectionTool
 from pulse.model import AnalysisID
-from pulse.postprocessing.plot_acoustic_data import (
-    get_acoustic_response,
-    get_max_min_values_of_pressures,
-)
-from pulse.postprocessing.plot_structural_data import (
-    get_min_max_resultant_displacements,
-    get_min_max_stresses_values,
-    get_stresses_to_plot,
-    get_structural_response,
-)
 from pulse.utils.interface_utils import VisualizationFilter
 
 from ._mesh_picker import MeshPicker
@@ -103,6 +93,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         app().main_window.visualization_changed.connect(self.visualization_changed_callback)
         app().main_window.selection_changed.connect(self.update_selection)
         app().main_window.section_plane.value_changed.connect(self.update_section_plane)
+
+    @property
+    def acoustic_postprocessing(self):
+        return app().project.get_acoustic_postprocessing()
+
+    @property
+    def structural_postprocessing(self):
+        return app().project.get_structural_postprocessing()
 
     def update_plot(self, reset_camera=False):
 
@@ -312,42 +310,39 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def show_displacement_field(self, frequency_index):
 
-        solution = app().project.get_structural_solution()
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
         self.analysis_mode = AnalysisMode.DISPLACEMENT
 
         self._reset_min_max_values()
-        tmp = get_min_max_resultant_displacements(solution, frequency_index)
+        tmp = self.structural_postprocessing.get_min_max_resultant_displacements(frequency_index)
         _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
 
         self.clear_cache()
         self.update_plot()
 
     def show_stress_field(self, frequency_index):
-        solution = app().project.get_structural_solution()
 
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
         self.analysis_mode = AnalysisMode.STRESS
 
         self._reset_min_max_values()
-        self.stress_min, self.stress_max = get_min_max_stresses_values()
-        tmp = get_min_max_resultant_displacements(solution, frequency_index)
+        self.stress_min, self.stress_max = self.structural_postprocessing.get_min_max_stresses_values()
+        tmp = self.structural_postprocessing.get_min_max_resultant_displacements(frequency_index)
         _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
 
         self.clear_cache()
         self.update_plot()
 
     def show_pressure_field(self, frequency_index):
-        solution = app().project.get_acoustic_solution()
 
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
         self.analysis_mode = AnalysisMode.PRESSURE
 
         self._reset_min_max_values()
-        tmp = get_max_min_values_of_pressures(solution, frequency_index)
+        tmp = self.acoustic_postprocessing.get_max_min_values_of_pressures(frequency_index)
         self.pressure_min, self.pressure_max = tmp
 
         self.clear_cache()
@@ -587,9 +582,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def _compute_displacement_field(self, frequency_index: int, phase_step: float):
 
-        model = app().project.model
-        solution = app().project.get_structural_solution()
-
         # It is probably a bit unclear, but this function have some colateral
         # effects. It interprets the structural analysis and puts the meaningfull
         # data inside the correspondent nodes.
@@ -602,9 +594,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         else:
             magnification_factor = 1
 
-        color_scalars, self._magnification_factor, _ = get_structural_response(
-            model,
-            solution,
+        color_scalars, self._magnification_factor, _ = self.structural_postprocessing.get_structural_response(
             frequency_index,
             phase_step=phase_step,
             r_max=self.r_xyz_abs,
@@ -614,14 +604,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         min_max_values = (self.result_disp_min, self.result_disp_max)
         color_table = ColorTable(color_scalars, min_max_values, self.colormap)
 
-        is_complex_result = np.imag(solution).any()
+        is_complex_result = np.imag(self.structural_postprocessing.solution).any()
 
         return color_table, is_complex_result
 
-    def _compute_stress_field(self, frequency_index, phase_step):
-        project = app().project
-        model = project.model
-        solution = project.get_structural_solution()
+    def _compute_stress_field(self, frequency_index: int, phase_step: float):
 
         animation_widget = app().main_window.results_viewer_widget.get_animation_widget()
         if isinstance(animation_widget, AnimationWidget):
@@ -630,16 +617,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         else:
             magnification_factor = 1
 
-        *_, self._magnification_factor, _delta = get_structural_response(
-            model,
-            solution,
+        *_, self._magnification_factor, _delta = self.structural_postprocessing.get_structural_response(
             frequency_index,
             phase_step=phase_step,
             r_max=self.r_xyz_abs,
             magnification_factor=magnification_factor,
         )
 
-        stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(
+        stresses_data, self.min_max_stresses_values_current = self.structural_postprocessing.get_stresses_to_plot(
             phase_step=phase_step,
             shift_phase=_delta,
         )
@@ -652,18 +637,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             stress_field_plot=True,
         )
 
-        is_complex_result = np.imag(solution).any()
+        is_complex_result = np.imag(self.structural_postprocessing.solution).any()
 
         return color_table, is_complex_result
 
     def _compute_pressure_field(self, frequency_index, phase_step):
 
-        project = app().project
-        preprocessor = project.model.preprocessor
-        solution = project.get_acoustic_solution()
-
-        *_, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(
-            preprocessor, solution, frequency_index, phase_step=phase_step
+        *_, pressure_field_data, self.min_max_pressures_values_current = self.acoustic_postprocessing.get_acoustic_response(
+            frequency_index, phase_step=phase_step
         )
 
         min_max_values = (self.pressure_min, self.pressure_max)
@@ -674,7 +655,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             pressure_field_plot=True,
         )
 
-        is_complex_result = np.imag(solution).any()
+        is_complex_result = np.imag(self.acoustic_postprocessing.solution).any()
 
         return color_table, is_complex_result
 

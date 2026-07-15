@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.get_stresses_for_harmonic_analysis_ui import GetStressesForHarmonicAnalysis_UI
-from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
+from pulse.postprocessing.structural_postprocessing import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
@@ -51,7 +51,7 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
 
             self.structural_solver = app().project.get_structural_solver()
             if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
+                self.structural_solver.solution = app().project.model.structural_solution
 
         else:
             self.structural_solver = app().project.structural_solver
@@ -99,11 +99,7 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
             self.stress_data = self.structural_solver.stress_calculate(damping=damping_effect)
             self.update_damping = False
 
-        response = get_stress_spectrum_data(
-                                            self.stress_data, 
-                                            element_id, 
-                                            self.stress_key
-                                            )
+        response = get_stress_spectrum_data(self.stress_data, element_id, self.stress_key)
 
         return response
         

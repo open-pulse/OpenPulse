@@ -1,8 +1,6 @@
 import numpy as np
 
 from pulse.model import AnalysisID
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.postprocessing.plot_structural_data import get_structural_frf
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -68,8 +66,8 @@ def test_coupled_harmonic_analysis(example2_project, num_regression):
 
     project.build_model_and_solve(running_by_script=True)
 
-    structural_solution = project.structural_solution
-    acoustic_solution = project.acoustic_solution
+    structural_solution = project.model.structural_solution
+    acoustic_solution = project.model.acoustic_solution
 
     assert structural_solution is not None, "No structural solution returned"
     assert acoustic_solution is not None, "No acoustic solution returned"
@@ -90,8 +88,8 @@ def test_coupled_harmonic_analysis(example2_project, num_regression):
         np.array([2.000, -0.250, 1.250])
     )
 
-    structural_response = get_structural_frf(preprocessor, structural_solution, structural_node_id, 2, absolute=True)
-    acoustic_response = get_acoustic_frf(preprocessor, acoustic_solution, acoustic_node_id, absolute=True)
+    structural_response = project.structural_postprocessing.get_structural_response_spectrum(structural_node_id, 2, absolute=True)
+    acoustic_response = project.acoustic_postprocessing.get_acoustic_response_spectrum(acoustic_node_id, absolute=True)
 
     num_regression.check(
         {
