@@ -29,7 +29,7 @@ from pulse.postprocessing.plot_structural_data import (
     get_min_max_resultant_displacements,
     get_min_max_stresses_values,
     get_stresses_to_plot,
-    get_structural_response_new,
+    get_structural_response,
 )
 from pulse.utils.interface_utils import VisualizationFilter
 
@@ -602,7 +602,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         else:
             magnification_factor = 1
 
-        _, _, color_scalars, self._magnification_factor, _ = get_structural_response_new(
+        color_scalars, self._magnification_factor, _ = get_structural_response(
             model,
             solution,
             frequency_index,
@@ -630,7 +630,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         else:
             magnification_factor = 1
 
-        *_, self._magnification_factor, _delta = get_structural_response_new(
+        *_, self._magnification_factor, _delta = get_structural_response(
             model,
             solution,
             frequency_index,
