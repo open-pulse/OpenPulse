@@ -9,7 +9,6 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.data_classes.project_setup_data_classes import ImportType, MesherSetup, ProjectSetup
 from pulse.model.properties.material import Material
-from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.project.project import Project
 
 
@@ -117,7 +116,7 @@ def test_modal_analysis(current_model, num_regression):
     
     # Get the results
     natural_frequencies = project.natural_frequencies_structural
-    eigen_vectors = project.structural_solution
+    eigen_vectors = project.model.structural_solution
     
     # Verify results exist and have correct shape
     assert natural_frequencies is not None
@@ -156,7 +155,7 @@ def test_direct_method(current_model, num_regression):
     project.build_model_and_solve(running_by_script=True)
     
     # Get the results
-    solution = project.structural_solution
+    solution = project.model.structural_solution
     
     # Verify results exist and have correct shape
     assert solution is not None
@@ -165,7 +164,7 @@ def test_direct_method(current_model, num_regression):
 
     node_id = model.preprocessor.get_node_id_by_coordinates((1.0,0.5,0))
 
-    response = get_structural_frf(model.preprocessor, solution, node_id, 0, absolute=True)
+    response = project.structural_postprocessing.get_structural_response_spectrum(node_id, 0, absolute=True)
 
     # Regression tests - compare against stored baseline
     num_regression.check(
@@ -184,14 +183,14 @@ def test_mode_superposition(current_model, num_regression):
    
     # Analysis setup for structural harmonic analysis with mode superposition
     analysis_setup = {
-                      "analysis_id" : AnalysisID.STRUCTURAL_HARMONIC,
-                      "f_min" : 0,
-                      "f_max" : 200,
-                      "f_step" : 1,
-                      "global_damping" : [1e-3, 1e-5, 0.],
-                      "analysis_method" : "mode_superposition",
-                      "number_of_modes" : 60
-                      }
+        "analysis_id": AnalysisID.STRUCTURAL_HARMONIC,
+        "f_min": 0,
+        "f_max": 200,
+        "f_step": 1,
+        "global_damping": [1e-3, 1e-5, 0.0],
+        "analysis_method": "mode_superposition",
+        "number_of_modes": 60,
+    }
     
     model.set_analysis_setup(analysis_setup=analysis_setup)
     project.file.write_analysis_setup_in_file(analysis_setup)
@@ -200,7 +199,7 @@ def test_mode_superposition(current_model, num_regression):
     project.build_model_and_solve(running_by_script=True)
     
     # Get the results
-    solution = project.structural_solution
+    solution = project.model.structural_solution
     
     # Verify results exist and have correct shape
     assert solution is not None
@@ -209,7 +208,7 @@ def test_mode_superposition(current_model, num_regression):
 
     node_id = model.preprocessor.get_node_id_by_coordinates((1.0,0.5,0))
 
-    response = get_structural_frf(model.preprocessor, solution, node_id, 0, absolute=True)
+    response = project.structural_postprocessing.get_structural_response_spectrum(node_id, 0, absolute=True)
 
     # Regression tests - compare against stored baseline
     num_regression.check(
