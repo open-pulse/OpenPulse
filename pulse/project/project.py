@@ -439,6 +439,8 @@ class Project:
 
     def process_analysis(self):
 
+        self.model.reset_solutions()
+
         if not self.model.analysis_setup:
             return
 
