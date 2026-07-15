@@ -113,6 +113,7 @@ def test_modal_analysis(current_model, num_regression):
     
     # Build and solve the model
     project.build_model_and_solve(running_by_script=True)
+    project.update_post_processing()
     
     # Get the results
     natural_frequencies = project.natural_frequencies_structural
@@ -153,7 +154,8 @@ def test_direct_method(current_model, num_regression):
     
     # Build and solve the model
     project.build_model_and_solve(running_by_script=True)
-    
+    project.update_post_processing()
+
     # Get the results
     solution = project.model.structural_solution
     
@@ -180,6 +182,8 @@ def test_direct_method(current_model, num_regression):
 def test_mode_superposition(current_model, num_regression):
     project: Project = current_model
     model = project.model
+
+    print(current_model)
    
     # Analysis setup for structural harmonic analysis with mode superposition
     analysis_setup = {
@@ -197,7 +201,8 @@ def test_mode_superposition(current_model, num_regression):
     
     # Build and solve the model
     project.build_model_and_solve(running_by_script=True)
-    
+    project.update_post_processing()
+
     # Get the results
     solution = project.model.structural_solution
     

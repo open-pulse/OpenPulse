@@ -65,6 +65,7 @@ def test_coupled_harmonic_analysis(example2_project, num_regression):
     project.file.write_analysis_setup_in_file(analysis_setup)
 
     project.build_model_and_solve(running_by_script=True)
+    project.update_post_processing()
 
     structural_solution = project.model.structural_solution
     acoustic_solution = project.model.acoustic_solution
