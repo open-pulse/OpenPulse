@@ -54,7 +54,7 @@ class AfterRun:
             
             aux = [min(p0) for p0 in static_pressure]
             static_pressure = np.array(aux).reshape(-1, 1)
-            pressure_ratio = np.abs(self.solution_acoustic / static_pressure)
+            pressure_ratio = np.abs(self.model.acoustic_solution / static_pressure)
 
             criteria = pressure_ratio > nl_criteria
             if not np.any(criteria):
