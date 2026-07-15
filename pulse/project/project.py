@@ -64,10 +64,6 @@ class Project:
         self.save_path = None
         self.thumbnail = None
 
-        self.min_stress = ""
-        self.max_stress = ""
-        self.stress_label = ""
-
         self.reset_solvers()
         self.reset_solutions()
 
@@ -82,6 +78,9 @@ class Project:
     def reset_solutions(self):
 
         self.model.reset_solutions()
+
+        self.acoustic_postprocessing = None
+        self.structural_postprocessing = None
   
         self.natural_frequencies_acoustic = None
         self.natural_frequencies_structural = None
@@ -96,9 +95,6 @@ class Project:
 
         if not self.model.analysis_setup:
             return
-
-        self.acoustic_postprocessing = None
-        self.structural_postprocessing = None
 
         # self.create_solver()
 
@@ -395,11 +391,6 @@ class Project:
 
     def get_structural_reactions(self):
         return self.structural_reactions
-    
-    def set_min_max_type_stresses(self, min_stress, max_stress, stress_label):
-        self.min_stress = min_stress
-        self.max_stress = max_stress
-        self.stress_label = stress_label
 
     def is_the_solution_finished(self):
 

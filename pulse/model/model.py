@@ -52,6 +52,10 @@ class Model:
         self.external_nodal_loads = False
         self.element_distributed_load = False
 
+        self.min_stress = ""
+        self.max_stress = ""
+        self.stress_label = ""
+
         self.reset_solutions()
         self.set_static_analysis_setup(dict())
 
@@ -70,6 +74,11 @@ class Model:
 
     def set_stresses_values_for_color_table(self, values: np.ndarray):
         self.stresses_values_for_color_table = values
+
+    def set_min_max_type_stresses(self, min_stress, max_stress, stress_label):
+        self.min_stress = min_stress
+        self.max_stress = max_stress
+        self.stress_label = stress_label
 
     @property
     def analysis_id(self):

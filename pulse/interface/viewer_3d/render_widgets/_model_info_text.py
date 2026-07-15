@@ -559,8 +559,8 @@ def pump_excitation_info_text(pump_data: dict) -> str:
     return str(tree)
 
 def min_max_stresses_info_text():
-    min_stress = np.round(app().project.min_stress, 2)
-    max_stress = np.round(app().project.max_stress, 2)
+    min_stress = np.round(app().project.model.min_stress, 2)
+    max_stress = np.round(app().project.model.max_stress, 2)
     tree = TreeInfo("Stress info")
     tree.add_item("Min stress", min_stress, "Pa")
     tree.add_item("Max stress", max_stress, "Pa")
