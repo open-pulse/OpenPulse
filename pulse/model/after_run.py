@@ -51,7 +51,7 @@ class AfterRun:
             mask_nodes = np.any(criteria, axis=1)
             invalid_frequencies = self.frequencies[mask_freq]
             invalid_nodes_array = self.mesh.nodal_coordinates[:, 0][mask_nodes]
-            invalid_nodes = list(invalid_nodes_array)
+            invalid_nodes = list(invalid_nodes_array.astype(int))
     
             self.main_window.plot_mesh()
             self.highlight_selection(nodes = invalid_nodes)
