@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 import numpy as np
 from math import pi
 
-from time import perf_counter
+# from time import perf_counter
 
 N_div = 20
 

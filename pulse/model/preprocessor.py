@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
 from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
-from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit, convert_pressure_unit
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_pressure_unit
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
@@ -15,19 +15,21 @@ from pulse.model.elements.structural_element import NODES_PER_ELEMENT
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
-from pulse.utils.common_utils import get_linear_distribution_for_variable_section, slicer, split_sequence
+from pulse.utils.common_utils import get_linear_distribution_for_variable_section, slicer
 from pulse.utils.rotations import rotation_matrix_3x3_by_angles, rotation_matrix_3x3_by_deltas
+from pulse.model.data_classes.project_setup_data_classes import ImportType
+
 
 if TYPE_CHECKING:
     from pulse.model.mesh import Mesh
 
 import logging
-from collections import defaultdict, deque
+from collections import defaultdict
 
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-# from time import perf_count
+from time import perf_counter
 
 
 class Preprocessor:
@@ -49,13 +51,9 @@ class Preprocessor:
         self.elements_attributes: dict[int, ElementAttributes] = dict()
         self.elements_deltas: np.ndarray | None = None
 
-        # self.connectivity_matrix = np.array([], dtype=float)
-        # self.nodal_coordinates_matrix = np.array([], dtype=int)
-
         self.neighbors_nodes: dict[int, list[int]] = defaultdict(list)
         self.elements_connected_to_node: defaultdict[int, list[int]] = defaultdict(list)
 
-        # if isinstance(self.mesh, Mesh):
         self.mesh.reset_variables()
 
         self.deformed_coordinates: None | np.ndarray = None
@@ -66,14 +64,10 @@ class Preprocessor:
         self.stress_stiffening_enabled = False
 
         self.structure_principal_diagonal = None
-        # self.nodal_coordinates_matrix_external = None
 
         self.pipe_gdofs = None
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
-
-    # def set_mesh(self, mesh: Mesh):
-    #     self.mesh = mesh
 
     @property
     def number_acoustic_elements(self):
@@ -83,96 +77,26 @@ class Preprocessor:
     def number_structural_elements(self):
         return len(self.elements_attributes)
 
-    def generate(self, import_type: int, geometry_path: str = ""):
+    def generate(self, import_type: ImportType, geometry_path: str = ""):
         """
         It loads geometry file or data and process the mesh.            
         """
 
+        t0 = perf_counter()
+
         self.reset_variables()
         self.mesh.generate(import_type, geometry_path = geometry_path)
 
-        # t0 = perf_count()
-        self._map_neighbors_nodes()
-        # self.mesh._process_line_nodes()
-        # dt = perf_count() - t0
-        # print(f"Time to process _map_neighbors_nodes: {dt}")
+        self.create_nodes()
+        self.create_elements_attributes()
 
-        # t0 = perf_count()
-        # self._order_global_indexes()
-        # self._mapping_nodes_indexes()
-        # dt = perf_count() - t0
-        # print(f"Time to process _order_global_indexes: {dt}")
+        self.map_neighbors_nodes()
+        self.compute_structure_bounding_box_diagonal()
 
-        # self.get_nodal_coordinates_matrix()
-        # self.get_connectivity_matrix()
-        # self.get_dict_nodes_to_element_indexes()
-        self.get_principal_diagonal_structure_parallelepiped()
+        dt = perf_counter() - t0
+        print(f"Time to process the generate method of the Preprocessor class: {dt} s")
 
-        # t0 = perf_count()
-        # self.process_all_transformation_matrices()
-        # dt = perf_count() - t0
-        # print("Time to process all rotations matrices: ", dt)
-
-    def _create_nodes(self, indexes, coords, map_nodes):
-        """
-        This method generate the mesh nodes.
-
-        Parameters
-        ----------
-        indexes : List
-            Nodes global indexes.
-            
-        coords : array
-            Nodes coordinates.
-            
-        map_nodes : dict
-            Dictionary maps global indexes to external indexes.
-        """
-        self.map_nodes = map_nodes
-        self.nodes.clear()
-        for i, coords in zip(indexes, split_sequence(coords, 3)):
-            # x = convert_length_unit(coord[0], "mm", "m")
-            # y = convert_length_unit(coord[1], "mm", "m")
-            # z = convert_length_unit(coord[2], "mm", "m")
-            x, y, z = convert_length_unit(coords, "mm", "m")
-
-            self.nodes[map_nodes[i]] = Node(x, y, z, external_index=int(map_nodes[i]))
-
-        self.number_nodes = len(self.nodes)
-
-    def _create_elements_attributes(self, indexes, connectivities, map_nodes: dict, map_elements: dict):
-        """
-        This method generate the mesh structural elements.
-
-        Parameters
-        ----------
-        indexes : List
-            Nodes global indexes.
-            
-        connectivities : array
-            Connectivity matrix that relates the elements and its nodes.
-            
-        map_nodes : dict
-            Dictionary maps global indexes to external indexes.
-            
-        map_elements : dict
-            Dictionary maps global element indexes.
-        """
-        self.map_elements = map_elements
-        self.elements_attributes.clear()
-
-        # self.element_coordinates = np.array((2, len(map_elements), 3), dtype=float)
-        for i, connect in zip(indexes, split_sequence(connectivities, 2)):
-            first_node_id = map_nodes.get(connect[0])
-            last_node_id = map_nodes.get(connect[1])
-
-            first_node = self.nodes.get(first_node_id)
-            last_node  = self.nodes.get(last_node_id)
-
-            element_index = map_elements[i]
-            self.elements_attributes[element_index] = ElementAttributes(element_index, first_node, last_node)
-
-    def _create_nodes_new(self):
+    def create_nodes(self):
         """
         This method generate the mesh nodes.
 
@@ -191,7 +115,7 @@ class Preprocessor:
         for node_id, x, y, z in self.mesh.nodal_coordinates:
             self.nodes[int(node_id)] = Node(int(node_id), x, y, z)
 
-    def _create_elements_attributes_new(self):
+    def create_elements_attributes(self):
         """
         This method generate the mesh structural elements.
 
@@ -223,6 +147,8 @@ class Preprocessor:
 
             self.elements_attributes[element_index] = ElementAttributes(element_index, first_node, last_node)
 
+        self.update_number_divisions()
+
     def get_element_material(self, element_id: int) -> Material | None:
         element_attributes = self.elements_attributes.get(element_id)
         return None if element_attributes is None else element_attributes.material
@@ -246,7 +172,7 @@ class Preprocessor:
     def get_model_statistics(self):
         return len(self.nodes), self.number_acoustic_elements, self.number_structural_elements
 
-    def get_line_length(self, line_id: int):
+    def get_line_length(self, line_id: int) -> tuple[float, list[Node]]:
         """
         This method returns the length of a given line ID.
 
@@ -274,10 +200,12 @@ class Preprocessor:
             if length_i > length:
                 length = length_i
                 _node = list_nodes[index]
+
         edge_nodes = [list_nodes[0], _node]
+
         return length, edge_nodes
 
-    def get_lines_vertex_coordinates(self, _array=True):
+    def get_lines_vertex_coordinates(self, _array: bool = True):
         """
         This method returns a dictionary containing line IDs as keys and its vertex node coordinates as values.
         """
@@ -289,10 +217,11 @@ class Preprocessor:
                     if _array:
                         line_to_vertex_coords[line_id].append(vertex_node.coordinates)
                     else:
-                        line_to_vertex_coords[line_id].append(list(vertex_node.coordinates))         
+                        line_to_vertex_coords[line_id].append(list(vertex_node.coordinates))
+
         return line_to_vertex_coords
 
-    def _map_neighbors_nodes(self):
+    def map_neighbors_nodes(self):
         """
         This method updates the structural elements neighbors dictionary. The dictionary's keys and values are nodes objects.
         """
@@ -338,14 +267,11 @@ class Preprocessor:
         dict
             Outer diameters at a certain node. Giving a node external index, returns a list of diameters.
         """
-        # neighbor_diameters = dict()
         neighbor_diameters = defaultdict(list)
 
         for index, element_attributes in self.elements_attributes.items():
             first_node = element_attributes.first_node
             last_node = element_attributes.last_node
-            # neighbor_diameters.setdefault(first, list())
-            # neighbor_diameters.setdefault(last, list())
 
             cross_section = self.get_element_cross_section(index)
             outer_diameter = cross_section.outer_diameter
@@ -443,118 +369,6 @@ class Preprocessor:
             line_ids.extend(self.mesh.lines_from_node.get(node_id))
 
         return list(np.unique(line_ids).astype(int))
-         
-    def _order_global_indexes(self):
-        """
-        This method updates the nodes global indexes numbering.
-        """
-        return
-        # # t0 = perf_count()
-        # index = 0
-        # stack = deque()
-        # list_nodes = list(self.nodes.values())
-
-        # stack.appendleft(list_nodes[0].index) 
-
-        # while stack:
-        
-        #     top = self.nodes[stack.pop()]
-    
-        #     if top.index is None:
-        #         top.index = index
-        #         index += 1
-        #     else:
-        #         continue
-            
-        #     for neighbor in self.neighbors_nodes[top.index]:
-        #         if neighbor.index is None:
-        #             if neighbor.index not in stack:
-        #                 stack.appendleft(neighbor.index)
-                    
-        #     if len(stack) != 0:
-        #         continue
-
-        #     if index < self.number_nodes - 1:
-        #         for node in list_nodes:
-        #             if node.index is None:
-        #                 stack.appendleft(node.index)
-        #                 break
-
-        #         #TODO: uncomment to begin from start or end nodes
-        #         # for node in list_nodes:
-        #         #     if len(self.neighbors_nodes[node]) == 1:
-        #         #         stack.appendleft(node)   
-
-    # def _mapping_nodes_indexes(self):
-    #     self.map_global_to_external_index = {node.index:node.index for node in self.nodes.values()}
-
-    # def get_dict_nodes_to_element_indexes(self):
-    #     """
-    #     This method updates the dictionary that maps the external node to the element index.
-    #     """
-    #     self.dict_first_node_to_element_index = defaultdict(list)
-    #     self.dict_last_node_to_element_index = defaultdict(list)
-    #     for index, element_attributes in self.elements_attributes.items():
-    #         first_node_index = element_attributes.first_node.index
-    #         last_node_index = element_attributes.last_node.index
-    #         self.dict_first_node_to_element_index[first_node_index].append(index)
-    #         self.dict_last_node_to_element_index[last_node_index].append(index)
-
-    # def get_nodal_coordinates_matrix(self, reordering=True):
-    #     """
-    #     This method updates the mesh nodes coordinates data. Coordinates matrix row structure:
-    #     ''[Node index, x-coordinate, y-coordinate, z-coordinate]''.
-
-    #     Parameters
-    #     ----------
-    #     reordering : bool, optional.
-    #         True if the nodes numbering is according to the global indexing. False otherwise.
-    #         Default is True.
-    #     """
-    #     # self.number_nodes = len(self.nodes)
-    #     nodal_coordinates = np.zeros((self.number_nodes, 4))
-    #     nodal_coordinates_external = nodal_coordinates
-
-    #     # if reordering:
-    #     for external_index, node in self.nodes.items():
-    #         index = self.nodes[external_index].index
-    #         nodal_coordinates[index,:] = index, node.x, node.y, node.z
-    #         nodal_coordinates_external[index,:] = external_index, node.x, node.y, node.z
-    #     # else:               
-    #     #     for external_index, node in self.nodes.items():
-    #     #         index = self.nodes[external_index].index
-    #     #         nodal_coordinates[index,:] = external_index, node.x, node.y, node.z
-
-    #     self.nodal_coordinates_matrix = nodal_coordinates
-    #     self.nodal_coordinates_matrix_external = nodal_coordinates_external
-
-    # def get_connectivity_matrix(self, reordering=True):
-    #     """
-    #     This method updates the mesh connectivity data. Connectivity matrix row structure:
-    #     ''[Element index, first node index, last node index]''.
-
-    #     Parameters
-    #     ----------
-    #     reordering : bool, optional.
-    #         True if the nodes numbering is according to the global indexing. False otherwise.
-    #         Default is True.
-    #     """
-    #     connectivity = np.zeros((self.number_structural_elements, NODES_PER_ELEMENT+1))
-    #     if reordering:
-    #         for i, element_attributes in enumerate(self.elements_attributes.values()):
-    #             first_node = element_attributes.first_node
-    #             last_node  = element_attributes.last_node
-    #             # first_external = element.first_node.index
-    #             # last_external  = element.last_node.index
-    #             connectivity[i, :] = i + 1, first_node.index, last_node.index
-
-    #     else:
-    #         for i, element_attributes in enumerate(self.elements_attributes.values()):
-    #             first_node = element_attributes.first_node
-    #             last_node  = element_attributes.last_node
-    #             connectivity[i, :] = i + 1, first_node.index, last_node.index
-
-    #     self.connectivity_matrix = connectivity.astype(int) 
 
     def get_node_id_by_coordinates(self, coords: np.ndarray, radius=None):
         """
@@ -605,33 +419,14 @@ class Preprocessor:
 
         return external_index
 
-    def get_element_center_coordinates_matrix(self):
-        """
-        This method updates the center coordinates matrix attribute. 
-        
-        Element center coordinates matrix row structure:
-
-        [Element index, x-element_center_coordinate, y-element_center_coordinate, z-element_center_coordinate].
-
-        """
-        self.center_coordinates_matrix = np.zeros((self.number_structural_elements, 4))
-        for index, element_attributes in self.elements_attributes.items():
-            self.center_coordinates_matrix[index-1, 0] = index
-            self.center_coordinates_matrix[index-1, 1:] = element_attributes.center_coordinates
-
-    def get_principal_diagonal_structure_parallelepiped(self):
+    def compute_structure_bounding_box_diagonal(self):
         """
         This method updates the principal structure diagonal parallelepiped attribute. 
         
         """
-        x_min, y_min, z_min = np.min(self.mesh.nodal_coordinates[:, 1:], axis=0)
-        x_max, y_max, z_max = np.max(self.mesh.nodal_coordinates[:, 1:], axis=0)
-        self.structure_principal_diagonal = np.sqrt((x_max - x_min) ** 2 + (y_max - y_min) ** 2 + (z_max - z_min) ** 2)
-        self.camera_rotation_center = [
-            (x_max + x_min) / 2,
-            (y_max + y_min) / 2,
-            (z_max + z_min) / 2,
-        ]
+        xyz_min = np.min(self.mesh.nodal_coordinates[:, 1:], axis=0)
+        xyz_max = np.max(self.mesh.nodal_coordinates[:, 1:], axis=0)
+        self.structure_principal_diagonal = np.linalg.norm(xyz_max - xyz_min)
         # print('The base length is: {}[m]'.format(round(self.structure_principal_diagonal,6)))
 
     def get_global_structural_indexes(self):
@@ -679,102 +474,6 @@ class Preprocessor:
         ind_i = cols_dofs.reshape(-1, 1) @ np.ones((1, cols), dtype=int)
 
         return ind_i.flatten(), ind_j.flatten()
-
-    # def get_neighbor_nodes_and_elements_by_node(self, node_id: int, length: float, tolerance: float = 1e-6):
-    #     """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
-    #         node_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
-    #         avoids the problem of element size deviations resultant in the mesh generation algorithm.
-        
-    #     Parameters
-    #     ----------
-
-    #     Returns
-    #     ---------- 
-
-    #     """ 
-    #     half_length = (length/2) + tolerance
-    #     node_central = self.nodes[node_id]
-    #     list_nodes_ids = [node_id]
-    #     stack = deque()
-    #     stack.appendleft(node_id)
-
-    #     while stack:
-
-    #         node_ids = self.neighbors_nodes[self.nodes[stack.pop()].index]
-    #         if len(node_ids) > 2:
-    #             return None, None
-
-    #         for node_id in node_ids:
-    #             if np.linalg.norm((node_central.coordinates - self.mesh.nodal_coordinates[node_id, 1:])) > half_length:
-    #                 continue
-
-    #             if node_id in list_nodes_ids:
-    #                 continue
-
-    #             list_nodes_ids.append(node_id)
-    #             stack.appendleft(node_id)                    
-
-    #     list_elements_ids = list()
-    #     for index, element_attributes in self.elements_attributes.items():
-    #         if element_attributes.first_node.index in list_nodes_ids:
-    #             if element_attributes.last_node.index in list_nodes_ids:
-    #                 list_elements_ids.append(index)
-
-    #         if len(list_elements_ids) == len(list_nodes_ids) - 1:
-    #             break
-
-    #     return list_nodes_ids, list_elements_ids
-
-    # def get_neighbor_nodes_and_elements_by_element(self, element_id, length, tolerance=1e-5):
-    #     """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
-    #         element_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
-    #         avoids the problem of element size deviations resultant in the mesh generation algorithm.
-
-    #     Parameters
-    #     ---------- 
-
-    #     Returns
-    #     ---------- 
-                               
-    #     """
-    #     element_attributes = self.elements_attributes.get(element_id)
-    #     node_id = element_attributes.first_node.index
-    #     last_node = element_attributes.last_node
-
-    #     length_t = length + element_attributes.length
-    #     list_nodes_ids, list_elements_ids = self.get_neighbor_nodes_and_elements_by_node(node_id, length_t, tolerance=tolerance)
-
-    #     if list_nodes_ids is not None:
-                
-    #         for external_index in list_nodes_ids:
-    #             node = self.nodes[external_index]
-    #             if np.linalg.norm((last_node.coordinates - node.coordinates)) > ((length_t/2) + tolerance):
-    #                 list_nodes_ids.remove(node.index)
-
-    #         for index in list_elements_ids:
-    #             if element_attributes.first_node.index in list_nodes_ids:
-    #                 continue
-                
-    #             index = element_attributes.index
-    #             if index in list_elements_ids:
-    #                 list_elements_ids.remove(index)
-
-    #             if element_attributes.last_node.index in list_nodes_ids:
-    #                 continue
-
-    #             if index in list_elements_ids: 
-    #                 list_elements_ids.remove(index)
-                    
-    #         return list_nodes_ids, list_elements_ids
-    #     else:
-    #         return None, None
-
-    def _reset_global_indexes(self):
-        """
-        This method attributes None to global index of all mesh nodes.
-        """
-        for node in self.nodes.values():
-            node.index = None
 
     def set_structural_element_type_by_element(self, elements: list[int], element_type: str):
         """
@@ -972,14 +671,6 @@ class Preprocessor:
 
             coord_first_2 = element_attributes_last.first_node.coordinates
             coord_last_2 = element_attributes_first.last_node.coordinates
-
-            # coords_1 = self.mesh.get_element_nodes_coordinates(elements_from_line[0])
-            # coords_2 = self.mesh.get_element_nodes_coordinates(elements_from_line[-1])
-
-            # coord_first_1 = coords_1[0, :]
-            # coord_last_1 = coords_1[1, :]
-            # coord_first_2 = coords_2[0, :]
-            # coord_last_2 = coords_2[1, :]
 
             lines_vertex_coords = self.get_lines_vertex_coordinates(_array=False)
             vertex_coords = lines_vertex_coords[line_id]
@@ -2156,3 +1847,266 @@ class Preprocessor:
             points[i] = self.nodes[i]
 
         return points
+    
+
+
+    ## TODO: Please, just remove these lines once we're convinced that everything is fine.
+
+    # def _create_nodes(self, indexes, coords, map_nodes):
+    #     """
+    #     This method generate the mesh nodes.
+
+    #     Parameters
+    #     ----------
+    #     indexes : List
+    #         Nodes global indexes.
+            
+    #     coords : array
+    #         Nodes coordinates.
+            
+    #     map_nodes : dict
+    #         Dictionary maps global indexes to external indexes.
+    #     """
+    #     self.map_nodes = map_nodes
+    #     self.nodes.clear()
+    #     for i, coords in zip(indexes, split_sequence(coords, 3)):
+    #         # x = convert_length_unit(coord[0], "mm", "m")
+    #         # y = convert_length_unit(coord[1], "mm", "m")
+    #         # z = convert_length_unit(coord[2], "mm", "m")
+    #         x, y, z = convert_length_unit(coords, "mm", "m")
+
+    #         self.nodes[map_nodes[i]] = Node(x, y, z, external_index=int(map_nodes[i]))
+
+    #     self.number_nodes = len(self.nodes)
+
+    # def _create_elements_attributes(self, indexes, connectivities, map_nodes: dict, map_elements: dict):
+    #     """
+    #     This method generate the mesh structural elements.
+
+    #     Parameters
+    #     ----------
+    #     indexes : List
+    #         Nodes global indexes.
+            
+    #     connectivities : array
+    #         Connectivity matrix that relates the elements and its nodes.
+            
+    #     map_nodes : dict
+    #         Dictionary maps global indexes to external indexes.
+            
+    #     map_elements : dict
+    #         Dictionary maps global element indexes.
+    #     """
+    #     self.map_elements = map_elements
+    #     self.elements_attributes.clear()
+
+    #     # self.element_coordinates = np.array((2, len(map_elements), 3), dtype=float)
+    #     for i, connect in zip(indexes, split_sequence(connectivities, 2)):
+    #         first_node_id = map_nodes.get(connect[0])
+    #         last_node_id = map_nodes.get(connect[1])
+
+    #         first_node = self.nodes.get(first_node_id)
+    #         last_node  = self.nodes.get(last_node_id)
+
+    #         element_index = map_elements[i]
+    #         self.elements_attributes[element_index] = ElementAttributes(element_index, first_node, last_node)
+
+    # def _order_global_indexes(self):
+    #     """
+    #     This method updates the nodes global indexes numbering.
+    #     """
+    #     # t0 = perf_counter()
+    #     index = 0
+    #     stack = deque()
+    #     list_nodes = list(self.nodes.values())
+
+    #     stack.appendleft(list_nodes[0].index) 
+
+    #     while stack:
+        
+    #         top = self.nodes[stack.pop()]
+    
+    #         if top.index is None:
+    #             top.index = index
+    #             index += 1
+    #         else:
+    #             continue
+            
+    #         for neighbor in self.neighbors_nodes[top.index]:
+    #             if neighbor.index is None:
+    #                 if neighbor.index not in stack:
+    #                     stack.appendleft(neighbor.index)
+                    
+    #         if len(stack) != 0:
+    #             continue
+
+    #         if index < self.number_nodes - 1:
+    #             for node in list_nodes:
+    #                 if node.index is None:
+    #                     stack.appendleft(node.index)
+    #                     break
+
+    #             #TODO: uncomment to begin from start or end nodes
+    #             # for node in list_nodes:
+    #             #     if len(self.neighbors_nodes[node]) == 1:
+    #             #         stack.appendleft(node)   
+
+    # def _mapping_nodes_indexes(self):
+    #     self.map_global_to_external_index = {node.index:node.index for node in self.nodes.values()}
+
+    # def get_dict_nodes_to_element_indexes(self):
+    #     """
+    #     This method updates the dictionary that maps the external node to the element index.
+    #     """
+    #     self.dict_first_node_to_element_index = defaultdict(list)
+    #     self.dict_last_node_to_element_index = defaultdict(list)
+    #     for index, element_attributes in self.elements_attributes.items():
+    #         first_node_index = element_attributes.first_node.index
+    #         last_node_index = element_attributes.last_node.index
+    #         self.dict_first_node_to_element_index[first_node_index].append(index)
+    #         self.dict_last_node_to_element_index[last_node_index].append(index)
+
+    # def get_nodal_coordinates_matrix(self, reordering=True):
+    #     """
+    #     This method updates the mesh nodes coordinates data. Coordinates matrix row structure:
+    #     ''[Node index, x-coordinate, y-coordinate, z-coordinate]''.
+
+    #     Parameters
+    #     ----------
+    #     reordering : bool, optional.
+    #         True if the nodes numbering is according to the global indexing. False otherwise.
+    #         Default is True.
+    #     """
+    #     # self.number_nodes = len(self.nodes)
+    #     nodal_coordinates = np.zeros((self.number_nodes, 4))
+    #     nodal_coordinates_external = nodal_coordinates
+
+    #     # if reordering:
+    #     for external_index, node in self.nodes.items():
+    #         index = self.nodes[external_index].index
+    #         nodal_coordinates[index,:] = index, node.x, node.y, node.z
+    #         nodal_coordinates_external[index,:] = external_index, node.x, node.y, node.z
+    #     # else:               
+    #     #     for external_index, node in self.nodes.items():
+    #     #         index = self.nodes[external_index].index
+    #     #         nodal_coordinates[index,:] = external_index, node.x, node.y, node.z
+
+    #     self.nodal_coordinates_matrix = nodal_coordinates
+    #     self.nodal_coordinates_matrix_external = nodal_coordinates_external
+
+    # def get_connectivity_matrix(self, reordering=True):
+    #     """
+    #     This method updates the mesh connectivity data. Connectivity matrix row structure:
+    #     ''[Element index, first node index, last node index]''.
+
+    #     Parameters
+    #     ----------
+    #     reordering : bool, optional.
+    #         True if the nodes numbering is according to the global indexing. False otherwise.
+    #         Default is True.
+    #     """
+    #     connectivity = np.zeros((self.number_structural_elements, NODES_PER_ELEMENT+1))
+    #     if reordering:
+    #         for i, element_attributes in enumerate(self.elements_attributes.values()):
+    #             first_node = element_attributes.first_node
+    #             last_node  = element_attributes.last_node
+    #             # first_external = element.first_node.index
+    #             # last_external  = element.last_node.index
+    #             connectivity[i, :] = i + 1, first_node.index, last_node.index
+
+    #     else:
+    #         for i, element_attributes in enumerate(self.elements_attributes.values()):
+    #             first_node = element_attributes.first_node
+    #             last_node  = element_attributes.last_node
+    #             connectivity[i, :] = i + 1, first_node.index, last_node.index
+
+    #     self.connectivity_matrix = connectivity.astype(int) 
+    
+    # def get_neighbor_nodes_and_elements_by_node(self, node_id: int, length: float, tolerance: float = 1e-6):
+    #     """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
+    #         node_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
+    #         avoids the problem of element size deviations resultant in the mesh generation algorithm.
+        
+    #     Parameters
+    #     ----------
+
+    #     Returns
+    #     ---------- 
+
+    #     """ 
+    #     half_length = (length/2) + tolerance
+    #     node_central = self.nodes[node_id]
+    #     list_nodes_ids = [node_id]
+    #     stack = deque()
+    #     stack.appendleft(node_id)
+
+    #     while stack:
+
+    #         node_ids = self.neighbors_nodes[self.nodes[stack.pop()].index]
+    #         if len(node_ids) > 2:
+    #             return None, None
+
+    #         for node_id in node_ids:
+    #             if np.linalg.norm((node_central.coordinates - self.mesh.nodal_coordinates[node_id, 1:])) > half_length:
+    #                 continue
+
+    #             if node_id in list_nodes_ids:
+    #                 continue
+
+    #             list_nodes_ids.append(node_id)
+    #             stack.appendleft(node_id)                    
+
+    #     list_elements_ids = list()
+    #     for index, element_attributes in self.elements_attributes.items():
+    #         if element_attributes.first_node.index in list_nodes_ids:
+    #             if element_attributes.last_node.index in list_nodes_ids:
+    #                 list_elements_ids.append(index)
+
+    #         if len(list_elements_ids) == len(list_nodes_ids) - 1:
+    #             break
+
+    #     return list_nodes_ids, list_elements_ids
+
+    # def get_neighbor_nodes_and_elements_by_element(self, element_id, length, tolerance=1e-5):
+    #     """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
+    #         element_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
+    #         avoids the problem of element size deviations resultant in the mesh generation algorithm.
+
+    #     Parameters
+    #     ---------- 
+
+    #     Returns
+    #     ---------- 
+                               
+    #     """
+    #     element_attributes = self.elements_attributes.get(element_id)
+    #     node_id = element_attributes.first_node.index
+    #     last_node = element_attributes.last_node
+
+    #     length_t = length + element_attributes.length
+    #     list_nodes_ids, list_elements_ids = self.get_neighbor_nodes_and_elements_by_node(node_id, length_t, tolerance=tolerance)
+
+    #     if list_nodes_ids is not None:
+                
+    #         for external_index in list_nodes_ids:
+    #             node = self.nodes[external_index]
+    #             if np.linalg.norm((last_node.coordinates - node.coordinates)) > ((length_t/2) + tolerance):
+    #                 list_nodes_ids.remove(node.index)
+
+    #         for index in list_elements_ids:
+    #             if element_attributes.first_node.index in list_nodes_ids:
+    #                 continue
+                
+    #             index = element_attributes.index
+    #             if index in list_elements_ids:
+    #                 list_elements_ids.remove(index)
+
+    #             if element_attributes.last_node.index in list_nodes_ids:
+    #                 continue
+
+    #             if index in list_elements_ids: 
+    #                 list_elements_ids.remove(index)
+                    
+    #         return list_nodes_ids, list_elements_ids
+    #     else:
+    #         return None, None
