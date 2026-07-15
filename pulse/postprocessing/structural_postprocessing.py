@@ -9,9 +9,7 @@ if TYPE_CHECKING:
 import numpy as np
 from math import pi
 
-from time import perf_counter
-
-N_div = 20
+# from time import perf_counter
 
 # LOCAL_DOFS = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
 DISP_LOCAL_DOFS = np.arange(int(DOF_PER_NODE_STRUCTURAL/2), dtype=int)
@@ -23,6 +21,8 @@ class StructuralPostprocessing:
         #     raise ValueError("The model argument must be of type Model.")
 
         self.model = model
+
+        self.n_div = 20
         
         # scaling factor
         self.scf = model.preprocessor.structure_principal_diagonal / 50
@@ -113,7 +113,7 @@ class StructuralPostprocessing:
 
             amplitudes = np.abs(self.solution[:, column])
             phases_rad = np.angle(self.solution[:, column])
-            phase_steps = np.arange(0, N_div + 1, 1) * ((2 * pi) / N_div)
+            phase_steps = np.arange(0, self.n_div + 1, 1) * ((2 * pi) / self.n_div)
 
             for phase_step in phase_steps:
                 _nodal_solution = amplitudes * np.cos(phases_rad + phase_step)
@@ -245,7 +245,7 @@ class StructuralPostprocessing:
         stress_max = 0
         _stresses = np.abs(values)
         phase = np.angle(values)
-        thetas = np.arange(0, N_div + 1, 1) * (2 * pi / N_div)
+        thetas = np.arange(0, self.n_div + 1, 1) * (2 * pi / self.n_div)
 
         for theta in thetas:
             
