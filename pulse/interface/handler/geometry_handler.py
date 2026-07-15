@@ -101,6 +101,11 @@ class GeometryHandler:
         # cad.remove_all_duplicates()
         cad.synchronize()
 
+        # Apply per-structure mesh constraints
+        for structure in self.project.pipeline.structures:
+            if isinstance(structure, RigidElement):
+                structure.define_gmsh_mesh_constraints()
+
         if gmsh_gui:
             gmsh.option.setNumber('General.FltkColorScheme', 1)
             gmsh.fltk.run()
