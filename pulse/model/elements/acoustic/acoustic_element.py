@@ -130,7 +130,7 @@ class AcousticElement(AcousticCalculator):
         perforated_plate_data = self.element_attributes.perforated_plate_data
 
         d = perforated_plate_data.hole_diameter
-        t = perforated_plate_data.thickness
+        t = perforated_plate_data.plate_thickness
         sigma = perforated_plate_data.area_porosity
         t_foks = t + perforated_plate_data.foks_delta
         c_l = perforated_plate_data.discharge_coefficient

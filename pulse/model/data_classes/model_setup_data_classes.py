@@ -15,6 +15,12 @@ class AcousticBehavior(IntEnum):
     CLOSED = 2
 
 
+class PerforatedPlateFormulation(IntEnum):
+    OPENPULSE = 0
+    MELLING = 1
+    COMMON_PIPE = 2
+
+
 @dataclass
 class ExpansionJointData:
     ejoint_name: str = ""
@@ -61,8 +67,9 @@ class AcousticLinkData:
 @dataclass
 class PerforatedPlateData:
     type: int = 0
+    coords: list = field(default_factory=list)
     hole_diameter: float | None = None
-    thickness: float | None = None
+    plate_thickness: float | None = None
     area_porosity: float | None = None
     discharge_coefficient: float = 1
     single_hole: bool = False
@@ -98,12 +105,6 @@ class PerforatedPlateData:
         num = (1 - self.area_porosity**2) * (self.bias_flow_coefficient * mach)
         den = self.area_porosity * self.discharge_coefficient**2
         return num / den
-
-
-class PerforatedPlateFormulation(IntEnum):
-    OPENPULSE = 0
-    MELLING = 1
-    COMMON_PIPE = 2
 
 
 def Foks_function(x):

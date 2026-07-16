@@ -140,8 +140,8 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
     def create_perforated_plates(self):
-        perforated_plate_many_holes = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_many_holes.obj")
-        perforated_plate_single_hole = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_single_hole.obj")
+        pp_many_holes = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_many_holes.obj")
+        pp_single_hole = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_single_hole.obj")
 
         for (property_name, element_id), data in self.properties.element_properties.items():
             if property_name != "perforated_plate":
@@ -157,10 +157,11 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             # copy this code from the previous version
 
             perforated_plate = element_attributes.perforated_plate_data
-            thickness = perforated_plate.thickness
+            pp_thickness = perforated_plate.plate_thickness
             if element_attributes.valve_data is not None:
                 d_in = element_attributes.valve_data.effective_diameter
                 diameter = d_in / 2
+
             else:
                 diameter = cross_section.inner_diameter
 
@@ -168,12 +169,11 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             coord_b = element_attributes.last_node.coordinates
             vector = coord_b - coord_a
 
-            if perforated_plate.single_hole:
-                data = perforated_plate_single_hole
-            else:
-                data = perforated_plate_many_holes
+            obj_data = pp_single_hole if perforated_plate.single_hole else pp_many_holes
 
-            data = transform_polydata(data, rotation=(0, 0, 90), scale=(thickness, diameter, diameter))
+            # TODO: correct the perforated plate symbols' origin as soon as possible
+
+            data = transform_polydata(obj_data, rotation=(0, 0, 90), scale=(pp_thickness, diameter, diameter))
 
             self.add_symbol(lambda: data, coord_a, vector, color_names.PINK_6)
 
