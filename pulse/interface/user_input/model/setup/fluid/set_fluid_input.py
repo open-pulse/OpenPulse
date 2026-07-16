@@ -173,7 +173,7 @@ class SetFluidInput(SetFluidInput_UI):
         self.properties._set_line_property("fluid", selected_fluid, filtered_lines)
 
         app().project.file.write_line_properties_in_file()
-        app().main_window.update_plots()
+        app().main_window.update_plots(False)
 
         geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
@@ -199,7 +199,7 @@ class SetFluidInput(SetFluidInput_UI):
     def reset_fluid_library_callback(self):
         self.hide()
         if self.fluid_widget.reset_library_callback():
-            app().main_window.update_plots()
+            app().main_window.update_plots(False)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

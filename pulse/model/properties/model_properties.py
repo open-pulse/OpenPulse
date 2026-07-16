@@ -263,6 +263,15 @@ class ModelProperties:
 
         return None
 
+    def is_property_applied_to_all_lines(self, property: str, total_lines: int) -> bool:
+        k = 0
+        for line_data in self.line_properties.values():
+            if property not in line_data.keys():
+                return False
+            k += 1
+
+        return total_lines == k
+
     def is_the_property_applied(self, property: str) -> bool:
         for line_data in self.line_properties.values():
             if property in line_data.keys():

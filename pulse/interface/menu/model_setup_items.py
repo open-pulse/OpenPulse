@@ -337,6 +337,13 @@ class ModelSetupItems(CommonMenuItems):
         if (properties := app().project.model.properties) is None:
             return False
 
+        if property_name in ["material", "fluid"]:
+            if (mesh := app().project.model.mesh) is None:
+                return False
+
+            total_lines = len(mesh.lines_from_model)
+            return properties.is_property_applied_to_all_lines(property_name, total_lines)
+
         return properties.is_the_property_applied(property_name)
 
     def update_items_apperence(self):

@@ -76,7 +76,7 @@ class AcousticNodesInput(NodesInput):
         lineEdit_table_path: QLineEdit,
         property_label: str,
         properties_to_remove: str | list[str],
-        reset_camera=True,
+        reset_camera=False,
     ):
 
         self.remove_properties_from_node(node_ids, properties_to_remove)

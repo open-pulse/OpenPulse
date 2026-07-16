@@ -630,7 +630,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
 
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

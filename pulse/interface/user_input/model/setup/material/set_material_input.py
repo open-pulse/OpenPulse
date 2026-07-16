@@ -186,7 +186,7 @@ class SetMaterialInput(SetMaterial_UI):
     def reset_material_library_callback(self):
         self.hide()
         if self.material_widget.reset_library_callback():
-            app().main_window.update_plots()
+            app().main_window.update_plots(False)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
