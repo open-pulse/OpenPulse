@@ -606,11 +606,7 @@ class StructuralSolver:
             for i, gdof in enumerate(global_dofs_dampers):
                 self.reactions_at_dampers[gdof] = reactions_at_dampers[i,:]
 
-    def stress_calculate(self, 
-            external_pressure: float = 0., 
-            damping: bool = False,
-            static_analysis: bool = False,
-            ):
+    def stress_calculate(self, external_pressure: float = 0., damping: bool = False, static_analysis: bool = False):
         """
         This method evaluates the nodal stresses of the structure.
 
@@ -641,7 +637,6 @@ class StructuralSolver:
                 Transversal-xz shear
         """
 
-        nodal_stresses = dict()
 
         # TODO: review the damping effect on the stress evaluation
 
@@ -663,11 +658,13 @@ class StructuralSolver:
 
         p0 = external_pressure
 
+        n_elem = len(self.model.preprocessor.elements_attributes)
+        nodal_stresses = np.zeros((n_elem, 7, len(_frequencies)), dtype=complex)
+
         for index, element_attributes in self.model.preprocessor.elements_attributes.items():
             # element = build_structural_element(element_attributes)
 
             if element_attributes.structural_element_type in ["beam_1", "expansion_joint", "valve"]:
-                nodal_stresses[index] = np.zeros((7, len(_frequencies)))
                 continue
 
             if element_attributes.structural_element_type != "pipe_1":
@@ -696,7 +693,7 @@ class StructuralSolver:
                 title = "Empty solution"
                 message = "A strutural analysis must be performed to obtain the stress field."
                 PrintMessageInput([error_title, title, message])
-                return dict()
+                return np.zeros((n_elem, 7, len(_frequencies)), dtype=complex)
 
             u = self.solution[structural_dofs, :]
 
@@ -732,7 +729,7 @@ class StructuralSolver:
                 hoop_stress = pm
                 radial_stress = -nu * np.pi * (do / (do - di) - 1)
 
-            nodal_stresses[index] = np.c_[
+            nodal_stresses[index, :, :] = np.c_[
                 internal_load[0] / area - radial_stress,
                 internal_load[1] * ro / Iy,
                 internal_load[2] * ro / Iz,

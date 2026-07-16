@@ -216,13 +216,10 @@ class StructuralPostprocessing:
 
         return r_xyz_plot, mag_fact, phase_shift
     
-    def get_min_max_stresses_values(self, stresses_data: dict | None = None):
+    def get_min_max_stresses_values(self, elements_stress_data: np.ndarray | None = None):
 
-        if stresses_data is None:
-            stresses_data = self.model.stresses_values_for_color_table
-
-        if isinstance(stresses_data, dict):
-            values = np.array(list(stresses_data.values()))
+        if elements_stress_data is None:
+            elements_stress_data = self.model.elements_stress_data
 
         absolute = self.model.color_scale_setup.get("absolute", False)
         real_values = self.model.color_scale_setup.get("real_values", False)
@@ -230,67 +227,66 @@ class StructuralPostprocessing:
         absolute_animation = self.model.color_scale_setup.get("absolute_animation", False)
 
         if absolute:
-            _values = np.abs(values)
-            return np.min(_values), np.max(_values)
+            stress_abs = np.abs(elements_stress_data)
+            return np.min(stress_abs), np.max(stress_abs)
         
         elif real_values:
-            _values = np.real(values)
-            return np.min(_values), np.max(_values)
+            stress_real = np.real(elements_stress_data)
+            return np.min(stress_real), np.max(stress_real)
         
         elif imag_values:
-            _values = np.imag(values)
-            return np.min(_values), np.max(_values)
+            stress_imag = np.imag(elements_stress_data)
+            return np.min(stress_imag), np.max(stress_imag)
+        
+        else:
 
-        stress_min = 1
-        stress_max = 0
-        _stresses = np.abs(values)
-        phase = np.angle(values)
-        thetas = np.arange(0, self.n_div + 1, 1) * (2 * pi / self.n_div)
+            stress_min, stress_max = 1, 0
 
-        for theta in thetas:
-            
-            stresses = _stresses*np.cos(theta + phase)
+            _stresses = np.abs(elements_stress_data)
+            phase_rad = np.angle(elements_stress_data)
 
-            if absolute_animation:
-                stresses = np.absolute(stresses)
-            
-            _stress_min = min(stresses)
-            _stress_max = max(stresses)
-            
-            if _stress_min < stress_min:
-                stress_min = _stress_min
+            phase_steps = np.arange(0, self.n_div + 1, 1) * (2 * pi / self.n_div)
 
-            if _stress_max > stress_max:
-                stress_max = _stress_max
+            for phase_step in phase_steps:
+                
+                stresses = _stresses * np.cos(phase_step + phase_rad)
 
-        return stress_min, stress_max
+                if absolute_animation:
+                    stresses = np.absolute(stresses)
+                
+                _stress_min = min(stresses)
+                _stress_max = max(stresses)
+                
+                if _stress_min < stress_min:
+                    stress_min = _stress_min
 
-    def get_stresses_to_plot(self, phase_step: float = 0.0, shift_phase: float = 0.0, stresses_data: dict | np.ndarray | None = None):
+                if _stress_max > stress_max:
+                    stress_max = _stress_max
+
+            return stress_min, stress_max
+
+    def get_stresses_to_plot(self, phase_step: float = 0.0, shift_phase: float = 0.0, elements_stress_data: np.ndarray | None = None):
 
         absolute = self.model.color_scale_setup.get("absolute", False)
         real_values = self.model.color_scale_setup.get("real_values", False)
         imag_values = self.model.color_scale_setup.get("imag_values", False)
         absolute_animation = self.model.color_scale_setup.get("absolute_animation", False)
 
-        if stresses_data is None:
-            stresses_data = self.model.stresses_values_for_color_table
-
-        if isinstance(stresses_data, dict):
-            keys = stresses_data.keys()
-            values = np.array(list(stresses_data.values()))
+        if elements_stress_data is None:
+            elements_stress_data = self.model.elements_stress_data
 
         if absolute:
-            stresses = np.abs(values)
+            stresses = np.abs(elements_stress_data)
 
         elif real_values:
-            stresses = np.real(values)
+            stresses = np.real(elements_stress_data)
 
         elif imag_values:
-            stresses = np.imag(values)
+            stresses = np.imag(elements_stress_data)
 
         else:
-            _stresses = np.abs(values)
-            _phase = np.angle(values)
+            _stresses = np.abs(elements_stress_data)
+            _phase = np.angle(elements_stress_data)
 
             # NOTE: the shift_phase variable is used to synchronize both 
             # the displacement and stress fields while computing
@@ -300,10 +296,7 @@ class StructuralPostprocessing:
             if absolute_animation:
                 stresses = np.absolute(stresses)
 
-        stresses_data = dict(zip(keys, stresses))
-        min_max_values = [min(stresses), max(stresses)]
-
-        return stresses_data, min_max_values
+        return stresses, (min(stresses), max(stresses))
 
     def get_reaction_spectrum(
         self, reactions: dict, node_id: int, ldof_index: int, absolute: bool = False, real_values: bool = False, imag_values: bool = False
@@ -325,16 +318,16 @@ class StructuralPostprocessing:
 
         return results
 
-def get_stress_spectrum_data(stresses: dict, element_id: int, stress_key: str, absolute: bool = False, real_values: bool = False, imag_values: bool = False) -> np.ndarray:
+def get_stress_spectrum_data(element_stresses_data: np.ndarray, element_id: int, stress_key: str, absolute: bool = False, real_values: bool = False, imag_values: bool = False) -> np.ndarray:
 
     if absolute:
-        return np.abs(np.array(stresses[element_id][stress_key,:]))
+        return np.abs(element_stresses_data[element_id, stress_key, :])
 
     elif real_values:
-        return np.real(np.array(stresses[element_id][stress_key,:]))
+        return np.real(element_stresses_data[element_id, stress_key, :])
 
     elif imag_values:
-        return np.imag(np.array(stresses[element_id][stress_key,:]))
+        return np.imag(element_stresses_data[element_id, stress_key, :])
 
     else:
-        return np.array(stresses[element_id][stress_key,:])
+        return element_stresses_data[element_id, stress_key, :]

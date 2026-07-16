@@ -321,7 +321,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.clear_cache()
         self.update_plot()
 
-    def show_stress_field(self, frequency_index):
+    def show_stress_field(self, frequency_index: int):
 
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0

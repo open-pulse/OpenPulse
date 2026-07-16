@@ -20,20 +20,16 @@ from pulse.interface.viewer_3d.coloring.color_palettes import (
 from pulse.model.elements.element_attributes import ElementAttributes
 
 class ColorTable(vtkLookupTable):
-    def __init__(self, data, min_max_values, colormap, **kwargs):
+    def __init__(self, data: np.ndarray, min_max_values: tuple[float, float], colormap: str, stress_field_plot: bool = False, pressure_field_plot: bool = False):
         super().__init__()
 
-        self.stress_field_plot = kwargs.get("stress_field_plot", False)
-        self.pressure_field_plot = kwargs.get("pressure_field_plot", False)
+        self.value_vector = data
 
         (self.min_value, self.max_value) = min_max_values
-        self.colormap = colormap
 
-        if isinstance(data, dict):
-            self.value_vector = list(data.values())
-            self.dict_data = data
-        else:
-            self.value_vector = data
+        self.colormap = colormap
+        self.stress_field_plot = stress_field_plot
+        self.pressure_field_plot = pressure_field_plot
 
         self.SetTableRange(self.min_value, self.max_value)
         self.set_colormap(self.colormap)
@@ -121,7 +117,7 @@ class ColorTable(vtkLookupTable):
             if element_type in ["beam_1", "expansion_joint", "valve"]:
                 return [255, 255, 255]
             else:
-                value = np.real(self.dict_data[index])
+                value = np.real(self.value_vector[index])
 
         elif self.pressure_field_plot:
             if element_type == "beam_1":

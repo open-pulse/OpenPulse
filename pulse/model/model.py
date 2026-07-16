@@ -43,7 +43,7 @@ class Model:
         self.f_step = 1
         self.frequencies = None
         self.list_frequencies = list()
-        self.stresses_values_for_color_table = None
+        self.elements_stress_data = None
 
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
@@ -72,8 +72,8 @@ class Model:
     def set_color_scale_setup(self, color_scale_setup: dict):
         self.color_scale_setup = color_scale_setup
 
-    def set_stresses_values_for_color_table(self, values: np.ndarray):
-        self.stresses_values_for_color_table = values
+    def set_stresses_data(self, stresses_data: np.ndarray):
+        self.elements_stress_data = stresses_data
 
     def set_min_max_type_stresses(self, min_stress: float, max_stress: float, stress_label: str):
         self.min_stress = min_stress
