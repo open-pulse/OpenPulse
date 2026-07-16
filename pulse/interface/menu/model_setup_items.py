@@ -338,11 +338,11 @@ class ModelSetupItems(CommonMenuItems):
             return False
 
         if property_name in ["material", "fluid"]:
-            if (mesh := app().project.model.mesh) is None:
+            mesh = app().project.model.mesh
+            if mesh is None:
                 return False
 
-            total_lines = len(mesh.lines_from_model)
-            return properties.is_property_applied_to_all_lines(property_name, total_lines)
+            return properties.is_property_applied_to_all_lines(property_name, mesh.lines_from_model)
 
         return properties.is_the_property_applied(property_name)
 

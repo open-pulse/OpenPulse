@@ -275,24 +275,22 @@ class ModelProperties:
 
         return beam_lines
 
-    def is_property_applied_to_all_lines(self, property: str, total_lines: int) -> bool:
+    def is_property_applied_to_all_lines(self, property: str, all_lines: list[int]) -> bool:
 
         # filter the beam lines when checking fluid property
         beam_lines = self.get_beam_lines()
-        if property == "fluid":
-            total_lines -= len(beam_lines)
 
-        k = 0
         for line_id, line_data in self.line_properties.items():
             if property == "fluid" and line_id in beam_lines:
+                continue
+
+            if line_id not in all_lines:
                 continue
 
             if property not in line_data.keys():
                 return False
 
-            k += 1
-
-        return total_lines == k
+        return True
 
     def is_the_property_applied(self, property: str) -> bool:
         for line_data in self.line_properties.values():
