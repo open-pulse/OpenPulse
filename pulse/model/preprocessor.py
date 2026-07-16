@@ -8,28 +8,27 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
-from pulse.model.data_classes.model_setup_data_classes import AcousticLinkData, ExpansionJointData, PerforatedPlateData, ValveData
+from pulse.model.data_classes.model_setup_data_classes import AcousticLinkData, ExpansionJointData, ValveData
+from pulse.model.data_classes.perforated_plate_data_class import PerforatedPlateData
+from pulse.model.data_classes.project_setup_data_classes import ImportType
 from pulse.model.elements.element_attributes import ElementAttributes
-from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node, NodePosition
 from pulse.model.elements.structural_element import NODES_PER_ELEMENT
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node, NodePosition
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 from pulse.utils.common_utils import get_linear_distribution_for_variable_section, slicer
 from pulse.utils.rotations import rotation_matrix_3x3_by_angles, rotation_matrix_3x3_by_deltas
-from pulse.model.data_classes.project_setup_data_classes import ImportType
-
 
 if TYPE_CHECKING:
     from pulse.model.mesh import Mesh
 
 import logging
 from collections import defaultdict
+from time import perf_counter
 
 import numpy as np
 from scipy.spatial.transform import Rotation
-
-from time import perf_counter
 
 
 class Preprocessor:

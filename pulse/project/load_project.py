@@ -11,7 +11,7 @@ from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
 from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
-from pulse.model.data_classes.model_setup_data_classes import PerforatedPlateData
+from pulse.model.data_classes.perforated_plate_data_class import PerforatedPlateData
 from pulse.model.data_classes.project_setup_data_classes import MesherSetup, ProjectSetup
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material

@@ -6,7 +6,7 @@ from scipy.optimize import root
 from scipy.special import hankel1, jv
 
 from pulse.model.elements.acoustic.acoustic_calculator import AcousticCalculator
-from pulse.model.data_classes.model_setup_data_classes import Foks_function, PerforatedPlateFormulation
+from pulse.model.data_classes.perforated_plate_data_class import Foks_function, PerforatedPlateFormulation
 from pulse.model.elements.element_attributes import ElementAttributes
 from pulse.model.properties.fluid import Fluid
 

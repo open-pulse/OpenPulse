@@ -1,8 +1,8 @@
 
 import numpy as np
 
+from pulse.model.data_classes.perforated_plate_data_class import PerforatedPlateData, PerforatedPlateFormulation
 from pulse.model.elements.acoustic.acoustic_element import AcousticElement
-from pulse.model.data_classes.model_setup_data_classes import PerforatedPlateData, PerforatedPlateFormulation
 from pulse.model.elements.element_attributes import ElementAttributes
 
 
