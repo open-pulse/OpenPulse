@@ -10,7 +10,7 @@ from pulse.interface.user_input.model.setup.elements_input import ElementsInput
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.data_classes.model_setup_data_classes import PerforatedPlateData, PerforatedPlateFormulation
+from pulse.model.data_classes.perforated_plate_data_class import PerforatedPlateData, PerforatedPlateFormulation
 from pulse.postprocessing.acoustic_postprocessing import get_perforated_plate_acoustic_absortion, get_perforated_plate_impedance
 
 
@@ -45,7 +45,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
 
         #
         self.pp_data = dict()
-        self.pp_data["type"] = 0
+        self.pp_data["type"] = PerforatedPlateFormulation.OPENPULSE
         self.pp_data["dimensionless_impedance"] = None
 
         self.frequencies = app().project.model.frequencies
@@ -53,23 +53,13 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
     def _create_connections(self):
         #
         self.checkBox_bias_flow_coefficient.toggled.connect(self.checkBoxEvent_bias)
-        self.checkBox_nonlinear_discharge_coefficient.toggled.connect(
-            self.checkBoxEvent_nonlinear
-        )
-        self.checkBox_dimensionless_impedance.toggled.connect(
-            self.checkBoxEvent_dimensionless
-        )
-        self.checkBox_single_hole.stateChanged.connect(
-            self.single_hole_perforated_plate_callback
-        )
+        self.checkBox_nonlinear_discharge_coefficient.toggled.connect(self.checkBoxEvent_nonlinear)
+        self.checkBox_dimensionless_impedance.toggled.connect(self.checkBoxEvent_dimensionless)
+        self.checkBox_single_hole.stateChanged.connect(self.single_hole_perforated_plate_callback)
         #
-        self.comboBox_perforated_plate_model.currentIndexChanged.connect(
-            self.perforated_plate_model_update
-        )
+        self.comboBox_perforated_plate_model.currentIndexChanged.connect(self.perforated_plate_model_update)
         #
-        self.lineEdit_hole_diameter.textChanged.connect(
-            self.single_hole_perforated_plate_callback
-        )
+        self.lineEdit_hole_diameter.textChanged.connect(self.single_hole_perforated_plate_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
@@ -77,16 +67,12 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_plot_impedance.clicked.connect(self.plot_impedance_callback)
-        self.pushButton_plot_absorption_coefficient.clicked.connect(
-            self.plot_absorption_coefficient_callback
-        )
+        self.pushButton_plot_absorption_coefficient.clicked.connect(self.plot_absorption_coefficient_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_elements_info.itemClicked.connect(self.on_click_item)
-        self.treeWidget_elements_info.itemDoubleClicked.connect(
-            self.on_doubleclick_item
-        )
+        self.treeWidget_elements_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
         self.selection_callback()
@@ -283,8 +269,8 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
 
         index = self.comboBox_perforated_plate_model.currentIndex()
 
-        if index == 0:
-            self.pp_data["type"] = 0
+        if index == PerforatedPlateFormulation.OPENPULSE:
+            self.pp_data["type"] = PerforatedPlateFormulation.OPENPULSE
 
             self.checkBox_nonlinear_discharge_coefficient.setDisabled(False)
             self.checkBox_bias_flow_coefficient.setDisabled(False)
@@ -292,11 +278,11 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
             self.update_checkboxes()
             self.tabWidget_setup.setTabVisible(1, True)
 
-        elif index == 1:
-            self.pp_data["type"] = 1
+        elif index == PerforatedPlateFormulation.MELLING:
+            self.pp_data["type"] = PerforatedPlateFormulation.MELLING
 
-        elif index == 2:
-            self.pp_data["type"] = 2
+        elif index == PerforatedPlateFormulation.COMMON_PIPE:
+            self.pp_data["type"] = PerforatedPlateFormulation.COMMON_PIPE
 
             self.lineEdit_plate_thickness.clear()
             self.lineEdit_area_porosity.clear()
@@ -593,10 +579,10 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                     perforated_plate.dimensionless_impedance = self.imported_values
 
                 element_coords = self.preprocessor.mesh.get_element_nodes_coordinates(element_id)
-                self.pp_data["coords"] = list(np.round(element_coords.flatten(), 5))
+                perforated_plate.coords = list(np.round(element_coords.flatten(), 5))
 
-                self.preprocessor.set_perforated_plate_by_elements(element_ids, perforated_plate)
-                self.properties._set_element_property("perforated_plate",  self.pp_data, element_ids=element_id,)
+                self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
+                self.properties._set_element_property("perforated_plate", perforated_plate.as_dict(), element_ids=element_id)
 
             self.actions_to_finalize()
 
