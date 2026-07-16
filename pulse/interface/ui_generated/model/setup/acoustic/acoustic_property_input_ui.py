@@ -145,6 +145,8 @@ class Ui_Dialog(object):
         self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame_2)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.gridLayout_2.setHorizontalSpacing(4)
+        self.gridLayout_2.setContentsMargins(2, -1, 2, -1)
         self.label_20 = QLabel(self.frame_2)
         self.label_20.setObjectName(u"label_20")
         self.label_20.setMinimumSize(QSize(80, 26))
@@ -198,7 +200,7 @@ class Ui_Dialog(object):
 
         self.label_unit = QLabel(self.frame_2)
         self.label_unit.setObjectName(u"label_unit")
-        self.label_unit.setMinimumSize(QSize(40, 30))
+        self.label_unit.setMinimumSize(QSize(60, 30))
         self.label_unit.setMaximumSize(QSize(60, 30))
         self.label_unit.setFont(font2)
         self.label_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
