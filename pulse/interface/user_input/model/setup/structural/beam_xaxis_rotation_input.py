@@ -162,13 +162,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
 
     def filter_beam_lines(self, line_ids: list):
         try:
-            beam_lines = list()
-            for line_id in line_ids:
-                element_type = self.properties._get_property(
-                    "structural_element_type", line_id=line_id
-                )
-                if element_type == "beam_1":
-                    beam_lines.append(line_id)
+            beam_lines = self.properties.get_beam_lines()
 
             if len(beam_lines) == 0:
                 title = "Invalid lines selected"

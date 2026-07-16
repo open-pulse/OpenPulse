@@ -262,12 +262,34 @@ class ModelProperties:
                 return self.line_properties[line_id][property]
 
         return None
+    
+    def get_beam_lines(self) -> list[int]:
+        """
+        This method returns the list of lines of the structural beam elements.
+        """
+        beam_lines = list()
+        for line_id in self.line_properties.keys():
+            element_type = self._get_property("structural_element_type", line_id=line_id)
+            if element_type == "beam_1":
+                beam_lines.append(line_id)
+
+        return beam_lines
 
     def is_property_applied_to_all_lines(self, property: str, total_lines: int) -> bool:
+
+        # filter the beam lines when checking fluid property
+        beam_lines = self.get_beam_lines()
+        if property == "fluid":
+            total_lines -= len(beam_lines)
+
         k = 0
-        for line_data in self.line_properties.values():
+        for line_id, line_data in self.line_properties.items():
+            if property == "fluid" and line_id in beam_lines:
+                continue
+
             if property not in line_data.keys():
                 return False
+
             k += 1
 
         return total_lines == k
