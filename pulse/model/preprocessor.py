@@ -61,6 +61,7 @@ class Preprocessor:
         self.structural_elements: dict[int, StructuralElement] = dict()
         self.acoustic_elements: dict[int, AcousticElement] = dict()
         self.structural_to_acoustic_element: dict[StructuralElement, AcousticElement] = dict()
+        self.acoustic_to_structural_element: dict[AcousticElement, StructuralElement] = dict()
 
         self.connectivity_matrix = np.array([], dtype=float)
         self.nodal_coordinates_matrix = np.array([], dtype=int)
@@ -335,18 +336,28 @@ class Preprocessor:
         Dict
             Inner diameters at a certain node. Giving a node global index, returns a list of diameters.
         """
-        neighbor_diameters = dict()
+
+        neighbor_diameters = defaultdict(list)
         for index, element in self.acoustic_elements.items():
+
+            #TODO: remove as soon as possible
+            if self.structural_elements.get(index).element_type == "ridig_element":
+                continue
+
+            cross_section = element.cross_section
+            if cross_section is None:
+                continue
+
             first = element.first_node.global_index
             last = element.last_node.global_index
-            neighbor_diameters.setdefault(first, list())
-            neighbor_diameters.setdefault(last, list())
-            outer_diameter = element.cross_section.outer_diameter
-            inner_diameter = element.cross_section.inner_diameter
+            outer_diameter = cross_section.outer_diameter
+            inner_diameter = cross_section.inner_diameter
+
             neighbor_diameters[first].append((index, outer_diameter, inner_diameter))
             neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
-        return neighbor_diameters    
-    
+
+        return neighbor_diameters
+
     def check_disconnected_lines(self, tolerance=1e-6):
         """
         This methods shearchs for disconnected lines inside sphere of radius r < (size/2) + tolerance.
@@ -584,6 +595,10 @@ class Preprocessor:
         else:
             diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coords), axis=1)
             mask = diff < radius
+
+            if not external_indexes[mask].any():
+                return None
+
             try:
                 external_index = int(external_indexes[mask].item())
             except Exception as error_log:
@@ -670,7 +685,9 @@ class Preprocessor:
         """
         """
         self.structural_to_acoustic_element.clear()
+        self.acoustic_to_structural_element.clear()
         for key, element in self.structural_elements.items():
+            self.acoustic_to_structural_element[self.acoustic_elements[key]] = element
             self.structural_to_acoustic_element[element] = self.acoustic_elements[key]
 
     def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-6):
@@ -1667,7 +1684,7 @@ class Preprocessor:
         else:
             return False
 
-    def get_acoustic_elements(self):
+    def get_acoustic_elements(self) -> list[AcousticElement]:
         """
         This method returns a list of acoustic elements.
 
@@ -2026,7 +2043,7 @@ class Preprocessor:
                 continue
 
             e_type = element.element_type
-            if e_type in ["beam_1", "expansion_joint"]:
+            if e_type in ["beam_1", "expansion_joint", "rigid_element"]:
                 continue
 
             elif e_type is None:

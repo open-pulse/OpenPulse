@@ -33,6 +33,7 @@ from pulse.interface.user_input.model.geometry.options import (
     PointOptions,
     RectangularBeamOptions,
     ReducerOptions,
+    RigidElementOptions,
     StructureOptions,
     TBeamOptions,
     ValveOptions,
@@ -86,6 +87,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             ExpansionJointOptions,
             ValveOptions,
             PointOptions,
+            RigidElementOptions,
         ]
 
         # Initialize the StructureOptions classes
@@ -728,6 +730,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         app().main_window.update_plots()
         app().main_window.use_model_setup_workspace()
         app().main_window.plot_lines_with_cross_sections()
+        app().main_window.action_results_workspace.setDisabled(True)
         self.render_widget.set_info_text("")
 
     def reject(self):

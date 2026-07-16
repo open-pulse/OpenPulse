@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from pulse import version
+from pulse import VERSION
 from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
@@ -420,9 +420,9 @@ class LoadProject:
             file_version = project_setup["version"]
         else:
             #TODO: remove this as soon as possible
-            file_version = version()
+            file_version = VERSION
 
-        software_version = version()
+        software_version = VERSION
         if Version(file_version) > Version(software_version):
             title = "Incorrect file version"
             message = "The project file version is incompatible with the current OpenPulse version. "
@@ -563,6 +563,8 @@ class LoadProject:
                 continue
         
             coords = np.array(data["coords"], dtype=float)
+
+            # two nodes-related boundary conditions id mapping
             if len(coords) == 6:
 
                 node_id1, node_id2 = args
@@ -576,16 +578,18 @@ class LoadProject:
                     property_to_remove[property] = args
 
                 if new_node_id1 is None:
-                    non_mapped_nodes.append((node_id1, coords))
-                    continue
+                    non_mapped_nodes.append((node_id1, coords_1))
 
                 if new_node_id2 is None:
-                    non_mapped_nodes.append((node_id2, coords))
+                    non_mapped_nodes.append((node_id2, coords_2))
+
+                if (new_node_id1, new_node_id2).count(None):
                     continue
 
                 sorted_indexes = np.sort([new_node_id1, new_node_id2])
                 new_key = (property, sorted_indexes[0], sorted_indexes[1])
 
+            # one node-related boundary conditions id mapping
             elif len(coords) == 3:
 
                 node_id = args

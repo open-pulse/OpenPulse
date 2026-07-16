@@ -38,14 +38,15 @@ class WelcomeWidget(QWidget):
                                 \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#c8c8c8;\">pen</span><span style=\"
                                  color:#0055ff;\">P</span><span style=\" color:#c8c8c8;\">ulse</span></p></body></html>"""
 
-    def setup_image(self, layout):
+    def setup_image(self, layout: QVBoxLayout):
         self.logo_label = QLabel(self)
         self.logo_label.setAlignment(Qt.AlignCenter)
-        
+
         self.logo_label.setContentsMargins(0, 0, 0, 0)
+        layout.addSpacing(60)
         layout.addWidget(self.logo_label)
         layout.addStretch()
-    
+
     def update_logo_text(self):
         if app().config.user_preferences.interface_theme == "dark":
             self.logo_label.setText(self.dark_logo_text)
@@ -55,10 +56,10 @@ class WelcomeWidget(QWidget):
     def setup_labels(self, layout):
         labels_layout = QHBoxLayout()
 
-        new_item = WelcomeItem("New", QIcon(str(ICON_DIR / "common/new_file.png")))
+        new_item = WelcomeItem("New Project", QIcon(str(ICON_DIR / "common/new_file.png")))
         new_item.clicked.connect(self.new_project)
 
-        open_item = WelcomeItem("Open", QIcon(str(ICON_DIR / "common/import.png")))
+        open_item = WelcomeItem("Open Project", QIcon(str(ICON_DIR / "common/import.png")))
         open_item.clicked.connect(self.open_project)
 
         labels_layout.addWidget(new_item)

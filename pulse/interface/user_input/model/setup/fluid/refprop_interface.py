@@ -1,6 +1,7 @@
 import os
 import re
 from pathlib import Path
+import logging
 
 import numpy as np
 from PySide6.QtWidgets import QFileDialog
@@ -8,7 +9,6 @@ from PySide6.QtWidgets import QFileDialog
 from pulse import app
 from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.common_utils import get_new_path
 
 IS_ERROR_REGEX = re.compile(r"\[\w+\s+error")
 IS_WARNING_REGEX = re.compile(r"\[\w+\s+warning")
@@ -41,7 +41,7 @@ class RefpropInterface:
             "BS" : "adiabatic_bulk_modulus",
             "KKT" : "isothermal_bulk_modulus",
             "Z" : "compressibility_factor",
-            }
+        }
 
     def get_refprop_path(self) -> None | str:
 
@@ -90,10 +90,12 @@ class RefpropInterface:
             return True
 
     def initialize_REFPROP(self):
+
         try:
             
             from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
 
+            logging.info("Loading REFPROP interface [30%]")
             refProp_path = self.get_refprop_path()
             if refProp_path is None:
                 return True
@@ -105,43 +107,41 @@ class RefpropInterface:
                 PrintMessageInput([error_title, title, message])
                 return True
 
+            logging.info("Loading REFPROP interface [40%]")
             self.refprop = REFPROPFunctionLibrary(refProp_path)
             if self.check_refprop_version():
                 return True
-
+ 
+            logging.info("Loading REFPROP interface [50%]")
             self.refprop.SETPATHdll(refProp_path)
-            refProp_fluids_path = get_new_path(refProp_path, "FLUIDS")
-            list_files = os.listdir(refProp_fluids_path)
+            refProp_fluids_path = Path(refProp_path) / "FLUIDS"
 
             self.refprop_fluids = dict()
             self.fluid_file_to_final_name = dict()
 
-            for fluid_file in list_files:
-                if ".BNC" not in fluid_file:
-                    filepath = get_new_path(refProp_fluids_path, fluid_file)
-                    
-                    f = open(filepath, 'r')
-                    line_0 = f.readline()
-                    line_1 = f.readline()
-                    line_2 = f.readline()
+            for fluid_file in os.listdir(refProp_fluids_path):
+                if ".BNC" in fluid_file:
+                    continue
 
-                    f.close()
-                    short_name = line_0.split("!")[0]
-                    full_name = line_2.split("!")[0]
-            
-                    letter = " "
-                    while letter == " ":
-                        short_name = short_name[:-1]
-                        letter = short_name[-1]
-                        
-                    letter = " "
-                    while letter == " ":
-                        full_name = full_name[:-1]
-                        letter = full_name[-1]
+                filepath = Path(refProp_fluids_path) / fluid_file
 
-                    final_name = short_name if short_name == full_name else f"{short_name} ({full_name})"
-                    self.refprop_fluids[final_name] = [fluid_file, short_name, full_name]
-                    self.fluid_file_to_final_name[fluid_file] = final_name
+                f = open(filepath, 'r')
+                line_0 = f.readline()
+                line_1 = f.readline()
+                line_2 = f.readline()
+
+                f.close()
+                short_name = line_0.split("!")[0]
+                full_name = line_2.split("!")[0]
+
+                # remove empty rear spaces
+                short_name = short_name.rstrip()
+                full_name = full_name.rstrip()
+
+                final_name = short_name if short_name == full_name else f"{short_name} ({full_name})"
+
+                self.refprop_fluids[final_name] = [fluid_file, short_name, full_name]
+                self.fluid_file_to_final_name[fluid_file] = final_name
 
         except Exception as error_log:
             title = "Error while loading REFPROP"
@@ -163,16 +163,16 @@ class RefpropInterface:
         
         units = self.refprop.GETENUMdll(0, "MASS BASE SI").iEnum
         read = self.refprop.REFPROPdll( 
-                                        key_mixture, 
-                                        state_properties, 
-                                        property_key, 
-                                        units, 
-                                        0, 
-                                        0, 
-                                        temperature_K, 
-                                        pressure_Pa, 
-                                        molar_fractions
-                                        )
+            key_mixture,
+            state_properties,
+            property_key,
+            units,
+            0,
+            0,
+            temperature_K,
+            pressure_Pa,
+            molar_fractions,
+        )
 
         if IS_ERROR_REGEX.match(read.herr):
             errors = read.herr
@@ -226,7 +226,7 @@ class RefpropInterface:
                     property_key = prop_key,
                     temperature_K = temperature_K,
                     pressure_Pa = pressure_Pa,
-                    )
+                )
 
                 if errors:
                     print(errors)

@@ -22,6 +22,18 @@
     <string notr="true"/>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>4</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>4</number>
+    </property>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="lineWidth">
@@ -97,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>1044</width>
-     <height>24</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -127,6 +139,7 @@
     <addaction name="action_import_pcf"/>
     <addaction name="action_export_pcf"/>
     <addaction name="separator"/>
+    <addaction name="action_home_exit"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
    </widget>
@@ -181,17 +194,9 @@
    <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="tool_bar">
+  <widget class="QToolBar" name="main_toolbar">
    <property name="windowTitle">
     <string>Main toolbar</string>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QToolBar {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #888888;
-}
-</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -205,13 +210,6 @@
    <addaction name="action_save_project"/>
    <addaction name="action_save_project_as"/>
    <addaction name="separator"/>
-   <addaction name="action_top_view"/>
-   <addaction name="action_bottom_view"/>
-   <addaction name="action_left_view"/>
-   <addaction name="action_right_view"/>
-   <addaction name="action_front_view"/>
-   <addaction name="action_back_view"/>
-   <addaction name="action_isometric_view"/>
    <addaction name="action_zoom"/>
    <addaction name="separator"/>
    <addaction name="action_show_mesh_data"/>
@@ -226,15 +224,7 @@
   </widget>
   <widget class="QToolBar" name="workspaces_toolbar">
    <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QToolBar {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #888888;
-}
-</string>
+    <string>Workspaces toolbar</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
@@ -348,90 +338,6 @@
    </property>
    <property name="toolTip">
     <string>Import Piping</string>
-   </property>
-  </action>
-  <action name="action_top_view">
-   <property name="icon">
-    <iconset resource="../icons/resources.qrc">
-     <normaloff>:/icons/common/top.png</normaloff>:/icons/common/top.png</iconset>
-   </property>
-   <property name="text">
-    <string>Top View</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+1</string>
-   </property>
-  </action>
-  <action name="action_bottom_view">
-   <property name="icon">
-    <iconset resource="../icons/resources.qrc">
-     <normaloff>:/icons/common/bottom.png</normaloff>:/icons/common/bottom.png</iconset>
-   </property>
-   <property name="text">
-    <string>Bottom View</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+2</string>
-   </property>
-  </action>
-  <action name="action_front_view">
-   <property name="icon">
-    <iconset resource="../icons/resources.qrc">
-     <normaloff>:/icons/common/front.png</normaloff>:/icons/common/front.png</iconset>
-   </property>
-   <property name="text">
-    <string>Front View</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+3</string>
-   </property>
-  </action>
-  <action name="action_back_view">
-   <property name="icon">
-    <iconset resource="../icons/resources.qrc">
-     <normaloff>:/icons/common/back.png</normaloff>:/icons/common/back.png</iconset>
-   </property>
-   <property name="text">
-    <string>Back View</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+4</string>
-   </property>
-  </action>
-  <action name="action_left_view">
-   <property name="icon">
-    <iconset resource="../icons/resources.qrc">
-     <normaloff>:/icons/common/left.png</normaloff>:/icons/common/left.png</iconset>
-   </property>
-   <property name="text">
-    <string>Left View</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+5</string>
-   </property>
-  </action>
-  <action name="action_right_view">
-   <property name="icon">
-    <iconset resource="../icons/resources.qrc">
-     <normaloff>:/icons/common/right.png</normaloff>:/icons/common/right.png</iconset>
-   </property>
-   <property name="text">
-    <string>Right View</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+6</string>
-   </property>
-  </action>
-  <action name="action_isometric_view">
-   <property name="icon">
-    <iconset resource="../icons/resources.qrc">
-     <normaloff>:/icons/common/isometric.png</normaloff>:/icons/common/isometric.png</iconset>
-   </property>
-   <property name="text">
-    <string>Isometric View</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+7</string>
    </property>
   </action>
   <action name="actionfiles">
@@ -898,6 +804,14 @@
    </property>
    <property name="text">
     <string>Capture Image</string>
+   </property>
+  </action>
+  <action name="action_home_exit">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::GoHome"/>
+   </property>
+   <property name="text">
+    <string>Home Exit</string>
    </property>
   </action>
  </widget>

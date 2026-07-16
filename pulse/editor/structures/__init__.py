@@ -16,6 +16,7 @@ from .flange import Flange
 from .pipe import Pipe
 from .point import Point
 from .reducer import Reducer
+from .rigid_element import RigidElement
 from .valve import Valve
 from .support import Support
 
@@ -34,4 +35,5 @@ ALL_STRUCTURE_TYPES: list[Structure] = [
     TBeam,
     CBeam,
     IBeam,
+    RigidElement,
 ]

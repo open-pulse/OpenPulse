@@ -27,6 +27,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_top_general_settings = self.add_top_item('General Settings')
         self.item_child_set_material = self.add_item('Material', property_name="material")
         self.item_child_set_fluid = self.add_item('Fluid', property_name="fluid")
+        self.item_child_mesh_setup = self.add_item('Mesh Setup', property_name="mesh_setup")
         self.item_child_set_crossSection = self.add_item('Cross-Section', property_name="cross_section")
         #
         self.item_top_structural_model_setup = self.add_top_item('Structural Model Setup')
@@ -67,6 +68,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_set_material.clicked.connect(self.item_child_set_material_callback)
         self.item_child_set_fluid.clicked.connect(self.item_child_set_fluid_callback)
         self.item_child_set_crossSection.clicked.connect(self.item_child_set_cross_section_callback)
+        self.item_child_mesh_setup.clicked.connect(self.item_child_mesh_setup_callback)
         #
         # Structural Model Setup
         self.item_child_set_structural_element_type.clicked.connect(self.item_child_set_structural_element_type_callback)
@@ -121,6 +123,10 @@ class ModelSetupItems(CommonMenuItems):
     def item_child_set_cross_section_callback(self):
         self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_cross_section()
+        app().main_window.set_input_widget(None)
+    
+    def item_child_mesh_setup_callback(self):
+        app().main_window.input_ui.mesh_setup()
         app().main_window.set_input_widget(None)
 
     def item_child_set_structural_element_type_callback(self):
@@ -262,6 +268,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
+        self.item_child_mesh_setup.setDisabled(bool_key)
         #
         self.item_child_set_structural_element_type.setDisabled(bool_key) 
         self.item_child_set_prescribed_dof.setDisabled(bool_key)

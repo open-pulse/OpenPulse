@@ -1,16 +1,15 @@
-from vtkmodules.vtkRenderingCore import vtkActor
-
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QApplication
-
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
-
-from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorStagedPointsActor, EditorSelectedPointsActor
-from pulse.interface.viewer_3d.render_tools import SelectionTool
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QApplication
+from vtkmodules.vtkRenderingCore import vtkActor
 
 from pulse import ICON_DIR, app
+from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorSelectedPointsActor, EditorStagedPointsActor
+from pulse.interface.viewer_3d.actors.editor_actors.rigid_element_actor import RigidElementsActor
+from pulse.interface.viewer_3d.render_tools import SelectionTool
+from pulse.utils.interface_utils import VisualizationFilter
 
 
 class GeometryRenderWidget(CommonRenderWidget):
@@ -19,6 +18,7 @@ class GeometryRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.set_interactor_style(BoxSelectionInteractorStyle())
+        self.visualization_filter = VisualizationFilter(points=True, tubes=True)
 
         self.pipeline = app().project.pipeline
 
@@ -27,6 +27,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.control_points_actor = None
         self.staged_points_actor = None
         self.selected_points_actor = None
+        self.rigid_elements_actor = None
 
         # It is better for an editor to have parallel projection
         self.renderer.GetActiveCamera().SetParallelProjection(True)
@@ -36,18 +37,16 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.create_logos()
         self.create_camera_light(0.1, 0.1)
         self.set_default_render_tool()
-    
+
         self.apply_user_preferences()
         self._create_connections()
         self.update_plot()
-    
+
     def _create_connections(self):
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
         app().main_window.theme_changed.connect(self.set_theme)
-        app().main_window.visualization_changed.connect(
-            self.visualization_changed_callback
-        )
+        app().main_window.visualization_changed.connect(self.visualization_changed_callback)
 
     def update_plot(self, reset_camera=True):
         self.remove_actors()
@@ -57,9 +56,12 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.staged_points_actor = EditorStagedPointsActor()
         self.selected_points_actor = EditorSelectedPointsActor()
 
+        self.rigid_elements_actor = RigidElementsActor(self.pipeline)
+
         # The order matters. It defines wich points will appear first.
         self.add_actors(
             self.pipeline_actor,
+            self.rigid_elements_actor,
             self.control_points_actor,
             self.staged_points_actor,
             self.selected_points_actor,
@@ -73,10 +75,10 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.update()
 
     def set_theme(self, *args, **kwargs):
-        """ It's necessary because if this function doesn't exist
-            CommomRenderWidget will call it's own set_theme function in
-            it's constructor """
-        
+        """It's necessary because if this function doesn't exist
+        CommomRenderWidget will call it's own set_theme function in
+        it's constructor"""
+
         self.update_theme()
 
     def update_theme(self):
@@ -106,18 +108,18 @@ class GeometryRenderWidget(CommonRenderWidget):
         if hasattr(self, "scale_bar_actor"):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
-        
+
     def apply_user_preferences(self):
         self.update_open_pulse_logo_visibility()
         self.update_renderer_font_size()
-        
+
     def update_renderer_font_size(self):
         user_preferences = app().main_window.config.user_preferences
-        font_size_px = int(user_preferences.renderer_font_size * 4/3)
+        font_size_px = int(user_preferences.renderer_font_size * 4 / 3)
 
         info_text_property = self.text_actor.GetTextProperty()
         info_text_property.SetFontSize(font_size_px)
-    
+
     def update_open_pulse_logo_visibility(self):
         user_preferences = app().main_window.config.user_preferences
         if user_preferences.show_open_pulse_logo:
@@ -159,11 +161,12 @@ class GeometryRenderWidget(CommonRenderWidget):
         if not self._actor_exists():
             return
 
-        visualization = app().main_window.visualization_filter
+        visualization = self.visualization_filter
         self.control_points_actor.SetVisibility(visualization.points)
         self.staged_points_actor.SetVisibility(visualization.points)
         self.selected_points_actor.SetVisibility(visualization.points)
         self.pipeline_actor.SetVisibility(visualization.tubes)
+        self.rigid_elements_actor.SetVisibility(visualization.tubes)
         opacity = 0.9 if visualization.transparent else 1
         self.pipeline_actor.GetProperty().SetOpacity(opacity)
         self.update()
@@ -174,6 +177,7 @@ class GeometryRenderWidget(CommonRenderWidget):
             self.staged_points_actor,
             self.selected_points_actor,
             self.pipeline_actor,
+            self.rigid_elements_actor,
         ]
         return all([actor is not None for actor in actors])
 
@@ -182,11 +186,13 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.renderer.RemoveActor(self.control_points_actor)
         self.renderer.RemoveActor(self.staged_points_actor)
         self.renderer.RemoveActor(self.selected_points_actor)
+        self.renderer.RemoveActor(self.rigid_elements_actor)
 
         self.pipeline_actor = None
         self.control_points_actor = None
         self.staged_points_actor = None
         self.selected_points_actor = None
+        self.rigid_elements_actor = None
 
     def click_callback(self, x, y):
         self.mouse_click = x, y
@@ -194,7 +200,7 @@ class GeometryRenderWidget(CommonRenderWidget):
     def selection_callback(self, x, y):
         if not isinstance(self.interactor_style, SelectionTool):
             return
-        
+
         if not self.interactor_style.is_selecting:
             return
 
@@ -238,9 +244,16 @@ class GeometryRenderWidget(CommonRenderWidget):
         return control_points
 
     def _pick_structures(self, x, y):
+        rigid_indexes = self._pick_property(x, y, "cell_identifier", self.rigid_elements_actor)
+        if rigid_indexes:
+            try:
+                return [self.pipeline.structures[i] for i in rigid_indexes]
+            except IndexError:
+                return list()
+
         try:
-            indexes = self._pick_property(x, y, "cell_identifier", self.pipeline_actor)
-            return [self.pipeline.structures[i] for i in indexes]
+            pipeline_indexes = self._pick_property(x, y, "cell_identifier", self.pipeline_actor)
+            return [self.pipeline.structures[i] for i in pipeline_indexes]
         except IndexError:
             return list()
 
@@ -294,7 +307,7 @@ class GeometryRenderWidget(CommonRenderWidget):
     def update_selection(self):
         self.selection_changed.emit()
         self.update_plot(reset_camera=False)
-    
+
     def set_default_render_tool(self):
         tool = SelectionTool()
         self.set_interactor_style(tool)

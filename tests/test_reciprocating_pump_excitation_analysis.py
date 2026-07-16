@@ -1,25 +1,27 @@
 
-from pulse import TEMP_PROJECT_DIR
 from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
-from pulse.model.cross_section import CrossSection, get_beam_section_properties
+from pulse.model.cross_section import CrossSection
 from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
 from pulse.project.project import Project
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 
-import os
-import pytest
+from tests.helpers import (
+    create_stainless_steel_material,
+    create_temporary_fluid_library,
+    create_temporary_material_library,
+)
+
 import numpy as np
 
 from pathlib import Path
 
 
-def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
+def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Initialize a project
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=datadir)
-    
+
     ## Define usefull objects
     model = project.model
     mesh = model.mesh
@@ -57,7 +59,7 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
     lines_lists = [main_lines, header_lines, neck_lines, volume_lines]
 
     ## Define the fluid
-    fluids = create_fluids()
+    fluids = create_pump_fluids()
     create_temporary_fluid_library(project, fluids)
 
     water_lines = [line_id for line_id in all_lines if line_id not in N2_line]
@@ -70,7 +72,7 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
     model.properties._set_line_property("fluid", fluids[2], N2_line)
 
     ## Define the material
-    materials = create_materials()
+    materials = create_stainless_steel_material()
     create_temporary_material_library(project, materials)
 
     preprocessor.set_material_by_lines(all_lines, materials[1])
@@ -173,7 +175,7 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
     points_coords = np.array([[  0.000,  0.000,  0.000 ],
                               [ 23.000,  4.000,  4.000 ],
                               [ 23.000,  4.000, -4.000 ]], dtype=float)
-    
+
     values = [0j, 0j, 0j, 0j, 0j, 0j]
     dofs_prescription_data.append((points_coords, values))
 
@@ -182,7 +184,7 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
                               [ 10.000,  0.000,  0.000 ],
                               [ 15.000,  0.000,  0.000 ],
                               [ 19.6713875,  0.000,  0.000 ]], dtype=float)
-    
+
     values = [None, 0j, 0j, None, None, None]
     dofs_prescription_data.append((points_coords, values))
 
@@ -202,51 +204,6 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
                     }
 
             model.properties._set_nodal_property("prescribed_dofs", data, node_id)
-
-    ## Apply the nodal loads
-
-    points_coords = np.array([[ 0.500,  0.000,  0.000],
-                              [ 1.200, -0.250,  1.250]], dtype=float)
-
-    for coords in points_coords:
-        continue
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        nodal_loads = [None, None, 1 + 0j, None, None, None]
-        real_values = [value if value is None else np.real(value) for value in nodal_loads]
-        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
-
-        data = {
-                "coords" : list(coords),
-                "values" : nodal_loads,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
-        model.properties._set_nodal_property("nodal_loads", data, node_id)
-
-    ## Apply the volume velocity excitation
-
-    points_coords = np.array([[ 0.000,  0.000,  0.000]], dtype=float)
-
-    for coords in points_coords:
-        continue
-
-        node_id = preprocessor.get_node_id_by_coordinates(coords)
-
-        volume_velocity = [0.01 + 0j]
-        real_values = [np.real(value) for value in volume_velocity]
-        imag_values = [np.imag(value) for value in volume_velocity]
-
-        data = {
-                "coords" : list(coords),
-                "values" : volume_velocity,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-
-        model.properties._set_nodal_property("volume_velocity", data, node_id)
 
     ## Apply reciprocating pump excitation
 
@@ -298,14 +255,6 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
                       "f_step" : freq[1] - freq[0],
                       "global_damping" : [1e-3, 1e-5, 0.],
                       }
-    
-    ## Analysis setup for acoustic modal analysis
-
-    # analysis_setup = {
-    #                   "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
-    #                   "number_of_modes" : 40,
-    #                   "sigma_factor" : 1e-2
-    #                   }
 
     model.set_analysis_setup(analysis_setup)
 
@@ -320,118 +269,58 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
     ## Build the mathematical model and solve it (it also saves the model results in the temp_pulse folder)
     project.build_model_and_solve(running_by_script=True)
 
-    # natural_frequencies = project.acoustic_solver.natural_frequencies
-    # print(f"Natural frequencies: \n {natural_frequencies.reshape(-1, 1)}")
+    acoustic_solution = project.acoustic_solution
 
-    ## Uncomment the following function to remove the created files from the temp_pulse folder
-    # remove_files_from_temporary_folder()
+    assert acoustic_solution is not None, "No acoustic solution returned"
+    assert acoustic_solution.ndim == 2, "Acoustic solution must be 2D"
+    assert np.any(np.abs(acoustic_solution) > 0), "Acoustic solution is all zeros"
+    assert np.all(np.isfinite(acoustic_solution)), "Non-finite values in acoustic solution"
 
 
-def create_fluids():
-
+def create_pump_fluids():
+    """Water (discharge) and N2 fluids for the reciprocating pump piping model."""
     fluids = dict()
-    fluids[1] = Fluid(  
-        name = 'water_discharge',
-        identifier = 1,
-        density = 1003.82244263,
-        speed_of_sound = 1592.49759889,
-        isentropic_exponent = 1.03559951,
-        thermal_conductivity = 6.51065153e-01,
-        specific_heat_Cp = 4110.65882430,
-        dynamic_viscosity = 6.01700293e-04,
-        temperature = 318.15,
-        pressure = 3.23193250e+07,
-        molar_mass  = 18.015268,
-        adiabatic_bulk_modulus = 2545742502.755067,
-        vapor_pressure = 9595.337826781679,
-        color = [0, 170, 255]
-        )
-
-    fluids[2] = Fluid(  
-        name = 'N2_discharge',
-        identifier = 2,
-        density = 292.28440365,
-        speed_of_sound = 500.45290389,
-        isentropic_exponent = 1.67039582,
-        thermal_conductivity = 4.53652092e-02,
-        specific_heat_Cp = 1322.24682798,
-        dynamic_viscosity = 2.74922337e-05,
-        temperature = 318.15,
-        pressure = 3.23193250e+07,
-        molar_mass  = 28.01348,
-        adiabatic_bulk_modulus = 73203537.61198233,
-        color = [255, 255, 0]
-        )
-
+    fluids[1] = Fluid(
+        name='water_discharge',
+        identifier=1,
+        density=1003.82244263,
+        speed_of_sound=1592.49759889,
+        isentropic_exponent=1.03559951,
+        thermal_conductivity=6.51065153e-01,
+        specific_heat_Cp=4110.65882430,
+        dynamic_viscosity=6.01700293e-04,
+        temperature=318.15,
+        pressure=3.23193250e+07,
+        molar_mass=18.015268,
+        adiabatic_bulk_modulus=2545742502.755067,
+        vapor_pressure=9595.337826781679,
+        color=[0, 170, 255],
+    )
+    fluids[2] = Fluid(
+        name='N2_discharge',
+        identifier=2,
+        density=292.28440365,
+        speed_of_sound=500.45290389,
+        isentropic_exponent=1.67039582,
+        thermal_conductivity=4.53652092e-02,
+        specific_heat_Cp=1322.24682798,
+        dynamic_viscosity=2.74922337e-05,
+        temperature=318.15,
+        pressure=3.23193250e+07,
+        molar_mass=28.01348,
+        adiabatic_bulk_modulus=73203537.61198233,
+        color=[255, 255, 0],
+    )
     return fluids
-
-
-def create_materials():
-
-    materials = dict()
-    materials[1] = Material(
-        name = 'stainless_steel', 
-        identifier = 1, 
-        density = 7860, 
-        elasticity_modulus = 210e9, 
-        poisson_ratio = 0.3,
-        thermal_expansion_coefficient = 1.2e-5,
-        color = [253, 152, 145]
-        )
-
-    return materials
-
-
-def create_temporary_fluid_library(project: Project, fluids: dict):
-
-    fluid_data = dict()
-
-    for fluid_id, fluid in fluids.items():
-        fluid: Fluid
-
-        fluid_data[f"{fluid_id}"] = {
-            "name": fluid.name,
-            "identifier": fluid.identifier,
-            "pressure": fluid.pressure,
-            "temperature": fluid.temperature,
-            "density": fluid.density,
-            "speed_of_sound": fluid.speed_of_sound,
-            "isentropic_exponent": fluid.isentropic_exponent,
-            "thermal_conductivity": fluid.thermal_conductivity,
-            "dynamic_viscosity": fluid.dynamic_viscosity,
-            "molar_mass": fluid.molar_mass,
-            "color": fluid.color,
-            }
-
-    project.file.write_fluid_library_in_file(fluid_data)
-
-
-def create_temporary_material_library(project: Project, materials: dict):
-
-    material_data = dict()
-
-    for mat_id, material in materials.items():
-        material: Material
-        material_data[f"{mat_id}"] = {
-            "name": material.name,
-            "identifier": material.identifier,
-            "color": material.color,
-            "density": material.density,
-            "elasticity_modulus": material.elasticity_modulus / 1e9,
-            "poisson_ratio": material.poisson_ratio,
-            "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
-            }
-
-    project.file.write_material_library_in_file(material_data)
 
 
 def get_reciprocating_pump_excitation(connection_type: str):
 
     from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
-    fluids = create_fluids()
+    fluids = create_pump_fluids()
 
-    parameters = {  
+    parameters = {
                   'bore_diameter' : 0.105,
                   'stroke' : 0.205,
                   'connecting_rod_length' : 0.40,
@@ -477,7 +366,6 @@ def get_reciprocating_pump_excitation(connection_type: str):
 
     if connection_type == "discharge":
         flow_label = "out_flow"
-
     else:
         flow_label = "in_flow"
 
@@ -507,23 +395,3 @@ def save_table_values(project: Project, table_name: str, frequencies: np.ndarray
     data = np.array([frequencies, real_values, imag_values], dtype=float).T
 
     project.model.properties.add_imported_tables("acoustic", table_name, data)
-
-
-def remove_files_from_temporary_folder():
-
-    from pulse import TEMP_PROJECT_DIR
-    from shutil import rmtree
-    from os import path, remove, listdir
-
-    if TEMP_PROJECT_DIR.exists():
-        for filename in listdir(TEMP_PROJECT_DIR).copy():
-            file_path = TEMP_PROJECT_DIR / filename
-            if path.exists(file_path):
-                if "." in filename:
-                    remove(file_path)
-                else:
-                    rmtree(file_path)
-
-
-if __name__ == "__main__":
-    test_reciprocating_pump_excitation_analysis()

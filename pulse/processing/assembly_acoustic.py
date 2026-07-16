@@ -555,7 +555,7 @@ class AssemblyAcoustic:
 
                     for element in elements:
                         if element.first_node.global_index == position or element.last_node.global_index == position:
-                            rho = element.fluid.density
+                            # rho = element.fluid.density
                             area_fluid = element.cross_section.area_fluid
 
                 elif property == "radiation_impedance":
@@ -570,7 +570,7 @@ class AssemblyAcoustic:
 
                     if len(elements) == 1:
                         element = elements[0]
-                        rho = element.fluid.density
+                        # rho = element.fluid.density
                         area_fluid = element.cross_section.area_fluid
                         impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
 
@@ -620,9 +620,14 @@ class AssemblyAcoustic:
         # for index, element in enumerate(self.preprocessor.acoustic_elements.values()):
         for element in self.preprocessor.get_acoustic_elements():
 
+            structural_element = self.preprocessor.structural_elements[element.index]
+            if structural_element.element_type == "rigid_element":
+                continue
+
             index = element.index - 1
             if element.acoustic_link_diameters:
                 length_correction = self.get_length_correction_for_acoustic_link(element.acoustic_link_diameters)
+
             else:
                 length_correction = self.get_length_corretion(element)
             

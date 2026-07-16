@@ -1,13 +1,10 @@
-
 import pytest
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
 from pathlib import Path
-from scipy import signal
 
 pi = 3.141592653589
 
@@ -31,9 +28,9 @@ def load_default_compressor_setup(crank_angle=0):
                     'isentropic_exponent' : 1.400,
                     'molar_mass' : 2.01568  }
 
-    compressor = ReciprocatingCompressorModel(parameters)
-    compressor.set_fluid_properties_and_update_state(   parameters['isentropic_exponent'],
-                                                        parameters['molar_mass']   )
+    compressor = ReciprocatingCompressorModel(**parameters)
+    compressor.update_fluid_properties(parameters['isentropic_exponent'],
+                                       parameters['molar_mass'])
 
     compressor.number_of_cylinders = 1
 
@@ -107,81 +104,30 @@ def test_PV_diagram(print_log=True, export_data=True):
             np.savetxt(f"teste_head_end_{angle}.dat", data_HE, delimiter=",")
             np.savetxt(f"teste_crank_end_{angle}.dat", data_CE, delimiter=",")       
 
-@pytest.mark.skip
 def test_suction_flow_rate():
     crank_angle = 0
     reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
     reciprocating_compressor.number_points = 1023
 
     flow_rate = reciprocating_compressor.process_sum_of_volumetric_flow_rate('in_flow', smooth_data=False)
-    if flow_rate is None:
-        return
 
+    assert flow_rate is not None, "Suction flow rate computation returned None"
     N = len(flow_rate)
-    angles = np.linspace(0, 2*pi, N)
-    
-    x_label = "Angle [rad]"
-    y_label = "Volume [m³/s]"
-    title = "Volumetric flow rate at suction"
-    
-    path = Path(f"tests/data/compressor/flow/full_load/bp_reciprocating_compressor_flow_at_suction_crank_angle_{crank_angle}.txt")
-    data_HE = np.loadtxt(path, skiprows=4, max_rows=103)
-    data_CE = np.loadtxt(path, skiprows=112, max_rows=113)
-
-    volumes = [angles, data_HE[:,0], data_CE[:,0]]
-    flow_rates = [flow_rate, -data_HE[:,1], -data_CE[:,1]]
-    labels = ["OpenPulse", "Reference (HE)", "Reference (CE)"]
-    colors = [(0,0,0),(1,0,0),(0,0,1)]
-    linestyles = ["-","-", "-"]
-
-    plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
+    assert N > 0, "Suction flow rate array is empty"
+    assert np.all(np.isfinite(flow_rate)), "Non-finite values in suction flow rate"
 
 
-@pytest.mark.skip
 def test_discharge_flow_rate():
     crank_angle = 0
     reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
     reciprocating_compressor.number_points = 1023
 
     flow_rate = reciprocating_compressor.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=False)
-    if flow_rate is None:
-        return
 
-    N = len(flow_rate)  
-    angles = np.linspace(0, 2*pi, N)
-
-    x_label = "Angle [rad]"
-    y_label = "Volume [m³/s]"
-    title = "Volumetric flow rate at discharge"
-    
-    path = Path(f"tests/data/compressor/flow/full_load/bp_reciprocating_compressor_flow_at_discharge_crank_angle_{crank_angle}.txt")
-    data_CE = np.loadtxt(path, skiprows=4, max_rows=80)
-    data_HE = np.loadtxt(path, skiprows=89, max_rows=93)
-    
-    volumes = [angles, data_HE[:,0], data_CE[:,0]]
-    flow_rates = [flow_rate, data_HE[:,1], data_CE[:,1]]
-    labels = ["OpenPulse", "Reference (HE)", "Reference (CE)"]
-    colors = [(0,0,0),(1,0,0),(0,0,1)]
-    linestyles = ["-","-", "-"]
-
-    plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
-
-
-def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
-
-    fig = plt.figure(figsize=[8,6])
-    ax_ = fig.add_subplot(1,1,1)
-
-    for i, label in enumerate(labels): 
-        ax_.plot(x[i], y[i], color=colors[i], linewidth=2, linestyle=linestyles[i], label=label)
-    
-    ax_.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_title(title, fontsize = 12, fontweight = 'bold')
-
-    plt.legend()
-    plt.grid()
-    plt.show()
+    assert flow_rate is not None, "Discharge flow rate computation returned None"
+    N = len(flow_rate)
+    assert N > 0, "Discharge flow rate array is empty"
+    assert np.all(np.isfinite(flow_rate)), "Non-finite values in discharge flow rate"
 
 
 def check_angles():
@@ -190,9 +136,3 @@ def check_angles():
     compressor.number_points = 1023
 
     compressor.get_cycles_boundary_data(acting_label="HE")
-
-if __name__ == "__main__":
-    test_PV_diagram(print_log=True, export_data=True)
-    # test_suction_flow_rate()
-    # test_discharge_flow_rate()
-    # check_angles()

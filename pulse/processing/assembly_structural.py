@@ -162,8 +162,13 @@ class AssemblyStructural:
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         
         for index, element in enumerate(self.preprocessor.structural_elements.values()):
-            if element.element_type == "expansion_joint":
+            element_type = element.element_type
+            if element_type == "rigid_element":
+                continue
+
+            elif element_type == "expansion_joint":
                 self.expansion_joint_data[index] = element
+
             else:
                 mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()
 

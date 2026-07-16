@@ -565,7 +565,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
     def actions_to_finalize(self):
         self.reset_table_variables()
-        super().actions_to_finalize()
+        super().actions_to_finalize(False)
 
     def load_elastic_links_stiffness_info(self):
 
