@@ -501,8 +501,6 @@ class Project:
     def run_analysis(self, running_by_script: bool = False):
         if LoadingWindow(self.build_model_and_solve).run(running_by_script = running_by_script):
             return True
-        
-        self.update_post_processing()
 
         if running_by_script:
             return
@@ -541,6 +539,9 @@ class Project:
 
         logging.info("Solution in progress [50%]")
         self.process_analysis()
+
+        logging.info("Updating the post-processing attributes [75%]")
+        self.update_post_processing()
 
         logging.info("Saving the solution data [95%]")
         self.file.write_results_data_in_file()
