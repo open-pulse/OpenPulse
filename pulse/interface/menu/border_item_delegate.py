@@ -39,7 +39,8 @@ class BorderItemDelegate(QStyledItemDelegate):
         multi_icons: list = index.data(self.MULTI_ICON_ROLE)
 
         if multi_icons:
-            icon_size = QSize(20, 20)
+            icon_side = max(1, min(16, option.rect.height() - 4))
+            icon_size = QSize(icon_side, icon_side)
             spacing = 4
             margin = 8
             x = option.rect.right() - margin
