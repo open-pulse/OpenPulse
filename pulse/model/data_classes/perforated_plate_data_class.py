@@ -57,7 +57,7 @@ class PerforatedPlateData:
 
         return {
             "type" : self.type,
-            "coords" : self.coords,
+            "coords" : list(self.coords),
             "hole_diameter" : self.hole_diameter,
             "plate_thickness" : self.plate_thickness,
             "area_porosity" : self.area_porosity,
@@ -70,7 +70,7 @@ class PerforatedPlateData:
             "bias_flow_coefficient" : self.bias_flow_coefficient,
             "dimensionless_impedance" : self.dimensionless_impedance,
             "dimensionless_impedance_table_name" : self.dimensionless_impedance_table_name,
-            }
+        }
 
 
 def Foks_function(x):
