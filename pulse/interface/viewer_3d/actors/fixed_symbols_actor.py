@@ -171,12 +171,15 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
             obj_data = pp_single_hole if perforated_plate.single_hole else pp_many_holes
 
-            # TODO: correct the perforated plate symbols' origin as soon as possible
-
-            data = transform_polydata(obj_data, rotation=(0, 0, 90), scale=(pp_thickness, diameter, diameter))
+            func = partial(
+                transform_polydata,
+                obj_data,
+                rotation=(0, 0, 90),
+                scale=(pp_thickness, diameter, diameter),
+            )
 
             self.add_symbol(
-                lambda: data,
+                func,
                 (coord_a + coord_b) / 2,
                 vector,
                 color_names.PINK_6,
