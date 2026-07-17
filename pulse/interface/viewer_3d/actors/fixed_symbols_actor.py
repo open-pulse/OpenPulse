@@ -175,7 +175,12 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
             data = transform_polydata(obj_data, rotation=(0, 0, 90), scale=(pp_thickness, diameter, diameter))
 
-            self.add_symbol(lambda: data, coord_a, vector, color_names.PINK_6)
+            self.add_symbol(
+                lambda: data,
+                (coord_a + coord_b) / 2,
+                vector,
+                color_names.PINK_6,
+            )
 
     def create_valves(self):
         line_properties = self.properties.line_properties
