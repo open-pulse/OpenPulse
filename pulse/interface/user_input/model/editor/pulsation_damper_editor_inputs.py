@@ -308,10 +308,18 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         # Replace placeholder widget with the actual render widget
         self.preview_widget = DamperPreviewRenderWidget()
         self.preview_widget.set_isometric_view()
+
+        self.preview_widget.setSizePolicy(self.preview_widget_placeholder.sizePolicy())
+        self.preview_widget.setMinimumSize(self.preview_widget_placeholder.minimumSize())
+
         self.preview_widget_placeholder.parent().layout().replaceWidget(
             self.preview_widget_placeholder,
             self.preview_widget,
         )
+
+        self.preview_widget_placeholder.setParent(None)
+        self.preview_widget_placeholder.deleteLater()
+        
         #
         self.lineEdit_damper_label.setFocus()
         self.lineEdit_selected_damper_label.setDisabled(True)
