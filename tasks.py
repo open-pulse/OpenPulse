@@ -53,11 +53,12 @@ def qrc_codegen(c):
             qrc_content.append(f'        <file alias="{alias}">{disk_path}</file>')
 
         qrc_content.append('    </qresource>')
+        qrc_content.append('</RCC>')
 
-    with open(qrc_path, "w", encoding="utf-8") as qrc:
-        qrc.write("\n".join(qrc_content))
+        with open(qrc_path, "w", encoding="utf-8") as qrc:
+            qrc.write("\n".join(qrc_content))
 
-    print(f"✅ {qrc_path} generated successfully!")
+        print(f"✅ {qrc_path} generated successfully!")
 
 
 @task(pre=[qrc_codegen])
