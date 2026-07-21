@@ -1,16 +1,16 @@
-from PySide6.QtCore import QSize, Qt, Signal, QByteArray
-from PySide6.QtGui import QIcon, QImage, QPixmap
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QBoxLayout
-from pulse import app, EXAMPLES_DIR, ICON_DIR
-
 import io
 import logging
 import zipfile
-from PIL import Image, ImageDraw, ImageFont
-
 from functools import partial
 from pathlib import Path
-from PIL import Image
+
+from PIL import Image, ImageDraw, ImageFont
+from PySide6.QtCore import QByteArray, QSize, Qt, Signal
+from PySide6.QtGui import QIcon, QImage, QPixmap
+from PySide6.QtWidgets import QBoxLayout, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+
+from pulse import EXAMPLES_DIR, app
+from pulse.interface.formatters.icons import Icon
 
 
 class WelcomeWidget(QWidget):
@@ -56,10 +56,10 @@ class WelcomeWidget(QWidget):
     def setup_labels(self, layout):
         labels_layout = QHBoxLayout()
 
-        new_item = WelcomeItem("New Project", QIcon(str(ICON_DIR / "common/new_file.png")))
+        new_item = WelcomeItem("New Project", Icon(":/icons/common/new_file.png"))
         new_item.clicked.connect(self.new_project)
 
-        open_item = WelcomeItem("Open Project", QIcon(str(ICON_DIR / "common/import.png")))
+        open_item = WelcomeItem("Open Project", Icon(":/icons/common/import.png"))
         open_item.clicked.connect(self.open_project)
 
         labels_layout.addWidget(new_item)
