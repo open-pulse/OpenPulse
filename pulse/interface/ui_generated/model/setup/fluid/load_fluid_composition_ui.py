@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
     QGridLayout, QLabel, QLineEdit, QPushButton,
     QSizePolicy, QSpacerItem, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -77,8 +79,7 @@ class Ui_Dialog(object):
         font2 = QFont()
         font2.setPointSize(10)
         self.pushButton_search.setFont(font2)
-        icon = QIcon()
-        icon.addFile(u":/icons/common/document_search.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/document_search.png")
         self.pushButton_search.setIcon(icon)
         self.pushButton_search.setIconSize(QSize(22, 22))
         self.pushButton_search.setAutoDefault(False)

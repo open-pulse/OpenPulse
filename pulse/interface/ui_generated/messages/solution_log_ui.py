@@ -18,6 +18,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
     QLabel, QProgressBar, QSizePolicy, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -32,8 +34,7 @@ class Ui_Dialog(object):
         Dialog.setMinimumSize(QSize(300, 240))
         Dialog.setMaximumSize(QSize(600, 450))
         Dialog.setContextMenuPolicy(Qt.DefaultContextMenu)
-        icon = QIcon()
-        icon.addFile(u"../../../../../../Downloads/load - Copia.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u"../../../../../../Downloads/load - Copia.png")
         Dialog.setWindowIcon(icon)
         Dialog.setSizeGripEnabled(False)
         Dialog.setModal(False)

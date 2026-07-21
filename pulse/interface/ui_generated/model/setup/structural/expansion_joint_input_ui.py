@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
     QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
     QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -501,8 +503,7 @@ class Ui_Dialog(object):
         self.pushButton_load_Kx_table.setMinimumSize(QSize(40, 30))
         self.pushButton_load_Kx_table.setMaximumSize(QSize(40, 30))
         self.pushButton_load_Kx_table.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/document_search.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/document_search.png")
         self.pushButton_load_Kx_table.setIcon(icon)
         self.pushButton_load_Kx_table.setIconSize(QSize(22, 22))
 

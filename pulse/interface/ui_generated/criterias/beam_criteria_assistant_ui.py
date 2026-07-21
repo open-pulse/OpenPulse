@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
     QSizePolicy, QSpacerItem, QTreeWidget, QTreeWidgetItem,
     QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -147,8 +149,7 @@ class Ui_Dialog(object):
         self.pushButton_more_info.setMaximumSize(QSize(40, 26))
         self.pushButton_more_info.setFont(font1)
         self.pushButton_more_info.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/help.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/help.png")
         self.pushButton_more_info.setIcon(icon)
         self.pushButton_more_info.setAutoDefault(False)
 

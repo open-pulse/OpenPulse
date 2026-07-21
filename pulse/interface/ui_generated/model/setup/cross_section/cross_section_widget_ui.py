@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
     QSizePolicy, QSpacerItem, QTabWidget, QTreeWidget,
     QTreeWidgetItem, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
@@ -744,8 +746,7 @@ class Ui_Form(object):
         self.pushButton_invert_input_values.setMaximumSize(QSize(40, 26))
         self.pushButton_invert_input_values.setFont(font)
         self.pushButton_invert_input_values.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/swap_horizontal_arrows.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/swap_horizontal_arrows.png")
         self.pushButton_invert_input_values.setIcon(icon)
         self.pushButton_invert_input_values.setIconSize(QSize(22, 22))
         self.pushButton_invert_input_values.setAutoDefault(False)
