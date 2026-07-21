@@ -1,6 +1,6 @@
 
 from math import atan, cos, pi, sin, sqrt
-from time import perf_counter
+# from time import perf_counter
 
 import numpy as np
 from numpy.linalg import inv, norm, pinv
@@ -538,7 +538,7 @@ class CrossSection:
             Element type of the structural elements attributed to the tube.
             Default is None.
         """
-        t0 = perf_counter()
+        # t0 = perf_counter()
         self.area_properties(el_type)
         self.assembly_indexes()
 
@@ -649,8 +649,8 @@ class CrossSection:
         self.y_shear = -(psi_z.T @ FT)/ccg
         self.z_shear = (psi_y.T @ FT)/ccg
 
-        dt = perf_counter() - t0
-        print(f"Time to compute Section 2D elements: {dt : .8f} s")
+        # dt = perf_counter() - t0
+        # print(f"Time to compute Section 2D elements: {dt : .8f} s")
 
         # print(f"res_y: {self.res_y}")
         # print(f"res_z: {self.res_z}")
