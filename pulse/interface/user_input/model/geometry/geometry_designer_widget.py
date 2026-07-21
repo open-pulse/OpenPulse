@@ -702,6 +702,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self._update_information_text()
 
     def cancel_callback(self):
+        self.modified = False
         self._load_project()
         app().main_window.update_plots()
         app().main_window.use_model_setup_workspace()
