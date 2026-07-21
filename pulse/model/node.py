@@ -39,24 +39,18 @@ class Node:
         Node index displayed to the user.
         Default is None.
     """
-    def __init__(self, x, y, z, **kwargs):
+    def __init__(self, index: int, x: np.ndarray, y: np.ndarray, z: np.ndarray, **kwargs):
         
+        self.index = index
         self.x = x
         self.y = y
         self.z = z
-
-        self.global_index = kwargs.get('global_index', None)
-        self.external_index = kwargs.get('external_index', None)
 
         self.reset()
 
     def reset(self):
         
         # Structural boundary conditions and external lumped elements
-
-        self.deformed_coordinates = None
-        self.deformed_rotations_xyz_gcs = None
-        self.deformed_displacements_xyz_gcs = None
         self.nodal_solution_gcs = None
         self.static_nodal_solution_gcs = None
         self.acoustic_solution = None
@@ -91,7 +85,7 @@ class Node:
         return np.arange(DOF_PER_NODE_STRUCTURAL)
 
     @property
-    def global_dof(self):
+    def structural_global_dof(self):
         """
         This method returns the node's structural degrees of freedom in the global coordinate system. The 3D Timoshenko beam theory implemented takes into account the three node's translations and the three node's rotations.
 
@@ -104,7 +98,23 @@ class Node:
         --------
         local_dof : Structural degrees of freedom in the local coordinate system.
         """
-        return self.local_dof + self.global_index * DOF_PER_NODE_STRUCTURAL
+        return np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int) + self.index * DOF_PER_NODE_STRUCTURAL
+
+    @property
+    def acoustic_global_dof(self):
+        """
+        This method returns the node's structural degrees of freedom in the global coordinate system. The 3D Timoshenko beam theory implemented takes into account the three node's translations and the three node's rotations.
+
+        Returns
+        -------
+        list
+            Node's structural degrees of freedom in the global coordinate system
+
+        See also
+        --------
+        local_dof : Structural degrees of freedom in the local coordinate system.
+        """
+        return np.arange(DOF_PER_NODE_ACOUSTIC, dtype=int) + self.index * DOF_PER_NODE_ACOUSTIC
 
     def distance_to(self, other: "Node"):
         """

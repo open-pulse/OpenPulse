@@ -275,16 +275,15 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
         if values.count(None) != 6:
             self.lumped_element_applied = True
 
-            real_values = [
-                value if value is None else np.real(value) for value in values
-            ]
-            imag_values = [
-                value if value is None else np.imag(value) for value in values
-            ]
+            real_values = [value if value is None else np.real(value) for value in values]
+            imag_values = [value if value is None else np.imag(value) for value in values]
 
             for node_id in node_ids:
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
+                # node = app().project.model.preprocessor.nodes[node_id]
+                # coords = np.round(node.coordinates, 5)
+
+                node_coords = self.mesh.get_node_coordinates(node_id)
+                coords = np.round(node_coords, 5)
 
                 data = {
                     "coords": list(coords),
@@ -309,16 +308,15 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
         if values.count(None) != 6:
             self.lumped_element_applied = True
 
-            real_values = [
-                value if value is None else np.real(value) for value in values
-            ]
-            imag_values = [
-                value if value is None else np.imag(value) for value in values
-            ]
+            real_values = [value if value is None else np.real(value) for value in values]
+            imag_values = [value if value is None else np.imag(value) for value in values]
 
             for node_id in node_ids:
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
+                # node = app().project.model.preprocessor.nodes[node_id]
+                # coords = np.round(node.coordinates, 5)
+
+                node_coords = self.mesh.get_node_coordinates(node_id)
+                coords = np.round(node_coords, 5)
 
                 data = {
                     "coords": list(coords),
@@ -343,16 +341,15 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
         if values.count(None) != 6:
             self.lumped_element_applied = True
 
-            real_values = [
-                value if value is None else np.real(value) for value in values
-            ]
-            imag_values = [
-                value if value is None else np.imag(value) for value in values
-            ]
+            real_values = [value if value is None else np.real(value) for value in values]
+            imag_values = [value if value is None else np.imag(value) for value in values]
 
             for node_id in node_ids:
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
+                # node = app().project.model.preprocessor.nodes[node_id]
+                # coords = np.round(node.coordinates, 5)
+
+                node_coords = self.mesh.get_node_coordinates(node_id)
+                coords = np.round(node_coords, 5)
 
                 data = {
                     "coords": list(coords),

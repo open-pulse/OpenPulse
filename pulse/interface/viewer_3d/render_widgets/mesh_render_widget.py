@@ -59,6 +59,10 @@ class MeshRenderWidget(CommonRenderWidget):
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
 
+    @property
+    def preprocessor(self):
+        return app().project.model.preprocessor
+
     def _create_connections(self):
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
@@ -72,9 +76,8 @@ class MeshRenderWidget(CommonRenderWidget):
     def update_plot(self, reset_camera=False):
         self.remove_all_actors()
         self.mesh_picker.update_bounds()
-        project = app().project
 
-        if not project.get_structural_elements():
+        if not self.preprocessor.elements_attributes:
             return
 
         self.nodes_actor = NodesActor()
@@ -328,7 +331,7 @@ class MeshRenderWidget(CommonRenderWidget):
                 picked_lines.difference_update([-1])  # remove -1 index
 
         if self.visualization_filter.points:
-            points_indexes = set(app().project.get_geometry_points().keys())
+            points_indexes = set(self.preprocessor.get_geometry_points().keys())
             picked_nodes.intersection_update(points_indexes)
 
         # give priority to node selection
@@ -372,8 +375,8 @@ class MeshRenderWidget(CommonRenderWidget):
         if len(elements) == 1:
             self.element_axes_actor.VisibilityOn()
             element_id, *_ = elements
-            element = app().project.get_structural_element(element_id)
-            self.element_axes_actor.position_from_element(element)
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
+            self.element_axes_actor.position_from_element(element_attributes)
 
         self.update_info_text()
         self.update()

@@ -47,7 +47,7 @@ from pulse.interface.viewer_3d.render_widgets import (
 )
 from pulse.interface.welcome_widget import WelcomeWidget
 from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter, block_signals
-
+from pulse.model.data_classes.project_setup_data_classes import MesherSetup
 
 class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
@@ -706,7 +706,7 @@ class MainWindow(MainWindow_UI):
         self.project.reset_project(reset_all=True)
 
         if self.project.model.mesh is not None:
-            self.project.model.mesh.set_mesher_setup()
+            self.project.model.mesh.set_mesher_setup(MesherSetup())
 
         self.reset_geometry_render()
         self.clear_selection()
@@ -823,11 +823,8 @@ class MainWindow(MainWindow_UI):
         self.visualization_changed.emit()
 
     def update_export_geometry_file_access(self):
-        import_type = app().project.model.mesh.import_type
-        if import_type == 0:
-            self.action_export_geometry.setDisabled(True)
-        elif import_type == 1:
-            self.action_export_geometry.setDisabled(False)
+        import_type = app().project.project_setup.import_type
+        self.action_export_geometry.setEnabled(bool(import_type))
 
     def action_import_geometry_callback(self):
         obj = ImportGeometry()
@@ -1042,6 +1039,7 @@ class MainWindow(MainWindow_UI):
             self.update_results_workspace_button_accessibility()
             self.view_toolbar.action_front_view_callback()
             self.update_plots()
+            self.update_status_bar_info()
 
         LoadingWindow(tmp).run()
 
@@ -1163,6 +1161,17 @@ class MainWindow(MainWindow_UI):
                 continue
 
             window.close()
+
+    def hide_dialogs(self):
+        for window in app().topLevelWidgets():
+            if isinstance(window, MainWindow):
+                continue
+
+            if isinstance(window, LoadingWindow):
+                continue
+
+            if window.isVisible():
+                window.hide()
 
     def minimize_dialogs(self):
         for window in app().topLevelWidgets():

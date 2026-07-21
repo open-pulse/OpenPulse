@@ -253,11 +253,11 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
             self.load_nodal_coordinates_of_selected_point(node)
 
-            elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
-            if not elements:
+            element_ids = self.preprocessor.elements_connected_to_node.get(node.index)
+            if not element_ids:
                 return
 
-            material = elements[0].material
+            material = self.preprocessor.get_element_material(element_ids[0])
             if isinstance(material, Material):
                 self.selected_material = material
 
@@ -271,9 +271,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
                 if node is None:
                     return
 
-                elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
-                material = elements[0].material
+                element_ids = self.preprocessor.elements_connected_to_node.get(node.index)
+                material = self.preprocessor.get_element_material(element_ids[0])
 
+            material = self.preprocessor.get_element_material(element_ids[0])
             if isinstance(material, Material):
                 self.selected_material = material
 
@@ -792,8 +793,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     def set_element_length_corrections(self, damper_label: str, device: (PulsationDamper)):
         for coords, elc_type in device.elc_data:
             node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
-            element_ids = [int(element.index) for element in neigh_elements]
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
 
             if elc_type == "side-branch":
                 _type = 1
@@ -1122,6 +1122,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.load_pulsation_damper_info()
 
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

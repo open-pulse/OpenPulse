@@ -18,9 +18,7 @@ class BeforeRun():
         self.preprocessor = app().project.model.preprocessor
 
         self.nodes = self.preprocessor.nodes
-        self.acoustic_elements = self.preprocessor.acoustic_elements
-
-        self.structural_elements = self.preprocessor.structural_elements
+        self.elements_attributes = self.preprocessor.elements_attributes
 
     def check_modal_analysis_imported_data(self):
         message = ""
@@ -52,7 +50,7 @@ class BeforeRun():
                 _size = len(self.model.mesh.lines_from_model)
 
             elif selection_type == "elements":
-                _size = len(self.structural_elements)
+                _size = len(self.elements_attributes)
 
             elif selection_type == "nodes":
                 _size = len(self.nodes)
@@ -76,7 +74,7 @@ class BeforeRun():
                                 self.model.mesh.elements_from_line[typed_id]
 
                             elif selection_type == "elements":
-                                self.structural_elements[typed_id]
+                                self.elements_attributes.get(typed_id)
 
                             elif selection_type == "nodes":
                                 self.nodes[typed_id]
@@ -108,16 +106,17 @@ class BeforeRun():
         self.check_set_material = False
         self.check_poisson = False
         lines_without_materials = list()
-        for element in self.structural_elements.values():
-            line_id = self.model.mesh.line_from_element.get(element.index)
+        for index, element_attributes in self.elements_attributes.items():
+            line_id = self.model.mesh.get_line_from_element(index)
             if line_id is None:
                 continue
 
-            if element.material is None:
+            material = element_attributes.material
+            if material is None:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:
                     lines_without_materials.append(line_id)
-                
+
         return lines_without_materials
 
     def check_poisson_all_elements(self):
@@ -126,9 +125,11 @@ class BeforeRun():
         """
         self.check_poisson = False
         lines_without_poisson = list()
-        for element in self.structural_elements.values():
-            line_id = self.model.mesh.line_from_element[element.index]
-            if element.material.poisson_ratio == 0:
+        for index, element_attributes in self.elements_attributes.items():
+            line_id = self.model.mesh.get_line_from_element(index)
+            material = element_attributes.material
+
+            if material.poisson_ratio == 0:
                 self.check_poisson = True
                 if line_id not in lines_without_poisson:
                     lines_without_poisson.append(line_id)
@@ -144,43 +145,48 @@ class BeforeRun():
         self.check_poisson = False
         lines_without_materials = list()
         lines_without_cross_sections = list()
-        elements_without_cross_sections = defaultdict(list)  
-        for element in self.structural_elements.values():
-            line_id = self.model.mesh.line_from_element[element.index]
-            if element.material is None:
+        elements_without_cross_sections = defaultdict(list)
+
+        for index, element_attributes in self.elements_attributes.items():
+            line_id = self.model.mesh.get_line_from_element(index)
+            material = element_attributes.material
+            cross_section = element_attributes.cross_section
+            structural_element_type = element_attributes.structural_element_type
+
+            if material is None:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:
                     lines_without_materials.append(line_id)
 
-            if element.cross_section is None:
+            if cross_section is None:
                 #TODO: remove as soon as possible
-                if element.element_type == "rigid_element":
+                if structural_element_type == "rigid_element":
                     continue
 
-                if element.element_type:
+                if structural_element_type:
                     self.check_set_crossSection = True
-                    if element.index not in elements_without_cross_sections[line_id]:
-                        elements_without_cross_sections[line_id].append(element.index)
+                    if index not in elements_without_cross_sections[line_id]:
+                        elements_without_cross_sections[line_id].append(index)
                     if line_id not in lines_without_cross_sections:
                         lines_without_cross_sections.append(line_id)
-                    
+
             else:        
 
-                if element.element_type == 'expansion_joint':
-                    if element.expansion_joint_data is None:
+                if structural_element_type == 'expansion_joint':
+                    if element_attributes.expansion_joint_data is None:
                         self.check_set_crossSection = True
-                        if element.index not in elements_without_cross_sections[line_id]:
-                            elements_without_cross_sections[line_id].append(element.index)
+                        if index not in elements_without_cross_sections[line_id]:
+                            elements_without_cross_sections[line_id].append(index)
                         if line_id not in lines_without_cross_sections:
                             lines_without_cross_sections.append(line_id)
 
                 else:
 
-                    if element.cross_section.thickness == 0:
-                        if element.cross_section.area == 0:
+                    if cross_section.thickness == 0:
+                        if cross_section.area == 0:
                             self.check_set_crossSection = True
-                            if element.index not in elements_without_cross_sections[line_id]:
-                                elements_without_cross_sections[line_id].append(element.index)
+                            if index not in elements_without_cross_sections[line_id]:
+                                elements_without_cross_sections[line_id].append(index)
                             if line_id not in lines_without_cross_sections:
                                 lines_without_cross_sections.append(line_id)
 
@@ -197,45 +203,50 @@ class BeforeRun():
         lines_without_cross_sections = list()
         elements_without_cross_sections = defaultdict(list)
 
-        for element in self.acoustic_elements.values():
+        for index, element_attributes in self.elements_attributes.items():
+            line_id = self.model.mesh.get_line_from_element(index)
+            structural_element_type = element_attributes.structural_element_type
 
-            structural_element = self.structural_elements[element.index]
-
-            line_id = self.model.mesh.line_from_element[element.index]
-            if element.fluid is None:
-                if structural_element.element_type in ["pipe_1", "valve", "expansion_joint"]:
+            if element_attributes.fluid is None:
+                if structural_element_type in ["pipe_1", "valve", "expansion_joint"]:
                     self.check_set_fluid = True
                     if line_id not in lines_without_fluids:
                         lines_without_fluids.append(line_id)
 
-            if element.cross_section is None:
+            if element_attributes.cross_section is None:
+
                 #TODO: remove as soon as possible
-                if structural_element.element_type == "rigid_element":
+                if structural_element_type == "rigid_element":
                     continue
 
                 self.check_set_crossSection = True
-                if element.index not in elements_without_cross_sections[line_id]:
-                    elements_without_cross_sections[line_id].append(element.index)
+                if index not in elements_without_cross_sections[line_id]:
+                    elements_without_cross_sections[line_id].append(index)
+
                 if line_id not in lines_without_cross_sections:
                         lines_without_cross_sections.append(line_id)
 
             else:
 
-                if structural_element.element_type == 'expansion_joint':
-                    if structural_element.expansion_joint_data is None:
+                if structural_element_type == 'expansion_joint':
+                    if element_attributes.expansion_joint_data is None:
                         self.check_set_crossSection = True
-                        if element.index not in elements_without_cross_sections[line_id]:
-                            elements_without_cross_sections[line_id].append(element.index)
+
+                        if index not in elements_without_cross_sections[line_id]:
+                            elements_without_cross_sections[line_id].append(index)
+
                         if line_id not in lines_without_cross_sections:
                             lines_without_cross_sections.append(line_id)     
 
                 else:    
 
-                    if element.cross_section.thickness == 0:
-                        if element.cross_section.area == 0:
+                    if element_attributes.cross_section.thickness == 0:
+                        if element_attributes.cross_section.area == 0:
                             self.check_set_crossSection = True
-                            if element.index not in elements_without_cross_sections[line_id]:
-                                elements_without_cross_sections[line_id].append(element.index)
+
+                            if index not in elements_without_cross_sections[line_id]:
+                                elements_without_cross_sections[line_id].append(index)
+
                             if line_id not in lines_without_cross_sections:
                                 lines_without_cross_sections.append(line_id)
                         
@@ -247,19 +258,24 @@ class BeforeRun():
         """
         self.check_all_fluid_inputs = False
         lines_without_fluids = list()
-        for element in self.acoustic_elements.values():
-            line_id = self.model.mesh.line_from_element[element.index]
-            if element.element_type in ['wide_duct', 'LRF_fluid_equivalent', 'LRF_full']:
-                if 'pipe_' in self.structural_elements[element.index].element_type:
-                    _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
-                                element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
-                    if None in _list:
-                        self.check_all_fluid_inputs = True
-                        if line_id not in lines_without_fluids:
-                            lines_without_fluids.append(line_id)
-                        
-        return lines_without_fluids
+        for index, element_attributes in self.elements_attributes.items():
+            line_id = self.model.mesh.get_line_from_element(index)
 
+            if element_attributes.structural_element_type not in ["wide_duct", "LRF_fluid_equivalent", "LRF_full"]:
+                continue
+
+            if self.preprocessor.get_structural_element_type(index) != "pipe":
+                continue
+
+            fluid = element_attributes.fluid
+            _list = [fluid.isentropic_exponent, fluid.thermal_conductivity, fluid.specific_heat_Cp, fluid.dynamic_viscosity]
+
+            if None in _list:
+                self.check_all_fluid_inputs = True
+                if line_id not in lines_without_fluids:
+                    lines_without_fluids.append(line_id)
+
+        return lines_without_fluids
 
     def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
         """
@@ -332,19 +348,20 @@ class BeforeRun():
         list_max_valid_freq = list()
         list_min_valid_freq = list()
 
-        for element in self.acoustic_elements.values():
-            if element.flag_plane_wave:
-                list_plane_wave.append(element.index)
-            if element.flag_wide_duct:
-                list_wide_duct.append(element.index)
-            if element.flag_lrf_fluid_eq:
-                list_lrf_fluid_eq.append(element.index)
-            if element.flag_lrf_full:
-                list_lrf_full.append(element.index)
-            list_max_valid_freq.append(element.max_valid_freq) 
-            list_min_valid_freq.append(element.min_valid_freq)
-                
-            if element.flag_unflanged_radiation_impedance and not flag_unflanged_radiation_impedance:
+        for index in self.preprocessor.get_acoustic_elements():
+            element_attributes = self.elements_attributes.get(index)
+            if element_attributes.flag_plane_wave:
+                list_plane_wave.append(index)
+            if element_attributes.flag_wide_duct:
+                list_wide_duct.append(index)
+            if element_attributes.flag_lrf_fluid_eq:
+                list_lrf_fluid_eq.append(index)
+            if element_attributes.flag_lrf_full:
+                list_lrf_full.append(index)
+            list_max_valid_freq.append(element_attributes.max_valid_freq)
+            list_min_valid_freq.append(element_attributes.min_valid_freq)
+
+            if element_attributes.flag_unflanged_radiation_impedance and not flag_unflanged_radiation_impedance:
                 flag_unflanged_radiation_impedance = True
 
         self.dict_criterias = {}
@@ -377,7 +394,6 @@ class BeforeRun():
                 app().main_window.plot_mesh()
                 app().main_window.set_selection(elements = lists_elements[index])
                 PrintMessageInput([window_title, title, list_messages[index]])
-
 
     def check_is_there_a_problem(self, analysis_id: int):
 
@@ -774,25 +790,29 @@ class BeforeRun():
             if len(lines_from_node) == 0:
                 continue
 
-            neigh_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
-            for element in neigh_elements:
-                if self.preprocessor.mesh.line_from_element[element.index] == current_line:
-                    selected_element = element
+            element_ids = self.preprocessor.elements_connected_to_node[node_id]
+            for element_id in element_ids:
+                if self.preprocessor.mesh.get_line_from_element(element_id) == current_line:
+                    selected_element = element_id
                     break
 
-            list_elements = neigh_elements.copy()
+            list_elements = element_ids.copy()
             list_elements.remove(selected_element)
 
-            u = selected_element.normalized_directional_vector
-            for element in list_elements:
+            selected_element_attributes = self.elements_attributes.get(selected_element)
+            u = selected_element_attributes.normalized_directional_vector
 
-                line_0 = self.preprocessor.mesh.line_from_element[selected_element.index]
-                line_1 = self.preprocessor.mesh.line_from_element[element.index]
+            for element_id in list_elements:
+
+                line_0 = self.preprocessor.mesh.get_line_from_element(selected_element)
+                line_1 = self.preprocessor.mesh.get_line_from_element(element_id)
 
                 line_data_0 = self.model.properties.line_properties[line_0]
                 line_data_1 = self.model.properties.line_properties[line_1]
 
-                v = element.normalized_directional_vector
+                element_attributes = self.elements_attributes.get(element_id)
+                v = element_attributes.normalized_directional_vector
+
                 dot_uv = abs(round(np.dot(u, v), 6))
 
                 cond_1 = (dot_uv == 1)

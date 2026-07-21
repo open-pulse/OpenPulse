@@ -258,19 +258,19 @@ class Ui_Dialog(object):
 
         self.gridLayout_11.addWidget(self.lineEdit_effective_diameter, 1, 2, 1, 1)
 
-        self.lineEdit_joint_mass = QLineEdit(self.frame_top_inputs)
-        self.lineEdit_joint_mass.setObjectName(u"lineEdit_joint_mass")
-        self.lineEdit_joint_mass.setEnabled(True)
-        self.lineEdit_joint_mass.setMinimumSize(QSize(160, 26))
-        self.lineEdit_joint_mass.setMaximumSize(QSize(160, 26))
-        self.lineEdit_joint_mass.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_joint_mass.setFont(font1)
-        self.lineEdit_joint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_joint_mass.setStyleSheet(u"")
-        self.lineEdit_joint_mass.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_joint_mass.setClearButtonEnabled(True)
+        self.lineEdit_ejoint_mass = QLineEdit(self.frame_top_inputs)
+        self.lineEdit_ejoint_mass.setObjectName(u"lineEdit_ejoint_mass")
+        self.lineEdit_ejoint_mass.setEnabled(True)
+        self.lineEdit_ejoint_mass.setMinimumSize(QSize(160, 26))
+        self.lineEdit_ejoint_mass.setMaximumSize(QSize(160, 26))
+        self.lineEdit_ejoint_mass.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_ejoint_mass.setFont(font1)
+        self.lineEdit_ejoint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_ejoint_mass.setStyleSheet(u"")
+        self.lineEdit_ejoint_mass.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_ejoint_mass.setClearButtonEnabled(True)
 
-        self.gridLayout_11.addWidget(self.lineEdit_joint_mass, 4, 2, 1, 1)
+        self.gridLayout_11.addWidget(self.lineEdit_ejoint_mass, 4, 2, 1, 1)
 
         self.lineEdit_offset_z = QLineEdit(self.frame_top_inputs)
         self.lineEdit_offset_z.setObjectName(u"lineEdit_offset_z")
@@ -827,8 +827,8 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_expansion_joint_name, self.lineEdit_effective_diameter)
         QWidget.setTabOrder(self.lineEdit_effective_diameter, self.lineEdit_offset_y)
         QWidget.setTabOrder(self.lineEdit_offset_y, self.lineEdit_offset_z)
-        QWidget.setTabOrder(self.lineEdit_offset_z, self.lineEdit_joint_mass)
-        QWidget.setTabOrder(self.lineEdit_joint_mass, self.lineEdit_axial_locking_criteria)
+        QWidget.setTabOrder(self.lineEdit_offset_z, self.lineEdit_ejoint_mass)
+        QWidget.setTabOrder(self.lineEdit_ejoint_mass, self.lineEdit_axial_locking_criteria)
         QWidget.setTabOrder(self.lineEdit_axial_locking_criteria, self.comboBox_axial_stop_rod)
         QWidget.setTabOrder(self.comboBox_axial_stop_rod, self.tabWidget_inputs)
         QWidget.setTabOrder(self.tabWidget_inputs, self.lineEdit_Kx)
@@ -877,7 +877,7 @@ class Ui_Dialog(object):
         self.label_94.setText(QCoreApplication.translate("Dialog", u"Effective diameter:", None))
         self.label_selected_id_10.setText(QCoreApplication.translate("Dialog", u"Expansion joint name:", None))
         self.lineEdit_effective_diameter.setText("")
-        self.lineEdit_joint_mass.setText("")
+        self.lineEdit_ejoint_mass.setText("")
         self.lineEdit_offset_z.setText("")
         self.label_98.setText(QCoreApplication.translate("Dialog", u"Offset y:", None))
         self.label_99.setText(QCoreApplication.translate("Dialog", u"Offset z:", None))
@@ -952,7 +952,7 @@ class ExpansionJointInput_UI(QDialog, Ui_Dialog):
                                                                                     - label_94: QLabel
                                                                                     - label_selected_id_10: QLabel
                                                                                     - lineEdit_effective_diameter: QLineEdit
-                                                                                    - lineEdit_joint_mass: QLineEdit
+                                                                                    - lineEdit_ejoint_mass: QLineEdit
                                                                                     - lineEdit_offset_z: QLineEdit
                                                                                     - label_98: QLabel
                                                                                     - label_99: QLabel

@@ -8,6 +8,7 @@ from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.plot_stresses_field_for_static_analysis_ui import PlotStressesFieldForStaticAnalysis_UI
 from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.viewer_3d.coloring.color_palettes import COLORMAP_NAMES
 
 
 class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
@@ -15,54 +16,40 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         super().__init__(*args, **kwargs)
         self._config_window()
         self._initialize()
-        self._load_structural_solver()
         self._add_animation_widget()
         self._create_connections()
-        self.update_plot()
-        self.load_user_preference_colormap()
 
     def _initialize(self):
 
-        self.stress_data = list()
-        self.keys = np.arange(7)
+        self.stresses_data = None
         self.selected_index = None
 
-        self.colormaps = ["jet",
-                          "viridis",
-                          "inferno",
-                          "magma",
-                          "plasma",
-                          "bwr",
-                          "PiYG",
-                          "PRGn",
-                          "BrBG",
-                          "PuOR",
-                          "grayscale",
-                          ]
+        self.stresses_labels = np.array(
+            ["Normal axial", "Normal bending y", "Normal bending z", "Hoop", "Torsional shear", "Transversal shear xy", "Transversal shear xz"],
+        )
 
-        self.labels = np.array(["Normal axial",
-                                "Normal bending y",
-                                "Normal bending z",
-                                "Hoop",
-                                "Torsional shear",
-                                "Transversal shear xy",
-                                "Transversal shear xz"])
+    @property
+    def model(self):
+        return app().project.model
+
+    @property
+    def structural_solver(self):
+        return app().project.structural_solver
 
     def _load_structural_solver(self):
 
-        if app().project.structural_solver is None:
+        if self.structural_solver is not None:
+            return
 
-            def callback():
-                logging.info("Processing the cross-sections [75%]")
-                app().project.model.preprocessor.process_cross_sections_mapping()
-            LoadingWindow(callback).run()
+        def process_cross_sections():
+            logging.info("Processing the cross-sections [75%]")
+            self.model.preprocessor.process_cross_sections_mapping()
 
-            self.structural_solver = app().project.get_structural_solver()
-            if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
+        LoadingWindow(process_cross_sections).run()
 
-        else:
-            self.structural_solver = app().project.structural_solver
+        app().project.structural_solver = app().project.get_structural_solver()
+        if self.structural_solver.solution is None:
+            self.structural_solver.solution = self.model.structural_solution
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -100,39 +87,46 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
     def load_user_preference_colormap(self):
         try:
             colormap = app().config.user_preferences.color_map
-            if colormap in self.colormaps:
-                index = self.colormaps.index(colormap)
+            if colormap in COLORMAP_NAMES:
+                index = COLORMAP_NAMES.index()
                 self.comboBox_colormaps.setCurrentIndex(index)
 
-        except:
+        except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):
-        index = self.comboBox_colormaps.currentIndex()
-        colormap = self.colormaps[index]
-        app().main_window.results_widget.set_colormap(colormap)
+        colormap = self.get_colormap()
+        app().config.user_preferences.color_map = colormap
         app().config.update_config_file()
-        self.update_plot()
+        try:
+            app().main_window.results_widget.set_colormap(colormap)
+            self.update_plot()
+        except AttributeError:
+            pass
+
+    def get_colormap(self) -> str:
+        index = self.comboBox_colormaps.currentIndex()
+        if not (0 <= index < len(COLORMAP_NAMES)):
+            return "jet"
+        return COLORMAP_NAMES[index]
 
     def get_stress_data(self):
 
         index = self.comboBox_stress_type.currentIndex()
-        stress_label = self.labels[index]
-        stress_key = self.keys[index]
+        stress_label = self.stresses_labels[index]
 
         app().project.model.frequencies = np.array([0.], dtype=float)
 
-        if len(self.stress_data) == 0:
-            self.stress_data = self.structural_solver.stress_calculate(static_analysis=True)
+        if self.stresses_data is None:
+            self.stresses_data = self.structural_solver.stress_calculate(static_analysis=True)
 
-        stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
+        stress_data = self.stresses_data[:, index, self.selected_index]
 
-        stress_list = list(stress_field.values())
-        min_stress = np.min(stress_list)
-        max_stress = np.max(stress_list)
+        min_stress = np.min(stress_data)
+        max_stress = np.max(stress_data)
 
-        app().project.set_stresses_values_for_color_table(stress_field)
-        app().project.set_min_max_type_stresses(min_stress, max_stress, stress_label)
+        app().project.model.set_stresses_data(stress_data)
+        app().project.model.set_min_max_type_stresses(min_stress, max_stress, stress_label)
 
         color_scale_setup = self.get_user_color_scale_setup()
         app().project.set_color_scale_setup(color_scale_setup)
@@ -161,11 +155,13 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         self.get_stress_data()
         app().main_window.results_widget.clear_cache()
 
+    def load_frequencies(self):
+        self._load_structural_solver()
+        self.update_plot()
+
     def confirm_button(self):
         self.update_plot()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.update_plot()
-        elif event.key() == Qt.Key_Escape:
-            self.close()

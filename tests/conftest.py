@@ -1,12 +1,12 @@
-import pytest
 import numpy as np
+import pytest
 
 from examples.example_file_helper import get_example_file_path
 from pulse.model.cross_section import CrossSection
-from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
 from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.data_classes.project_setup_data_classes import ImportType, MesherSetup, ProjectSetup
 from pulse.project.project import Project
-
 from tests.helpers import (
     create_air_fluid,
     create_stainless_steel_material,
@@ -25,25 +25,23 @@ def example2_project(tmp_path):
     """
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=tmp_path)
+
     model = project.model
-    mesh = model.mesh
     preprocessor = model.preprocessor
 
     geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
-    mesher_setup = {
-        "element_size": 0.01,
-        "geometry_tolerance": 1e-6,
-        "length_unit": "meter",
-        "import_type": 0,
-        "geometry_path": str(geometry_path),
-    }
+
+    ## Configure the project setup
+    project_setup = ProjectSetup(
+        import_type = ImportType.CAD_FILE,
+        geometry_path = str(geometry_path),
+        mesher_setup = MesherSetup(0.01, 1e-6, "meter"))
 
     project.reset(reset_all=True)
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
-    preprocessor.generate()
+    project.set_project_setup(project_setup)
 
-    mesher_setup["import_type"] = 1
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
+    ## Process the geometry and mesh
+    model.process_geometry_and_mesh()
 
     all_lines = model.mesh.lines_from_model
     beam_lines = [20, 23, 24]
@@ -124,4 +122,4 @@ def example2_project(tmp_path):
         }
         model.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
-    return project, mesher_setup
+    return project

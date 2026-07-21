@@ -180,6 +180,8 @@ class UserInput(QDialog):
     def update_analysis_setup_in_file(self, frequencies: np.ndarray):
 
         analysis_setup = app().project.file.read_analysis_setup_from_file()
+        if not isinstance(analysis_setup, dict):
+            analysis_setup = dict()
 
         analysis_setup.update(
             {

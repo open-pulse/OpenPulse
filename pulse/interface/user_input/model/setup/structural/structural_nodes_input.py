@@ -11,6 +11,10 @@ class StructuralNodesInput(NodesInput):
     def __init__(self):
         super().__init__()
 
+    @property
+    def mesh(self):
+        return app().project.model.mesh
+
     def text_label(self, mask: list[bool], labels: np.array):
         _labels = labels[mask]
         n = list(mask).count(True)

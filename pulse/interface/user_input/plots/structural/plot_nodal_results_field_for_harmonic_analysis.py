@@ -3,10 +3,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.structural.plot_nodal_results_field_for_harmonic_analysis_ui import (
-    PlotNodalResultsFieldForHarmonicAnalysis_UI,
-)
+from pulse.interface.ui_generated.plots.results.structural.plot_nodal_results_field_for_harmonic_analysis_ui import PlotNodalResultsFieldForHarmonicAnalysis_UI
 from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
+from pulse.interface.viewer_3d.coloring.color_palettes import COLORMAP_NAMES
 from pulse.model import AnalysisID
 
 
@@ -18,24 +17,9 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         self._define_qt_variables()
         self._add_animation_widget()
         self._create_connections()
-        self.load_frequencies_vector()
-        self.load_user_preference_colormap()
-        self.select_first_frequency()
 
     def _initialize(self):
-
-        self.colormaps = ["jet",
-                          "viridis",
-                          "inferno",
-                          "magma",
-                          "plasma",
-                          "bwr",
-                          "PiYG",
-                          "PRGn",
-                          "BrBG",
-                          "PuOR",
-                          "grayscale",
-                          ]
+        pass
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -78,17 +62,34 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
     def load_user_preference_colormap(self):
         try:
             colormap = app().config.user_preferences.color_map
-            if colormap in self.colormaps:
-                index = self.colormaps.index(colormap)
+            if colormap in COLORMAP_NAMES:
+                index = COLORMAP_NAMES.index()
                 self.comboBox_colormaps.setCurrentIndex(index)
-        except:
+
+        except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
+    # def update_colormap_type(self):
+    #     index = self.comboBox_colormaps.currentIndex()
+    #     colormap = self.colormaps[index]
+    #     app().main_window.results_widget.set_colormap(colormap)
+    #     self.update_plot()
+
     def update_colormap_type(self):
+        colormap = self.get_colormap()
+        app().config.user_preferences.color_map = colormap
+        app().config.update_config_file()
+        try:
+            app().main_window.results_widget.set_colormap(colormap)
+            self.update_plot()
+        except AttributeError:
+            pass
+
+    def get_colormap(self) -> str:
         index = self.comboBox_colormaps.currentIndex()
-        colormap = self.colormaps[index]
-        app().main_window.results_widget.set_colormap(colormap)
-        self.update_plot()
+        if not (0 <= index < len(COLORMAP_NAMES)):
+            return "jet"
+        return COLORMAP_NAMES[index]
 
     def _config_treeWidget(self):
         widths = [80, 140]
@@ -108,14 +109,16 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
             return
 
         frequency_selected = float(self.lineEdit_selected_frequency.text())
-        if frequency_selected in self.frequencies:
-            # frequency = self.frequency_to_index[frequency_selected]
-            frequency = self.frequencies.index(frequency_selected)
-            color_scale_setup = self.get_user_color_scale_setup()
-            app().project.set_color_scale_setup(color_scale_setup)
-            app().main_window.results_widget.show_displacement_field(frequency)
-            app().main_window.results_widget.clear_cache()
+        if frequency_selected not in self.frequencies:
+            return
 
+        column = self.frequencies.index(frequency_selected)
+        color_scale_setup = self.get_user_color_scale_setup()
+        app().project.set_color_scale_setup(color_scale_setup)
+
+        self.animation_widget.reset_sliders()
+        app().main_window.results_widget.show_displacement_field(column)
+        app().main_window.results_widget.clear_cache()
 
     def get_user_color_scale_setup(self):
 
@@ -140,7 +143,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
 
         return color_scale_setup
 
-    def load_frequencies_vector(self):
+    def load_frequencies(self):
 
         if app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
             self.frequencies = [0]
@@ -163,6 +166,8 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
             for i in range(2):
                 item.setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(item)
+
+        self.select_first_frequency()
 
     def plot_displacement_for_static_analysis(self):
         #
@@ -193,5 +198,3 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.update_plot()
-        elif event.key() == Qt.Key_Escape:
-            self.close()

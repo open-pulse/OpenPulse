@@ -860,6 +860,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.set_element_length_corrections(psd_label, device)
 
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
         # self.close()
 
     def build_device(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
@@ -993,10 +994,10 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         app().project.file.write_nodal_properties_in_file()
 
     def set_element_length_corrections(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
+
         for coords, connection_type in device.branch_data:
             node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
-            element_ids = [int(element.index) for element in neigh_elements]
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
 
             if connection_type == "radial":
                 _type = 1

@@ -1,19 +1,20 @@
 
+from typing import TYPE_CHECKING
+
 from pulse.model import AnalysisID
+from pulse.model.data_classes.project_setup_data_classes import ProjectSetup
 from pulse.model.mesh import Mesh
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.preprocessor import Preprocessor
 from pulse.model.properties.model_properties import ModelProperties
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.project.project import Project
 
-from pulse.model.acoustic_element import AcousticElement
-from pulse.model.structural_element import StructuralElement
+import numpy as np
+
 from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
 
-import numpy as np
 
 class Model:
 
@@ -35,12 +36,14 @@ class Model:
         self.properties = None
         self.psd_data = dict()
         self.analysis_setup = dict()
+        self.color_scale_setup = dict()
 
         self.f_min = 1
         self.f_max = 200
         self.f_step = 1
         self.frequencies = None
         self.list_frequencies = list()
+        self.elements_stress_data = None
 
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
@@ -49,13 +52,33 @@ class Model:
         self.external_nodal_loads = False
         self.element_distributed_load = False
 
+        self.min_stress = ""
+        self.max_stress = ""
+        self.stress_label = ""
+
+        self.reset_solutions()
         self.set_static_analysis_setup(dict())
+
+    def  reset_solutions(self):
+        self.acoustic_solution: np.ndarray | None = None
+        self.structural_solution: np.ndarray | None = None
 
     def set_gravity_vector(self, gravity_vector: np.ndarray):
         self.gravity_vector = gravity_vector
 
     def reset_analysis_setup(self):
         self.analysis_setup.clear()
+
+    def set_color_scale_setup(self, color_scale_setup: dict):
+        self.color_scale_setup = color_scale_setup
+
+    def set_stresses_data(self, stresses_data: np.ndarray):
+        self.elements_stress_data = stresses_data
+
+    def set_min_max_type_stresses(self, min_stress: float, max_stress: float, stress_label: str):
+        self.min_stress = min_stress
+        self.max_stress = max_stress
+        self.stress_label = stress_label
 
     @property
     def analysis_id(self):
@@ -93,6 +116,10 @@ class Model:
     @property
     def global_damping(self):
         return self.analysis_setup.get("global_damping", (0., 0., 0.))
+
+    def set_project_setup(self, project_setup: ProjectSetup):
+        self.project_setup = project_setup
+        self.mesh.set_mesher_setup(project_setup.mesher_setup)
 
     def set_analysis_setup(self, analysis_setup: dict):
 
@@ -184,74 +211,132 @@ class Model:
         """ 
         This method adds lids to cross-section variations and terminations.
         """
-        for elements in self.preprocessor.structural_elements_connected_to_node.values():
+        for element_ids in self.preprocessor.elements_connected_to_node.values():
 
-            element = None
-            if len(elements) == 2:
+            element_attributes = None
+            n_elem = len(element_ids)
 
-                first_element, last_element = elements
-                first_element: StructuralElement
-                last_element: StructuralElement
+            if n_elem == 1:
 
-                if 'beam_1' in [first_element.element_type, last_element.element_type]:
+                element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
+                if element_attributes.structural_element_type == "beam_1":
                     continue
 
-                first_cross = first_element.cross_section
-                last_cross = last_element.cross_section
-                
-                if (first_cross, last_cross).count(None):
+                first_node = element_attributes.first_node
+                last_node = element_attributes.last_node
+
+                cross_section = element_attributes.cross_section
+                if cross_section is None:
                     continue
 
-                first_outer_diameter = first_cross.outer_diameter
-                first_inner_diameter = first_cross.inner_diameter
-                last_outer_diameter = last_cross.outer_diameter
-                last_inner_diameter = last_cross.inner_diameter
+                inner_diameter = cross_section.inner_diameter
 
-                if first_outer_diameter < last_inner_diameter:
-                    inner_diameter = first_inner_diameter 
-                    element = last_element
-
-                if last_outer_diameter < first_inner_diameter:
-                    inner_diameter = last_inner_diameter 
-                    element = first_element
-
-            elif len(elements) == 1: 
-
-                element = elements[0]
-                element: StructuralElement
- 
-                if element.element_type == 'beam_1':
-                    continue  
-
-                first_node = element.first_node
-                last_node = element.last_node  
-
-                if element.cross_section is None:
-                    continue
-
-                inner_diameter = element.cross_section.inner_diameter 
-
-                if len(self.preprocessor.neighbors[first_node]) == 1:
-                    first_node_id = first_node.external_index
+                if len(self.preprocessor.neighbors_nodes[first_node.index]) == 1:
+                    first_node_id = first_node.index
                     if self.properties.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
                         inner_diameter = 0
 
-                elif len(self.preprocessor.neighbors[last_node]) == 1:
-                    last_node_id = last_node.external_index
+                elif len(self.preprocessor.neighbors_nodes[last_node.index]) == 1:
+                    last_node_id = last_node.index
                     if self.properties.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
                         inner_diameter = 0
 
-            if isinstance(element, AcousticElement | StructuralElement):
+            elif n_elem == 2:
 
-                if element.element_type == 'expansion_joint':
-                    section_info = element.cross_section.section_info
-                    if isinstance(section_info, ExpansionJointCrossSection):
-                        element.section_parameters_render = section_info._as_list()
+                first_element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
+                last_element_attributes = self.preprocessor.elements_attributes.get(element_ids[1])
+
+                if 'beam_1' in [first_element_attributes.structural_element_type, last_element_attributes.structural_element_type]:
+                    continue
+
+                first_cross = first_element_attributes.cross_section
+                last_cross = last_element_attributes.cross_section
+
+                if (first_cross, last_cross).count(None):
+                    continue
+
+                if first_cross.section_info == last_cross.section_info:
+                    continue
 
                 else:
 
-                    section_info = element.cross_section.section_info
-                    outer_diameter, _, offset_y, offset_z, t_ins, *_ = section_info.section_parameters
+                    first_outer_diameter = first_cross.outer_diameter
+                    first_inner_diameter = first_cross.inner_diameter
+                    last_outer_diameter = last_cross.outer_diameter
+                    last_inner_diameter = last_cross.inner_diameter
 
-                    thickness = (outer_diameter - inner_diameter) / 2
-                    element.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
+                    if first_outer_diameter < last_inner_diameter:
+                        if last_cross.section_type_label == "expansion_joint":
+                            d_eff, *_ = last_cross.section_info.section_parameters
+                            _, _, offset_y, offset_z, t_ins, *_ = first_cross.section_info.section_parameters
+                            thickness = (1.25 * d_eff - first_inner_diameter ) / 2
+                            first_element_attributes.section_parameters_render = [1.25 * d_eff, thickness, offset_y, offset_z, t_ins]
+                            continue
+
+                        inner_diameter = first_inner_diameter 
+                        element_attributes = last_element_attributes
+
+                    elif last_outer_diameter < first_inner_diameter:
+                        if first_cross.section_type_label == "expansion_joint":
+                            d_eff, *_ = first_cross.section_info.section_parameters
+                            _, _, offset_y, offset_z, t_ins, *_ = last_cross.section_info.section_parameters
+                            thickness = (1.25 * d_eff - last_inner_diameter ) / 2
+                            last_element_attributes.section_parameters_render = [1.25 * d_eff, thickness, offset_y, offset_z, t_ins]
+                            continue
+
+                        inner_diameter = last_inner_diameter
+                        element_attributes = first_element_attributes
+
+                    elif first_cross.section_type_label == "expansion_joint":
+                        first_element_attributes.section_parameters_render = first_cross.section_info._as_list()
+                        continue
+
+                    elif last_cross.section_type_label == "expansion_joint":
+                        last_element_attributes.section_parameters_render = last_cross.section_info._as_list()
+                        continue
+
+                    if element_attributes is None:
+                        # print(element_ids, first_cross.section_info, last_cross.section_info)
+                        continue
+
+            else:
+                continue
+
+            if element_attributes is None:
+                continue
+
+            section_info = element_attributes.cross_section.section_info
+
+            if element_attributes.structural_element_type == 'expansion_joint':
+                if isinstance(section_info, ExpansionJointCrossSection):
+                    element_attributes.section_parameters_render = section_info._as_list()
+
+            else:
+                outer_diameter, _, offset_y, offset_z, t_ins, *_ = section_info.section_parameters
+                thickness = (outer_diameter - inner_diameter) / 2
+
+                element_attributes.section_parameters_render = [outer_diameter, thickness, offset_y, offset_z, t_ins]
+
+    def process_geometry_and_mesh(self):
+        # t0 = time()
+        self.preprocessor.generate(self.project_setup.import_type, geometry_path=self.project_setup.geometry_path)
+        self.preprocessor.process_all_transformation_matrices()
+        # dt = time()-t0
+        # print(f"Time to process_geometry_and_mesh: {dt} [s]")
+
+    def get_rigid_elements(self):
+        rigid_elements = set()
+        for line_id, elements_from_line in self.mesh.elements_from_line.items():
+            structural_element_type = self.properties._get_property("structural_element_type", line_id=line_id)
+            if structural_element_type != "rigid_element":
+                continue
+
+            rigid_elements |= set(elements_from_line)
+
+        return rigid_elements
+
+    def set_acoustic_solution(self, solution: np.ndarray):
+        self.acoustic_solution = solution
+
+    def set_structural_solution(self, solution: np.ndarray):
+        self.structural_solution = solution

@@ -2,14 +2,9 @@ import numpy as np
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.criterias.reciprocating_pump_inlet_pressure_criteria_widget_ui import (
-    ReciprocatingPumpInletPressureCriteriaWidget_UI,
-)
-from pulse.interface.user_input.plots.general.frequency_response_plotter import (
-    FrequencyResponsePlotter,
-)
+from pulse.interface.ui_generated.criterias.reciprocating_pump_inlet_pressure_criteria_widget_ui import ReciprocatingPumpInletPressureCriteriaWidget_UI
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.model.properties.fluid import Fluid
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.utils.signal_processing import process_iFFT_of_onesided_spectrum
 
 
@@ -17,10 +12,6 @@ class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressure
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
-        self.preprocessor = app().project.model.preprocessor
-        self.properties = app().project.model.properties
 
         self._config_window()
         self._initialize()        
@@ -28,9 +19,28 @@ class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressure
         self._create_connections()
         self.selection_callback()
 
+    @property
+    def project(self):
+        return app().project
+
+    @property
+    def model(self):
+        return app().project.model
+
+    @property
+    def preprocessor(self):
+        return app().project.model.preprocessor
+
+    @property
+    def mesh(self):
+        return app().project.model.mesh
+
+    @property
+    def properties(self):
+        return app().project.model.properties
+
     def _initialize(self):
         self.frequencies = self.model.frequencies
-        self.solution = self.project.get_acoustic_solution()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -88,7 +98,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressure
 
     def get_acoustic_pressure(self, node_id: int):
 
-        response = get_acoustic_frf(self.preprocessor, self.solution, node_id)
+        response = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(node_id)
 
         # remove DC component
         response[0] = 0j

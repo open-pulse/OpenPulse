@@ -13,7 +13,7 @@ from pulse.interface.user_input.model.setup.user_input import UserInput
 from pulse.interface.user_input.numeric_checks.double_validator import (
     StrictDoubleValidator,
 )
-from pulse.model.structural_element import DOF_PER_NODE_STRUCTURAL
+from pulse.model.elements.structural_element import DOF_PER_NODE_STRUCTURAL
 
 
 class SetInertialLoad(UserInput, InertialLoadInput_UI):

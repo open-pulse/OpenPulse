@@ -5,14 +5,12 @@ from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface import error_title
-from pulse.interface.ui_generated.plots.results.acoustic.plot_shaking_forces_ui import (
-    PlotShakingForces_UI,
-)
-from pulse.interface.user_input.plots.general.frequency_response_plotter import (
-    FrequencyResponsePlotter,
-)
+from pulse.interface.ui_generated.plots.results.acoustic.plot_shaking_forces_ui import PlotShakingForces_UI
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.elements.elements_builder import build_structural_element
+from pulse.model.elements.structural_element import DOF_PER_ELEMENT
 
 
 class ShakingForcesCriteriaInput(PlotShakingForces_UI):
@@ -33,12 +31,13 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-
-        self.keep_window_open = True
         self.complete = False
         self.unit_label = "N"
+        self.keep_window_open = True
 
-        self.frequencies = app().project.model.frequencies
+    @property
+    def model(self):
+        return app().project.model
 
     def _load_structural_solver(self):
 
@@ -52,7 +51,7 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
 
             # self.structural_solver = app().project.get_structural_solver()
             # if self.structural_solver.solution is None:
-            #     self.structural_solver.solution = app().project.structural_solution
+            #     self.structural_solver.solution = app().project.model.structural_solution
 
     def _create_connections(self):
         self.pushButton_confirm.clicked.connect(self.plot_force_spectrum)
@@ -80,22 +79,19 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
             element_ids.extend(elements_from_line)
         
         pressure_external = 0.
-
-        rows = app().project.model.preprocessor.DOFS_ELEMENT
-        cols = len(self.frequencies)
-        pressure_loads = np.zeros((rows, cols), dtype=complex)
+        pressure_loads = np.zeros((DOF_PER_ELEMENT, len(self.model.frequencies)), dtype=complex)
 
         for row, element_id in enumerate(element_ids):
 
-            element = app().project.model.preprocessor.structural_elements[element_id]
+            # load the acoustic harmonic solution
+            element_attributes = app().project.model.preprocessor.elements_attributes.get(element_id)
 
-            acoustic_solution = app().project.get_acoustic_solution()
-
-            pressure_first = acoustic_solution[element.first_node.global_index, :]
-            pressure_last = acoustic_solution[element.last_node.global_index, :]
+            pressure_first = self.model.acoustic_solution[element_attributes.first_node.index, :]
+            pressure_last = self.model.acoustic_solution[element_attributes.last_node.index, :]
             pressure = np.c_[pressure_first, pressure_last].T
 
-            pressure_loads += element.force_vector_acoustic_gcs(self.frequencies, pressure, pressure_external)
+            element = build_structural_element(element_attributes)
+            pressure_loads += element.force_vector_acoustic_gcs(self.model.frequencies, pressure, pressure_external)
 
         F_x = pressure_loads[0] + pressure_loads[6]
         F_y = pressure_loads[1] + pressure_loads[7]
@@ -103,11 +99,11 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
         F_res = (F_x**2 + F_y**2 + F_z**2)**(1/2)
 
         shaking_forces = {
-                          "F_x" : F_x,
-                          "F_y" : F_y,
-                          "F_z" : F_z,
-                          "F_res" : F_res,
-                          }
+            "F_x": F_x,
+            "F_y": F_y,
+            "F_z": F_z,
+            "F_res": F_res,
+        }
 
         return shaking_forces
 
@@ -116,25 +112,20 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
         shaking_forces = self.process_shaking_forces_for_selected_lines()
 
         if shaking_forces:
-
-            x_data = self.frequencies
+            x_data = self.model.frequencies
 
             self.results_to_plot = dict()
             if self.checkBox_force_Fx.isChecked():
-                self.results_to_plot["F_x"] = {"x_data" : x_data,
-                                            "y_data" : shaking_forces["F_x"]}
+                self.results_to_plot["F_x"] = {"x_data": x_data, "y_data": shaking_forces["F_x"]}
 
             if self.checkBox_force_Fy.isChecked():
-                self.results_to_plot["F_y"] = {"x_data" : x_data,
-                                            "y_data" : shaking_forces["F_y"]}
+                self.results_to_plot["F_y"] = {"x_data": x_data, "y_data": shaking_forces["F_y"]}
 
             if self.checkBox_force_Fz.isChecked():
-                self.results_to_plot["F_z"] = {"x_data" : x_data,
-                                            "y_data" : shaking_forces["F_z"]}
+                self.results_to_plot["F_z"] = {"x_data": x_data, "y_data": shaking_forces["F_z"]}
 
             if self.checkBox_resultant_force.isChecked():
-                self.results_to_plot["F_res"] = {"x_data" : x_data,
-                                                "y_data" : shaking_forces["F_res"]}
+                self.results_to_plot["F_res"] = {"x_data": x_data, "y_data": shaking_forces["F_res"]}
             
             if self.results_to_plot:
                 self.call_plotter()

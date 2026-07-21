@@ -7,8 +7,11 @@ from molde.utils import TreeInfo, format_long_sequence
 
 from pulse import app
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
-from pulse.model import AnalysisID, RadiationImpedanceType
+from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
+from pulse.model.elements.acoustic.acoustic_calculator import RadiationImpedanceType
+from pulse.model.properties.fluid import Fluid
+from pulse.model.properties.material import Material
 
 
 def _unit_abreviation(length_unit: str):
@@ -167,35 +170,32 @@ def elements_info_text() -> str:
 
     elif len(elements) == 1:
         _id, *_ = elements
-        structural_element = project.get_structural_element(_id)
-        acoustic_element = project.get_acoustic_element(_id)
 
-        first_node = structural_element.first_node
-        last_node = structural_element.last_node
+        element_attributes = project.model.preprocessor.elements_attributes.get(_id)
+        first_node = element_attributes.first_node
+        last_node = element_attributes.last_node
+
+        fluid = element_attributes.fluid
+        material = element_attributes.material
 
         tree = TreeInfo(f"ELEMENT {_id}")
-        tree.add_item( f"First Node - {first_node.external_index:>5}",
-                        "[{:.4f}, {:.4f}, {:.4f}]".format(*first_node.coordinates),
-                        "m" )
-
-        tree.add_item( f"Last Node  - {last_node.external_index:>5}",
-                        "[{:.4f}, {:.4f}, {:.4f}]".format(*last_node.coordinates),
-                        "m" )
+        tree.add_item( f"First Node - {first_node.index:>5}", "[{:.4f}, {:.4f}, {:.4f}]".format(*first_node.coordinates), "m" )
+        tree.add_item( f"Last Node  - {last_node.index:>5}", "[{:.4f}, {:.4f}, {:.4f}]".format(*last_node.coordinates), "m" )
 
         info_text += str(tree)
 
-        if structural_element.material:
-            info_text += material_info_text(structural_element.material)
+        if isinstance(material, Material):
+            info_text += material_info_text(material)
 
-        if acoustic_element.fluid:
-            info_text += fluid_info_text(acoustic_element.fluid)
+        if isinstance(fluid, Fluid):
+            info_text += fluid_info_text(fluid)
 
         info_text += cross_section_info_text(
-            structural_element.cross_section, 
-            structural_element.element_type,
-            structural_element.beam_xaxis_rotation,
-            structural_element.expansion_joint_data,
-            structural_element.valve_data
+            element_attributes.cross_section,
+            element_attributes.structural_element_type,
+            element_attributes.xaxis_rotation_angle,
+            element_attributes.expansion_joint_data,
+            element_attributes.valve_data,
             )
 
     return info_text
@@ -263,7 +263,7 @@ def lines_info_text() -> str:
 
     return info_text
 
-def line_info_text(line_id, length, radius_of_curvature):
+def line_info_text(line_id: int, length: float, radius_of_curvature: float):
     tree = TreeInfo("Line")
     tree.add_item("Identifier", line_id)
     tree.add_item("Length", f"{length : .6f}", "m")
@@ -272,7 +272,7 @@ def line_info_text(line_id, length, radius_of_curvature):
 
     return str(tree)
 
-def material_info_text(material) -> str:
+def material_info_text(material: Material) -> str:
     tree = TreeInfo("Material")
     tree.add_item("Name", material.name)
     tree.add_item("Density", material.density, "kg/m³")
@@ -280,7 +280,7 @@ def material_info_text(material) -> str:
     tree.add_item("Poisson ratio", material.poisson_ratio, "")
     return str(tree)
 
-def fluid_info_text(fluid) -> str:
+def fluid_info_text(fluid: Fluid) -> str:
     tree = TreeInfo("fluid")
     tree.add_item("Name", fluid.name)
     if fluid.temperature:
@@ -322,8 +322,8 @@ def cross_section_info_text(
 
     elif structural_element_type == "valve":
         if isinstance(valve_info, dict):
-            effective_diameter = valve_info.get("valve_effective_diameter")
-            thickness = valve_info.get("valve_wall_thickness")
+            effective_diameter = valve_info.get("effective_diameter")
+            thickness = valve_info.get("wall_thickness")
             offset_y = valve_info.get("offset_y", 0.)
             offset_z = valve_info.get("offset_z", 0.)
             # insulation_thickness = valve_info.get("insulation_thickness", 0)
@@ -559,8 +559,8 @@ def pump_excitation_info_text(pump_data: dict) -> str:
     return str(tree)
 
 def min_max_stresses_info_text():
-    min_stress = np.round(app().project.min_stress, 2)
-    max_stress = np.round(app().project.max_stress, 2)
+    min_stress = np.round(app().project.model.min_stress, 2)
+    max_stress = np.round(app().project.model.max_stress, 2)
     tree = TreeInfo("Stress info")
     tree.add_item("Min stress", min_stress, "Pa")
     tree.add_item("Max stress", max_stress, "Pa")

@@ -207,6 +207,8 @@ def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
 
     Zc, Yc = IBeamCrossSection(h, w1, t1, w2, t2, tw, offset_y, offset_z).centroid
 
+    # TODO: avoid division by zero
+
     # compute the y coordinate centroid for the center rectangle of the I-Beam
     y_center = (((h/2 - t1)**2) - ((h/2 - t2)**2))*(tw/2) / ((h-(t1+t2))*tw)
 

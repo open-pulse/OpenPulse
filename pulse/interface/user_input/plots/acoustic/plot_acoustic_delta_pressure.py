@@ -9,7 +9,6 @@ from pulse.interface.user_input.data_handler.export_model_results import ExportM
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.model.properties.fluid import Fluid
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 
 class CutoffFrequency(IntEnum):
@@ -35,13 +34,8 @@ class PlotAcousticDeltaPressure(GetAcousticDeltaPressures_UI):
 
     def _initialize(self):
         self.unit_label = "Pa"
-        self.analysis_method = self.project.analysis_method
-        self.frequencies = self.model.frequencies
-        self.solution = self.project.get_acoustic_solution()
-        self.preprocessor = self.project.model.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-
         self.current_line_edit = None
+        self.before_run = self.project.get_pre_solution_model_checks()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -152,15 +146,15 @@ class PlotAcousticDeltaPressure(GetAcousticDeltaPressures_UI):
 
     def get_response(self):
 
-        P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_id)
-        P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
+        P_input = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(self.input_node_id)
+        P_output = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(self.output_node_id)
 
         delta_pressure = P_input - P_output
-        
+
         if complex(0) in delta_pressure:
-            # the zero_shift constant is summed to delta pressures to avoid zero values in log type plots
-            zero_shift = 1e-12 
-            delta_pressure += zero_shift 
+            # add a zero shift constant into the delta pressures to avoid zero values in log type plots
+            delta_pressure += 1e-12
+
         return delta_pressure
 
     def cutoff_frequency_options_callback(self):
@@ -209,7 +203,7 @@ class PlotAcousticDeltaPressure(GetAcousticDeltaPressures_UI):
 
     def join_model_data(self):
 
-        self.title = f"Acoustic frequency response - {self.analysis_method} method"
+        self.title = f"Acoustic frequency response - {self.project.analysis_method} method"
         legend_label = f"Delta pressure between nodes {self.input_node_id} and {self.output_node_id}"
         unit_label = "--"
         y_label = "Acoustic pressure ratio"
@@ -219,7 +213,7 @@ class PlotAcousticDeltaPressure(GetAcousticDeltaPressures_UI):
         key = ("nodes", (self.input_node_id, self.output_node_id))
 
         self.model_results[key] = {
-            "x_data": self.frequencies,
+            "x_data": self.model.frequencies,
             "y_data": self.get_response(),
             "x_label": "Frequency [Hz]",
             "y_label": y_label,

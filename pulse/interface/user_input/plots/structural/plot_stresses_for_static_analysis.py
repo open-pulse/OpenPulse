@@ -1,7 +1,7 @@
-
 import logging
 
 import numpy as np
+from PySide6.QtWidgets import QLineEdit
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.get_stresses_for_static_analysis_ui import GetStressesForStaticAnalysis_UI
@@ -14,44 +14,48 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
 
         self._initialize()
         self._load_structural_solver()
-        self._create_list_lineEdits()
+        self._create_list_line_edits()
         self._create_connections()
         self.selection_callback()
 
     def _initialize(self):
-        self.stress_labels = [  "Normal axial", 
-                                "Normal bending y", 
-                                "Normal bending z", 
-                                "Hoop", 
-                                "Torsional shear", 
-                                "Transversal shear xy", 
-                                "Transversal shear xz"]
+
+        self.stresses_data = None
+
+    @property
+    def model(self):
+        return app().project.model
+    
+    @property
+    def structural_solver(self):
+        return app().project.structural_solver
 
     def _load_structural_solver(self):
 
-        if app().project.structural_solver is None:
+        if self.structural_solver is not None:
+            return
 
-            def callback():
-                logging.info("Processing the cross-sections [75%]")
-                app().project.model.preprocessor.process_cross_sections_mapping()
-            LoadingWindow(callback).run()
+        def process_cross_sections():
+            logging.info("Processing the cross-sections [75%]")
+            self.model.preprocessor.process_cross_sections_mapping()
 
-            self.structural_solver = app().project.get_structural_solver()
-            if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
+        LoadingWindow(process_cross_sections).run()
 
-        else:
-            self.structural_solver = app().project.structural_solver
+        app().project.structural_solver = app().project.get_structural_solver()
+        if self.structural_solver.solution is None:
+            self.structural_solver.solution = self.model.structural_solution
 
-    def _create_list_lineEdits(self):
-        self.lineEdits = [  self.lineEdit_element_id,
-                            self.lineEdit_axial_stress,
-                            self.lineEdit_bending_stress_y,
-                            self.lineEdit_bending_stress_z,
-                            self.lineEdit_hoop_stress,
-                            self.lineEdit_torsional_stress,
-                            self.lineEdit_shear_stress_xy,
-                            self.lineEdit_shear_stress_yz  ]
+    def _create_list_line_edits(self):
+        self.line_edits: list[QLineEdit] = [
+            self.lineEdit_element_id,
+            self.lineEdit_axial_stress,
+            self.lineEdit_bending_stress_y,
+            self.lineEdit_bending_stress_z,
+            self.lineEdit_hoop_stress,
+            self.lineEdit_torsional_stress,
+            self.lineEdit_shear_stress_xy,
+            self.lineEdit_shear_stress_yz,
+        ]
 
     def _create_connections(self):
         #
@@ -65,24 +69,21 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
             self.lineEdit_element_id.setText(str(selected_elements[0]))
             self._update_lineEdit(selected_elements[0])
         else:
-            self._reset_lineEdits()
-
-    def _reset_lineEdits(self):
-        for lineEdit in self.lineEdits:
-            lineEdit.clear()
+            self.reset_line_edits()
 
     def _update_lineEdit(self, selected_element : int):
 
-        self.stress_data = self.structural_solver.stress_calculate(static_analysis=True)
-        stresses = np.real(np.array(self.stress_data[selected_element][:,0]))
+        if self.stresses_data is None:
+            self.stresses_data = self.structural_solver.stress_calculate(static_analysis=True)
 
-        self.lineEdit_axial_stress.setText("{:.6e}".format(stresses[0]))
-        self.lineEdit_bending_stress_y.setText("{:.6e}".format(stresses[1]))
-        self.lineEdit_bending_stress_z.setText("{:.6e}".format(stresses[2]))
-        self.lineEdit_hoop_stress.setText("{:.6e}".format(stresses[3]))
-        self.lineEdit_torsional_stress.setText("{:.6e}".format(stresses[4]))
-        self.lineEdit_shear_stress_xy.setText("{:.6e}".format(stresses[5]))
-        self.lineEdit_shear_stress_yz.setText("{:.6e}".format(stresses[6]))
+        stresses = np.real(self.stresses_data[selected_element, :, 0])
+
+        for i, line_edit in enumerate(self.line_edits[1:]):
+            line_edit.setText("{:.6e}".format(stresses[i]))
+
+    def reset_line_edits(self):
+        for line_edit in self.line_edits:
+            line_edit.clear()
 
     def reset_selection(self):
-        self._reset_lineEdits()
+        self.reset_line_edits()
