@@ -11,7 +11,7 @@ from molde.colors import color_names
 from molde.render_widgets import CommonRenderWidget
 from PySide6.QtCore import QEvent, QPoint, Qt, Signal
 from PySide6.QtGui import QAction, QCloseEvent, QColor, QCursor
-from PySide6.QtWidgets import QAbstractButton, QApplication, QDialog, QMessageBox, QToolBar
+from PySide6.QtWidgets import QAbstractButton, QApplication, QDialog, QMessageBox, QToolBar, QWidget
 
 from pulse import (
     QSS_DIR,
@@ -529,6 +529,9 @@ class MainWindow(MainWindow_UI):
     def get_current_render_widget(self) -> CommonRenderWidget | None:
         return self.render_widgets_stack.currentWidget()
 
+    def get_current_setup_widget(self) -> QWidget | None:
+        return self.setup_widgets_stack.currentWidget()
+
     def get_current_visualization_filter(self) -> VisualizationFilter | None:
         render_widget = self.get_current_render_widget()
         if not hasattr(render_widget, "visualization_filter"):
@@ -843,7 +846,7 @@ class MainWindow(MainWindow_UI):
 
         for render in self.get_renderer_widgets():
             self.view_toolbar.render_tool_changed.connect(render.add_render_tool)
-        
+
         self.addToolBarBreak()
 
     def _add_toolbars(self):
@@ -1092,9 +1095,17 @@ class MainWindow(MainWindow_UI):
         return True
 
     def save_project_as(self, path):
+        def finalize_geometry_if_needed():
+            setup_widget = self.get_current_setup_widget()
+            if not isinstance(setup_widget, GeometryDesignerWidget):
+                return
+
+            if not setup_widget.modified:
+                return
+
+            setup_widget.finalize_callback()
 
         def save_data(path):
-
             logging.info("Saving the project data... [10%]")
 
             from datetime import datetime
@@ -1121,6 +1132,7 @@ class MainWindow(MainWindow_UI):
             print(f"The project data has been saved @ {datetime.now()}")
             sleep(0.5)
 
+        LoadingWindow(finalize_geometry_if_needed).run()
         LoadingWindow(save_data).run(path)
 
     def action_capture_image_callback(self):
