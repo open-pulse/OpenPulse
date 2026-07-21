@@ -617,6 +617,10 @@ class MainWindow(MainWindow_UI):
         self.reload_visualization_filter()
 
     def action_model_setup_workspace_callback(self):
+        if self.ask_finalize_question() == QMessageBox.StandardButton.Cancel:
+            self.action_model_setup_workspace.setChecked(False)
+            return
+
         self.setup_widgets_stack.setVisible(True)
 
         self.main_toolbar.setDisabled(False)
@@ -633,6 +637,10 @@ class MainWindow(MainWindow_UI):
         self.reload_visualization_filter()
 
     def action_results_workspace_callback(self):
+        if self.ask_finalize_question() == QMessageBox.StandardButton.Cancel:
+            self.action_results_workspace.setChecked(False)
+            return
+
         if not self.project.is_the_solution_finished():
             return
 
@@ -649,6 +657,33 @@ class MainWindow(MainWindow_UI):
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
         self.results_viewer_widget.update_visibility_items()
         self.reload_visualization_filter()
+
+    def ask_finalize_question(self) -> QMessageBox.StandardButton | None:
+        setup_widget = self.get_current_setup_widget()
+        if not isinstance(setup_widget, GeometryDesignerWidget):
+            return QMessageBox.StandardButton.Default
+
+        if not setup_widget.modified:
+            return QMessageBox.StandardButton.Default
+
+        message_box = QMessageBox.question(
+            self,
+            "Finalize geometry",
+            "Apply geometry changes before changing workspace?",
+            QMessageBox.StandardButton.Cancel | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Yes,
+        )
+
+        match message_box:
+            case QMessageBox.StandardButton.Yes:
+                setup_widget.finalize_callback()
+
+            case QMessageBox.StandardButton.Discard:
+                setup_widget.cancel_callback()
+
+            case QMessageBox.StandardButton.Cancel:
+                pass
+
+        return message_box
 
     def update_results_workspace_button_accessibility(self, solution_exists: bool | None = None):
         if solution_exists is None:
@@ -950,11 +985,13 @@ class MainWindow(MainWindow_UI):
         QCursor.setPos(final_pos)
 
     def save_project_data(self):
-
         self.close_dialogs()
 
         message_box = QMessageBox.question(
-            self, "Quit", "Would you like to save the project data before exit?", QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
+            self,
+            "Quit",
+            "Would you like to save the project data before exit?",
+            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save,
         )
 
         if message_box == QMessageBox.Cancel:
