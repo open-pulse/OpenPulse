@@ -1,10 +1,6 @@
 <RCC>
     <qresource prefix="icons">
         <file>cube-scan.png</file>
-        <file>delete.png</file>
-        <file>lines.png</file>
-        <file>lines_cross_section.png</file>
-        <file>plus-thick.png</file>
         <file>common/back.png</file>
         <file>common/bottom.png</file>
         <file>common/broom.png</file>
@@ -81,21 +77,6 @@
         <file>figures/Pipe.PNG</file>
         <file>figures/Rectangular.PNG</file>
         <file>figures/T_profile.PNG</file>
-        <file>help/help.png</file>
-        <file>help/help_desk_icon.png</file>
-        <file>help/question.png</file>
-        <file>help/support.png</file>
-        <file>logos/MOPT.PNG</file>
-        <file>logos/mopt_logo.png</file>
-        <file>logos/mopt_logo2.png</file>
-        <file>logos/mopt_logo3.png</file>
-        <file>logos/mopt_logo_black.png</file>
-        <file>logos/mopt_logo_white.png</file>
-        <file>logos/openpulse_logo.png</file>
-        <file>logos/OpenPulse_logo3.png</file>
-        <file>logos/OpenPulse_logo_black.png</file>
-        <file>logos/OpenPulse_logo_gray.png</file>
-        <file>logos/OpenPulse_logo_white.png</file>
         <file>logos/op_dark_theme.png</file>
         <file>logos/op_light_theme.png</file>
         <file>model_setup_items/absorption_surface.png</file>
@@ -148,50 +129,7 @@
         <file>model_setup_items/warning_yellow2.png</file>
         <file>model_setup_items/weight.png</file>
         <file>mpltoolbar/copy_icon.png</file>
-        <file>oldones/003-hard disc.png</file>
-        <file>oldones/004-bin.png</file>
-        <file>oldones/005-clipboard.png</file>
-        <file>oldones/006-css.png</file>
-        <file>oldones/007-database.png</file>
-        <file>oldones/009-download.png</file>
-        <file>oldones/010-envelope.png</file>
-        <file>oldones/012-favorite.png</file>
-        <file>oldones/013-file cabinet.png</file>
-        <file>oldones/014-folder.png</file>
-        <file>oldones/016-loading.png</file>
-        <file>oldones/017-music file.png</file>
-        <file>oldones/018-password.png</file>
-        <file>oldones/020-search.png</file>
-        <file>oldones/021-server.png</file>
-        <file>oldones/023-share.png</file>
-        <file>oldones/024-time.png</file>
-        <file>oldones/025-txt file.png</file>
-        <file>oldones/027-user.png</file>
-        <file>oldones/028-video file.png</file>
-        <file>oldones/add.png</file>
-        <file>oldones/cross_section_representation.png</file>
-        <file>oldones/elements_and_nodes.png</file>
-        <file>oldones/elements_only.png</file>
-        <file>oldones/exit.png</file>
-        <file>oldones/lines_only.png</file>
-        <file>oldones/loadProject.png</file>
-        <file>oldones/nodes_only.png</file>
-        <file>oldones/refresh.png</file>
-        <file>oldones/save_image.png</file>
-        <file>oldones/searchFile.png</file>
-        <file>oldones/send_to_disk.png</file>
-        <file>oldones/settings.png</file>
-        <file>oldones/upload.png</file>
-        <file>oldones/warning_.png</file>
-        <file>oldones/zip.png</file>
-        <file>pulse/pulse.png</file>
         <file>pulse/pulse_icon.png</file>
-        <file>pulse/pulse_icon2.png</file>
-        <file>pulse/pulse_reverse.png</file>
-        <file>render_selector/plot_lines.PNG</file>
-        <file>render_selector/plot_lines_with_sections.PNG</file>
-        <file>render_selector/plot_mesh.PNG</file>
-        <file>render_selector/raw_geometry.PNG</file>
         <file>views/back.png</file>
         <file>views/bottom.png</file>
         <file>views/front.png</file>
@@ -199,24 +137,7 @@
         <file>views/left.png</file>
         <file>views/right.png</file>
         <file>views/top.png</file>
-        <file>warnings/black_warning.png</file>
-        <file>warnings/error_blue.png</file>
-        <file>warnings/error_icon1.png</file>
-        <file>warnings/error_red.png</file>
-        <file>warnings/error_yellow.png</file>
         <file>warnings/transparent_warning.png</file>
-        <file>warnings/warning.png</file>
         <file>warnings/warning_2.png</file>
-        <file>figures/backup/Circular.PNG</file>
-        <file>figures/backup/C_profile.PNG</file>
-        <file>figures/backup/I_profile.PNG</file>
-        <file>figures/backup/Pipe.PNG</file>
-        <file>figures/backup/Rectangular.PNG</file>
-        <file>figures/backup/T_profile.PNG</file>
-        <file>figures/base/Circular.PNG</file>
-        <file>figures/base/C_profile.PNG</file>
-        <file>figures/base/I_profile.PNG</file>
-        <file>figures/base/Rectangular.PNG</file>
-        <file>figures/base/T_profile.PNG</file>
     </qresource>
 </RCC>
