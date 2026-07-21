@@ -11,6 +11,8 @@ LIGHT_ICONS_DIR = ICON_DIR / "light_theme"
 ICONS_DIRS = [DARK_ICONS_DIR, LIGHT_ICONS_DIR]
 COLORS = [DARK_ICON_COLOR, LIGHT_ICON_COLOR]
 
+MINIMUM_REQUIRED_ALPHA = 20
+
 
 def get_icons_to_paint(dir: Path) -> list[Path]:
     icons_to_paint = list()
@@ -28,13 +30,12 @@ def save_icon(icon_path: Path, icon_image: Image) -> None:
 
 def paint_icons():
     for dir, color in zip(ICONS_DIRS, COLORS):
-        icons_to_paint = get_icons_to_paint(dir)
 
-        for icon in icons_to_paint:
+        for icon in get_icons_to_paint(dir):
             img = Image.open(icon).convert("RGBA")
             img_data = np.array(img)
 
-            mask = img_data[:, :, 3] != 0
+            mask = img_data[:, :, 3] >= MINIMUM_REQUIRED_ALPHA
             img_data[mask] = color.to_rgba()
 
             painted_icon = Image.fromarray(img_data)
