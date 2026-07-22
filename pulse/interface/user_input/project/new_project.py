@@ -10,8 +10,10 @@ from pulse.interface.ui_generated.project.new_project_input_ui import NewProject
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.data_classes.project_setup_data_classes import ImportType, MesherSetup, ProjectSetup
+from pulse.utils.geometry_validator import format_validation_error, validate_geometry_file
 
 window_title = "Error"
+
 
 class NewProjectInput(NewProjectInput_UI):
     def __init__(self, *args, **kwargs):
@@ -82,21 +84,29 @@ class NewProjectInput(NewProjectInput_UI):
 
         if geometry_path is None:
             return
-        
+
         self.lineEdit_geometry_path.setText(str(geometry_path))
         app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
     def check_project_inputs(self):
-        
+
         if self.comboBox_start_project.currentIndex() == ImportType.CAD_FILE:
             if self.lineEdit_geometry_path.text() == "":
-                title = 'Empty geometry at selection'
+                title = "Empty geometry at selection"
                 message = "Please, select a valid *.iges or *.step format geometry to continue."
                 PrintMessageInput([window_title, title, message], auto_close=True)
                 return True
-        
+
+            geometry_path = Path(self.lineEdit_geometry_path.text())
+            result = validate_geometry_file(geometry_path)
+            if not result.is_valid:
+                title = "Unsupported geometry entities"
+                message = format_validation_error(result)
+                PrintMessageInput([window_title, title, message])
+                return True
+
         if self.lineEdit_element_size.text() == "":
-            title = 'Empty element size'
+            title = "Empty element size"
             message = "Please, inform a valid input to the element size."
             PrintMessageInput([window_title, title, message], auto_close=True)
             return True
@@ -104,13 +114,13 @@ class NewProjectInput(NewProjectInput_UI):
             try:
                 self.element_size = float(self.lineEdit_element_size.text())
             except Exception:
-                title = 'Invalid element size'
+                title = "Invalid element size"
                 message = "Please, inform a valid input to the element size."
                 PrintMessageInput([window_title, title, message], auto_close=True)
                 return True
 
         if self.lineEdit_geometry_tolerance.text() == "":
-            title = 'Empty geometry tolerance'
+            title = "Empty geometry tolerance"
             message = "Please, inform a valid input to the geometry tolerance."
             PrintMessageInput([window_title, title, message], auto_close=True)
             return True
@@ -118,7 +128,7 @@ class NewProjectInput(NewProjectInput_UI):
             try:
                 self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
             except Exception:
-                title = 'Invalid geometry tolerance'
+                title = "Invalid geometry tolerance"
                 message = "Please, inform a valid input to the geometry tolerance."
                 PrintMessageInput([window_title, title, message], auto_close=True)
                 return True
@@ -126,10 +136,9 @@ class NewProjectInput(NewProjectInput_UI):
     def create_project(self):
 
         try:
-
             project_setup = self.create_project_setup()
 
-            self.project.reset(reset_all = True)
+            self.project.reset(reset_all=True)
             app().project.model.set_project_setup(project_setup)
             app().project.file.modify_project_attributes(project_setup)
 
@@ -139,7 +148,6 @@ class NewProjectInput(NewProjectInput_UI):
                 self.project.model.process_geometry_and_mesh()
 
         except Exception as error_log:
-
             app().project.model.mesh.set_mesher_setup(MesherSetup())
             app().main_window.reset_temporary_folder()
             app().project.model.mesh._create_gmsh_geometry()
@@ -148,7 +156,7 @@ class NewProjectInput(NewProjectInput_UI):
             title = "Error while creating new project"
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
-            
+
             return True
 
     def create_project_setup(self) -> ProjectSetup:
@@ -190,13 +198,13 @@ class NewProjectInput(NewProjectInput_UI):
 
         if self.create_project():
             return
-        
+
         app().main_window._update_recent_projects()
         app().main_window.set_window_title("New project (*)")
-        
+
         if self.comboBox_start_project.currentIndex() == 1:
             app().main_window.action_plot_geometry_editor_callback()
-        
+
         else:
             app().main_window.use_model_setup_workspace()
 

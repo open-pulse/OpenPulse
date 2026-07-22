@@ -2,10 +2,12 @@ from pathlib import Path
 
 from pulse import app
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.data_classes.project_setup_data_classes import ImportType, ProjectSetup
+from pulse.utils.geometry_validator import format_validation_error, validate_geometry_file
 
 
-class ImportGeometry():
+class ImportGeometry:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -31,6 +33,13 @@ class ImportGeometry():
         if geometry_path is None:
             return
 
+        result = validate_geometry_file(geometry_path)
+        if not result.is_valid:
+            title = "Unsupported geometry entities"
+            message = format_validation_error(result)
+            PrintMessageInput(["Error", title, message])
+            return
+
         app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
         project_setup = app().project.project_setup
@@ -44,7 +53,7 @@ class ImportGeometry():
 
     def save_geometry_and_load_project(self, project_setup: ProjectSetup):
         #
-        app().project.reset(reset_all = True)
+        app().project.reset(reset_all=True)
         app().project.loader.load_project_data()
         app().project.model.mesh.set_mesher_setup(project_setup.mesher_setup)
         #
