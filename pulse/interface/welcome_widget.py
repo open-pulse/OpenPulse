@@ -6,7 +6,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 from PySide6.QtCore import QByteArray, QSize, Qt, Signal
-from PySide6.QtGui import QIcon, QImage, QPixmap
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QBoxLayout, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from pulse import EXAMPLES_DIR, app
@@ -99,7 +99,7 @@ class WelcomeWidget(QWidget):
                 thumbnail.save(bytes, format="PNG")
                 bytes_data = bytes.getvalue()
                 image = QImage.fromData(QByteArray(bytes_data))
-                icon = QIcon(QPixmap.fromImage(image))
+                icon = Icon(QPixmap.fromImage(image))
 
             handler = partial(self.main_window.open_project, path)
             item = WelcomeItem(path.stem, icon, False)
@@ -154,7 +154,7 @@ class WelcomeWidget(QWidget):
                 thumbnail.save(bytes, format="PNG")
                 bytes_data = bytes.getvalue()
                 image = QImage.fromData(QByteArray(bytes_data))
-                icon = QIcon(QPixmap.fromImage(image))
+                icon = Icon(QPixmap.fromImage(image))
 
             handler = partial(self.main_window.open_project, path)
             item = WelcomeItem(path.stem, icon, False)
