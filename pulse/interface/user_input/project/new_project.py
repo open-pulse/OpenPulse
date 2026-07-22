@@ -160,23 +160,21 @@ class NewProjectInput(NewProjectInput_UI):
         project_setup = ProjectSetup(import_type, mesher_setup=mesh_setup)
 
         if import_type == ImportType.CAD_FILE:
-            geometry_path = self.lineEdit_geometry_path.text()
-            geometry_filename = os.path.basename(geometry_path)
+            geometry_path_source = self.lineEdit_geometry_path.text()
+            geometry_filename = os.path.basename(geometry_path_source)
         else:
-            geometry_path = ""
             geometry_filename = ""
+            geometry_path_source = ""
 
-        project_setup.geometry_path = geometry_path
         project_setup.geometry_filename = geometry_filename
+        project_setup.geometry_path_source = geometry_path_source
 
         app().project.file.write_project_setup_in_file(project_setup.as_dict())
 
-        ## TODO: improve this in near future
-        _project_setup = deepcopy(project_setup)
         if import_type == ImportType.CAD_FILE:
-            _project_setup.geometry_path = app().project.file.read_geometry_from_file()
+            project_setup.geometry_path_internal = app().project.file.read_geometry_from_file()
 
-        return _project_setup
+        return project_setup
 
     def start_project(self):
 
