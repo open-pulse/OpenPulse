@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="icons">
-        <file alias="cube-scan.png">../cube-scan.png</file>
         <file alias="cursors/pan_cursor.png">../cursors/pan_cursor.png</file>
         <file alias="cursors/rotation_cursor.png">../cursors/rotation_cursor.png</file>
         <file alias="cursors/zoom_cursor.png">../cursors/zoom_cursor.png</file>
@@ -59,6 +58,9 @@
         <file alias="warnings/transparent_warning.png">../warnings/transparent_warning.png</file>
         <file alias="warnings/warning_2.png">../warnings/warning_2.png</file>
         <file alias="common/copy_icon.png">common/copy_icon.png</file>
+        <file alias="common/cube-scan.png">common/cube-scan.png</file>
+        <file alias="common/home.png">common/home.png</file>
+        <file alias="common/geometry_icon.png">common/geometry_icon.png</file>
         <file alias="common/back.png">common/back.png</file>
         <file alias="common/bottom.png">common/bottom.png</file>
         <file alias="common/broom.png">common/broom.png</file>
@@ -67,7 +69,6 @@
         <file alias="common/engineering.png">common/engineering.png</file>
         <file alias="common/exit.png">common/exit.png</file>
         <file alias="common/front.png">common/front.png</file>
-        <file alias="common/geometry_icon.png">common/geometry_icon.png</file>
         <file alias="common/go_next.png">common/go_next.png</file>
         <file alias="common/grab_icon.png">common/grab_icon.png</file>
         <file alias="common/help.png">common/help.png</file>
