@@ -1,9 +1,8 @@
-from pathlib import Path
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PySide6.QtGui import QFont, QColor, QIcon
 from PySide6.QtCore import Qt
 
-from pulse import ICON_DIR
+from pulse.interface.formatters.icons import Icon
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
 from pulse.interface.menu.tooltips import get_tooltip
 
@@ -137,7 +136,7 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
             font.setBold(True)
             self.setFont(0, font)
             self.setForeground(0, QColor("#E89403"))
-            warning_icon = QIcon(str(Path(ICON_DIR / "model_setup_items/warning_yellow.png")))
+            warning_icon = Icon(":/icons/model_setup_items/warning_yellow.png")
             self.setIcon(0, warning_icon)
         else:
             # Resets data to default
@@ -151,7 +150,7 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
             font.setBold(True)
             self.setFont(0, font)
             self.setForeground(0, QColor("#E2483D"))
-            error_icon = QIcon(str(Path(ICON_DIR / "model_setup_items/error_red.png")))
+            error_icon = Icon(":/icons/model_setup_items/error_red.png")
             self.setIcon(0, error_icon)
         else:
             # Resets data to default
@@ -164,8 +163,8 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
         file_name = file_name if file_name != "" else self.property_name
 
         if visible:
-            path_image = str(Path((ICON_DIR / "model_setup_items" / str(file_name + ".png"))))
-            self.setIcon(0, QIcon(path_image))
+            path_image = str(":/icons/model_setup_items/" + str(file_name + ".png"))
+            self.setIcon(0, Icon(path_image))
         else:
             self.setIcon(0, QIcon())
  
