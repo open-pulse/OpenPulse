@@ -192,7 +192,7 @@ class Ui_Form(object):
         self.pushButton_duplicate.setMaximumSize(QSize(28, 28))
         self.pushButton_duplicate.setFont(font1)
         self.pushButton_duplicate.setStyleSheet(u"")
-        icon = Icon(u":/icons/mpltoolbar/copy_icon.png")
+        icon = Icon(u":/icons/common/copy_icon.png")
         self.pushButton_duplicate.setIcon(icon)
         self.pushButton_duplicate.setIconSize(QSize(18, 18))
 

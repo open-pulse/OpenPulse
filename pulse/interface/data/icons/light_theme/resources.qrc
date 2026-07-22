@@ -55,10 +55,10 @@
         <file alias="model_setup_items/viscous_thermal_model.png">../model_setup_items/viscous_thermal_model.png</file>
         <file alias="model_setup_items/warning_yellow2.png">../model_setup_items/warning_yellow2.png</file>
         <file alias="model_setup_items/weight.png">../model_setup_items/weight.png</file>
-        <file alias="mpltoolbar/copy_icon.png">../mpltoolbar/copy_icon.png</file>
         <file alias="pulse/pulse_icon.png">../pulse/pulse_icon.png</file>
         <file alias="warnings/transparent_warning.png">../warnings/transparent_warning.png</file>
         <file alias="warnings/warning_2.png">../warnings/warning_2.png</file>
+        <file alias="common/copy_icon.png">common/copy_icon.png</file>
         <file alias="common/back.png">common/back.png</file>
         <file alias="common/bottom.png">common/bottom.png</file>
         <file alias="common/broom.png">common/broom.png</file>

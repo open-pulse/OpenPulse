@@ -50,7 +50,6 @@ class FluidWidget(FluidInputWidget_UI):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self._paint_icons()
         self.load_data_from_fluids_library()
 
     def _initialize(self):
@@ -113,18 +112,6 @@ class FluidWidget(FluidInputWidget_UI):
             self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         else:
             self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-
-    def _paint_icons(self):
-        icon_color = None
-        theme = app().config.user_preferences.interface_theme
-        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
-        if theme == "dark":
-            icon_color = DARK_ICON_COLOR.to_qt()
-        else:
-            icon_color = LIGHT_ICON_COLOR.to_qt()
-
-        widgets = [self.pushButton_duplicate]
-        change_icon_color_for_widgets(widgets, icon_color)
 
     def _add_icon_and_title(self):
         self._config_window()
