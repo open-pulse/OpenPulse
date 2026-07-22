@@ -2,11 +2,9 @@ import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QToolButton, QVBoxLayout
+from PySide6.QtWidgets import QVBoxLayout
 
 from pulse import app
-from pulse.interface.formatters import icons
 from pulse.interface.ui_generated.plots.model.cross_section_plotter_ui import (
     CrossSectionPlotter_UI,
 )
@@ -17,7 +15,6 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
         app().main_window.set_input_widget(self)
 
         self._config_window()
-        self._initialize()
         self._create_connections()
 
     def _config_window(self):
@@ -26,27 +23,8 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Cross section plotter")
 
-    def _initialize(self):
-        app().main_window.theme_changed.connect(self.paint_toolbar_icons)
-
     def _create_connections(self):
         self.close_button.clicked.connect(self.close)
-
-    def paint_toolbar_icons(self, *args, **kwargs):
-        from pulse.interface.user_input.plots.general.custom_navigation_toolbar import (
-            CustomNavigationToolbar,
-        )
-
-        toolbar = self.findChild(CustomNavigationToolbar)
-        if toolbar is None:
-            return
-
-        if app().main_window.interface_theme == "dark":
-            color = QColor("#5f9af4")
-        else:
-            color = QColor("#1a73e8")
-
-        icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
 
     def plot_cross_section(self, plot_data: list, section_type_label: str):
 

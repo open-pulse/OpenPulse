@@ -30,28 +30,12 @@ class UserInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self._config_window()
-        self._paint_icons()
-
-        app().main_window.theme_changed.connect(self._paint_icons)
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _paint_icons(self):
-        theme = app().main_window.config.user_preferences.interface_theme
-
-        if theme == "dark":
-            icon_color = QColor(color_names.BLUE_6.to_hex())
-
-        elif theme == "light":
-            icon_color = QColor(color_names.BLUE_4.to_hex())
-
-        widgets = self.findChildren(QWidget)
-
-        icons.change_icon_color_for_widgets(widgets, icon_color)
     
     def _check_table_frequency_vector(self, frequencies: np.ndarray):
         if len(frequencies) == 1:
