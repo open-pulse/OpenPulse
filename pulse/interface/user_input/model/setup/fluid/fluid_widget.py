@@ -4,12 +4,12 @@ from itertools import count
 from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QColor, QIcon
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QDialog, QHeaderView, QMenu, QTableWidgetItem
 
-from pulse import app, ICON_DIR
+from pulse import app
 from pulse.interface import error_title
-from pulse.interface.formatters.icons import change_icon_color_for_widgets
+from pulse.interface.formatters.icons import Icon
 from pulse.interface.ui_generated.model.setup.fluid.fluid_input_widget_ui import (
     FluidInputWidget_UI,
 )
@@ -674,7 +674,7 @@ class FluidWidget(FluidInputWidget_UI):
     def right_click_callback(self, pos):
         menu = QMenu(self)
         export_action = menu.addAction("Export fluid")
-        export_icon = QIcon(str(ICON_DIR / "common/save_as.png"))
+        export_icon = Icon(":/icons/common/save_as.png")
         export_action.setIcon(export_icon)
 
         font = export_action.font()

@@ -1,10 +1,8 @@
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QPushButton
 
-from pulse import ICON_DIR, app
+from pulse import app
 from pulse.interface import error_title
-from pulse.interface.formatters import icons
+from pulse.interface.formatters.icons import Icon
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -19,9 +17,9 @@ class AnimationWidget(AnimationWidget_UI):
         self._create_connections()
 
     def _load_icons(self):
-        self.play_icon = QIcon(str(ICON_DIR / "common/play.png"))
-        self.pause_icon = QIcon(str(ICON_DIR / "common/pause.png"))
-        self.export_icon = QIcon(str(ICON_DIR / "common/save_as.png"))
+        self.play_icon = Icon(":/icons/common/play.png")
+        self.pause_icon = Icon(":/icons/common/pause.png")
+        self.export_icon = Icon(":/icons/common/save_as.png")
 
     def _config_widgets(self):
         self.pushButton_animate.setIcon(self.play_icon)
@@ -33,7 +31,6 @@ class AnimationWidget(AnimationWidget_UI):
         self.pushButton_export.setCursor(Qt.PointingHandCursor)
         self.spinBox_frames.setValue(app().project.frames)
         self.spinBox_cycles.setValue(app().project.cycles)
-        self._configure_icons()
         self.update_phase_slider_steps()
 
     def _create_connections(self):
@@ -42,10 +39,6 @@ class AnimationWidget(AnimationWidget_UI):
         self.pushButton_export.clicked.connect(self.export_animation_to_file)
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
-        app().main_window.theme_changed.connect(self._configure_icons)
-
-    def _configure_icons(self, *args):
-        icons.change_icon_color_for_widgets(self.findChildren(QPushButton), app().main_window.icon_color)
 
     @property
     def frames(self): return self.spinBox_frames.value()
@@ -90,7 +83,6 @@ class AnimationWidget(AnimationWidget_UI):
 
     def update_animate_button_icons(self, state: bool):
         self.pushButton_animate.setIcon(self.pause_icon if state else self.play_icon)
-        self._configure_icons()
 
     def export_animation_to_file(self):
         file_path = FileDialogService.save_file(["mp4", "webp", "gif"], "Save As")

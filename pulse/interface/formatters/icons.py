@@ -125,31 +125,23 @@ def get_formatted_icon(path: Path | str, color: QColor):
     painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
     painter.fillRect(pixmap.rect(), color)
     painter.end()
-    return QIcon(pixmap)
+    return Icon(pixmap)
 
 
-def get_openpulse_icon(color=QColor("#0055DD")):
-    icon_path = str(ICON_DIR / "pulse/pulse_icon.png")
-    # return get_formatted_icon(icon_path, color)
-    return QIcon(icon_path)
+def get_openpulse_icon():
+    return Icon(":/icons/pulse/pulse_icon.png")
 
 
 def get_warning_icon(color=None):
+    icon_path = ":/icons/warnings"
     if color is None:
-        icon_path = str(ICON_DIR / "warnings/warning_2.png")
-        return QIcon(icon_path)
-    else:
-        icon_path = str(ICON_DIR / "warnings/transparent_warning.png")
-        return get_formatted_icon(icon_path, color)
+        return Icon(f"{icon_path}/warning_2.png")
+
+    return get_formatted_icon(f"{icon_path}/transparent_warning.png", color)
 
 
 def get_error_icon(color=None):
-    if color is None:
-        icon_path = str(ICON_DIR / "warnings/warning_2.png")
-        return QIcon(icon_path)
-    else:
-        icon_path = str(ICON_DIR / "warnings/transparent_warning.png")
-        return get_formatted_icon(icon_path, color)
+    return get_warning_icon(color)
 
 
 def change_icon_color(icon: QIcon, size: QSize, color: QColor):
