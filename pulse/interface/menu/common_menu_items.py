@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QFont, QColor, QIcon
+from PySide6.QtGui import QFont, QColor
 from PySide6.QtCore import Qt
 
 from pulse.interface.formatters.icons import Icon
@@ -166,7 +166,7 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
             path_image = str(":/icons/model_setup_items/" + str(file_name + ".png"))
             self.setIcon(0, Icon(path_image))
         else:
-            self.setIcon(0, QIcon())
+            self.setIcon(0, Icon())
  
     def set_property_name(self, name: str):
         name = name.lower()

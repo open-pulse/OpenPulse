@@ -109,7 +109,7 @@ class Icon:
     icon = Icon(:/folder/bla.png)
     """
 
-    def __new__(cls, path: str) -> QIcon:
+    def __new__(cls, path: str = "") -> QIcon:
         return QIcon(ResourceIconEngine(path))
 
 
