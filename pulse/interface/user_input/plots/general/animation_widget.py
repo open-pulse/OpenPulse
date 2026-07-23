@@ -25,15 +25,20 @@ class AnimationWidget(AnimationWidget_UI):
         self.export_icon = QIcon(str(ICON_DIR / "common/save_as.png"))
 
     def _config_widgets(self):
+
+        # QPushButton
         self.pushButton_animate.setIcon(self.play_icon)
         self.pushButton_animate.setIconSize(QSize(20, 20))
         self.pushButton_animate.setCursor(Qt.PointingHandCursor)
         self.pushButton_animate.setCheckable(True)
-        self.pushButton_export.setIcon(self.export_icon)
-        self.pushButton_export.setIconSize(QSize(20, 20))
-        self.pushButton_export.setCursor(Qt.PointingHandCursor)
-        self.spinBox_frames.setValue(app().project.frames)
-        self.spinBox_cycles.setValue(app().project.cycles)
+
+        self.pushButton_export_video.setIcon(self.export_icon)
+        self.pushButton_export_video.setIconSize(QSize(20, 20))
+        self.pushButton_export_video.setCursor(Qt.PointingHandCursor)
+
+        self.pushButton_animation_loop.setCursor(Qt.PointingHandCursor)
+        self.pushButton_animation_loop.setToolTip("Loop the animation")
+        self.pushButton_animation_loop.setCheckable(True)
 
         # QSlider
         self.phase_slider.setOrientation(Qt.Orientation.Horizontal)
@@ -48,6 +53,10 @@ class AnimationWidget(AnimationWidget_UI):
         self.magnification_factor_slider.setValue(16)
         self.magnification_factor_slider.setSingleStep(1)
 
+        # QSpinBox
+        self.spinBox_frames.setValue(app().project.frames)
+        self.spinBox_cycles.setValue(app().project.cycles)
+
         self._configure_icons()
         self.update_phase_slider_steps()
 
@@ -55,11 +64,14 @@ class AnimationWidget(AnimationWidget_UI):
         # self.phase_slider.sliderPressed.connect(self.pause_animation)
         self.phase_slider.valueChanged.connect(self.phase_slider_callback)
         self.magnification_factor_slider.valueChanged.connect(self.magnification_factor_slider_callback)
-
+        #
+        self.pushButton_animation_loop.clicked.connect(self.animation_loop_callback)
         self.pushButton_animate.clicked.connect(self.process_animation)
-        self.pushButton_export.clicked.connect(self.export_animation_to_file)
+        self.pushButton_export_video.clicked.connect(self.export_animation_to_file)
+        #
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
+        #
         app().main_window.theme_changed.connect(self._configure_icons)
 
     def _configure_icons(self, *args):
@@ -140,10 +152,12 @@ class AnimationWidget(AnimationWidget_UI):
 
     def process_animation(self, state: bool):
         self.update_animate_button_icons(state)
-        if state:
-            app().main_window.results_widget.start_animation(frames=self.frames, cycles=self.cycles)
-        else:
+        if not state:
             app().main_window.results_widget.stop_animation()
+            return
+
+        cycles = 0 if self.pushButton_animation_loop.isChecked() else self.cycles
+        app().main_window.results_widget.start_animation(frames=self.frames, cycles=cycles)        
 
     def update_animate_button_icons(self, state: bool):
         self.pushButton_animate.setIcon(self.pause_icon if state else self.play_icon)
@@ -180,3 +194,8 @@ class AnimationWidget(AnimationWidget_UI):
         except Exception as error_log:
             PrintMessageInput([error_title, "Error while exporting animation",
                                "An error has occured while exporting the animation file.\n" + str(error_log)])
+
+    def animation_loop_callback(self):
+        app().main_window.results_widget.stop_animation()
+        is_clicked = self.pushButton_animation_loop.isChecked()
+        self.spinBox_cycles.setDisabled(is_clicked)

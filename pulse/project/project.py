@@ -33,8 +33,8 @@ class Project:
         self.project_setup = ProjectSetup()
 
         # default animation settings
+        self.cycles = 3
         self.frames = 40
-        self.cycles = 0
 
         self._initialize()
         self.reset()
