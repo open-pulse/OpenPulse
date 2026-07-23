@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>333</width>
-    <height>177</height>
+    <height>365</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -474,7 +474,7 @@
   <tabstop>pushButton_animate</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../icons/resources.qrc"/>
+  <include location="../../../icons/dark_theme/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

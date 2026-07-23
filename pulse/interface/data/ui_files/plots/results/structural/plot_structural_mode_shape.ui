@@ -787,7 +787,7 @@
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>60</height>
+           <height>175</height>
           </size>
          </property>
          <property name="frameShape">
@@ -810,7 +810,7 @@
   <tabstop>comboBox_colormaps</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../icons/resources.qrc"/>
+  <include location="../../../../icons/dark_theme/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

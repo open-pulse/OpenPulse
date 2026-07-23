@@ -48,8 +48,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>367</width>
-        <height>491</height>
+        <width>355</width>
+        <height>601</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_6">
@@ -181,13 +181,13 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>40</height>
+              <height>120</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>120</height>
+              <height>160</height>
              </size>
             </property>
             <property name="frameShape">
@@ -716,6 +716,12 @@
        </item>
        <item row="2" column="0">
         <widget class="QFrame" name="frame_animation">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>175</height>
+          </size>
+         </property>
          <property name="frameShape">
           <enum>QFrame::Shape::NoFrame</enum>
          </property>
@@ -735,7 +741,7 @@
   <tabstop>treeWidget_frequencies</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../icons/resources.qrc"/>
+  <include location="../../../../icons/dark_theme/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

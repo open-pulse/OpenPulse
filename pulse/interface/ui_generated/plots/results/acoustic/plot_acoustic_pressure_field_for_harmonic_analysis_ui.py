@@ -40,7 +40,7 @@ class Ui_Form(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 367, 491))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 355, 601))
         self.gridLayout_6 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.gridLayout_6.setVerticalSpacing(4)
@@ -88,8 +88,8 @@ class Ui_Form(object):
         self.gridLayout_5.setContentsMargins(4, 4, 4, 4)
         self.frame_4 = QFrame(self.frame_2)
         self.frame_4.setObjectName(u"frame_4")
-        self.frame_4.setMinimumSize(QSize(0, 40))
-        self.frame_4.setMaximumSize(QSize(16777215, 120))
+        self.frame_4.setMinimumSize(QSize(0, 120))
+        self.frame_4.setMaximumSize(QSize(16777215, 160))
         self.frame_4.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_13 = QGridLayout(self.frame_4)
@@ -268,6 +268,7 @@ class Ui_Form(object):
 
         self.frame_animation = QFrame(self.scrollAreaWidgetContents)
         self.frame_animation.setObjectName(u"frame_animation")
+        self.frame_animation.setMinimumSize(QSize(0, 175))
         self.frame_animation.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_animation.setFrameShadow(QFrame.Shadow.Raised)
 
