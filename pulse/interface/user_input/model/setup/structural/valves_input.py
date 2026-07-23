@@ -6,20 +6,13 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.structural.valve_input_ui import (
-    ValveInput_UI,
-)
-from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import (
-    PerforatedPlateInput,
-)
-from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
-    StructuralLinesInput,
-)
+from pulse.interface.ui_generated.model.setup.structural.valve_input_ui import ValveInput_UI
+from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
+from pulse.interface.user_input.model.setup.structural.structural_lines_input import StructuralLinesInput
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.cross_section import CrossSection
+from pulse.model.data_classes.model_setup_data_classes import AcousticBehavior
 
 
 class TabIndex(IntEnum):
@@ -30,13 +23,6 @@ class TabIndex(IntEnum):
 class FlangeSetup(IntEnum):
     UNFLANGED = 0
     FLANGED = 1
-
-
-class AcousticBehavior(IntEnum):
-    OPEN = 0
-    PARTIALLY_CLOSED = 1
-    CLOSED = 2
-
 
 
 class ValvesInput(StructuralLinesInput, ValveInput_UI):
@@ -219,26 +205,26 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.treeWidget_valves_info.clear()
 
         for line_id, data in self.properties.line_properties.items():
-            if "valve_info" in data.keys():
-                valve_info = data.get("valve_info")
-                if not isinstance(valve_info, dict):
-                    continue
+            if "valve_info" not in data.keys():
+                continue
 
-                valve_name = valve_info.get("valve_name")
-                mass = valve_info.get("valve_mass")
-                stiffening_factor = valve_info.get("stiffening_factor")
-                acoustic_effects = valve_info.get("acoustic_behavior")
-                effective_diameter = valve_info.get("valve_effective_diameter")
+            valve_info = data.get("valve_info")
+            if not isinstance(valve_info, dict):
+                continue
 
-                parameters = str(
-                    [effective_diameter, stiffening_factor, mass, acoustic_effects]
-                )
+            valve_name = valve_info.get("valve_name")
+            mass = valve_info.get("valve_mass")
+            stiffening_factor = valve_info.get("stiffening_factor")
+            acoustic_effects = valve_info.get("acoustic_behavior")
+            effective_diameter = valve_info.get("effective_diameter")
 
-                item = QTreeWidgetItem([valve_name, str(line_id), parameters])
-                for i in range(3):
-                    item.setTextAlignment(i, Qt.AlignCenter)
+            parameters = str([effective_diameter, stiffening_factor, mass, acoustic_effects])
 
-                self.treeWidget_valves_info.addTopLevelItem(item)
+            item = QTreeWidgetItem([valve_name, str(line_id), parameters])
+            for i in range(3):
+                item.setTextAlignment(i, Qt.AlignCenter)
+
+            self.treeWidget_valves_info.addTopLevelItem(item)
 
         self.update_tab_visibility()
 
@@ -262,7 +248,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
         for element_id in app().main_window.list_selected_elements():
-            line = self.preprocessor.mesh.line_from_element[element_id]
+            line = self.preprocessor.mesh.get_line_from_element(element_id)
             elements_from_line[line].append(element_id)
 
         return elements_from_line
@@ -292,9 +278,9 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
         line_edits = [
             self.lineEdit_valve_mass,
-            self.lineEdit_stiffening_factor,
-            self.lineEdit_valve_effective_diameter,
-            self.lineEdit_valve_wall_thickness,
+            self.lineEdit_valve_stiffening_factor,
+            self.lineEdit_effective_diameter,
+            self.lineEdit_wall_thickness,
             self.lineEdit_offset_y,
             self.lineEdit_offset_z,
             ]
@@ -446,8 +432,8 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
     def add_section_parameters_into_valve_info(self):
 
-        d_in = self.valve_info.get("valve_effective_diameter")
-        t = round(self.valve_info.get("valve_wall_thickness"), 6)
+        d_in = self.valve_info.get("effective_diameter")
+        t = round(self.valve_info.get("wall_thickness"), 6)
         offset_y = round(self.valve_info.get("offset_y"), 6)
         offset_z = round(self.valve_info.get("offset_z"), 6)
 
@@ -481,36 +467,32 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         ]
 
         for element_id in element_ids:
-            if element_id not in line_elements:
-                if element_id in self.preprocessor.structural_elements.keys():
-                    cross = self.preprocessor.structural_elements[
-                        element_id
-                    ].cross_section
-                    element_type = self.preprocessor.structural_elements[
-                        element_id
-                    ].element_type
-                    if element_type == "pipe_1":
-                        if cross is None:
-                            continue
+            if element_id in line_elements:
+                continue
 
-                        if cross.outer_diameter > outer_diameter:
-                            outer_diameter = cross.outer_diameter
-                            thickness = cross.thickness
-                            offset_y = cross.offset_y
-                            offset_z = cross.offset_z
-                            self.inner_diameter = cross.inner_diameter
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
+            if element_attributes is None:
+                continue
+
+            element_type = element_attributes.structural_element_type
+            if element_type != "pipe_1":
+                continue
+
+            cross = element_attributes.cross_section
+            if cross is None:
+                continue
+
+            if cross.outer_diameter > outer_diameter:
+                outer_diameter = cross.outer_diameter
+                thickness = cross.thickness
+                offset_y = cross.offset_y
+                offset_z = cross.offset_z
+                self.inner_diameter = cross.inner_diameter
 
         if None in [thickness, offset_y, offset_z]:
             valve_section_parameters = None
         else:
-            valve_section_parameters = [
-                outer_diameter,
-                thickness,
-                offset_y,
-                offset_z,
-                0,
-                0,
-            ]
+            valve_section_parameters = [outer_diameter, thickness, offset_y, offset_z, 0, 0]
 
         return valve_section_parameters
 
@@ -536,25 +518,25 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
                 line_elements[-1] - 1,
                 line_elements[-1] + 1,
             ]
-            cross = None
-            element_type = None
+
+            cross_section = None
+            structural_element_type = None
 
             for element_id in element_ids:
                 # get the cross-section of the first out-of-line valid element
                 if element_id not in line_elements:
-                    element = self.preprocessor.structural_elements[element_id]
-                    cross = element.cross_section
-                    element_type = element.element_type
+                    cross_section = self.preprocessor.get_element_cross_section(element_id)
+                    structural_element_type = self.preprocessor.get_structural_element_type(element_id)
                     break
 
-            if element_type == "pipe_1" and isinstance(cross, CrossSection):
+            if structural_element_type == "pipe_1" and isinstance(cross_section, CrossSection):
                 pipe_info = {
                     "structure_name" : "pipe",
                     "section_type_label" : "pipe",
-                    "section_parameters" : cross.section_parameters,
+                    "section_parameters" : cross_section.section_parameters,
                     }
 
-                self.properties._set_line_property("structural_element_type", element_type, line_id)
+                self.properties._set_line_property("structural_element_type", structural_element_type, line_id)
                 self.properties._set_multiple_line_properties(pipe_info, line_id)
 
     def remove_callback(self):

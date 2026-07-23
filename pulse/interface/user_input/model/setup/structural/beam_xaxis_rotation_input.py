@@ -50,8 +50,6 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
         self.pipe_to_beam = False
         self.beam_to_pipe = False
 
-        self.element_type = "pipe_1"
-
     def _config_widgets(self):
         #
         self.pushButton_remove.setDisabled(True)
@@ -164,13 +162,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
 
     def filter_beam_lines(self, line_ids: list):
         try:
-            beam_lines = list()
-            for line_id in line_ids:
-                element_type = self.properties._get_property(
-                    "structural_element_type", line_id=line_id
-                )
-                if element_type == "beam_1":
-                    beam_lines.append(line_id)
+            beam_lines = self.properties.get_beam_lines()
 
             if len(beam_lines) == 0:
                 title = "Invalid lines selected"
@@ -299,7 +291,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
 
     def actions_to_finalize(self):
         self.lineEdit_actual_angle.clear()
-        self.preprocessor.process_all_rotation_matrices()
+        self.preprocessor.process_all_transformation_matrices()
         app().project.file.write_line_properties_in_file()
         self.load_lines_info()
         app().main_window.update_plots(False)

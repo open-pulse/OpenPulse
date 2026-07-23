@@ -73,7 +73,7 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
             if isinstance(self.reactions_at_constrained_dofs, dict):
                 for dof_index, value in self.reactions_at_constrained_dofs.items():
     
-                    global_dofs = list(node.global_dof)
+                    global_dofs = list(node.structural_global_dof)
                     if dof_index in global_dofs:
                         i = global_dofs.index(dof_index)
                         reactions[i] = value
@@ -84,7 +84,7 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
 
                 if isinstance(self.reactions_at_springs, dict):
                     for dof_index, value in self.reactions_at_springs.items():
-                        global_dofs = list(node.global_dof)
+                        global_dofs = list(node.structural_global_dof)
                         if dof_index in global_dofs:
                             i = global_dofs.index(dof_index)
                             reactions[i] = value
@@ -93,7 +93,7 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
 
                 if isinstance(self.reactions_at_dampers, dict):
                     for dof_index, value in self.reactions_at_dampers.items():
-                        global_dofs = list(node.global_dof)
+                        global_dofs = list(node.structural_global_dof)
                         if dof_index in global_dofs:
                             i = global_dofs.index(dof_index)
                             reactions[i] = value        
@@ -144,7 +144,7 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
                 logging.info("Processing global matrices [100%]")
 
                 if app().project.structural_solver.solution is None:
-                    app().project.structural_solver.solution = app().project.structural_solution
+                    app().project.structural_solver.solution = app().project.model.structural_solution
 
                 logging.info("Evaluating the structural reactions [20%]")
                 app().project.calculate_structural_reactions()

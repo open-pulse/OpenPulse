@@ -701,6 +701,10 @@ dependencies = [
     { name = "qtpy" },
     { name = "vtk" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/23/d8/21a0e3127b33744b4054950273775bacb801b9a9dec0361f51bfb2687616/molde-0.1.18.tar.gz", hash = "sha256:ca348943d64ee53530d01d8b5095ecce83e7cc190ff8d09c24d0abae433ce65c", size = 165074, upload-time = "2025-11-21T19:12:18.436Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e9/4f/4bc81837d623df7a7f59cebc41a109ced79d4d181b0a6bcaeb0d54a3271e/molde-0.1.18-py3-none-any.whl", hash = "sha256:f50fd11920a8decb93e8761bff3b2209732855b5a20770b939203c469b869205", size = 181577, upload-time = "2025-11-21T19:12:16.466Z" },
+]
 
 [[package]]
 name = "moviepy"

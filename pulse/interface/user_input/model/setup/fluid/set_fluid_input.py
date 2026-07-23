@@ -162,11 +162,16 @@ class SetFluidInput(SetFluidInput_UI):
             lineEdit = self.lineEdit_selected_id.text()
             self.stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
             if self.stop:
-                return True 
+                return True
+            
+        filtered_lines = self.filter_beams_from_selected_lines(line_ids)
+        if not filtered_lines:
+            return
 
-        app().project.model.preprocessor.set_fluid_by_lines(line_ids, selected_fluid)
-        self.properties._set_line_property("fluid_id", selected_fluid.identifier, line_ids)
-        self.properties._set_line_property("fluid", selected_fluid, line_ids)
+        app().project.model.preprocessor.set_fluid_by_lines(filtered_lines, selected_fluid)
+        self.properties._set_line_property("fluid_id", selected_fluid.identifier, filtered_lines)
+        self.properties._set_line_property("fluid", selected_fluid, filtered_lines)
+
         app().project.file.write_line_properties_in_file()
         app().main_window.update_plots(False)
 
@@ -174,10 +179,22 @@ class SetFluidInput(SetFluidInput_UI):
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
 
+        app().main_window.update_plots()
+
         self.complete = True
 
         if self.state_properties or all_lines_assignment:
             self.close()
+
+    def filter_beams_from_selected_lines(self, line_ids: list[int]):
+        filtered_lines = list()
+        for line_id in line_ids:
+            structural_element_type = self.properties._get_property("structural_element_type", line_id=line_id)
+            if structural_element_type == "beam_1":
+                continue
+            filtered_lines.append(line_id)
+        
+        return filtered_lines
 
     def reset_fluid_library_callback(self):
         self.hide()

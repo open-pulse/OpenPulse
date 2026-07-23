@@ -332,6 +332,15 @@
              <enum>QFrame::Shadow::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
+             <property name="leftMargin">
+              <number>2</number>
+             </property>
+             <property name="rightMargin">
+              <number>2</number>
+             </property>
+             <property name="horizontalSpacing">
+              <number>4</number>
+             </property>
              <item row="0" column="3">
               <widget class="QLabel" name="label_20">
                <property name="minimumSize">
@@ -499,7 +508,7 @@
               <widget class="QLabel" name="label_unit">
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
+                 <width>60</width>
                  <height>30</height>
                 </size>
                </property>

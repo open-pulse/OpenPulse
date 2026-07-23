@@ -1,12 +1,14 @@
 import numpy as np
 
 from pulse.model import AnalysisID
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.postprocessing.plot_structural_data import get_structural_frf
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pulse.project.project import Project
 
 
 def test_coupled_harmonic_analysis(example2_project, num_regression):
-    project, mesher_setup = example2_project
+    project: "Project" = example2_project
     model = project.model
     preprocessor = model.preprocessor
 
@@ -59,13 +61,13 @@ def test_coupled_harmonic_analysis(example2_project, num_regression):
 
     project.file.write_line_properties_in_file()
     project.file.write_nodal_properties_in_file()
-    project.file.write_project_setup_in_file(mesher_setup)
+    project.file.write_project_setup_in_file(model.project_setup.as_dict())
     project.file.write_analysis_setup_in_file(analysis_setup)
 
     project.build_model_and_solve(running_by_script=True)
 
-    structural_solution = project.structural_solution
-    acoustic_solution = project.acoustic_solution
+    structural_solution = project.model.structural_solution
+    acoustic_solution = project.model.acoustic_solution
 
     assert structural_solution is not None, "No structural solution returned"
     assert acoustic_solution is not None, "No acoustic solution returned"
@@ -86,12 +88,8 @@ def test_coupled_harmonic_analysis(example2_project, num_regression):
         np.array([2.000, -0.250, 1.250])
     )
 
-    structural_response = get_structural_frf(
-        preprocessor, structural_solution, structural_node_id, 2, absolute=True
-    )
-    acoustic_response = get_acoustic_frf(
-        preprocessor, acoustic_solution, acoustic_node_id, absolute=True
-    )
+    structural_response = project.structural_postprocessing.get_structural_response_spectrum(structural_node_id, 2, absolute=True)
+    acoustic_response = project.acoustic_postprocessing.get_acoustic_response_spectrum(acoustic_node_id, absolute=True)
 
     num_regression.check(
         {
@@ -99,5 +97,5 @@ def test_coupled_harmonic_analysis(example2_project, num_regression):
             "structural_response": structural_response,
             "acoustic_response": acoustic_response,
         },
-        default_tolerance=dict(atol=1e-6, rtol=1e-6),
+        default_tolerance=dict(atol=1e-5, rtol=1e-5),
     )

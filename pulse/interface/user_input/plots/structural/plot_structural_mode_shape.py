@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.plot_structural_mode_shape_ui import PlotStructuralModeShape_UI
 from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
+from pulse.interface.viewer_3d.coloring.color_palettes import COLORMAP_NAMES
 
 
 import numpy as np
@@ -17,25 +18,9 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         self._create_connections()
         self._add_animation_widget()
         self._config_widgets()
-        self.load_natural_frequencies()
-        self.load_user_preference_colormap()
-        self.select_first_frequency()
 
     def _initialize(self):
         self.mode_index = None
-        self.colormaps = [
-            "jet",
-            "viridis",
-            "inferno",
-            "magma",
-            "plasma",
-            "bwr",
-            "PiYG",
-            "PRGn",
-            "BrBG",
-            "PuOR",
-            "grayscale",
-        ]
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -84,17 +69,34 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
     def load_user_preference_colormap(self):
         try:
             colormap = app().config.user_preferences.color_map
-            if colormap in self.colormaps:
-                index = self.colormaps.index(colormap)
+            if colormap in COLORMAP_NAMES:
+                index = COLORMAP_NAMES.index()
                 self.comboBox_colormaps.setCurrentIndex(index)
+
         except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
+    # def update_colormap_type(self):
+    #     index = self.comboBox_colormaps.currentIndex()
+    #     colormap = self.colormaps[index]
+    #     app().main_window.results_widget.set_colormap(colormap)
+    #     self.update_plot()
+
     def update_colormap_type(self):
+        colormap = self.get_colormap()
+        app().config.user_preferences.color_map = colormap
+        app().config.update_config_file()
+        try:
+            app().main_window.results_widget.set_colormap(colormap)
+            self.update_plot()
+        except AttributeError:
+            pass
+
+    def get_colormap(self) -> str:
         index = self.comboBox_colormaps.currentIndex()
-        colormap = self.colormaps[index]
-        app().main_window.results_widget.set_colormap(colormap)
-        self.update_plot()
+        if not (0 <= index < len(COLORMAP_NAMES)):
+            return "jet"
+        return COLORMAP_NAMES[index]
 
     def update_plot(self):
 
@@ -107,6 +109,8 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         color_scale_setup = self.get_user_color_scale_setup()
 
         app().project.set_color_scale_setup(color_scale_setup)
+        self.animation_widget.reset_sliders()
+
         app().main_window.results_widget.show_displacement_field(self.mode_index)
         app().main_window.results_widget.clear_cache()
 
@@ -150,6 +154,8 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
 
+        self.select_first_frequency()
+
     def select_first_frequency(self):
         if self.treeWidget_frequencies.topLevelItemCount() == 0:
             return
@@ -171,5 +177,3 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.update_plot()
-        elif event.key() == Qt.Key_Escape:
-            self.close()

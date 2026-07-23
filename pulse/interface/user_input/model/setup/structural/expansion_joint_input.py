@@ -65,7 +65,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         general_validator = StrictDoubleValidator(1e-6, 1e8, 6)
         self.lineEdit_effective_diameter.setValidator(general_validator)
-        self.lineEdit_joint_mass.setValidator(general_validator)
+        self.lineEdit_ejoint_mass.setValidator(general_validator)
 
         offsets_validator = StrictDoubleValidator(-1e8, 1e8, 6)
         self.lineEdit_offset_y.setValidator(offsets_validator)
@@ -84,7 +84,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         self.lineEdit_expansion_joint_name.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_effective_diameter.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_joint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_ejoint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         self.reset_table_variables()
         self.create_widgets_lists()
@@ -172,11 +172,11 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
     def load_input_fields(self, joint_data: dict):
 
-        self.lineEdit_expansion_joint_name.setText(joint_data["expansion_joint_name"])
-        self.lineEdit_effective_diameter.setText(str(joint_data["effective_diameter"]))
-        self.lineEdit_joint_mass.setText(str(joint_data["joint_mass"]))
-        self.lineEdit_axial_locking_criteria.setText(str(joint_data["axial_locking_criteria"]))
-        self.comboBox_axial_stop_rod.setCurrentIndex(int(joint_data["rods"]))
+        self.lineEdit_expansion_joint_name.setText(joint_data.get("ejoint_name"))
+        self.lineEdit_effective_diameter.setText(str(joint_data.get("effective_diameter")))
+        self.lineEdit_ejoint_mass.setText(str(joint_data.get("ejoint_mass")))
+        self.lineEdit_axial_locking_criteria.setText(str(joint_data.get("axial_locking_criteria", 1)))
+        self.comboBox_axial_stop_rod.setCurrentIndex(int(joint_data.get("rods_included", False)))
 
         self.lineEdit_offset_y.clear()
         self.lineEdit_offset_z.clear()
@@ -260,7 +260,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.lineEdit_expansion_joint_name.setFocus()
             return True
 
-        self.expansion_joint_info["expansion_joint_name"] = joint_name
+        self.expansion_joint_info["ejoint_name"] = joint_name
         axial_stop_rod = self.comboBox_axial_stop_rod.currentIndex() == AxialStopRod.INCLUDED
 
         if self.render_type == "model":
@@ -271,7 +271,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.lineEdit_effective_diameter,
             self.lineEdit_offset_y,
             self.lineEdit_offset_z,
-            self.lineEdit_joint_mass,
+            self.lineEdit_ejoint_mass,
         ]
 
         if axial_stop_rod:
@@ -287,7 +287,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             var_name = obj_name.split("lineEdit_")[1]
             self.expansion_joint_info[var_name] = float(text_value) if text_value != "" else 0
 
-        self.expansion_joint_info["rods"] = axial_stop_rod
+        self.expansion_joint_info["rods_included"] = axial_stop_rod
 
     def check_constant_values_to_stiffness(self):
 
@@ -439,7 +439,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                         self.expansion_joint_info.clear()
                         return
 
-                self.expansion_joint_info["joint_length"] = self.process_line_length(
+                self.expansion_joint_info["ejoint_length"] = self.process_line_length(
                     line_id
                 )
 
@@ -479,17 +479,17 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         for line_id, data in self.properties.line_properties.items():
             if "expansion_joint_info" in data.keys():
                 ej_info = data["expansion_joint_info"]
-                L = round(ej_info["joint_length"], 6)
+                L = round(ej_info["ejoint_length"], 6)
                 d_eff = ej_info["effective_diameter"]
-                mass = ej_info["joint_mass"]
-                rods = ej_info["rods"]
+                mass = ej_info["ejoint_mass"]
+                rods_included = ej_info["rods_included"]
 
                 if "table_names" in ej_info.keys():
                     pass
                 else:
                     pass
 
-                str_joint_info = f"{L}, {d_eff}, {mass}, {rods}, "
+                str_joint_info = f"{L}, {d_eff}, {mass}, {rods_included}, "
                 if "table_names" in ej_info.keys():
                     str_joint_info += "Table, Table, Table, Table"
                 else:
@@ -542,33 +542,30 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                 last_element_id_from_line + 1
                 ]
 
-            cross = None
-            element_type = None
+            cross_section = None
+            structural_element_type = None
 
             for element_id in element_ids:
-                if element_id not in line_elements:
-                    element = self.preprocessor.structural_elements[element_id]
-                    cross = element.cross_section
-                    element_type = element.element_type
-                    break
+                if element_id in line_elements:
+                    continue
 
-            if element_type == "pipe_1" and isinstance(cross, CrossSection):
-                self.preprocessor.set_cross_section_by_lines(line_id, cross)
-                self.preprocessor.set_structural_element_type_by_lines(
-                    line_id, "pipe_1"
-                )
+                structural_element_type = self.preprocessor.get_element_cross_section(element_id)
+                cross_section = self.preprocessor.get_element_cross_section(element_id)
+                break
+
+            if structural_element_type == "pipe_1" and isinstance(cross_section, CrossSection):
+                self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
+                self.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
 
                 pipe_info = {
                     "structure_name": "pipe",
                     "section_type_label": "pipe",
-                    "section_parameters": cross.section_parameters,
+                    "section_parameters": cross_section.section_parameters,
                 }
 
-                self.properties._set_line_property(
-                    "structural_element_type", element_type, line_id
-                )
+                self.properties._set_line_property("structural_element_type", structural_element_type, line_id)
                 self.properties._set_multiple_line_properties(pipe_info, line_id)
-    
+
     def remove_expansion_joint_properties(self, line_ids: int | list[int]):
         self.properties._remove_line_property("structure_name", line_ids)
         self.properties._remove_line_property("expansion_joint_info", line_ids)
@@ -646,31 +643,6 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         elif event.key() == Qt.Key_Escape:
             self.close()
     
-    # def get_pipe_cross_section_from_neighbors(self, line_id, list_elements):
-
-    #     line_elements = self.preprocessor.elements_from_line[line_id]
-    #     lower_id = list_elements[0] - 1
-    #     upper_id = list_elements[-1] + 1
-
-    #     cross = None
-    #     structural_element_type = None
-
-    #     try:
-    #         if lower_id in line_elements:
-    #             element = self.preprocessor.structural_elements[lower_id]
-    #             cross = element.cross_section
-    #             structural_element_type = element.element_type
-
-    #         elif upper_id in line_elements:
-    #             element = self.preprocessor.structural_elements[upper_id]
-    #             cross = element.cross_section
-    #             structural_element_type = element.element_type
-    #     except:
-    #         pass
-
-    #     return cross, structural_element_type
-
-
 def get_cross_sections_to_plot_expansion_joint(
     joint_elements: list, effective_diameter: float, offset_y: float, offset_z: float
 ):

@@ -11,10 +11,13 @@ class PointsActor(GhostActor):
     def __init__(self, show_deformed=False, **kwargs) -> None:
         super().__init__()
 
-        self.points = app().project.get_geometry_points()
+        self.points = app().project.model.preprocessor.get_geometry_points()
         self.user_preferences = app().main_window.config.user_preferences
         self.hidden_nodes = kwargs.get("hidden_nodes", set())
         self.show_deformed = show_deformed
+
+        self.deformed_coordinates = app().project.model.preprocessor.deformed_coordinates
+
         self.build()
 
     def build(self):
@@ -30,10 +33,10 @@ class PointsActor(GhostActor):
         data.Allocate(len(visible_nodes))
 
         for i, node in enumerate(visible_nodes.values()):
-            xyz = node.deformed_coordinates if self.show_deformed else node.coordinates
+            xyz = self.deformed_coordinates[node.index, 1:] if self.show_deformed else node.coordinates
             points.InsertNextPoint(xyz)
             data.InsertNextCell(VTK_VERTEX, 1, [i])
-            node_index.InsertNextTuple1(node.external_index)
+            node_index.InsertNextTuple1(node.index)
 
         data.SetPoints(points)
         data.GetCellData().AddArray(node_index)
@@ -43,7 +46,7 @@ class PointsActor(GhostActor):
         mapper.SetScalarModeToUseCellData()
         
         self.SetMapper(mapper)
-        self.GetProperty().SetPointSize(15)
+        self.GetProperty().SetPointSize(8)
         if not app().main_window.config.user_preferences.compatibility_mode:
             self.GetProperty().RenderPointsAsSpheresOn()
         self.make_ghost()

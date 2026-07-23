@@ -4,18 +4,11 @@ import numpy as np
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_ui import (
-    GetAcousticFrequencyResponse_UI,
-)
-from pulse.interface.user_input.data_handler.export_model_results import (
-    ExportModelResults,
-)
+from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_ui import GetAcousticFrequencyResponse_UI
+from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
-from pulse.interface.user_input.plots.general.frequency_response_plotter import (
-    FrequencyResponsePlotter,
-)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.model.properties.fluid import Fluid
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 
 class CutoffFrequency(IntEnum):
@@ -38,10 +31,8 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
         self.selection_callback()
 
     def _initialize(self):
-        self.solution = self.project.get_acoustic_solution()
         self.before_run = self.project.get_pre_solution_model_checks()
         self.analysis_method = self.project.analysis_method
-        self.frequencies = self.model.frequencies
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -100,9 +91,10 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
                 return True
 
     def get_response(self, node_id):
-        response = get_acoustic_frf(app().project.model.preprocessor, self.solution, node_id)
+        response = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(node_id)
         if complex(0) in response:
             response += 1e-12
+
         return response
 
     def cutoff_frequency_options_callback(self):
@@ -162,7 +154,7 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
             legend_label = f"Acoustic pressure at node {node_id}"
 
             self.model_results[key] = {
-                                        "x_data" : self.frequencies,
+                                        "x_data" : self.model.frequencies,
                                         "y_data" : self.get_response(node_id),
                                         "x_label" : "Frequency [Hz]",
                                         "y_label" : y_label,

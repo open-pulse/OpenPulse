@@ -1,22 +1,19 @@
-import numpy as np
 import logging
-from pulse.utils import cross_section_sources
-from vtkmodules.vtkCommonCore import (
-    vtkDoubleArray,
-    vtkIntArray,
-    vtkPoints,
-    vtkUnsignedCharArray,
-)
+
+import numpy as np
+from vtkmodules.vtkCommonCore import vtkDoubleArray, vtkIntArray, vtkPoints, vtkUnsignedCharArray
 from vtkmodules.vtkCommonDataModel import vtkPlane, vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
 from vtkmodules.vtkRenderingCore import vtkActor, vtkGlyph3DMapper
 
 from pulse import app
-from pulse.utils.interface_utils import ColorMode
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
-from pulse.model.acoustic_element import AcousticElement
-from pulse.model.structural_element import StructuralElement
 from pulse.model.cross_section import CrossSection
+from pulse.model.node import Node
+from pulse.model.elements.element_attributes import ElementAttributes
+
+from pulse.utils import cross_section_sources
+from pulse.utils.interface_utils import ColorMode
 
 
 class TubeActor(vtkActor):
@@ -37,19 +34,39 @@ class TubeActor(vtkActor):
     def __init__(self, **kwargs) -> None:
         super().__init__()
 
-        self.project = app().project
         self.user_preferences = app().main_window.config.user_preferences
-        self.model = self.project.model
-        self.preprocessor = self.project.model.preprocessor
-        self.elements = self.project.get_structural_elements()
+        self.elements_attributes = app().project.model.preprocessor.elements_attributes
+        self.deformed_coordinates = app().project.model.preprocessor.deformed_coordinates
+
         self.hidden_elements = kwargs.get("hidden_elements", set())
         self.build()
 
+    @property
+    def model(self):
+        return app().project.model
+
+    @property
+    def preprocessor(self):
+        return app().project.model.preprocessor
+
+    def get_element_attributes(self, element_id: int):
+        return self.preprocessor.elements_attributes.get(element_id)
+
     def build(self):
-        visible_elements = {
-            i: e for i, e in self.elements.items() if (i not in self.hidden_elements)
-        }
-        self._key_index = {j: i for i, j in enumerate(visible_elements.keys())}
+        
+        all_elements = np.array(list(self.elements_attributes.keys()), dtype=int)
+        visible_elements = all_elements[~np.isin(all_elements, self.hidden_elements)]
+
+        self._key_index = {j: i for i, j in enumerate(visible_elements)}
+
+        # visible_elements2 = {i: e for i, e in self.elements_attributes.items() if (i not in self.hidden_elements)}
+        # self._key_index2 = {j: i for i, j in enumerate(visible_elements2.keys())}
+
+        # aux_1 = np.array([list(self._key_index.values()), list(self._key_index2.values())]).T
+        # aux_2 = np.array([list(self._key_index.keys()), list(self._key_index2.keys())]).T
+
+        # print(np.max(aux_1[:, 0] - aux_1[:, 1]))
+        # print(np.max(aux_2[:, 0] - aux_2[:, 1]))
 
         data = vtkPolyData()
         mapper = vtkGlyph3DMapper()
@@ -70,16 +87,19 @@ class TubeActor(vtkActor):
         colors.SetName("colors")
 
         section_index = dict()
-        for element in visible_elements.values():
-            points.InsertNextPoint(self.get_element_coordinates(element))
-            rotations.InsertNextTuple(self.get_element_rotations(element))
+        for element_id in visible_elements:
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
-            key = self._hash_element_section(element)
+            points.InsertNextPoint(self.get_element_coordinates(element_attributes.first_node))
+            rotations.InsertNextTuple(self.get_element_rotations(element_id))
+
+            key = self._hash_element_section(element_attributes)
             if key not in section_index:
                 section_index[key] = len(section_index)
-                source = self.create_element_data(element)
+                source = self.create_element_data(element_attributes)
                 source = self._fixed_section(source)
                 mapper.SetSourceData(section_index[key], source)
+
             sources.InsertNextTuple1(section_index[key])
 
         data.SetPoints(points)
@@ -101,33 +121,34 @@ class TubeActor(vtkActor):
 
         self.GetProperty().SetInterpolationToPhong()
         self.GetProperty().SetDiffuse(0.8)
-        self.GetProperty().SetSpecular(1.5)
-        self.GetProperty().SetSpecularPower(80)
-        self.GetProperty().SetSpecularColor(1, 1, 1)
+        # self.GetProperty().SetSpecular(1.5)
+        # self.GetProperty().SetSpecularPower(80)
+        # self.GetProperty().SetSpecularColor(1, 1, 1)
         
         self.clear_colors()
 
-    def get_element_coordinates(self, element: AcousticElement | StructuralElement) -> tuple[float, float, float]:
-        return element.first_node.coordinates
+    def get_element_coordinates(self, node: Node) -> tuple[float, float, float]:
+        return node.coordinates
 
-    def get_element_rotations(self, element: AcousticElement | StructuralElement) -> tuple[float, float, float]:
-        return element.section_rotation_xyz_undeformed
+    def get_element_rotations(self, element_id: int) -> tuple[float, float, float]:
+        return self.preprocessor.undeformed_section_rotations[element_id, :]
 
-    def create_element_data(self, element: AcousticElement | StructuralElement):
-        cross_section = element.cross_section
+    def create_element_data(self, element_attributes: ElementAttributes):
+
+        cross_section = element_attributes.cross_section
+        length = element_attributes.length
+        section_parameters_render = element_attributes.section_parameters_render
+
         if not isinstance(cross_section, CrossSection):
             return vtkPolyData()
 
         tube_sides = self._get_tube_sides()
-        length = element.length
 
         if cross_section.section_type_label in ["pipe", "bend", "arc_bend", "reducer"]:
-            if element.section_parameters_render is None:
-                section_parameters = cross_section.section_parameters
+            if section_parameters_render is None:
+                d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
             else:
-                section_parameters = element.section_parameters_render
-
-            d_out, t, offset_y, offset_z, *_ = section_parameters
+                d_out, t, offset_y, offset_z, *_ = section_parameters_render
 
             return cross_section_sources.pipe_data(length, d_out, t, offset_y, offset_z, sides=tube_sides)
 
@@ -152,7 +173,7 @@ class TubeActor(vtkActor):
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "expansion_joint":
-            d_eff, offset_y, offset_z, plot_key = element.section_parameters_render
+            d_eff, offset_y, offset_z, plot_key = section_parameters_render
 
             if plot_key == "major":
                 d_out = d_eff * 1.25
@@ -171,18 +192,18 @@ class TubeActor(vtkActor):
             return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "valve":
-            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            d_out, t, offset_y, offset_z, *_ = section_parameters_render
             return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         else:
             logging.warn(f"Representation not found for section {cross_section.section_type_label}")
 
         return None
-    
+
     def _get_tube_sides(self):
-        if len(self.elements) > 100_000:
+        if len(self.elements_attributes) > 100_000:
             return 10
-        elif len(self.elements) > 10_000:
+        elif len(self.elements_attributes) > 10_000:
             return 20
         else:
             return 30
@@ -224,8 +245,8 @@ class TubeActor(vtkActor):
             line_elements = line_to_elements[line]
             elements |= set(line_elements)
 
-        for element in elements:
-            index = self._key_index.get(element)
+        for elem_id in elements:
+            index = self._key_index.get(elem_id)
             colors.SetTuple(index, color)
 
         data.GetPointData().SetScalars(colors)
@@ -237,11 +258,12 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element in self.elements.items():
-            index = self._key_index.get(i)
+        for elem_id, element_attributes in self.elements_attributes.items():
+            index = self._key_index.get(elem_id)
             if index is None:
                 continue
-            color = color_table.get_element_color(element)
+
+            color = color_table.get_element_color(element_attributes)
             colors.SetTuple(index, color)
 
         data.GetPointData().SetScalars(colors)
@@ -253,18 +275,19 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element in self.elements.items():
-            index = self._key_index.get(i)
+        for elem_id, element_attributes in self.elements_attributes.items():
+            index = self._key_index.get(elem_id)
             if index is None:
                 continue
 
-            if element.material is None:
+            material = element_attributes.material
+            if material is None:
                 colors.SetTuple(index, (255, 255, 255))
                 continue
 
             # get the element color and make it a bit brighter
             # color = np.array(element.material.getColorRGB()) + 50
-            color = np.array(element.material.color) + 50
+            color = np.array(material.color) + 50
 
             color = tuple(np.clip(color, 0, 255))
             colors.SetTuple(index, color)
@@ -278,18 +301,19 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for i, element in self.elements.items():
-            index = self._key_index.get(i)
+        for elem_id, element_attributes in self.elements_attributes.items():
+            index = self._key_index.get(elem_id)
             if index is None:
                 continue
 
-            if element.fluid is None:
+            fluid = element_attributes.fluid
+            if fluid is None:
                 colors.SetTuple(index, (255, 255, 255))
                 continue
 
             # get the element color and make it a bit brighter
             # color = np.array(element.fluid.getColorRGB()) + 50
-            color = np.array(element.fluid.color) + 50
+            color = np.array(fluid.color) + 50
 
             color = tuple(np.clip(color, 0, 255))
             colors.SetTuple(index, color)
@@ -307,26 +331,23 @@ class TubeActor(vtkActor):
     def disable_cut(self):
         self.GetMapper().RemoveAllClippingPlanes()
 
-    def _hash_element_section(self, element: AcousticElement | StructuralElement):
-
-        if element.cross_section is None:
+    def _hash_element_section(self, element_attributes: ElementAttributes):
+        
+        cross_section = element_attributes.cross_section
+        if cross_section is None:
             return 0
 
-        section_label = element.cross_section.section_type_label
+        section_parameters = element_attributes.section_parameters_render
+        if section_parameters is None:
+            section_parameters = cross_section.section_parameters
 
-        if element.section_parameters_render is None:
-            section_parameters = element.cross_section.section_parameters
-        else:
-            section_parameters = element.section_parameters_render
+        # if section_parameters is not None:
+        #     section_parameters = tuple(section_parameters)
 
-        if section_parameters is not None:
-            section_parameters = tuple(section_parameters)
+        length_rounded = round(element_attributes.length, 5)
+        section_label = cross_section.section_type_label
 
-        return hash((
-            round(element.length, 5),
-            section_label,
-            section_parameters,
-        ))
+        return hash((length_rounded, section_label, tuple(section_parameters)))
 
     def _fixed_section(self, source):
         if source is None:

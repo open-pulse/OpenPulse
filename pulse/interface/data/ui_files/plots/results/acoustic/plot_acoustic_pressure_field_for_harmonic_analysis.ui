@@ -400,12 +400,12 @@
                </property>
                <item>
                 <property name="text">
-                 <string>Animation (absolute)</string>
+                 <string>Animation (non absolute)</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Animation (non absolute)</string>
+                 <string>Animation (absolute)</string>
                 </property>
                </item>
                <item>

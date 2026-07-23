@@ -11,7 +11,7 @@ from molde.colors import color_names
 from molde.render_widgets import CommonRenderWidget
 from PySide6.QtCore import QEvent, QPoint, Qt, Signal
 from PySide6.QtGui import QAction, QCloseEvent, QColor, QCursor
-from PySide6.QtWidgets import QAbstractButton, QApplication, QDialog, QMessageBox, QToolBar
+from PySide6.QtWidgets import QAbstractButton, QApplication, QDialog, QMessageBox, QToolBar, QWidget
 
 from pulse import (
     QSS_DIR,
@@ -47,7 +47,7 @@ from pulse.interface.viewer_3d.render_widgets import (
 )
 from pulse.interface.welcome_widget import WelcomeWidget
 from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter, block_signals
-
+from pulse.model.data_classes.project_setup_data_classes import MesherSetup
 
 class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
@@ -529,6 +529,9 @@ class MainWindow(MainWindow_UI):
     def get_current_render_widget(self) -> CommonRenderWidget | None:
         return self.render_widgets_stack.currentWidget()
 
+    def get_current_setup_widget(self) -> QWidget | None:
+        return self.setup_widgets_stack.currentWidget()
+
     def get_current_visualization_filter(self) -> VisualizationFilter | None:
         render_widget = self.get_current_render_widget()
         if not hasattr(render_widget, "visualization_filter"):
@@ -614,6 +617,10 @@ class MainWindow(MainWindow_UI):
         self.reload_visualization_filter()
 
     def action_model_setup_workspace_callback(self):
+        if self.ask_finalize_question() == QMessageBox.StandardButton.Cancel:
+            self.action_model_setup_workspace.setChecked(False)
+            return
+
         self.setup_widgets_stack.setVisible(True)
 
         self.main_toolbar.setDisabled(False)
@@ -630,6 +637,10 @@ class MainWindow(MainWindow_UI):
         self.reload_visualization_filter()
 
     def action_results_workspace_callback(self):
+        if self.ask_finalize_question() == QMessageBox.StandardButton.Cancel:
+            self.action_results_workspace.setChecked(False)
+            return
+
         if not self.project.is_the_solution_finished():
             return
 
@@ -646,6 +657,33 @@ class MainWindow(MainWindow_UI):
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
         self.results_viewer_widget.update_visibility_items()
         self.reload_visualization_filter()
+
+    def ask_finalize_question(self) -> QMessageBox.StandardButton | None:
+        setup_widget = self.get_current_setup_widget()
+        if not isinstance(setup_widget, GeometryDesignerWidget):
+            return QMessageBox.StandardButton.Default
+
+        if not setup_widget.modified:
+            return QMessageBox.StandardButton.Default
+
+        message_box = QMessageBox.question(
+            self,
+            "Finalize geometry",
+            "Apply geometry changes before changing workspace?",
+            QMessageBox.StandardButton.Cancel | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Yes,
+        )
+
+        match message_box:
+            case QMessageBox.StandardButton.Yes:
+                setup_widget.finalize_callback()
+
+            case QMessageBox.StandardButton.Discard:
+                setup_widget.cancel_callback()
+
+            case QMessageBox.StandardButton.Cancel:
+                pass
+
+        return message_box
 
     def update_results_workspace_button_accessibility(self, solution_exists: bool | None = None):
         if solution_exists is None:
@@ -706,7 +744,7 @@ class MainWindow(MainWindow_UI):
         self.project.reset_project(reset_all=True)
 
         if self.project.model.mesh is not None:
-            self.project.model.mesh.set_mesher_setup()
+            self.project.model.mesh.set_mesher_setup(MesherSetup())
 
         self.reset_geometry_render()
         self.clear_selection()
@@ -823,11 +861,8 @@ class MainWindow(MainWindow_UI):
         self.visualization_changed.emit()
 
     def update_export_geometry_file_access(self):
-        import_type = app().project.model.mesh.import_type
-        if import_type == 0:
-            self.action_export_geometry.setDisabled(True)
-        elif import_type == 1:
-            self.action_export_geometry.setDisabled(False)
+        import_type = app().project.project_setup.import_type
+        self.action_export_geometry.setEnabled(bool(import_type))
 
     def action_import_geometry_callback(self):
         obj = ImportGeometry()
@@ -846,7 +881,7 @@ class MainWindow(MainWindow_UI):
 
         for render in self.get_renderer_widgets():
             self.view_toolbar.render_tool_changed.connect(render.add_render_tool)
-        
+
         self.addToolBarBreak()
 
     def _add_toolbars(self):
@@ -950,11 +985,13 @@ class MainWindow(MainWindow_UI):
         QCursor.setPos(final_pos)
 
     def save_project_data(self):
-
         self.close_dialogs()
 
         message_box = QMessageBox.question(
-            self, "Quit", "Would you like to save the project data before exit?", QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
+            self,
+            "Quit",
+            "Would you like to save the project data before exit?",
+            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save,
         )
 
         if message_box == QMessageBox.Cancel:
@@ -1042,6 +1079,7 @@ class MainWindow(MainWindow_UI):
             self.update_results_workspace_button_accessibility()
             self.view_toolbar.action_front_view_callback()
             self.update_plots()
+            self.update_status_bar_info()
 
         LoadingWindow(tmp).run()
 
@@ -1094,9 +1132,17 @@ class MainWindow(MainWindow_UI):
         return True
 
     def save_project_as(self, path):
+        def finalize_geometry_if_needed():
+            setup_widget = self.get_current_setup_widget()
+            if not isinstance(setup_widget, GeometryDesignerWidget):
+                return
+
+            if not setup_widget.modified:
+                return
+
+            setup_widget.finalize_callback()
 
         def save_data(path):
-
             logging.info("Saving the project data... [10%]")
 
             from datetime import datetime
@@ -1123,6 +1169,7 @@ class MainWindow(MainWindow_UI):
             print(f"The project data has been saved @ {datetime.now()}")
             sleep(0.5)
 
+        LoadingWindow(finalize_geometry_if_needed).run()
         LoadingWindow(save_data).run(path)
 
     def action_capture_image_callback(self):
@@ -1163,6 +1210,17 @@ class MainWindow(MainWindow_UI):
                 continue
 
             window.close()
+
+    def hide_dialogs(self):
+        for window in app().topLevelWidgets():
+            if isinstance(window, MainWindow):
+                continue
+
+            if isinstance(window, LoadingWindow):
+                continue
+
+            if window.isVisible():
+                window.hide()
 
     def minimize_dialogs(self):
         for window in app().topLevelWidgets():
