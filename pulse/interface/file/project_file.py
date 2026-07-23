@@ -158,10 +158,10 @@ class ProjectFile:
 
     def write_project_setup_in_file(self, project_setup: dict):
         geometry_path = project_setup.get("geometry_path_source", "")
+        geometry_filename = project_setup.get("geometry_filename", "")
 
-        if geometry_path != "":
-            basename = os.path.basename(geometry_path)
-            internal_path = f"geometry_file/{basename}"
+        if geometry_path != "" and geometry_filename != "":
+            internal_path = f"geometry_file/{ geometry_filename}"
 
             try:
                 self._remove_file("geometry_file")
