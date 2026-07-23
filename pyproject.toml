@@ -59,9 +59,6 @@ dev = [
 
 [tool.uv]
 
-[tool.uv.sources]
-molde = { git = "https://github.com/MOPT-UFSC/molde.git", branch = "main" }
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
