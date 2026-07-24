@@ -5,10 +5,12 @@
         <file>lines.png</file>
         <file>lines_cross_section.png</file>
         <file>plus-thick.png</file>
+        <file>common/autoplay_icon.png</file>
         <file>common/back.png</file>
         <file>common/bottom.png</file>
         <file>common/broom.png</file>
         <file>common/calculate.png</file>
+        <file>common/circular_arrows_icon.png</file>
         <file>common/cube-scan.png</file>
         <file>common/delete.png</file>
         <file>common/document_search.png</file>
@@ -23,6 +25,7 @@
         <file>common/help.png</file>
         <file>common/image-plus.png</file>
         <file>common/import.png</file>
+        <file>common/infinite_symbol.png</file>
         <file>common/invert_icon.png</file>
         <file>common/isometric.png</file>
         <file>common/left.png</file>
@@ -100,24 +103,35 @@
         <file>logos/op_light_theme.png</file>
         <file>model_setup_items/absorption_surface.png</file>
         <file>model_setup_items/absorption_surface1.png</file>
+        <file>model_setup_items/acoustic_element_length_correction.png</file>
+        <file>model_setup_items/acoustic_element_type.png</file>
         <file>model_setup_items/acoustic_pressure.png</file>
+        <file>model_setup_items/acoustic_transfer_element.png</file>
         <file>model_setup_items/acoustic_transfer_element_setup.png</file>
         <file>model_setup_items/anechoic_termination.png</file>
         <file>model_setup_items/anechoic_termination2.png</file>
+        <file>model_setup_items/beam_xaxis_rotation.png</file>
         <file>model_setup_items/compressor_excitation_spectrum.png</file>
         <file>model_setup_items/compressor_excitation_spectrum2.png</file>
         <file>model_setup_items/compressor_excitation_waveform.png</file>
         <file>model_setup_items/compressor_excitation_waveform2.png</file>
+        <file>model_setup_items/cross_section.png</file>
+        <file>model_setup_items/damper.png</file>
         <file>model_setup_items/damping.png</file>
         <file>model_setup_items/degrees_of_freedom_decoupling.png</file>
         <file>model_setup_items/deployed_code.png</file>
         <file>model_setup_items/distributed_loads.png</file>
         <file>model_setup_items/distributed_loads3.png</file>
         <file>model_setup_items/distributed_loads4.png</file>
+        <file>model_setup_items/elastic_nodal_links.png</file>
         <file>model_setup_items/error_red.png</file>
+        <file>model_setup_items/expansion_joint.png</file>
         <file>model_setup_items/fluid.png</file>
         <file>model_setup_items/incident_plane_wave.png</file>
+        <file>model_setup_items/inertial_loads.png</file>
+        <file>model_setup_items/mass.png</file>
         <file>model_setup_items/mass_source.png</file>
+        <file>model_setup_items/mass_spring_damper.png</file>
         <file>model_setup_items/material.png</file>
         <file>model_setup_items/mesh_setup.png</file>
         <file>model_setup_items/mesh_setup1.png</file>
@@ -130,20 +144,29 @@
         <file>model_setup_items/porous_material_model.png</file>
         <file>model_setup_items/prescribed_dofs.png</file>
         <file>model_setup_items/proportional_damping.png</file>
+        <file>model_setup_items/radiation_impedance.png</file>
         <file>model_setup_items/reciprocating_compressor_excitation.png</file>
         <file>model_setup_items/reciprocating_compressor_excitation2.png</file>
         <file>model_setup_items/reciprocating_f.png</file>
+        <file>model_setup_items/reciprocating_pump_excitation.png</file>
         <file>model_setup_items/reciprocating_t.png</file>
+        <file>model_setup_items/rotation_decoupling_dofs.png</file>
         <file>model_setup_items/s.png</file>
         <file>model_setup_items/screw_compressor.png</file>
         <file>model_setup_items/specific_impedance.png</file>
+        <file>model_setup_items/spring.png</file>
+        <file>model_setup_items/stress_stiffening.png</file>
+        <file>model_setup_items/structural_element_type.png</file>
         <file>model_setup_items/structural_help.png</file>
         <file>model_setup_items/surface_thickness.png</file>
         <file>model_setup_items/surface_thickness2.png</file>
         <file>model_setup_items/surface_velocity.png</file>
         <file>model_setup_items/text1.png</file>
         <file>model_setup_items/transfer_impedance.png</file>
+        <file>model_setup_items/turn_off_acoustic_elements.png</file>
+        <file>model_setup_items/valve.png</file>
         <file>model_setup_items/viscous_thermal_model.png</file>
+        <file>model_setup_items/volume_velocity.png</file>
         <file>model_setup_items/warning_yellow.png</file>
         <file>model_setup_items/warning_yellow2.png</file>
         <file>model_setup_items/weight.png</file>
