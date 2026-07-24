@@ -432,7 +432,8 @@ class LoadProject:
         project_setup = ProjectSetup()
         project_setup.import_type = mesher_setup.get("import_type") if import_type is None else import_type
         project_setup.geometry_filename = project_setup_dict.get("geometry_filename", "")
-        project_setup.geometry_path = project_setup_dict.get("geometry_path", "")
+        project_setup.geometry_path_source = project_setup_dict.get("geometry_path_source", "")
+        project_setup.geometry_path_internal = self.project.file.read_geometry_from_file()
         project_setup.version = project_setup_dict.get("version", VERSION)
         project_setup.mesher_setup = MesherSetup(**project_setup_dict.get("mesher_setup", dict()))
 

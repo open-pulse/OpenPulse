@@ -45,7 +45,8 @@ class ProjectSetup:
     import_type: IntEnum = ImportType.BUILT_IN
     version: str = VERSION
     geometry_filename: str = ""
-    geometry_path: str = ""
+    geometry_path_source: str = ""
+    geometry_path_internal: str = ""
     mesher_setup: MesherSetup = field(default_factory = MesherSetup)
 
     def as_dict(self) -> dict:
@@ -55,10 +56,10 @@ class ProjectSetup:
             "import_type" : self.import_type,
             }
         
-        if self.geometry_filename != "" and self.geometry_path != "":
+        if self.geometry_filename != "" and self.geometry_path_source != "":
             data.update({
-                "goemetry_filename" : self.geometry_filename,
-                "goemetry_path" : self.geometry_path,
+                "geometry_filename" : self.geometry_filename,
+                "geometry_path_source" : self.geometry_path_source,
                 })
 
         data["mesher_setup"] = self.mesher_setup.as_dict()
