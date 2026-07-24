@@ -168,6 +168,17 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
             self.setIcon(0, QIcon(path_image))
         else:
             self.setIcon(0, QIcon())
+    
+    def set_multi_icon(self, file_names: list[str], visible: bool = True):
+    
+        if visible:
+            icons = [
+                QIcon(str(Path(ICON_DIR / "model_setup_items" / f"{name}.png")))
+                for name in file_names
+            ]
+        else:
+            icons = []
+        self.setData(0, BorderItemDelegate.MULTI_ICON_ROLE, icons)
  
     def set_property_name(self, name: str):
         name = name.lower()
