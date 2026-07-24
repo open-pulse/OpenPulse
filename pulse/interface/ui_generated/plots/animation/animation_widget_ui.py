@@ -55,7 +55,7 @@ class Ui_Form(object):
         self.spinBox_cycles.setWrapping(False)
         self.spinBox_cycles.setFrame(True)
         self.spinBox_cycles.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.spinBox_cycles.setMinimum(0)
+        self.spinBox_cycles.setMinimum(1)
         self.spinBox_cycles.setMaximum(20)
         self.spinBox_cycles.setSingleStep(1)
         self.spinBox_cycles.setValue(5)
