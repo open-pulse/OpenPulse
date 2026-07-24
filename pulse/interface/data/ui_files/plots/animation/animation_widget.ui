@@ -144,7 +144,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../icons/resources.qrc">
-             <normaloff>:/icons/common/circular_arrows_icon.png</normaloff>:/icons/common/circular_arrows_icon.png</iconset>
+             <normaloff>:/icons/common/infinite_symbol.png</normaloff>:/icons/common/infinite_symbol.png</iconset>
            </property>
            <property name="iconSize">
             <size>
