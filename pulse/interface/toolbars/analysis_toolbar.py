@@ -84,7 +84,7 @@ class AnalysisToolbar(QToolBar):
         self.configure_analysis_action.setToolTip("Configure the analysis")
         self.reset_solution_action.setToolTip("Reset Solution")
         self.run_analysis_action.setToolTip("Run the analysis")
-        self.reset_solution_action.setEnabled(True)
+        self.reset_solution_action.setDisabled(True)
         self.run_analysis_action.setDisabled(True)
 
     def _configure_appearance(self):
@@ -293,6 +293,9 @@ class AnalysisToolbar(QToolBar):
             return
 
         self.run_analysis_action.setEnabled(False)
+
+    def update_reset_solution_button(self):
+        self.reset_solution_action.setEnabled(app().project.is_the_solution_finished())
 
     def load_analysis_settings(self):
 

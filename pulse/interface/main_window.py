@@ -1073,6 +1073,7 @@ class MainWindow(MainWindow_UI):
             self.set_toolbars_visible(True)
             self.update_results_workspace_button_accessibility()
             self.view_toolbar.action_front_view_callback()
+            self.analysis_toolbar.update_reset_solution_button()
             self.update_plots()
             self.update_status_bar_info()
 
