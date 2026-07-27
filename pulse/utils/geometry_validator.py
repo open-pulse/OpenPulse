@@ -82,14 +82,15 @@ def format_validation_error(result: ValidationResult) -> str:
 
     if result.has_surfaces_or_solids:
         counts = []
-        if "surface" in result.entity_counts:
-            counts.append(f"{result.entity_counts['surface']} surface entity(ies)")
-        if "solid" in result.entity_counts:
-            counts.append(f"{result.entity_counts['solid']} solid entity(ies)")
+        for entity_type in ["surface", "solid"]:
+            count = result.entity_counts.get(entity_type, 0)
+            if count > 0:
+                label = "entity" if count == 1 else "entities"
+                counts.append(f"{count} {entity_type} {label}")
         lines.append(f"Found unsupported geometry: {', '.join(counts)}.")
 
     if result.unsupported_line_types:
-        types_str = ", ".join(result.unsupported_line_types)
+        types_str = ", ".join(f'"{t}"' for t in result.unsupported_line_types)
         lines.append(f"Found unsupported curve types: {types_str}.")
 
     lines.append("\nPlease provide a wireframe geometry containing only lines and arcs.")
