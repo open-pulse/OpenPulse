@@ -123,7 +123,7 @@ class Config:
         path = str(Path(file_path).parent)
 
         key = f"last_{label}"
-        if "last_paths" in data.keys():
+        if "last_paths" in data:
             data["last_paths"][key] = path
         else:
             data["last_paths"] = {key : path}
@@ -140,6 +140,9 @@ class Config:
         last_path = data["last_paths"].get(key)
 
         if last_path is None:
+            return str(default)
+
+        if not Path(last_path).exists():
             return str(default)
 
         return last_path
