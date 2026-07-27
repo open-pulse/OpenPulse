@@ -68,8 +68,6 @@ def validate_geometry_file(geometry_path: Path) -> ValidationResult:
 
     finally:
         gmsh.finalize()
-        if was_initialized:
-            gmsh.initialize("", False)
 
     return result
 
