@@ -99,8 +99,8 @@ class Ui_Dialog(object):
 
         self.comboBox_sheet_names = QComboBox(self.frame_4)
         self.comboBox_sheet_names.setObjectName(u"comboBox_sheet_names")
-        self.comboBox_sheet_names.setMinimumSize(QSize(160, 28))
-        self.comboBox_sheet_names.setMaximumSize(QSize(160, 28))
+        self.comboBox_sheet_names.setMinimumSize(QSize(200, 28))
+        self.comboBox_sheet_names.setMaximumSize(QSize(240, 28))
         self.comboBox_sheet_names.setFont(font2)
 
         self.gridLayout_5.addWidget(self.comboBox_sheet_names, 0, 2, 1, 1)
@@ -129,8 +129,8 @@ class Ui_Dialog(object):
 
         self.comboBox_state_properties = QComboBox(self.frame_4)
         self.comboBox_state_properties.setObjectName(u"comboBox_state_properties")
-        self.comboBox_state_properties.setMinimumSize(QSize(160, 28))
-        self.comboBox_state_properties.setMaximumSize(QSize(160, 28))
+        self.comboBox_state_properties.setMinimumSize(QSize(200, 28))
+        self.comboBox_state_properties.setMaximumSize(QSize(240, 28))
         self.comboBox_state_properties.setFont(font2)
 
         self.gridLayout_5.addWidget(self.comboBox_state_properties, 1, 2, 1, 1)

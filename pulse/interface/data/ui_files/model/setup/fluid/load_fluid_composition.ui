@@ -221,13 +221,13 @@
           <widget class="QComboBox" name="comboBox_sheet_names">
            <property name="minimumSize">
             <size>
-             <width>160</width>
+             <width>200</width>
              <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>160</width>
+             <width>240</width>
              <height>28</height>
             </size>
            </property>
@@ -309,13 +309,13 @@
           <widget class="QComboBox" name="comboBox_state_properties">
            <property name="minimumSize">
             <size>
-             <width>160</width>
+             <width>200</width>
              <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>160</width>
+             <width>240</width>
              <height>28</height>
             </size>
            </property>
