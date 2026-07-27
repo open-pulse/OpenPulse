@@ -462,9 +462,9 @@ class MainWindow(MainWindow_UI):
     def initial_project_action(self, finalized):
 
         # t0 = time()
-        self.analysis_toolbar.setEnabled(False)
         self.project.none_project_action = False
         self.update_export_geometry_file_access()
+        self.analysis_toolbar.setEnabled(False)
         self.model_and_analysis_items.modify_model_setup_items_access(True)
 
         if finalized:
@@ -475,10 +475,11 @@ class MainWindow(MainWindow_UI):
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
                 # print(f"initial_project_action: {round(dt, 6)} s")
-                return True
 
             return True
 
+        self.analysis_toolbar.setEnabled(True)
+        self.model_and_analysis_items.modify_model_setup_items_access(False)
         self.project.none_project_action = True
         return False
 
@@ -1005,7 +1006,6 @@ class MainWindow(MainWindow_UI):
         return False
 
     def new_project(self):
-
         none_save_path = self.project.save_path is None
         temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
         data_modified = self.project_data_modified
@@ -1017,17 +1017,12 @@ class MainWindow(MainWindow_UI):
             if self.save_project_data():
                 return
 
-        self.reset_temporary_folder()
-        self.project.reset(reset_all=True)
-        self.project.model.properties._reset_variables()
-        self.project.reset_project(reset_all=True)
-        self.update_plots()
-
-        self.reset_geometry_render()
         obj = NewProjectInput()
-
         if not self.initial_project_action(obj.complete):
             return
+
+        self.update_plots()
+        self.reset_geometry_render()
 
         self.action_geometry_editor_workspace_callback()
         self.set_toolbars_visible(True)

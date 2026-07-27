@@ -126,10 +126,12 @@ class NewProjectInput(NewProjectInput_UI):
     def create_project(self):
 
         try:
+            app().main_window.reset_temporary_folder()
+            self.project.model.properties._reset_variables()
+            self.project.reset_project(reset_all=True)
 
             project_setup = self.create_project_setup()
 
-            self.project.reset(reset_all = True)
             app().project.model.set_project_setup(project_setup)
             app().project.file.modify_project_attributes(project_setup)
 
