@@ -332,7 +332,7 @@ class MainWindow(MainWindow_UI):
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)
         self.results_widget.update_plot(reset_camera)
-        self.model_setup_widget.model_setup_items.update_items_apperence()
+        self.model_setup_widget.model_setup_items.update_items_appearence()
 
     def selection_changed_callback(self):
         # TODO: implement something useful

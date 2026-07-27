@@ -347,6 +347,7 @@ class ModelSetupItems(CommonMenuItems):
             "valve": "valve_info",
             "expansion_joint": "expansion_joint_info",
         }.get(property_name, property_name)
+
         if property_name in ["material", "fluid"]:
             mesh = app().project.model.mesh
             if mesh is None:
@@ -379,7 +380,7 @@ class ModelSetupItems(CommonMenuItems):
             if properties.is_the_property_applied(property_name)
         ]
 
-    def update_items_apperence(self):
+    def update_items_appearence(self):
         physical_domain = self._get_physical_domain()
         for top_level_items in self.top_level_items:
             for index in range(top_level_items.childCount()):
@@ -439,5 +440,5 @@ class ModelSetupItems(CommonMenuItems):
     def _connect_domain_filter(self):
         app().main_window.analysis_changed.connect(self.filter_by_domain)
         app().main_window.analysis_changed.connect(self.update_tooltips_warnings)
-        app().main_window.analysis_changed.connect(self.update_items_apperence)
+        app().main_window.analysis_changed.connect(self.update_items_appearence)
         self.filter_by_domain()
