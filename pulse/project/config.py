@@ -130,14 +130,19 @@ class Config:
         
         self.write_data_in_file(data)
         
-    def get_last_folder_for(self, label: str) -> str | None:
+    def get_last_folder_for(self, label: str, default: Path | None = None) -> str | None:
         data = self.get_config_data()
 
-        if "last_paths" in data.keys():
-            key = f"last_{label}"
-            return data["last_paths"].get(key)
-        
-        return None
+        if "last_paths" not in data:
+            return default
+
+        key = f"last_{label}"
+        last_path = data["last_paths"].get(key)
+
+        if last_path is None:
+            return default
+
+        return last_path
     
     def write_refprop_path_in_file(self, path: str | Path):
         data = self.get_config_data()

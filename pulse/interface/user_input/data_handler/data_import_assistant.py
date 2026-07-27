@@ -9,7 +9,7 @@ from pulse.interface.user_input.data_handler.imported_data import ImportedData, 
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 
 import numpy as np
-
+from pathlib import Path
 
 class DataImportAssistant(DataImportAssistant_UI):
     
@@ -77,10 +77,10 @@ class DataImportAssistant(DataImportAssistant_UI):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
 
     def import_results(self):
-        last_folder = app().config.get_last_folder_for("imported_data_folder")
+        last_folder_path = app().config.get_last_folder_for("imported_data_folder", default=Path().home())
         file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
 
-        new_paths = FileDialogService.open_multiple_files(file_extensions, last_folder=last_folder)
+        new_paths = FileDialogService.open_multiple_files(file_extensions, last_folder=last_folder_path)
 
         if not new_paths:
             return
