@@ -48,16 +48,21 @@ class ImportGeometry:
         project_setup.import_type = ImportType.CAD_FILE
         project_setup.geometry_filename = geometry_path.name
 
+        original_setup_dict = app().project.file.read_project_setup_from_file()
+        original_project_setup = deepcopy(app().project.project_setup)
+
+        app().project.set_project_setup(project_setup)
+        app().project.file.modify_project_attributes(project_setup)
+
         try:
             self.save_geometry_and_load_project(project_setup)
         except Exception as error_log:
+            app().project.file.write_project_setup_in_file(original_setup_dict)
+            app().project.set_project_setup(original_project_setup)
             title = "Error while importing geometry"
             message = str(error_log)
             PrintMessageInput([error_title, title, message])
             return
-
-        app().project.set_project_setup(project_setup)
-        app().project.file.modify_project_attributes(project_setup)
 
         app().main_window.use_model_setup_workspace()
         app().main_window.update_plots()

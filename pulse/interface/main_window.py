@@ -1025,6 +1025,7 @@ class MainWindow(MainWindow_UI):
         self.update_plots()
 
         self.reset_geometry_render()
+        self.configure_welcome_widget()
         obj = NewProjectInput()
 
         if not self.initial_project_action(obj.complete):
