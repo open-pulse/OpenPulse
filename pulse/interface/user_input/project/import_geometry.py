@@ -1,6 +1,8 @@
+from copy import deepcopy
 from pathlib import Path
 
 from pulse import app
+from pulse.interface import error_title
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.data_classes.project_setup_data_classes import ImportType, ProjectSetup
@@ -42,14 +44,26 @@ class ImportGeometry:
 
         app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
-        project_setup = app().project.project_setup
+        project_setup = deepcopy(app().project.project_setup)
         project_setup.import_type = ImportType.CAD_FILE
         project_setup.geometry_filename = geometry_path.name
+
+        try:
+            self.save_geometry_and_load_project(project_setup)
+        except Exception as error_log:
+            title = "Error while importing geometry"
+            message = str(error_log)
+            PrintMessageInput([error_title, title, message])
+            return
 
         app().project.set_project_setup(project_setup)
         app().project.file.modify_project_attributes(project_setup)
 
-        self.save_geometry_and_load_project(geometry_path)
+        app().main_window.use_model_setup_workspace()
+        app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
+
+        self.complete = True
 
     def save_geometry_and_load_project(self, project_setup: ProjectSetup):
         #
@@ -60,9 +74,3 @@ class ImportGeometry:
         app().project.model.process_geometry_and_mesh()
         app().project.loader.load_mesh_dependent_properties()
         app().project.model.preprocessor.check_disconnected_lines()
-        #
-        app().main_window.use_model_setup_workspace()
-        app().main_window.update_plots()
-        app().main_window.update_status_bar_info()
-        #
-        self.complete = True

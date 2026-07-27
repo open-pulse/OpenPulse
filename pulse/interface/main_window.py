@@ -866,7 +866,8 @@ class MainWindow(MainWindow_UI):
 
     def action_import_geometry_callback(self):
         obj = ImportGeometry()
-        self.initial_project_action(obj.complete)
+        if obj.complete:
+            self.initial_project_action(True)
 
     def _add_analysis_toolbar(self):
         self.analysis_toolbar = AnalysisToolbar()
