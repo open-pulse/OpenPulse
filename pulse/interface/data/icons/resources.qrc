@@ -5,10 +5,12 @@
         <file>lines.png</file>
         <file>lines_cross_section.png</file>
         <file>plus-thick.png</file>
+        <file>common/autoplay_icon.png</file>
         <file>common/back.png</file>
         <file>common/bottom.png</file>
         <file>common/broom.png</file>
         <file>common/calculate.png</file>
+        <file>common/circular_arrows_icon.png</file>
         <file>common/cube-scan.png</file>
         <file>common/delete.png</file>
         <file>common/document_search.png</file>
@@ -23,6 +25,7 @@
         <file>common/help.png</file>
         <file>common/image-plus.png</file>
         <file>common/import.png</file>
+        <file>common/infinite_symbol.png</file>
         <file>common/invert_icon.png</file>
         <file>common/isometric.png</file>
         <file>common/left.png</file>

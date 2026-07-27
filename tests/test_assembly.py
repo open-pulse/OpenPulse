@@ -40,7 +40,7 @@ def model(tmp_path):
     ## Configure the project setup
     project_setup = ProjectSetup(
         import_type = ImportType.CAD_FILE,
-        geometry_path = str(geometry_path),
+        geometry_path_internal = str(geometry_path),
         mesher_setup = MesherSetup(0.01, 1e-6, "meter"))
 
     project.reset(reset_all=True)

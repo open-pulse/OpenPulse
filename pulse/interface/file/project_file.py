@@ -157,11 +157,11 @@ class ProjectFile:
     # ── Project setup ─────────────────────────────────────────────────────────
 
     def write_project_setup_in_file(self, project_setup: dict):
-        geometry_path = project_setup.get("geometry_path", "")
+        geometry_path = project_setup.get("geometry_path_source", "")
+        geometry_filename = project_setup.get("geometry_filename", "")
 
-        if geometry_path != "":
-            basename = os.path.basename(geometry_path)
-            internal_path = f"geometry_file/{basename}"
+        if geometry_path != "" and geometry_filename != "":
+            internal_path = f"geometry_file/{ geometry_filename}"
 
             try:
                 self._remove_file("geometry_file")
@@ -175,9 +175,7 @@ class ProjectFile:
 
     def read_geometry_from_file(self):
 
-        data = self._read_file(self.project_setup_filename)
-
-        project_setup = data.get("project_setup")
+        project_setup = self._read_file(self.project_setup_filename)
         if not isinstance(project_setup, dict):
             return ""
         

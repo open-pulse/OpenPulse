@@ -319,7 +319,7 @@ class Model:
 
     def process_geometry_and_mesh(self):
         # t0 = time()
-        self.preprocessor.generate(self.project_setup.import_type, geometry_path=self.project_setup.geometry_path)
+        self.preprocessor.generate(self.project_setup.import_type, geometry_path=self.project_setup.geometry_path_internal)
         self.preprocessor.process_all_transformation_matrices()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
