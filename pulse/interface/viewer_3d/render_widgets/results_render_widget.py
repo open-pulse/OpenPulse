@@ -109,8 +109,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         project = app().project
 
         if not project.model.preprocessor.elements_attributes:
-            if self.playing_animation:
-                self.stop_animation()
+            self.stop_animation()
             return
 
         # Default behavior
