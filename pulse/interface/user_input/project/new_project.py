@@ -130,6 +130,9 @@ class NewProjectInput(NewProjectInput_UI):
             self.project.model.properties._reset_variables()
             self.project.reset_project(reset_all=True)
 
+            app().main_window.update_plots()
+            app().main_window.reset_geometry_render()
+
             project_setup = self.create_project_setup()
 
             app().project.model.set_project_setup(project_setup)

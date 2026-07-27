@@ -1021,9 +1021,6 @@ class MainWindow(MainWindow_UI):
         if not self.initial_project_action(obj.complete):
             return
 
-        self.update_plots()
-        self.reset_geometry_render()
-
         self.action_geometry_editor_workspace_callback()
         self.set_toolbars_visible(True)
         self.update_results_workspace_button_accessibility()
