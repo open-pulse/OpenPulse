@@ -134,13 +134,13 @@ class Config:
         data = self.get_config_data()
 
         if "last_paths" not in data:
-            return default
+            return str(default)
 
         key = f"last_{label}"
         last_path = data["last_paths"].get(key)
 
         if last_path is None:
-            return default
+            return str(default)
 
         return last_path
     
