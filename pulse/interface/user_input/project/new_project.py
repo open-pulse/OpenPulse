@@ -70,15 +70,10 @@ class NewProjectInput(NewProjectInput_UI):
     def import_geometry(self):
 
         self.hide()
-        last_geometry_file = app().main_window.config.get_last_folder_for("geometry_folder")
-
-        if last_geometry_file is None:
-            suggested_path = str(Path().home())
-        else:
-            suggested_path = last_geometry_file
+        last_folder_path = app().main_window.config.get_last_folder_for("geometry_folder", default=Path().home())
 
         extensions = ["iges", "igs", "step", "stp"]
-        geometry_path = FileDialogService.open_file(extensions, last_folder=suggested_path)
+        geometry_path = FileDialogService.open_file(extensions, last_folder=last_folder_path)
 
         if geometry_path is None:
             return
