@@ -83,10 +83,10 @@ class AnalysisToolbar(QToolBar):
         self.reset_solution_action = QAction(self.reset_solution_icon, "Reset Solution", self)
         #
         self.configure_analysis_action.setToolTip("Configure the analysis")
-        self.run_analysis_action.setToolTip("Run the analysis")
         self.reset_solution_action.setToolTip("Reset Solution")
-        self.run_analysis_action.setDisabled(True)
+        self.run_analysis_action.setToolTip("Run the analysis")
         self.reset_solution_action.setEnabled(True)
+        self.run_analysis_action.setDisabled(True)
 
     def _configure_appearance(self):
         self.setMinimumHeight(40)
@@ -261,6 +261,7 @@ class AnalysisToolbar(QToolBar):
         logging.info("Post-processing results... [95/100]")
         app().main_window.results_viewer_widget.results_viewer_items._update_items()
         self.set_pushbutton_reset_solution_enabled()
+        app().main_window.results_viewer_widget.clear_treeWidgets_of_frequencies()
 
     def update_run_analysis_button(self):
 
@@ -299,18 +300,18 @@ class AnalysisToolbar(QToolBar):
         self.run_analysis_action.setEnabled(False)
 
         analysis_id = app().project.analysis_id
-        if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+        if AnalysisID(analysis_id).is_harmonic():
             self.combo_box_analysis_type.setCurrentIndex(0)
-        elif analysis_id in [AnalysisID.STRUCTURAL_MODAL, AnalysisID.ACOUSTIC_MODAL]:
+        elif AnalysisID(analysis_id).is_modal():
             self.combo_box_analysis_type.setCurrentIndex(1)
-        elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
+        elif AnalysisID(analysis_id).is_static():
             self.combo_box_analysis_type.setCurrentIndex(2)
 
-        if analysis_id in[AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.STRUCTURAL_MODAL, AnalysisID.STRUCTURAL_STATIC]:
+        if AnalysisID(analysis_id).is_structural():
             self.combo_box_physical_domain.setCurrentIndex(0)
-        elif analysis_id in [AnalysisID.ACOUSTIC_MODAL, AnalysisID.ACOUSTIC_HARMONIC]:
+        elif AnalysisID(analysis_id).is_acoustic():
             self.combo_box_physical_domain.setCurrentIndex(1)
-        elif analysis_id in [AnalysisID.COUPLED_HARMONIC]:
+        elif AnalysisID(analysis_id).is_coupled():
             self.combo_box_physical_domain.setCurrentIndex(2)
 
         setup_complete = app().project.is_analysis_setup_complete()

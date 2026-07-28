@@ -114,8 +114,7 @@ class PlotCrossSectionInput(PlotSection_UI):
             if stop:
                 return True
 
-            element = model.preprocessor.structural_elements[element_id]
-            cross_section = element.cross_section
+            cross_section = model.preprocessor.get_element_cross_section(element_id)
 
             section_type_label = cross_section.section_type_label
             if self.check_invalid_cross_section_plots(section_type_label):

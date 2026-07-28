@@ -3,7 +3,6 @@ from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.get_reactions_for_harmonic_analysis_ui import GetReactionsForHarmonicAnalysis_UI
-from pulse.postprocessing.plot_structural_data import get_reactions
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
@@ -15,9 +14,8 @@ import numpy as np
 class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
 
-        self.before_run = app().project.get_pre_solution_model_checks()
+        app().main_window.set_input_widget(self)
 
         self._initialize()
         self._config_window()
@@ -27,7 +25,8 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
         self._load_nodes_info()
 
     def _initialize(self):
-        pass
+        self.project = app().project
+        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -89,27 +88,27 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
 
     def _load_structural_solver_and_reactions(self):
 
-        if app().project.structural_solver is None:
+        if self.project.structural_solver is None:
 
             def solver_callback():
 
                 logging.info("Processing the cross-sections [5%]")
-                app().project.model.preprocessor.process_cross_sections_mapping()
+                self.project.model.preprocessor.process_cross_sections_mapping()
 
                 logging.info("Processing global matrices [50%]")
-                app().project.structural_solver = app().project.get_structural_solver()
+                self.project.structural_solver = self.project.get_structural_solver()
 
                 logging.info("Processing global matrices [100%]")
 
-                if app().project.structural_solver.solution is None:
-                    app().project.structural_solver.solution = app().project.structural_solution
+                if self.project.structural_solver.solution is None:
+                    self.project.structural_solver.solution = self.project.model.structural_solution
 
                 logging.info("Evaluating the structural reactions [20%]")
-                app().project.calculate_structural_reactions()
+                self.project.calculate_structural_reactions()
 
             LoadingWindow(solver_callback).run()
 
-        reactions_data = app().project.get_structural_reactions()
+        reactions_data = self.project.get_structural_reactions()
 
         self.reactions_at_constrained_dofs = reactions_data.get("reactions_at_constrained_dofs", dict())
         self.reactions_at_springs = reactions_data.get("reactions_at_springs", dict())
@@ -117,7 +116,7 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
 
     def _load_nodes_info(self):
 
-        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+        for (property, *args), data in self.project.model.properties.nodal_properties.items():
 
             if property == "lumped_stiffness":
                 node_id = args[0]
@@ -172,7 +171,7 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
         
         if self.tabWidget_main.currentIndex()==0:
 
-            data = app().project.model.properties._get_property("prescribed_dofs", node_ids=int(node_id))
+            data = self.project.model.properties._get_property("prescribed_dofs", node_ids=int(node_id))
             values = data["values"]
 
             mask = [False, False, False, False, False, False]
@@ -193,7 +192,7 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
 
             if self.tabWidget_springs_dampers.currentIndex()==0:
 
-                data = app().project.model.properties._get_property("lumped_stiffness", node_ids=int(node_id))
+                data = self.project.model.properties._get_property("lumped_stiffness", node_ids=int(node_id))
                 values = data["values"]
 
                 mask = [False if bc is None else True for bc in values]
@@ -202,7 +201,7 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
 
             elif self.tabWidget_springs_dampers.currentIndex()==1:
 
-                data = app().project.model.properties._get_property("lumped_dampings", node_ids=int(node_id))
+                data = self.project.model.properties._get_property("lumped_dampings", node_ids=int(node_id))
                 values = data["values"]
 
                 mask = [False if bc is None else True for bc in values]
@@ -235,6 +234,7 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
     def call_plotter(self):
         if self.check_inputs():
             return
+
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
         self.plotter._set_model_results_data_to_plot(self.model_results)
@@ -242,6 +242,7 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
     def call_data_exporter(self):
         if self.check_inputs():
             return
+
         self.join_model_data()
         self.exporter = ExportModelResults()
         self.exporter._set_data_to_export(self.model_results)
@@ -291,18 +292,18 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
             self.reaction_label = "Moment reactions"
 
     def get_reactions(self):
-        return get_reactions(self.reactions, self.node_id, self.local_dof)
+        return self.project.structural_postprocessing.get_reaction_spectrum(self.reactions, self.node_id, self.local_dof)
 
     def join_model_data(self):
 
         self.model_results = dict()
 
-        self.title = f"Structural frequency response - {app().project.analysis_method} method"
+        self.title = f"Structural frequency response - {self.project.analysis_method} method"
         legend_label = f"Reaction {self.local_dof_label} at node {self.node_id}"
 
         key = ("node", self.node_id)
         self.model_results[key] = {
-            "x_data" : app().project.model.frequencies,
+            "x_data" : self.project.model.frequencies,
             "y_data" : self.get_reactions(),
             "x_label" : "Frequency [Hz]",
             "y_label" : "Reaction",

@@ -4,25 +4,14 @@ from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface import error_title, warning_title
-from pulse.interface.ui_generated.model.info.get_perforated_plate_info_ui import (
-    GetPerforatedPlateInfo_UI,
-)
-from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import (
-    PerforatedPlateInput_UI,
-)
+from pulse.interface.ui_generated.model.info.get_perforated_plate_info_ui import GetPerforatedPlateInfo_UI
+from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import PerforatedPlateInput_UI
 from pulse.interface.user_input.model.setup.elements_input import ElementsInput
-from pulse.interface.user_input.plots.general.frequency_response_plotter import (
-    FrequencyResponsePlotter,
-)
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.perforated_plate import PerforatedPlate, PerforatedPlateFormulation
-from pulse.postprocessing.plot_acoustic_data import (
-    get_perforated_plate_acoustic_absortion,
-    get_perforated_plate_impedance,
-)
+from pulse.model.data_classes.perforated_plate_data_class import PerforatedPlateData, PerforatedPlateFormulation
+from pulse.postprocessing.acoustic_postprocessing import get_perforated_plate_acoustic_absortion, get_perforated_plate_impedance
 
 
 class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
@@ -55,32 +44,22 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
         self.table_path = None
 
         #
-        self.perforated_plate_inputs = dict()
-        self.perforated_plate_inputs["type"] = 0
-        self.perforated_plate_inputs["dimensionless_impedance"] = None
+        self.pp_data = dict()
+        self.pp_data["type"] = PerforatedPlateFormulation.OPENPULSE
+        self.pp_data["dimensionless_impedance"] = None
 
         self.frequencies = app().project.model.frequencies
 
     def _create_connections(self):
         #
         self.checkBox_bias_flow_coefficient.toggled.connect(self.checkBoxEvent_bias)
-        self.checkBox_nonlinear_discharge_coefficient.toggled.connect(
-            self.checkBoxEvent_nonlinear
-        )
-        self.checkBox_dimensionless_impedance.toggled.connect(
-            self.checkBoxEvent_dimensionless
-        )
-        self.checkBox_single_hole.stateChanged.connect(
-            self.single_hole_perforated_plate_callback
-        )
+        self.checkBox_nonlinear_discharge_coefficient.toggled.connect(self.checkBoxEvent_nonlinear)
+        self.checkBox_dimensionless_impedance.toggled.connect(self.checkBoxEvent_dimensionless)
+        self.checkBox_single_hole.stateChanged.connect(self.single_hole_perforated_plate_callback)
         #
-        self.comboBox_perforated_plate_model.currentIndexChanged.connect(
-            self.perforated_plate_model_update
-        )
+        self.comboBox_perforated_plate_model.currentIndexChanged.connect(self.perforated_plate_model_update)
         #
-        self.lineEdit_hole_diameter.textChanged.connect(
-            self.single_hole_perforated_plate_callback
-        )
+        self.lineEdit_hole_diameter.textChanged.connect(self.single_hole_perforated_plate_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
@@ -88,16 +67,12 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_plot_impedance.clicked.connect(self.plot_impedance_callback)
-        self.pushButton_plot_absorption_coefficient.clicked.connect(
-            self.plot_absorption_coefficient_callback
-        )
+        self.pushButton_plot_absorption_coefficient.clicked.connect(self.plot_absorption_coefficient_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_elements_info.itemClicked.connect(self.on_click_item)
-        self.treeWidget_elements_info.itemDoubleClicked.connect(
-            self.on_doubleclick_item
-        )
+        self.treeWidget_elements_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
         self.selection_callback()
@@ -244,22 +219,26 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
         self.checkBoxEvent_dimensionless()
 
     def get_area_porosity(self, element_id: int):
-        element = self.preprocessor.structural_elements[element_id]
-        if element.element_type == "pipe_1":
-            if element.cross_section is not None:
-                cross_section = element.cross_section
-                d_in = cross_section.inner_diameter
-                if self.lineEdit_hole_diameter.text() != "":
-                    str_hole_diameter = self.lineEdit_hole_diameter.text()
-                    str_hole_diameter = str_hole_diameter.replace(",", ".")
+        structural_element_type = self.preprocessor.get_structural_element_type(element_id)
+        if structural_element_type != "pipe_1":
+            return
 
-                    try:
-                        hole_diameter = float(str_hole_diameter)
-                        area_porosity = (hole_diameter / d_in) ** 2
-                    except Exception:
-                        return None
+        cross_section = self.preprocessor.get_element_cross_section(element_id)
+        if cross_section is None:
+            return
 
-                    return area_porosity
+        d_in = cross_section.inner_diameter
+        if self.lineEdit_hole_diameter.text() != "":
+            str_hole_diameter = self.lineEdit_hole_diameter.text()
+            str_hole_diameter = str_hole_diameter.replace(",", ".")
+
+            try:
+                hole_diameter = float(str_hole_diameter)
+                area_porosity = (hole_diameter / d_in) ** 2
+            except Exception:
+                return
+
+            return area_porosity
 
     def single_hole_perforated_plate_callback(self):
         key = self.checkBox_single_hole.isChecked()
@@ -290,8 +269,8 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
 
         index = self.comboBox_perforated_plate_model.currentIndex()
 
-        if index == 0:
-            self.perforated_plate_inputs["type"] = 0
+        if index == PerforatedPlateFormulation.OPENPULSE:
+            self.pp_data["type"] = PerforatedPlateFormulation.OPENPULSE
 
             self.checkBox_nonlinear_discharge_coefficient.setDisabled(False)
             self.checkBox_bias_flow_coefficient.setDisabled(False)
@@ -299,11 +278,11 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
             self.update_checkboxes()
             self.tabWidget_setup.setTabVisible(1, True)
 
-        elif index == 1:
-            self.perforated_plate_inputs["type"] = 1
+        elif index == PerforatedPlateFormulation.MELLING:
+            self.pp_data["type"] = PerforatedPlateFormulation.MELLING
 
-        elif index == 2:
-            self.perforated_plate_inputs["type"] = 2
+        elif index == PerforatedPlateFormulation.COMMON_PIPE:
+            self.pp_data["type"] = PerforatedPlateFormulation.COMMON_PIPE
 
             self.lineEdit_plate_thickness.clear()
             self.lineEdit_area_porosity.clear()
@@ -315,15 +294,18 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
             self.checkBox_single_hole.setDisabled(True)
             self.lineEdit_hole_diameter.setFocus()
 
-    def check_input_parameters(self, lineEdit: QLineEdit, label: str, _float=True):
+    def check_input_parameters(self, line_edit: QLineEdit, label: str, _float: bool = True):
 
         message = ""
         title = f"Invalid entry to the '{label}'"
-        str_value = lineEdit.text()
 
-        if str_value != "":
+        if line_edit.text() == "":
+            message = f"An empty entry has been detected at the '{label}' input field. "
+            message += "You should to enter a positive value to proceed."
+
+        else:
             try:
-                str_value = str_value.replace(",", ".")
+                str_value = line_edit.text().replace(",", ".")
                 if _float:
                     value = float(str_value)
                 else:
@@ -333,20 +315,15 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                     message = f"You cannot input a non-positive value to the '{label}'."
 
             except Exception as _log_error:
-                message = (
-                    f"You have typed an invalid value to the '{label}' input field."
-                )
+                message = f"You have typed an invalid value to the '{label}' input field."
                 message += "The input value should be a positive float number.\n\n"
                 message += f"{str(_log_error)}"
-        else:
-            message = f"An empty entry has been detected at the '{label}' input field. "
-            message += "You should to enter a positive value to proceed."
 
         if message != "":
             PrintMessageInput([error_title, title, message])
-            return True, value
-        else:
-            return False, value
+            return None
+
+        return value
 
     def check_svalues(self):
         if self.lineEdit_impedance_real.text() != "":
@@ -374,9 +351,9 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
             z_imag = 0
 
         if z_real == 0 and z_imag == 0:
-            self.perforated_plate_inputs["dimensionless_impedance"] = None
+            self.pp_data["dimensionless_impedance"] = None
         else:
-            self.perforated_plate_inputs["dimensionless_impedance"] = (
+            self.pp_data["dimensionless_impedance"] = (
                 z_real + 1j * z_imag
             )
         return False
@@ -446,15 +423,13 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
             elements_diameter = list()
             elements_lengths = list()
             for element_id in element_ids:
-                element = app().project.model.preprocessor.acoustic_elements[element_id]
+                element = self.preprocessor.elements_attributes.get(element_id)
                 elements_diameter.append(element.cross_section.inner_diameter)
                 elements_lengths.append(element.length)
 
             # Check hole diameter
-            stop, hole_diameter = self.check_input_parameters(
-                self.lineEdit_hole_diameter, "Hole diameter"
-            )
-            if stop:
+            hole_diameter = self.check_input_parameters(self.lineEdit_hole_diameter, "Hole diameter")
+            if hole_diameter is None:
                 self.lineEdit_hole_diameter.setFocus()
                 return True
 
@@ -465,26 +440,24 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                 self.lineEdit_hole_diameter.setFocus()
                 return True
 
-            self.perforated_plate_inputs["hole_diameter"] = hole_diameter
+            self.pp_data["hole_diameter"] = hole_diameter
 
-            if self.perforated_plate_inputs["type"] == 2:
-                self.perforated_plate_inputs["plate_thickness"] = round(
+            if self.pp_data["type"] == 2:
+                self.pp_data["plate_thickness"] = round(
                     min(elements_lengths), 6
                 )
-                self.perforated_plate_inputs["area_porosity"] = 0
-                self.perforated_plate_inputs["discharge_coefficient"] = 1
-                self.perforated_plate_inputs["nonlinear_effects"] = False
-                self.perforated_plate_inputs["nonlinear_discharge_coefficient"] = 1
-                self.perforated_plate_inputs["correction_factor"] = 0
-                self.perforated_plate_inputs["bias_flow_effects"] = False
-                self.perforated_plate_inputs["bias_flow_coefficient"] = 0
+                self.pp_data["area_porosity"] = 0
+                self.pp_data["discharge_coefficient"] = 1
+                self.pp_data["nonlinear_effects"] = False
+                self.pp_data["nonlinear_discharge_coefficient"] = 1
+                self.pp_data["correction_factor"] = 0
+                self.pp_data["bias_flow_effects"] = False
+                self.pp_data["bias_flow_coefficient"] = 0
 
             else:
                 # Check plate thickness
-                stop, plate_thickness = self.check_input_parameters(
-                    self.lineEdit_plate_thickness, "Plate thickness"
-                )
-                if stop:
+                plate_thickness = self.check_input_parameters(self.lineEdit_plate_thickness, "Plate thickness")
+                if plate_thickness is None:
                     self.lineEdit_plate_thickness.setFocus()
                     return True
 
@@ -495,14 +468,12 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                         PrintMessageInput([warning_title, title, message])
                         self.lineEdit_plate_thickness.setFocus()
 
-                self.perforated_plate_inputs["plate_thickness"] = plate_thickness
+                self.pp_data["plate_thickness"] = plate_thickness
 
                 # Check area porosity
                 if not self.checkBox_single_hole.isChecked():
-                    stop, area_porosity = self.check_input_parameters(
-                        self.lineEdit_area_porosity, "Area porosity"
-                    )
-                    if stop:
+                    area_porosity = self.check_input_parameters(self.lineEdit_area_porosity, "Area porosity")
+                    if area_porosity is None:
                         self.lineEdit_area_porosity.setFocus()
                         return True
 
@@ -513,37 +484,27 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                         self.lineEdit_area_porosity.setFocus()
                         return True
 
-                    self.perforated_plate_inputs["area_porosity"] = area_porosity
+                    self.pp_data["area_porosity"] = area_porosity
 
                 # Check discharge coefficient
-                stop, discharge_coefficient = self.check_input_parameters(
-                    self.lineEdit_discharge_coefficient, "Discharge coefficient"
-                )
-                if stop:
+                discharge_coefficient = self.check_input_parameters(self.lineEdit_discharge_coefficient, "Discharge coefficient")
+                if discharge_coefficient is None:
                     self.lineEdit_discharge_coefficient.setFocus()
                     return True
 
                 if discharge_coefficient > 1:
                     title = "Invalid discharge coefficient value"
-                    message = (
-                        "The discharge coefficient must be less than or equal to 1."
-                    )
+                    message = "The discharge coefficient must be less than or equal to 1."
                     PrintMessageInput([error_title, title, message])
                     self.lineEdit_discharge_coefficient.setFocus()
                     return True
 
-                self.perforated_plate_inputs["discharge_coefficient"] = (
-                    discharge_coefficient
-                )
-                self.perforated_plate_inputs["nonlinear_effects"] = (
-                    self.checkBox_nonlinear_discharge_coefficient.isChecked()
-                )
+                self.pp_data["discharge_coefficient"] = discharge_coefficient
+                self.pp_data["nonlinear_effects"] = self.checkBox_nonlinear_discharge_coefficient.isChecked()
 
                 # Check nonlinear discharge coefficient
-                stop, nl_discharge_coefficient = self.check_input_parameters(
-                    self.lineEdit_nonlin_discharge, "Non-linear discharge coefficient"
-                )
-                if stop:
+                nl_discharge_coefficient = self.check_input_parameters(self.lineEdit_nonlin_discharge, "Non-linear discharge coefficient")
+                if nl_discharge_coefficient is None:
                     self.lineEdit_nonlin_discharge.setFocus()
                     return True
 
@@ -554,41 +515,31 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                     self.lineEdit_nonlin_discharge.setFocus()
                     return True
 
-                self.perforated_plate_inputs["nonlinear_discharge_coefficient"] = (
-                    nl_discharge_coefficient
-                )
+                self.pp_data["nonlinear_discharge_coefficient"] = nl_discharge_coefficient
 
                 # Check correction factor
-                stop, correction_factor = self.check_input_parameters(
-                    self.lineEdit_correction_factor, "Correction factor"
-                )
-                if stop:
+                correction_factor = self.check_input_parameters(self.lineEdit_correction_factor, "Correction factor")
+                if correction_factor is None:
                     self.lineEdit_correction_factor.setFocus()
                     return True
 
-                self.perforated_plate_inputs["correction_factor"] = correction_factor
-                self.perforated_plate_inputs["bias_flow_effects"] = self.flag_bias
+                self.pp_data["correction_factor"] = correction_factor
+                self.pp_data["bias_flow_effects"] = self.flag_bias
 
                 # Check bias flow
-                stop, bias_flow_coefficient = self.check_input_parameters(
-                    self.lineEdit_bias_flow_coefficient, "Bias flow coefficient"
-                )
-                if stop:
+                bias_flow_coefficient = self.check_input_parameters(self.lineEdit_bias_flow_coefficient, "Bias flow coefficient")
+                if bias_flow_coefficient is None:
                     self.lineEdit_bias_flow_coefficient.setFocus()
                     return True
 
-                self.perforated_plate_inputs["bias_flow_coefficient"] = (
-                    bias_flow_coefficient
-                )
+                self.pp_data["bias_flow_coefficient"] = bias_flow_coefficient
 
                 # Check dimensionless impedance
                 if self.tabWidget_dimensionless.currentIndex() == 0:
                     if self.check_svalues():
                         return True
 
-            self.perforated_plate_inputs["single_hole"] = (
-                self.checkBox_single_hole.isChecked()
-            )
+            self.pp_data["single_hole"] = self.checkBox_single_hole.isChecked()
 
             for element_id in element_ids:
                 if self.checkBox_single_hole.isChecked():
@@ -596,9 +547,9 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                     if area_porosity is None:
                         return
 
-                    self.perforated_plate_inputs["area_porosity"] = area_porosity
+                    self.pp_data["area_porosity"] = area_porosity
 
-                perforated_plate = PerforatedPlate(self.perforated_plate_inputs)
+                perforated_plate = PerforatedPlateData(**self.pp_data)
 
                 if self.lineEdit_load_table_path.text() != "":
                     if self.imported_values is None:
@@ -614,35 +565,24 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                         message = "Select a valid tabular data for dimensionless impedance "
                         message += " to proceed with model setup."
                         PrintMessageInput(error_title, title, message)
-                        self.perforated_plate_inputs.clear()
+                        self.pp_data.clear()
                         return
 
                     table_name = self.get_table_name("perforated_plate_dimensionless_impedance", element_id=element_id)
                     if self.save_table_values(table_name, self.imported_values):
-                        self.perforated_plate_inputs.clear()
+                        self.pp_data.clear()
                         return
 
-                    self.perforated_plate_inputs['dimensionless_impedance'] = self.imported_values   
+                    self.pp_data['dimensionless_impedance'] = self.imported_values   
 
                     perforated_plate.dimensionless_impedance_table_name = self.table_path
                     perforated_plate.dimensionless_impedance = self.imported_values
 
-                coords = list()
-                element = self.preprocessor.acoustic_elements[element_id]
-                coords.extend(list(np.round(element.first_node.coordinates, 5)))
-                coords.extend(list(np.round(element.last_node.coordinates, 5)))
+                element_coords = self.preprocessor.mesh.get_element_nodes_coordinates(element_id)
+                perforated_plate.coords = list(np.round(element_coords.flatten(), 5))
 
-                self.perforated_plate_inputs["coords"] = coords
-
-                self.preprocessor.set_perforated_plate_by_elements(
-                    element_ids, perforated_plate
-                )
-
-                self.properties._set_element_property(
-                    "perforated_plate",
-                    self.perforated_plate_inputs,
-                    element_ids=element_id,
-                )
+                self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
+                self.properties._set_element_property("perforated_plate", perforated_plate.as_dict(), element_ids=element_id)
 
             self.actions_to_finalize()
 
@@ -740,13 +680,13 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
 
     def get_response(self, element_id: int, impedance: bool = False, absorption: bool = False):
 
-        element = app().project.model.preprocessor.acoustic_elements[element_id]
+        element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
         if absorption: 
-            return get_perforated_plate_acoustic_absortion(element, self.frequencies)
+            return get_perforated_plate_acoustic_absortion(element_attributes, self.frequencies)
 
         elif impedance:
-            return get_perforated_plate_impedance(element, self.frequencies)
+            return get_perforated_plate_impedance(element_attributes, self.frequencies)
 
     def plot_impedance_callback(self):
 

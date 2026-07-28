@@ -2,8 +2,11 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
+from time import perf_counter
 
-from pulse import TEMP_PROJECT_DIR, app
+import numpy as np
+
+from pulse import TEMP_PROJECT_DIR
 from pulse.editor import Pipeline
 from pulse.interface import error_title, warning_title
 from pulse.interface.file.project_file import ProjectFile
@@ -12,12 +15,13 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model import AnalysisID
 from pulse.model.after_run import AfterRun
 from pulse.model.before_run import BeforeRun
+from pulse.model.data_classes.project_setup_data_classes import ProjectSetup
 from pulse.model.model import Model
+from pulse.postprocessing.acoustic_postprocessing import AcousticPostprocessing
+from pulse.postprocessing.structural_postprocessing import StructuralPostprocessing
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.project.load_project import LoadProject
-
-from time import perf_counter
 
 
 class Project:
@@ -26,9 +30,11 @@ class Project:
         self.pipeline = Pipeline()
         self.model = Model(self)
 
+        self.project_setup = ProjectSetup()
+
         # default animation settings
+        self.cycles = 3
         self.frames = 40
-        self.cycles = 0
 
         self._initialize()
         self.reset()
@@ -40,7 +46,6 @@ class Project:
         self.complex_natural_frequencies_acoustic = None
 
         self.preferences = dict()
-        self.color_scale_setup = dict()
 
     def reset(self, reset_all=False):
 
@@ -50,7 +55,6 @@ class Project:
             #TODO: reset nodal, element and line properties
 
         self.preferences.clear()
-        self.color_scale_setup.clear()
 
         self.perforated_plate_data_log = None
         self.none_project_action = False
@@ -60,22 +64,24 @@ class Project:
         self.save_path = None
         self.thumbnail = None
 
-        self.min_stress = ""
-        self.max_stress = ""
-        self.stress_label = ""
-        self.stresses_values_for_color_table = None
-
         self.reset_solvers()
         self.reset_solutions()
+
+    def set_project_setup(self, project_setup: ProjectSetup):
+        self.project_setup = project_setup
+        self.model.set_project_setup(project_setup)
 
     def reset_solvers(self):
         self.acoustic_solver = None
         self.structural_solver = None
 
     def reset_solutions(self):
-        self.structural_solution = None
-        self.acoustic_solution = None
 
+        self.model.reset_solutions()
+
+        self.acoustic_postprocessing = None
+        self.structural_postprocessing = None
+  
         self.natural_frequencies_acoustic = None
         self.natural_frequencies_structural = None
         self.complex_natural_frequencies_acoustic = None
@@ -119,6 +125,12 @@ class Project:
     def global_damping(self):
         return self.model.global_damping
 
+    def set_acoustic_solution(self, solution: np.ndarray):
+        self.model.set_acoustic_solution(solution)
+
+    def set_structural_solution(self, solution: np.ndarray):
+        self.model.set_structural_solution(solution)
+
     def initialize_pulse_file_and_loader(self, dir_path: Path=TEMP_PROJECT_DIR):
         self.file = ProjectFile(self, dir_path)
         self.loader = LoadProject(self)
@@ -126,15 +138,13 @@ class Project:
     def initial_load_project_actions(self):
 
         try:
-
             self.reset(reset_all = True)
             self.loader.load_analysis_results()
 
             if self.file.check_pipeline_data():
-                self.process_geometry_and_mesh()
+                self.model.process_geometry_and_mesh()
+                self.update_post_processing()
                 return True
-            else:
-                return False
 
         except Exception as log_error:
             from traceback import print_exception
@@ -143,7 +153,8 @@ class Project:
             title = "Error while processing initial load project actions"
             message = str(log_error)
             PrintMessageInput([error_title, title, message])
-            return False
+        
+        return False
 
     def load_project(self):
 
@@ -158,7 +169,7 @@ class Project:
         self.loader.load_mesh_dependent_properties()
 
         logging.info("Finalizing model data loading [75%]")
-        # self.model.preprocessor.process_all_rotation_matrices()
+        # self.model.preprocessor.process_all_transformation_matrices()
         self.model.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
@@ -173,30 +184,43 @@ class Project:
             if self.loader.load_project_data():
                 return
 
-            self.process_geometry_and_mesh()
+            self.model.process_geometry_and_mesh()
             self.loader.load_mesh_dependent_properties()
-
-    def process_geometry_and_mesh(self):
-        # t0 = time()
-        self.model.preprocessor.generate()
-        if app() is None:
-            return
-
-        app().main_window.update_status_bar_info()
-        # dt = time()-t0
-        # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
     def is_analysis_setup_complete(self):
 
         analysis_setup = self.file.read_analysis_setup_from_file()
+        if not analysis_setup:
+            return False
 
-        if isinstance(analysis_setup, dict):
-            analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+        analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
 
-            if analysis_id in [
-                AnalysisID.STRUCTURAL_MODAL,
-                AnalysisID.ACOUSTIC_MODAL,
-            ]:
+        if AnalysisID(analysis_id).is_modal():
+            if "number_of_modes" not in analysis_setup.keys():
+                return False
+
+            if not isinstance(analysis_setup["number_of_modes"], int):
+                return False
+
+            if "sigma_factor" in analysis_setup.keys():
+                if not isinstance(analysis_setup["sigma_factor"], int | float):
+                    return False
+            else:
+                return False
+
+            return True
+
+        elif AnalysisID(analysis_id).is_harmonic():
+
+            for f_type in ["f_min", "f_max", "f_step"]:    
+                if f_type in analysis_setup.keys():
+                    if not isinstance(analysis_setup[f_type], int | float):
+                        return False
+                else:
+                    return False
+                
+            if self.analysis_method == "mode_superposition":
+
                 if "number_of_modes" not in analysis_setup.keys():
                     return False
 
@@ -206,60 +230,17 @@ class Project:
                 if "sigma_factor" in analysis_setup.keys():
                     if not isinstance(analysis_setup["sigma_factor"], int | float):
                         return False
-                else:
-                    return False
 
-                return True
-
-            elif analysis_id in [
-                AnalysisID.STRUCTURAL_HARMONIC,
-                AnalysisID.ACOUSTIC_HARMONIC,
-                AnalysisID.COUPLED_HARMONIC,
-                ]:
-
-                for f_type in ["f_min", "f_max", "f_step"]:    
-                    if f_type in analysis_setup.keys():
-                        if not isinstance(analysis_setup[f_type], int | float):
-                            return False
-                    else:
-                        return False
-                    
-                if self.analysis_method == "mode_superposition":
-
-                    if "number_of_modes" not in analysis_setup.keys():
-                        return False
-
-                    if not isinstance(analysis_setup["number_of_modes"], int):
-                        return False
-
-                    if "sigma_factor" in analysis_setup.keys():
-                        if not isinstance(analysis_setup["sigma_factor"], int | float):
-                            return False
-
-                return True
-            
-            elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
-                return True
-
-        return False
-
-    def get_structural_elements(self):
-        return self.model.preprocessor.structural_elements
-    
-    def get_structural_element(self, element_id):
-        return self.model.preprocessor.structural_elements[element_id]
-
-    def get_acoustic_elements(self):
-        return self.model.preprocessor.acoustic_elements 
-
-    def get_acoustic_element(self, element_id):
-        return self.model.preprocessor.acoustic_elements[element_id]
+            return True
+        
+        elif AnalysisID(analysis_id).is_static():
+            return True
 
     def set_perforated_plate_convergence_data_log(self, data):
         self.perforated_plate_data_log = data
 
-    def set_color_scale_setup(self, color_scale_setup):
-        self.color_scale_setup = color_scale_setup
+    def set_color_scale_setup(self, color_scale_setup: dict):
+        self.model.set_color_scale_setup(color_scale_setup)
 
     def map_lines_neighboors(self):
         # line_to_points = self.model.properties.map_line_to_points()
@@ -270,23 +251,16 @@ class Project:
                     return
 
                 node_id = self.model.preprocessor.get_node_id_by_coordinates(coords)
-                neigh_elements = self.model.preprocessor.structural_elements_connected_to_node[node_id]
     
-                for element in neigh_elements:
+                for element_id in self.model.preprocessor.elements_connected_to_node.get(node_id, list()):
 
-                    element_line = self.model.preprocessor.mesh.line_from_element[element.index]
-                    _data = self.model.properties.line_properties[element_line]
+                    line_id = self.model.preprocessor.mesh.get_line_from_element(element_id)
+                    _data = self.model.properties.line_properties[line_id]
 
                     if "corner_coords" in _data.keys():
-                        lines_neighboors[line_id, "curve"].append(element_line)
+                        lines_neighboors[line_id, "curve"].append(line_id)
                     else:
-                        lines_neighboors[line_id, "line"].append(element_line)
-
-    def get_geometry_points(self):
-        points = dict()
-        for i in self.model.preprocessor.mesh.geometry_points:
-            points[i] = self.model.preprocessor.nodes[i]
-        return points
+                        lines_neighboors[line_id, "line"].append(line_id)
 
     def is_there_a_valid_solution(self):
 
@@ -412,47 +386,25 @@ class Project:
     def get_acoustic_solver(self) -> AcousticSolver:
         return AcousticSolver(self.model)
 
-    def get_structural_solver(self) -> StructuralSolver:
-        acoustic_solution = None
-        if self.analysis_id == AnalysisID.COUPLED_HARMONIC:
-            acoustic_solution = self.acoustic_solution
-
+    def get_structural_solver(self, acoustic_solution: np.ndarray | None = None) -> StructuralSolver:
         return StructuralSolver(self.model, acoustic_solution=acoustic_solution)
-
-    def get_structural_solution(self):
-        return self.structural_solution
-
-    def get_acoustic_solution(self):
-        return self.acoustic_solution
 
     def get_structural_reactions(self):
         return self.structural_reactions
 
-    def set_stresses_values_for_color_table(self, values):
-        self.stresses_values_for_color_table = values
-    
-    def set_min_max_type_stresses(self, min_stress, max_stress, stress_label):
-        self.min_stress = min_stress
-        self.max_stress = max_stress
-        self.stress_label = stress_label
-
     def is_the_solution_finished(self):
 
-        if self.acoustic_solution is not None:
+        if self.model.acoustic_solution is not None:
             return True
 
-        elif self.structural_solution is not None:
+        elif self.model.structural_solution is not None:
             return True
 
         return False
 
     def initialize_solver(self):
 
-        if self.analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC,
-            AnalysisID.ACOUSTIC_HARMONIC,
-            AnalysisID.COUPLED_HARMONIC,
-            ]:
+        if AnalysisID(self.analysis_id).is_harmonic():
 
             if self.model.frequencies is None:
                 return
@@ -461,11 +413,7 @@ class Project:
                 return
 
         if self.model.preprocessor._process_beam_nodes_and_indexes():
-            if self.analysis_id not in [
-                AnalysisID.STRUCTURAL_MODAL,
-                AnalysisID.STRUCTURAL_HARMONIC,
-                AnalysisID.STRUCTURAL_STATIC,
-                ]:
+            if AnalysisID(self.analysis_id).is_acoustic():
 
                 title = "Invalid analysis type"
                 message = "There are only BEAM_1 elements in the model, therefore, "
@@ -475,27 +423,23 @@ class Project:
                 return
 
         if self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
-            self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
+            self.model.preprocessor.enable_fluid_mass_adding_effect(enable=False)
             self.structural_solver = self.get_structural_solver()
 
-        elif self.analysis_id in [
-            AnalysisID.ACOUSTIC_MODAL,
-            AnalysisID.ACOUSTIC_HARMONIC,
-            ]:
+        elif AnalysisID(self.analysis_id).is_acoustic():
             self.acoustic_solver = self.get_acoustic_solver()
 
-        elif self.analysis_id in [AnalysisID.COUPLED_HARMONIC]:
-            self.model.preprocessor.enable_fluid_mass_adding_effect()
+        elif AnalysisID(self.analysis_id).is_coupled():
+            self.model.preprocessor.enable_fluid_mass_adding_effect(enable=True)
             self.acoustic_solver = self.get_acoustic_solver()
 
-        elif self.analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC,
-            AnalysisID.STRUCTURAL_STATIC,
-            ]:
-            self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
+        elif self.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.STRUCTURAL_STATIC]:
+            self.model.preprocessor.enable_fluid_mass_adding_effect(enable=False)
             self.structural_solver = self.get_structural_solver()
 
     def process_analysis(self):
+
+        self.model.reset_solutions()
 
         if not self.model.analysis_setup:
             return
@@ -506,40 +450,40 @@ class Project:
             else:
                 self.structural_solver.mode_superposition()
 
-            self.structural_solution = self.structural_solver.solution
+            self.set_structural_solution(self.structural_solver.solution)
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
             self.acoustic_solver.direct_method()
-            self.acoustic_solution = self.acoustic_solver.solution
+            self.set_acoustic_solution(self.acoustic_solver.solution)
             self.perforated_plate_data_log = self.acoustic_solver.convergence_data_log
 
         elif self.analysis_id == AnalysisID.COUPLED_HARMONIC:
             self.acoustic_solver.direct_method()
-            self.acoustic_solution = self.acoustic_solver.solution
             self.perforated_plate_data_log = self.acoustic_solver.convergence_data_log
 
-            self.structural_solver = self.get_structural_solver()
+            self.structural_solver = self.get_structural_solver(acoustic_solution=self.acoustic_solver.solution)
             if self.analysis_method == "direct":
                 self.structural_solver.direct_method()
             else:
                 self.structural_solver.mode_superposition()
 
-            self.structural_solution = self.structural_solver.solution
+            self.set_acoustic_solution(self.acoustic_solver.solution)
+            self.set_structural_solution(self.structural_solver.solution)
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             self.structural_solver.modal_analysis(number_of_modes = self.number_of_modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_structural = self.structural_solver.natural_frequencies
-            self.structural_solution = self.structural_solver.modal_shapes
+            self.set_structural_solution(self.structural_solver.modal_shapes)
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
             self.acoustic_solver.modal_analysis(number_of_modes = self.number_of_modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
             self.complex_natural_frequencies_acoustic = self.acoustic_solver.complex_natural_frequencies
-            self.acoustic_solution = self.acoustic_solver.modal_shapes
+            self.set_acoustic_solution(self.acoustic_solver.modal_shapes)
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
             self.structural_solver.static_analysis()
-            self.structural_solution = self.structural_solver.solution
+            self.set_structural_solution(self.structural_solver.solution)
 
         else:
             raise NotImplementedError("Not implemented analysis")
@@ -554,10 +498,20 @@ class Project:
                 if self.acoustic_solver.nl_pp_elements:
                     sleep(1)
 
-    def run_analysis(self):
-        return LoadingWindow(self.build_model_and_solve).run()
+    def run_analysis(self, running_by_script: bool = False):
+        if LoadingWindow(self.build_model_and_solve).run(running_by_script = running_by_script):
+            return True
 
-    def build_model_and_solve(self, running_by_script=False):
+        if running_by_script:
+            return
+
+        logging.info("Post-processing the obtained results [90%]")
+        self.check_warnings()
+
+        logging.info("Processing the post solution checks [95%]")
+        self.post_solution_actions()
+
+    def build_model_and_solve(self, running_by_script: bool = False):
 
         t0 = perf_counter()
 
@@ -586,6 +540,9 @@ class Project:
         logging.info("Solution in progress [50%]")
         self.process_analysis()
 
+        logging.info("Updating the post-processing attributes [75%]")
+        self.update_post_processing()
+
         logging.info("Saving the solution data [95%]")
         self.file.write_results_data_in_file()
 
@@ -594,16 +551,29 @@ class Project:
             self.model.preprocessor.stop_processing = False
             return
 
-        if not running_by_script:
-
-            logging.info("Post-processing the obtained results [90%]")
-            self.check_warnings()
-
-            logging.info("Processing the post solution checks [95%]")
-            self.post_solution_actions()
-
         dt = perf_counter() - t0
         print(f"Time to solve the model: {dt} [s]")
+
+    def update_post_processing(self):
+        if AnalysisID(self.model.analysis_id).is_acoustic():
+            self.acoustic_postprocessing = AcousticPostprocessing(self.model)
+
+        elif AnalysisID(self.model.analysis_id).is_structural():
+            self.structural_postprocessing = StructuralPostprocessing(self.model)
+
+        elif AnalysisID(self.model.analysis_id).is_coupled():
+            self.acoustic_postprocessing = AcousticPostprocessing(self.model)
+            self.structural_postprocessing = StructuralPostprocessing(self.model)
+
+    def get_acoustic_postprocessing(self) -> AcousticPostprocessing:
+        if not isinstance(self.acoustic_postprocessing, AcousticPostprocessing):
+            self.update_post_processing()
+        return self.acoustic_postprocessing
+
+    def get_structural_postprocessing(self) -> StructuralPostprocessing:
+        if not isinstance(self.structural_postprocessing, StructuralPostprocessing):
+            self.update_post_processing()
+        return self.structural_postprocessing
 
     def check_warnings(self):
 
@@ -628,7 +598,7 @@ class Project:
 
     def calculate_structural_reactions(self):
 
-        if self.structural_solution is None:
+        if self.model.structural_solution is None:
             return
 
         static_analysis = self.analysis_id == AnalysisID.STRUCTURAL_STATIC

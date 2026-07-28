@@ -1,14 +1,16 @@
-import pytest
 import numpy as np
+import pytest
 from scipy.sparse.linalg import norm as sparse_norm
 
 from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
-from pulse.model.properties.material import Material
-from pulse.project.project import Project
-from pulse.processing.assembly_structural import AssemblyStructural
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.data_classes.project_setup_data_classes import ImportType, MesherSetup, ProjectSetup
+from pulse.model.properties.material import Material
+from pulse.processing.assembly_structural import AssemblyStructural
+from pulse.project.project import Project
+
 
 @pytest.fixture
 def model(tmp_path):
@@ -29,27 +31,25 @@ def model(tmp_path):
 
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=tmp_path)
-    mdl = project.model
-    mesh = mdl.mesh
-    preprocessor = mdl.preprocessor
+
+    model = project.model
+    preprocessor = model.preprocessor
 
     geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
-    mesher_setup = {
-        "element_size": 0.01,
-        "geometry_tolerance": 1e-6,
-        "length_unit": "meter",
-        "import_type": 0,
-        "geometry_path": str(geometry_path),
-    }
+
+    ## Configure the project setup
+    project_setup = ProjectSetup(
+        import_type = ImportType.CAD_FILE,
+        geometry_path_internal = str(geometry_path),
+        mesher_setup = MesherSetup(0.01, 1e-6, "meter"))
 
     project.reset(reset_all=True)
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
-    preprocessor.generate()
+    project.set_project_setup(project_setup)
 
-    mesher_setup["import_type"] = 1
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
+    ## Process the geometry and mesh
+    model.process_geometry_and_mesh()
 
-    all_lines = mdl.mesh.lines_from_model
+    all_lines = model.mesh.lines_from_model
     preprocessor.set_material_by_lines(all_lines, steel)
     preprocessor.set_cross_section_by_lines(all_lines, cross_section)
 
@@ -72,7 +72,7 @@ def model(tmp_path):
             "real_values": real_values,
             "imag_values": imag_values,
         }
-        mdl.properties._set_nodal_property("prescribed_dofs", data, node_id)
+        model.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
     # Set frequencies so AssemblyStructural can read model.frequencies
     analysis_setup = {
@@ -81,9 +81,9 @@ def model(tmp_path):
         "f_max": 200,
         "f_step": 2,
     }
-    mdl.set_analysis_setup(analysis_setup)
+    model.set_analysis_setup(analysis_setup)
 
-    assembly = AssemblyStructural(mdl)
+    assembly = AssemblyStructural(model)
     names = ['K', 'M', 'Kr', 'Mr']
     answer = assembly.get_global_matrices()
 

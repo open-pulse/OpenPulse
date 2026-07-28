@@ -15,6 +15,7 @@ from tests.helpers import (
 import numpy as np
 
 from pathlib import Path
+from pulse.model.data_classes.project_setup_data_classes import ProjectSetup, MesherSetup, ImportType
 
 
 def test_reciprocating_pump_excitation_analysis(datadir: Path):
@@ -24,29 +25,23 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
 
     ## Define usefull objects
     model = project.model
-    mesh = model.mesh
+    # mesh = model.mesh
     preprocessor = model.preprocessor
 
     # Load geometry file (only the *.iges and *.step formats are supported)
     geometry_path = get_example_file_path("iges_files/run_by_script/reciprocating_pump_piping.step")
 
-    ## Configure the mesher setup
-    mesher_setup = {
-                    "element_size" : 0.01,
-                    "geometry_tolerance" : 1e-6,
-                    "length_unit" : "meter",
-                    "import_type" : 0,
-                    "geometry_path" : str(geometry_path)
-                    }
+    ## Configure the project setup
+    project_setup = ProjectSetup(
+        import_type = ImportType.CAD_FILE,
+        geometry_path_internal = str(geometry_path),
+        mesher_setup = MesherSetup(0.01, 1e-6, "meter"))
 
     project.reset(reset_all=True)
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
+    project.set_project_setup(project_setup)
 
     ## Process the geometry and mesh
-    preprocessor.generate()
-
-    mesher_setup["import_type"] = 1
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
+    model.process_geometry_and_mesh()
 
     all_lines = project.model.mesh.lines_from_model
 
@@ -139,21 +134,19 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
     correction_types = ["side_branch", "expansion", "side_branch"]
 
     for i, coords in enumerate(points_coords):
-
         node_id = preprocessor.get_node_id_by_coordinates(coords)
-        neigh_elements = model.preprocessor.acoustic_elements_connected_to_node[node_id]
+        element_ids = model.preprocessor.elements_connected_to_node.get(node_id)
         correction_type = correction_types_ids[correction_types[i]]
 
-        element_ids = [int(element.index) for element in neigh_elements]
-
         if correction_type in [1, 2]:
-            if len(neigh_elements) != 3:
+            if len(element_ids) != 3:
                 continue
 
         else:
-            if len(neigh_elements) == 2:
-                cross_e0 = neigh_elements[0].cross_section
-                cross_e1 = neigh_elements[1].cross_section
+            if len(element_ids) == 2:
+                cross_e0 = preprocessor.get_element_cross_section(element_ids[0])
+                cross_e1 = preprocessor.get_element_cross_section(element_ids[1])
+
                 inside_diam_0 = cross_e0.outer_diameter - 2 * cross_e0.thickness
                 inside_diam_1 = cross_e1.outer_diameter - 2 * cross_e1.thickness
 
@@ -161,9 +154,9 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
                     continue
 
         data = {
-                "coords" : list(coords),
-                "correction_type" : correction_type,
-                }
+            "coords": list(coords),
+            "correction_type": correction_type,
+        }
 
         model.preprocessor.set_element_length_correction_by_element(element_ids, data)
         model.properties._set_element_property("element_length_correction", data, element_ids)
@@ -263,13 +256,13 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
     project.file.write_nodal_properties_in_file()
     project.file.write_element_properties_in_file()
     project.file.write_imported_table_data_in_file()
-    project.file.write_project_setup_in_file(mesher_setup)
+    project.file.modify_project_attributes(project_setup)
     project.file.write_analysis_setup_in_file(model.analysis_setup)
 
     ## Build the mathematical model and solve it (it also saves the model results in the temp_pulse folder)
     project.build_model_and_solve(running_by_script=True)
 
-    acoustic_solution = project.acoustic_solution
+    acoustic_solution = project.model.acoustic_solution
 
     assert acoustic_solution is not None, "No acoustic solution returned"
     assert acoustic_solution.ndim == 2, "Acoustic solution must be 2D"

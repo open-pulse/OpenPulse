@@ -9,6 +9,7 @@ from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.plot_stresses_field_for_harmonic_analysis_ui import PlotStressesFieldForHarmonicAnalysis_UI
 from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.viewer_3d.coloring.color_palettes import COLORMAP_NAMES
 
 
 class DampingEffect(IntEnum):
@@ -21,64 +22,41 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         super().__init__(*args, **kwargs)
         
         self._initialize()
-        self._load_structural_solver()
         self._create_connection()
         self._add_animation_widget()
-        self.load_frequencies()
-        self.load_user_preference_colormap()
-        self.select_first_frequency()
 
     def _initialize(self):
 
+        self.stresses_data = None
         self.selected_index = None
         self.update_damping = False
 
-        self.stress_field = list()
-        self.stress_data = list()
-
-        self.keys = np.arange(7)
-        self.labels = np.array(
-            ["Normal axial",
-             "Normal bending y",
-             "Normal bending z",
-             "Hoop",
-             "Torsional shear",
-             "Transversal shear xy",
-             "Transversal shear xz"]
+        self.stresses_labels = np.array(
+            ["Normal axial", "Normal bending y", "Normal bending z", "Hoop", "Torsional shear", "Transversal shear xy", "Transversal shear xz"]
         )
 
-        self.frequencies = app().project.model.frequencies
+    @property
+    def model(self):
+        return app().project.model
 
-        self.dict_frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
-
-        self.colormaps = ["jet",
-                          "viridis",
-                          "inferno",
-                          "magma",
-                          "plasma",
-                          "bwr",
-                          "PiYG",
-                          "PRGn",
-                          "BrBG",
-                          "PuOR",
-                          "grayscale",
-                          ]
+    @property
+    def structural_solver(self):
+        return app().project.structural_solver
 
     def _load_structural_solver(self):
 
-        if app().project.structural_solver is None:
+        if self.structural_solver is not None:
+            return
 
-            def callback():
-                logging.info("Processing the cross-sections [75%]")
-                app().project.model.preprocessor.process_cross_sections_mapping()
-            LoadingWindow(callback).run()
+        def process_cross_sections():
+            logging.info("Processing the cross-sections [75%]")
+            self.model.preprocessor.process_cross_sections_mapping()
 
-            self.structural_solver = app().project.get_structural_solver()
-            if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
+        LoadingWindow(process_cross_sections).run()
 
-        else:
-            self.structural_solver = app().project.structural_solver
+        app().project.structural_solver = app().project.get_structural_solver()
+        if self.structural_solver.solution is None:
+            self.structural_solver.solution = self.model.structural_solution
 
     def _create_connection(self):
         #
@@ -119,17 +97,28 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
     def load_user_preference_colormap(self):
         try:
             colormap = app().config.user_preferences.color_map
-            if colormap in self.colormaps:
-                index = self.colormaps.index(colormap)
+            if colormap in COLORMAP_NAMES:
+                index = COLORMAP_NAMES.index()
                 self.comboBox_colormaps.setCurrentIndex(index)
+
         except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):
+        colormap = self.get_colormap()
+        app().config.user_preferences.color_map = colormap
+        app().config.update_config_file()
+        try:
+            app().main_window.results_widget.set_colormap(colormap)
+            self.update_plot()
+        except AttributeError:
+            pass
+
+    def get_colormap(self) -> str:
         index = self.comboBox_colormaps.currentIndex()
-        colormap = self.colormaps[index]
-        app().main_window.results_widget.set_colormap(colormap)
-        self.update_plot()
+        if not (0 <= index < len(COLORMAP_NAMES)):
+            return "jet"
+        return COLORMAP_NAMES[index]
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
@@ -142,7 +131,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
 
         frequency_selected = float(self.lineEdit_selected_frequency.text())
         if frequency_selected in self.frequencies:
-            self.selected_index = self.dict_frequency_to_index[frequency_selected]
+            self.selected_index = self.frequency_to_index[frequency_selected]
             self.get_stress_data()
 
         app().main_window.results_widget.clear_cache()
@@ -163,26 +152,23 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
     def get_stress_data(self):
 
         index = self.comboBox_stress_type.currentIndex()
-        stress_label = self.labels[index]
-        stress_key = self.keys[index]
+        stress_label = self.stresses_labels[index]
+
         damping_effect = self.comboBox_damping_effect.currentIndex() == DampingEffect.INCLUDED
 
-        if len(self.stress_data) == 0 or self.update_damping:
-
-            self.stress_data = self.structural_solver.stress_calculate(damping=damping_effect)
+        if  self.stresses_data is None or self.update_damping:
+            self.stresses_data = self.structural_solver.stress_calculate(damping=damping_effect)
             self.update_damping = False
 
-        stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
+        stress_data = self.stresses_data[:, index, self.selected_index]
 
-        stress_list = list(stress_field.values())
-        min_stress = np.min(stress_list)
-        max_stress = np.max(stress_list)
-            
-        app().project.set_stresses_values_for_color_table(stress_field)
-        app().project.set_min_max_type_stresses(min_stress, max_stress, stress_label)
+        min_stress = np.min(stress_data)
+        max_stress = np.max(stress_data)
 
-        color_scale_setup = self.get_user_color_scale_setup()
-        app().project.set_color_scale_setup(color_scale_setup)
+        app().project.model.set_stresses_data(stress_data)
+        app().project.model.set_min_max_type_stresses(min_stress, max_stress, stress_label)
+
+        app().project.set_color_scale_setup(self.get_user_color_scale_setup())
         app().main_window.results_widget.show_stress_field(self.selected_index)
 
     def select_first_frequency(self):
@@ -201,14 +187,26 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         self.on_click_item(item)
 
     def load_frequencies(self):
-        for index, frequency in enumerate(self.frequencies):
+        self._load_structural_solver()
+        self.treeWidget_frequencies.clear()
+        _frequencies = app().project.model.frequencies
+
+        for index, frequency in enumerate(_frequencies):
             new = QTreeWidgetItem([str(index+1), str(frequency)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
 
+        if isinstance(_frequencies, np.ndarray):
+            self.frequencies = list(_frequencies)
+
+        elif isinstance(_frequencies, list):
+            self.frequencies = _frequencies
+
+        self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
+        
+        self.select_first_frequency()
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.update_plot()
-        elif event.key() == Qt.Key_Escape:
-            self.close()

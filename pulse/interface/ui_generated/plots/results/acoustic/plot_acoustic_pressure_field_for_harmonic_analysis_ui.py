@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'plot_acoustic_pressure_field_for_harmonic_analysis.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -268,7 +268,6 @@ class Ui_Form(object):
 
         self.frame_animation = QFrame(self.scrollAreaWidgetContents)
         self.frame_animation.setObjectName(u"frame_animation")
-        self.frame_animation.setMinimumSize(QSize(0, 175))
         self.frame_animation.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_animation.setFrameShadow(QFrame.Shadow.Raised)
 
@@ -303,8 +302,8 @@ class Ui_Form(object):
         self.comboBox_colormaps.setItemText(9, QCoreApplication.translate("Form", u"PuOr diverging scale", None))
         self.comboBox_colormaps.setItemText(10, QCoreApplication.translate("Form", u" Grayscale", None))
 
-        self.comboBox_color_scale.setItemText(0, QCoreApplication.translate("Form", u"Animation (absolute)", None))
-        self.comboBox_color_scale.setItemText(1, QCoreApplication.translate("Form", u"Animation (non absolute)", None))
+        self.comboBox_color_scale.setItemText(0, QCoreApplication.translate("Form", u"Animation (non absolute)", None))
+        self.comboBox_color_scale.setItemText(1, QCoreApplication.translate("Form", u"Animation (absolute)", None))
         self.comboBox_color_scale.setItemText(2, QCoreApplication.translate("Form", u"Absolute values", None))
         self.comboBox_color_scale.setItemText(3, QCoreApplication.translate("Form", u"Real values", None))
         self.comboBox_color_scale.setItemText(4, QCoreApplication.translate("Form", u"Imaginary values", None))

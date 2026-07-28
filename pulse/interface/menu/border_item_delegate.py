@@ -6,6 +6,8 @@ from pulse.interface.formatters.icons import Icon
 
 
 class BorderItemDelegate(QStyledItemDelegate):
+    MULTI_ICON_ROLE = Qt.ItemDataRole.UserRole + 2
+
     def __init__(self, parent, borderRole):
         super(BorderItemDelegate, self).__init__(parent)
         self.borderRole = borderRole
@@ -36,6 +38,24 @@ class BorderItemDelegate(QStyledItemDelegate):
         painter.save()
 
         super().paint(painter, option, index)
+
+        multi_icons: list = index.data(self.MULTI_ICON_ROLE)
+
+        if multi_icons:
+            icon_side = max(1, min(16, option.rect.height() - 4))
+            icon_size = QSize(icon_side, icon_side)
+            spacing = 4
+            margin = 8
+            x = option.rect.right() - margin
+            y = option.rect.top() + (option.rect.height() - icon_size.height()) // 2
+            for icon in reversed(multi_icons):
+                if icon and not icon.isNull():
+                    x -= icon_size.width()
+                    pixmap = icon.pixmap(icon_size, QIcon.Mode.Normal, QIcon.State.On)
+                    painter.drawPixmap(x, y, pixmap)
+                    x -= spacing
+            painter.restore()
+            return
 
         original_icon: QIcon = index.data(Qt.ItemDataRole.DecorationRole)
         if original_icon and not original_icon.isNull():

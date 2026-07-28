@@ -1,17 +1,14 @@
 
+from pathlib import Path
+
+import numpy as np
+import pytest
+from matplotlib import pyplot as plt
+
 from pulse.model import AnalysisID
 from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
 from pulse.project.project import Project
-
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.utils.signal_processing import *
-
-import pytest
-import numpy as np
-
-from pathlib import Path
-from matplotlib import pyplot as plt
+from pulse.utils.signal_processing import process_iFFT_of_onesided_spectrum
 
 # Setting up model
  
@@ -100,7 +97,6 @@ def post_process_results(project: "Project", node_id: int):
 
     model = project.model
     preprocessor = model.preprocessor
-    solution = project.acoustic_solver.solution
 
     line_id = preprocessor.get_line_from_node_id(node_id)
     if len(line_id) == 1:
@@ -115,7 +111,7 @@ def post_process_results(project: "Project", node_id: int):
         df = model.frequencies[1] - model.frequencies[0]
 
         # get the one-sided acoustic pressure spectrum at the suction node 
-        acoustic_pressure_spectrum = get_acoustic_frf(preprocessor, solution, node_id)
+        acoustic_pressure_spectrum = project.acoustic_postprocessing.get_acoustic_response_spectrum(node_id)
         time, acoustic_pressure_time = process_iFFT_of_onesided_spectrum(df, acoustic_pressure_spectrum, remove_avg=True)
 
         ## acoustic inlet pressure in kPa
@@ -261,9 +257,10 @@ def plot_data(plot_data: dict, x_label: str, y_label: str, title: str):
 
 def remove_files_from_temporary_folder():
 
-    from pulse import TEMP_PROJECT_DIR
+    from os import listdir, path, remove
     from shutil import rmtree
-    from os import path, remove, listdir
+
+    from pulse import TEMP_PROJECT_DIR
 
     if TEMP_PROJECT_DIR.exists():
         for filename in listdir(TEMP_PROJECT_DIR).copy():

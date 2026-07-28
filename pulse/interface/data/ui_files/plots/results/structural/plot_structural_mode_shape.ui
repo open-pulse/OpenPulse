@@ -784,12 +784,6 @@
        </item>
        <item row="2" column="0">
         <widget class="QFrame" name="frame_animation">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>175</height>
-          </size>
-         </property>
          <property name="frameShape">
           <enum>QFrame::Shape::NoFrame</enum>
          </property>

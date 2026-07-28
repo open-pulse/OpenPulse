@@ -258,7 +258,7 @@ class ModelSetupItems(CommonMenuItems):
                 app().main_window.plot_lines_with_cross_sections()
 
     def enable_actions_according_to_import_type(self):
-        import_type = app().project.model.mesh.import_type
+        import_type = app().project.model.project_setup.import_type
         if import_type == 0:
             pass
 
@@ -337,14 +337,47 @@ class ModelSetupItems(CommonMenuItems):
         if (properties := app().project.model.properties) is None:
             return False
 
+        if property_name == "mass_spring_damper":
+            return bool(self.get_mass_spring_damper_icons())
+
+        if property_name == "elastic_nodal_links":
+            return bool(self.get_elastic_nodal_links_icons())
+
+        property_name = {
+            "valve": "valve_info",
+            "expansion_joint": "expansion_joint_info",
+        }.get(property_name, property_name)
         if property_name in ["material", "fluid"]:
-            if (mesh := app().project.model.mesh) is None:
+            mesh = app().project.model.mesh
+            if mesh is None:
                 return False
 
-            total_lines = len(mesh.lines_from_model)
-            return properties.is_property_applied_to_all_lines(property_name, total_lines)
+            return properties.is_property_applied_to_all_lines(property_name, mesh.lines_from_model)
 
         return properties.is_the_property_applied(property_name)
+
+    def get_mass_spring_damper_icons(self) -> list[str]:
+        return self._get_icons_for_properties({
+            "lumped_masses": "mass",
+            "lumped_stiffness": "spring",
+            "lumped_dampings": "damper",
+        })
+
+    def get_elastic_nodal_links_icons(self) -> list[str]:
+        return self._get_icons_for_properties({
+            "stiffness_nodal_links": "spring",
+            "damping_nodal_links": "damper",
+        })
+
+    def _get_icons_for_properties(self, icon_by_property: dict[str, str]) -> list[str]:
+        if (properties := app().project.model.properties) is None:
+            return []
+
+        return [
+            icon_name
+            for property_name, icon_name in icon_by_property.items()
+            if properties.is_the_property_applied(property_name)
+        ]
 
     def update_items_apperence(self):
         physical_domain = self._get_physical_domain()
@@ -356,9 +389,17 @@ class ModelSetupItems(CommonMenuItems):
                     continue
 
                 item_child.set_warning(False)
+                item_child.set_multi_icon([], visible=False)
 
                 if self.contains_property(item_child.property_name):
-                    item_child.set_icon()
+                    if item_child.property_name == "mass_spring_damper":
+                        item_child.set_icon(visible=False)
+                        item_child.set_multi_icon(self.get_mass_spring_damper_icons())
+                    elif item_child.property_name == "elastic_nodal_links":
+                        item_child.set_icon(visible=False)
+                        item_child.set_multi_icon(self.get_elastic_nodal_links_icons())
+                    else:
+                        item_child.set_icon()
 
                 elif self.needs_property(item_child.property_name, physical_domain):
                     item_child.set_warning(True)

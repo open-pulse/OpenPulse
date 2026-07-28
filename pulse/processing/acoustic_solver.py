@@ -1,5 +1,6 @@
 
 from pulse.model.model import Model
+from pulse.model.elements.element_attributes import ElementAttributes
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
 import numpy as np
@@ -37,7 +38,6 @@ class AcousticSolver:
 
         self.all_dofs = len(model.preprocessor.nodes)
         self.assembly = AssemblyAcoustic(model)
-        self.acoustic_elements = model.preprocessor.acoustic_elements
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
@@ -66,22 +66,24 @@ class AcousticSolver:
 
         self.warning_modal_prescribed_pressures = ""
 
-    def check_non_linear_perforated_plate(self):
+    def check_non_linear_perforated_plate(self) -> list[ElementAttributes]:
 
         elements = list()
         for (property, element_id) in self.model.properties.element_properties.keys():
-            if property == "perforated_plate":
-                element = self.acoustic_elements[element_id]
-                if element.perforated_plate.nonlinear_effects:
-                    elements.append(element)
+            if property != "perforated_plate":
+                continue
+
+            element_attributes = self.model.preprocessor.elements_attributes.get(element_id)
+            if element_attributes.perforated_plate_data.nonlinear_effects:
+                elements.append(element_attributes)
 
         return elements
 
-    def get_global_matrices(self):
+    def get_global_matrices_for_harmonic_analysis(self):
         """
         This method updates the acoustic global matrices.
         """
-        self.K, self.Kr = self.assembly.get_global_matrices()
+        self.K, self.Kr = self.assembly.get_global_matrices_for_harmonic_analysis()
         self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
         self.K_link, self.Kr_link = self.assembly.get_fetm_link_matrices()
         self.T_link, self.Tr_link = self.assembly.get_fetm_transfer_matrices()
@@ -200,7 +202,7 @@ class AcousticSolver:
 
         self.warning_modal_prescribed_pressures = ""
 
-        K, M = self.assembly.get_global_matrices_modal()
+        K, M = self.assembly.get_global_matrices_for_modal_analysis()
         K_link, M_link = self.assembly.get_link_global_matrices_modal()
         C, _ = self.assembly.get_lumped_matrices_for_FEM()
 
@@ -318,7 +320,7 @@ class AcousticSolver:
 
         if cond_1 or cond_2:
 
-            self.get_global_matrices()
+            self.get_global_matrices_for_harmonic_analysis()
             volume_velocity = self.get_combined_volume_velocity()
 
             rows = self.K[0].shape[0]
@@ -354,10 +356,11 @@ class AcousticSolver:
 
         for (property, element_id) in self.model.properties.element_properties.keys():
             if property == "perforated_plate":
-                element = self.model.preprocessor.acoustic_elements[element_id]
-                element.reset()
+                continue
+                # element_attributes = self.model.preprocessor.elements_attributes.get(element_id)
+                # element.reset()
 
-        self.get_global_matrices()
+        self.get_global_matrices_for_harmonic_analysis()
         volume_velocity = self.get_combined_volume_velocity()
 
         rows = self.K[0].shape[0]
@@ -380,111 +383,113 @@ class AcousticSolver:
         converged = False
         relative_difference = 1
 
-        if self.nl_pp_elements:
+        if not self.nl_pp_elements:
+            return
 
-            _criteria = 100*self.target
-            self.update_plot_2d_data()
+        _criteria = 100*self.target
+        self.update_plot_2d_data()
 
-            while relative_difference > self.target or not converged:
-                
-                progress = 2 * (count + 1) + 50
-                if progress > 96:
-                    progress = 96
+        while relative_difference > self.target or not converged:
+            
+            progress = 2 * (count + 1) + 50
+            if progress > 96:
+                progress = 96
 
-                if self.relative_error:
-                    _last_residue = self.relative_error[-1]
+            if self.relative_error:
+                _last_residue = self.relative_error[-1]
+            else:
+                _last_residue = 100
+            
+            log_message = f"Solving non-linear perforated plate - iteration {count+1} [{progress}%]\n\n"
+            log_message += f"Last pressure residue: {_last_residue : .2f}\n"
+            log_message += f" Convergence criteria: {_criteria : .2f}\n"
+
+            logging.info(log_message)
+                                                                                                    
+            if self.stop_processing():
+                self.solution = None
+                return None, None
+
+            for i, freq in enumerate(self.frequencies):
+                solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+
+            solution = self._reinsert_prescribed_dofs(solution)
+            
+            delta_pressures_list = list()
+            cache_delta_residues = list()
+            cache_pressure_residues = np.array([])
+
+            for i, element in enumerate(self.nl_pp_elements):
+
+                first_index = element.first_node.index
+                last_index = element.last_node.index
+
+                pressure_first = solution[first_index, :]
+                pressure_last = solution[last_index, :]
+                pp_delta_pressure =  pressure_last - pressure_first
+                element.update_delta_pressure(pp_delta_pressure)
+
+                pressure_residue_first = relative_error(solution[first_index, indexes], previous_solution[first_index, indexes])
+                pressure_residue_last = relative_error(solution[last_index, indexes], previous_solution[last_index, indexes])
+                cache_pressure_residues = np.r_[ cache_pressure_residues, pressure_residue_first, pressure_residue_last ] 
+
+                index = np.argmax(np.abs(pp_delta_pressure[indexes]))
+                max_value = np.max(np.abs(pp_delta_pressure[indexes]))
+
+                if len(delta_pressures_list) == len(self.nl_pp_elements):
+                    delta_pressures_list[i] = pp_delta_pressure[1:]
+                    cache_delta_residues[i] = relative_error(delta_pressures_list[i], cache_delta_pressures[i])
+
                 else:
-                    _last_residue = 100
-                
-                log_message = f"Solving non-linear perforated plate - iteration {count+1} [{progress}%]\n\n"
-                log_message += f"Last pressure residue: {_last_residue : .2f}\n"
-                log_message += f" Convergence criteria: {_criteria : .2f}\n"
+                    delta_pressures_list.append(pp_delta_pressure[1:])
+                    cache_delta_pressures.append(np.zeros_like(pp_delta_pressure[1:], dtype=complex))
+                    cache_delta_residues.append(relative_error(delta_pressures_list[i], cache_delta_pressures[i]))
 
-                logging.info(log_message)
-                                                                                                        
-                if self.stop_processing():
-                    self.solution = None
-                    return None, None
-
-                for i, freq in enumerate(self.frequencies):
-                    solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
-
-                solution = self._reinsert_prescribed_dofs(solution)
-                
-                delta_pressures_list = list()
-                cache_delta_residues = list()
-                cache_pressure_residues = np.array([])
-
-                for i, element in enumerate(self.nl_pp_elements):
-
-                    first_index = element.first_node.global_index
-                    last_index = element.last_node.global_index
-
-                    pressure_first = solution[first_index, :]
-                    pressure_last = solution[last_index, :]
-                    pp_delta_pressure =  pressure_last - pressure_first
-                    element.update_delta_pressure(pp_delta_pressure)
-
-                    pressure_residue_first = relative_error(solution[first_index, indexes], previous_solution[first_index, indexes])
-                    pressure_residue_last = relative_error(solution[last_index, indexes], previous_solution[last_index, indexes])
-                    cache_pressure_residues = np.r_[ cache_pressure_residues, pressure_residue_first, pressure_residue_last ] 
-
-                    index = np.argmax(np.abs(pp_delta_pressure[indexes]))
-                    max_value = np.max(np.abs(pp_delta_pressure[indexes]))
-
-                    if len(delta_pressures_list) == len(self.nl_pp_elements):
-                        delta_pressures_list[i] = pp_delta_pressure[1:]
-                        cache_delta_residues[i] = relative_error(delta_pressures_list[i], cache_delta_pressures[i])
+                if count >= 5:
+                    if len(cache_delta) == len(self.nl_pp_elements):                                
+                        if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
+                            if index in freq_indexes.keys():
+                                freq_indexes[index] += 1
+                            else:
+                                freq_indexes[index] = 1
+                        cache_delta[i] = max_value
                     else:
-                        delta_pressures_list.append(pp_delta_pressure[1:])
-                        cache_delta_pressures.append(np.zeros_like(pp_delta_pressure[1:], dtype=complex))
-                        cache_delta_residues.append(relative_error(delta_pressures_list[i], cache_delta_pressures[i]))
+                        cache_delta.append(max_value)
 
-                    if count >= 5:
-                        if len(cache_delta) == len(self.nl_pp_elements):                                
-                            if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
-                                if index in freq_indexes.keys():
-                                    freq_indexes[index] += 1
-                                else:
-                                    freq_indexes[index] = 1
-                            cache_delta[i] = max_value
-                        else:
-                            cache_delta.append(max_value)
+            count += 1
+            relative_difference = np.max(cache_pressure_residues)
+            pressure_residues.append(100*relative_difference)
+            delta_residues.append(100*max(cache_delta_residues))
+            self.iterations.append(count)
 
-                count += 1
-                relative_difference = np.max(cache_pressure_residues)
-                pressure_residues.append(100*relative_difference)
-                delta_residues.append(100*max(cache_delta_residues))
-                self.iterations.append(count)
+            cache_delta_pressures = delta_pressures_list.copy()
+            previous_solution = solution.copy()
 
-                cache_delta_pressures = delta_pressures_list.copy()
-                previous_solution = solution.copy()
+            for ind, repetitions in freq_indexes.items():
+                if repetitions >= 4:
+                    if ind not in self.unstable_frequencies:
+                        _frequencies = self.frequencies[indexes]
+                        freq = _frequencies[ind]
+                        self.unstable_frequencies[ind] = freq
+                        indexes.remove(freq)
+                        message = f"The {freq}Hz frequency step produces unstable results, therefore "
+                        message += "it will be excluded from the calculation of the residue convergence criteria.\n"
+                        print(message)
 
-                for ind, repetitions in freq_indexes.items():
-                    if repetitions >= 4:
-                        if ind not in self.unstable_frequencies:
-                            _frequencies = self.frequencies[indexes]
-                            freq = _frequencies[ind]
-                            self.unstable_frequencies[ind] = freq
-                            indexes.remove(freq)
-                            message = f"The {freq}Hz frequency step produces unstable results, therefore "
-                            message += "it will be excluded from the calculation of the residue convergence criteria.\n"
-                            print(message)
+            self.relative_error = pressure_residues
+            self.deltaP_errors = delta_residues
+            converged = self.check_convergence_criterias(pressure_residues, delta_residues)
 
-                self.relative_error = pressure_residues
-                self.deltaP_errors = delta_residues
-                converged = self.check_convergence_criterias(pressure_residues, delta_residues)
+            if converged:
+                self.plot_2d.show()
+                self.convergence_data_log = [self.iterations, pressure_residues, delta_residues, 100*self.target]
+                self.solution = previous_solution
+                return self.solution, self.convergence_data_log
 
-                if converged:
-                    self.plot_2d.show()
-                    self.convergence_data_log = [self.iterations, pressure_residues, delta_residues, 100*self.target]
-                    self.solution = previous_solution
-                    return self.solution, self.convergence_data_log
-
-                else:
-                    self.update_plot_2d_data()
-                    self.get_global_matrices()
-                    solution = np.zeros((rows, cols), dtype=complex)
+            else:
+                self.update_plot_2d_data()
+                self.get_global_matrices_for_harmonic_analysis()
+                solution = np.zeros((rows, cols), dtype=complex)
 
     def initialize_plot_2d(self):
 

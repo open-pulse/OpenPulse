@@ -78,29 +78,20 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_reciprocating_pump_inlet_pressure_criteria.setHidden(True)
         self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
 
-        acoustic_solution = self.project.get_acoustic_solution()
-        structural_solution = self.project.get_structural_solution()
+        acoustic_solution = self.project.model.acoustic_solution
+        structural_solution = self.project.model.structural_solution
 
         analysis_id = self.project.analysis_id
 
         if structural_solution is not None or acoustic_solution is not None:
 
-            if analysis_id in [
-                AnalysisID.STRUCTURAL_MODAL,
-                AnalysisID.STRUCTURAL_HARMONIC,
-                AnalysisID.STRUCTURAL_STATIC,
-                ]:
-
+            if AnalysisID(analysis_id).is_structural():
                 self.item_top_results_viewer_structural.setHidden(False)
 
-            elif analysis_id in [
-                AnalysisID.ACOUSTIC_MODAL,
-                AnalysisID.ACOUSTIC_HARMONIC,
-                ]:
-
+            elif AnalysisID(analysis_id).is_acoustic():
                 self.item_top_results_viewer_acoustic.setHidden(False)
 
-            elif analysis_id == AnalysisID.COUPLED_HARMONIC:    
+            elif AnalysisID(analysis_id).is_coupled():    
                 self.item_top_results_viewer_acoustic.setHidden(False)
                 self.item_top_results_viewer_structural.setHidden(False)
 
@@ -114,12 +105,12 @@ class ResultsViewerItems(CommonMenuItems):
             elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
                 self.item_child_plot_structural_mode_shapes.setDisabled(False)
                 # self.item_child_plot_structural_mode_shapes.set_warning(True)
-                if self.project.get_acoustic_solution() is not None:
+                if self.project.model.acoustic_solution is not None:
                     self.item_child_plot_acoustic_mode_shapes.setDisabled(False)    
 
             elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
                 self.item_child_plot_acoustic_mode_shapes.setDisabled(False)
-                if self.project.get_structural_solution() is not None:
+                if self.project.model.structural_solution is not None:
                     self.item_child_plot_structural_mode_shapes.setDisabled(False)  
 
             elif analysis_id in [

@@ -8,6 +8,7 @@ from pulse.interface import error_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.model import Model
 from pulse.processing.assembly_structural import AssemblyStructural
+# from pulse.model.elements.elements_builder import build_structural_element
 
 
 class StructuralSolver:
@@ -26,13 +27,13 @@ class StructuralSolver:
         Default is None.
     """
 
-    def __init__(self, model: Model, **kwargs):
+    def __init__(self, model: Model, acoustic_solution: np.ndarray | None = None):
 
         self.model = model
         self.frequencies = model.frequencies
 
-        self.acoustic_solution = kwargs.get("acoustic_solution", None)
-        self.assembly = AssemblyStructural(model, acoustic_solution=self.acoustic_solution)
+        self.acoustic_solution = acoustic_solution
+        self.assembly = AssemblyStructural(model, acoustic_solution=acoustic_solution)
 
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()       
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()       
@@ -569,7 +570,7 @@ class StructuralSolver:
                 data: dict
                 node_id = args[0]
                 node = self.model.preprocessor.nodes[node_id]
-                _global_dofs_springs.append(node.global_dof)
+                _global_dofs_springs.append(node.structural_global_dof)
                 values = data["values"]
 
                 if "table_names" in data.keys():
@@ -581,7 +582,7 @@ class StructuralSolver:
 
                 node_id = args[0]
                 node = self.model.preprocessor.nodes[node_id]
-                _global_dofs_dampers.append(node.global_dof)
+                _global_dofs_dampers.append(node.structural_global_dof)
                 values = data["values"]
 
                 if "table_names" in data.keys():
@@ -605,11 +606,7 @@ class StructuralSolver:
             for i, gdof in enumerate(global_dofs_dampers):
                 self.reactions_at_dampers[gdof] = reactions_at_dampers[i,:]
 
-    def stress_calculate(self, 
-            external_pressure: float = 0., 
-            damping: bool = False,
-            static_analysis: bool = False,
-            ):
+    def stress_calculate(self, external_pressure: float = 0., damping: bool = False, static_analysis: bool = False):
         """
         This method evaluates the nodal stresses of the structure.
 
@@ -640,7 +637,6 @@ class StructuralSolver:
                 Transversal-xz shear
         """
 
-        nodal_stresses = dict()
 
         # TODO: review the damping effect on the stress evaluation
 
@@ -655,7 +651,6 @@ class StructuralSolver:
         else:
             _frequencies = self.frequencies
 
-        structural_elements = self.model.preprocessor.structural_elements.values()
         omega = 2 * np.pi * _frequencies.reshape(1, -1)
 
         damping = np.ones([6, 1]) @  (1 + 1j*(eta + omega * beta))
@@ -663,76 +658,87 @@ class StructuralSolver:
 
         p0 = external_pressure
 
-        for element in structural_elements:
+        n_elem = len(self.model.preprocessor.elements_attributes)
+        nodal_stresses = np.zeros((n_elem, 7, len(_frequencies)), dtype=complex)
 
-            if element.element_type in ['beam_1', 'expansion_joint', 'valve']:
-                element.stress = np.zeros((7, len(_frequencies)))
+        for index, element_attributes in self.model.preprocessor.elements_attributes.items():
+            # element = build_structural_element(element_attributes)
 
-            elif element.element_type == 'pipe_1':
-                # Internal Loads
-                structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
+            if element_attributes.structural_element_type in ["beam_1", "expansion_joint", "valve"]:
+                continue
 
-                if self.solution is None:
-                    title = "Empty solution"
-                    message = "A strutural analysis must be performed to obtain the stress field."
-                    PrintMessageInput([error_title, title, message])
-                    return {}
+            if element_attributes.structural_element_type != "pipe_1":
+                continue
 
-                u = self.solution[structural_dofs, :]
-                Dab = element._Dab
-                Bab = element._Bab
+            Dab = element_attributes.matrices_for_stresses_recover.Dab
+            Bab = element_attributes.matrices_for_stresses_recover.Bab
+            Dts = element_attributes.matrices_for_stresses_recover.Dts
+            Bts = element_attributes.matrices_for_stresses_recover.Bts
 
-                Dts = element._Dts
-                Bts = element._Bts
+            rot = element_attributes.element_rotation_matrix
 
-                rot = element.element_rotation_matrix
-                T = element.cross_section.principal_axis_translation
-                
-                normal = Dab @ Bab @ T @ rot @ u
-                shear = Dts @ Bts @ T @ rot @ u
+            cross_section = element_attributes.cross_section
+            material = element_attributes.material
+            wall_formulation = element_attributes.wall_formulation
 
-                element.internal_load = np.multiply(np.r_[normal, shear], damping)
+            T = cross_section.principal_axis_translation
 
-                # Stress
-                do = element.cross_section.outer_diameter
-                di = element.cross_section.inner_diameter
-                ro = do/2
-                area = element.cross_section.area
-                Iy = element.cross_section.second_moment_area_y
-                Iz = element.cross_section.second_moment_area_z
-                J = element.cross_section.polar_moment_area
-                nu = element.material.poisson_ratio
+            first_node = element_attributes.first_node
+            last_node = element_attributes.last_node
 
-                acoustic_dofs = np.r_[element.first_node.global_index, element.last_node.global_index]
-                
-                if self.acoustic_solution is not None:
-                    p = self.acoustic_solution[acoustic_dofs, :]
-                else:
-                    p = np.zeros((2, len(_frequencies)))
+            # Internal Loads
+            structural_dofs = np.r_[first_node.structural_global_dof, last_node.structural_global_dof]
 
-                pm = np.sum(p, axis=0) / 2
+            if self.solution is None:
+                title = "Empty solution"
+                message = "A strutural analysis must be performed to obtain the stress field."
+                PrintMessageInput([error_title, title, message])
+                return np.zeros((n_elem, 7, len(_frequencies)), dtype=complex)
 
-                if element.wall_formulation == "thick_wall":
-                    hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
-                    radial_stress =  -2*nu*(pm*di**2 - p0*do**2)/(do**2 - di**2)
+            u = self.solution[structural_dofs, :]
 
-                if element.wall_formulation == "thin_wall":
-                    hoop_stress = pm
-                    radial_stress = -nu * np.pi * (do/(do-di) - 1)
+            normal = Dab @ Bab @ T @ rot @ u
+            shear = Dts @ Bts @ T @ rot @ u
 
-                stress_data = np.c_[
-                    element.internal_load[0] / area - radial_stress,
-                    element.internal_load[1] * ro/Iy,
-                    element.internal_load[2] * ro/Iz,
-                    hoop_stress,
-                    element.internal_load[3] * ro/J,
-                    element.internal_load[4] / area,
-                    element.internal_load[5] / area   ].T
+            internal_load = np.multiply(np.r_[normal, shear], damping)
 
-                element.stress = stress_data
+            # Stress
+            do = cross_section.outer_diameter
+            di = cross_section.inner_diameter
+            ro = do / 2
+            area = cross_section.area
+            Iy = cross_section.second_moment_area_y
+            Iz = cross_section.second_moment_area_z
+            J = cross_section.polar_moment_area
+            nu = material.poisson_ratio
 
-            nodal_stresses[element.index] = element.stress
-            
+            acoustic_dofs = np.r_[first_node.acoustic_global_dof, last_node.acoustic_global_dof]
+
+            if self.acoustic_solution is not None:
+                p = self.acoustic_solution[acoustic_dofs, :]
+            else:
+                p = np.zeros((2, len(_frequencies)))
+
+            pm = np.sum(p, axis=0) / 2
+
+            if wall_formulation == "thick_wall":
+                hoop_stress = (2 * pm * di**2 - p0 * (do**2 + di**2)) / (do**2 - di**2)
+                radial_stress = -2 * nu * (pm * di**2 - p0 * do**2) / (do**2 - di**2)
+
+            if wall_formulation == "thin_wall":
+                hoop_stress = pm
+                radial_stress = -nu * np.pi * (do / (do - di) - 1)
+
+            nodal_stresses[index, :, :] = np.c_[
+                internal_load[0] / area - radial_stress,
+                internal_load[1] * ro / Iy,
+                internal_load[2] * ro / Iz,
+                hoop_stress,
+                internal_load[3] * ro / J,
+                internal_load[4] / area,
+                internal_load[5] / area,
+            ].T
+
         return nodal_stresses
 
     def stop_processing(self):

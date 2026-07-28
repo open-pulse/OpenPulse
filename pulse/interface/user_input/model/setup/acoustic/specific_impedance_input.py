@@ -160,16 +160,15 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
     def are_there_internal_nodes(self, node_ids: list[int]):
         for node_id in node_ids:
-            neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node.get(node_id)
-            if isinstance(neigh_elements, list):
-                if len(neigh_elements) != 1:
-                    self.hide()
-                    title = "Internal nodes detected"
-                    message = "At least one internal node was detected in the list of "
-                    message += "nodes entered. The specific impedances are only allowed "
-                    message += "for termination nodes."
-                    PrintMessageInput([warning_title, title, message])
-                    return True
+            element_ids = app().project.model.preprocessor.elements_connected_to_node.get(node_id)
+            if len(element_ids) != 1:
+                self.hide()
+                title = "Internal nodes detected"
+                message = "At least one internal node was detected in the list of "
+                message += "nodes entered. The specific impedances are only allowed "
+                message += "for termination nodes."
+                PrintMessageInput([warning_title, title, message])
+                return True
 
     def constant_values_attribution_callback(self, node_ids: list[int]):
 
