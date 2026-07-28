@@ -59,10 +59,7 @@ class ImportGeometry:
         except Exception as error_log:
             app().project.file.write_project_setup_in_file(original_setup_dict)
             app().project.set_project_setup(original_project_setup)
-            title = "Error while importing geometry"
-            message = str(error_log)
-            PrintMessageInput([error_title, title, message])
-            return
+            raise error_log from None
 
         app().main_window.use_model_setup_workspace()
         app().main_window.update_plots()
