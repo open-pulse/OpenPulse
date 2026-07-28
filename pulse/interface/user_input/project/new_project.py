@@ -132,6 +132,7 @@ class NewProjectInput(NewProjectInput_UI):
 
             app().main_window.update_plots()
             app().main_window.reset_geometry_render()
+            app().main_window.results_widget.show_empty()
 
             project_setup = self.create_project_setup()
 
