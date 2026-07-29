@@ -1,18 +1,19 @@
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL
-
 from typing import TYPE_CHECKING
+
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 if TYPE_CHECKING:
     from pulse.model.model import Model
 
 
-import numpy as np
 from math import pi
+
+import numpy as np
 
 # from time import perf_counter
 
 # LOCAL_DOFS = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
-DISP_LOCAL_DOFS = np.arange(int(DOF_PER_NODE_STRUCTURAL/2), dtype=int)
+DISP_LOCAL_DOFS = np.arange(int(DOF_PER_NODE_STRUCTURAL / 2), dtype=int)
 
 
 class StructuralPostprocessing:
@@ -23,7 +24,7 @@ class StructuralPostprocessing:
         self.model = model
 
         self.n_div = 20
-        
+
         # scaling factor
         self.scf = model.preprocessor.structure_principal_diagonal / 50
 
@@ -71,30 +72,30 @@ class StructuralPostprocessing:
         uz_animation = self.model.color_scale_setup.get("uz_animation", False)
 
         ind = np.arange(0, self.solution.shape[0], DOF_PER_NODE_STRUCTURAL)
-        u_x, u_y, u_z = self.solution[ind+0, column], self.solution[ind+1, column], self.solution[ind+2, column]
+        u_x, u_y, u_z = self.solution[ind + 0, column], self.solution[ind + 1, column], self.solution[ind + 2, column]
 
-        r_xyz_max = np.max((((np.abs(u_x))**2 + (np.abs(u_y))**2 + (np.abs(u_z))**2)**(1/2)))
+        r_xyz_max = np.max((((np.abs(u_x)) ** 2 + (np.abs(u_y)) ** 2 + (np.abs(u_z)) ** 2) ** (1 / 2)))
 
         r_xyz = None
 
         if absolute:
-            r_xyz = ((np.abs(u_x))**2 + (np.abs(u_y))**2 + (np.abs(u_z))**2)**(1/2)
+            r_xyz = ((np.abs(u_x)) ** 2 + (np.abs(u_y)) ** 2 + (np.abs(u_z)) ** 2) ** (1 / 2)
 
         elif ux_abs_values:
             r_xyz = np.abs(u_x)
 
         elif uy_abs_values:
             r_xyz = np.abs(u_y)
-        
+
         elif uz_abs_values:
             r_xyz = np.abs(u_z)
-        
+
         elif ux_real_values:
             r_xyz = np.real(u_x)
 
         elif uy_real_values:
             r_xyz = np.real(u_y)
-        
+
         elif uz_real_values:
             r_xyz = np.real(u_z)
 
@@ -103,12 +104,11 @@ class StructuralPostprocessing:
 
         elif uy_imag_values:
             r_xyz = np.imag(u_y)
-        
+
         elif uz_imag_values:
             r_xyz = np.imag(u_z)
 
         if r_xyz is None:
-
             r_min, r_max = 1, 0
 
             amplitudes = np.abs(self.solution[:, column])
@@ -140,14 +140,18 @@ class StructuralPostprocessing:
                     r_max = max_r_xyz
 
         else:
-
             r_min = min(r_xyz)
             r_max = max(r_xyz)
 
         return r_xyz, r_min, r_max, r_xyz_max
 
     def get_structural_response(
-        self, column: int, phase_step: float = 0, r_max: float | None = None, magnification_factor: float = 1.0, normalize: bool = True
+        self,
+        column: int,
+        phase_step: float = 0,
+        r_max: float | None = None,
+        magnification_factor: float = 1.0,
+        normalize: bool = True,
     ) -> np.ndarray:
 
         absolute_animation = self.model.color_scale_setup.get("absolute_animation", False)
@@ -215,7 +219,7 @@ class StructuralPostprocessing:
         # print(f"Elapsed time (B): {dt : .8f} s")
 
         return r_xyz_plot, mag_fact, phase_shift
-    
+
     def get_min_max_stresses_values(self, elements_stress_data: np.ndarray | None = None):
 
         if elements_stress_data is None:
@@ -229,17 +233,16 @@ class StructuralPostprocessing:
         if absolute:
             stress_abs = np.abs(elements_stress_data)
             return np.min(stress_abs), np.max(stress_abs)
-        
+
         elif real_values:
             stress_real = np.real(elements_stress_data)
             return np.min(stress_real), np.max(stress_real)
-        
+
         elif imag_values:
             stress_imag = np.imag(elements_stress_data)
             return np.min(stress_imag), np.max(stress_imag)
-        
-        else:
 
+        else:
             stress_min, stress_max = 1, 0
 
             _stresses = np.abs(elements_stress_data)
@@ -248,15 +251,14 @@ class StructuralPostprocessing:
             phase_steps = np.arange(0, self.n_div + 1, 1) * (2 * pi / self.n_div)
 
             for phase_step in phase_steps:
-                
                 stresses = _stresses * np.cos(phase_step + phase_rad)
 
                 if absolute_animation:
                     stresses = np.absolute(stresses)
-                
+
                 _stress_min = min(stresses)
                 _stress_max = max(stresses)
-                
+
                 if _stress_min < stress_min:
                     stress_min = _stress_min
 
@@ -288,7 +290,7 @@ class StructuralPostprocessing:
             _stresses = np.abs(elements_stress_data)
             _phase = np.angle(elements_stress_data)
 
-            # NOTE: the shift_phase variable is used to synchronize both 
+            # NOTE: the shift_phase variable is used to synchronize both
             # the displacement and stress fields while computing
             # the animation-related data
             stresses = _stresses * np.cos(phase_step + _phase + shift_phase)
@@ -318,7 +320,10 @@ class StructuralPostprocessing:
 
         return results
 
-def get_stress_spectrum_data(element_stresses_data: np.ndarray, element_id: int, stress_key: str, absolute: bool = False, real_values: bool = False, imag_values: bool = False) -> np.ndarray:
+
+def get_stress_spectrum_data(
+    element_stresses_data: np.ndarray, element_id: int, stress_key: str, absolute: bool = False, real_values: bool = False, imag_values: bool = False
+) -> np.ndarray:
 
     if absolute:
         return np.abs(element_stresses_data[element_id, stress_key, :])

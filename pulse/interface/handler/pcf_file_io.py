@@ -14,6 +14,7 @@ class PCFFileIO:
 
     def _initialize(self):
         self.complete = False
+        self.user_path = Path().home()
 
     def open_pcf(self):
         '''
@@ -21,13 +22,10 @@ class PCFFileIO:
         but for now it will be like this just in order to make the bosses happy =)
         '''
 
-        last_path = app().config.get_last_folder_for("pcf_folder")
-
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = app().config.get_last_folder_for("pcf_folder", default=self.user_path)
 
         extensions = ["pcf"]
-        file_path = FileDialogService.open_file(extensions, "Open PCF File", last_path)
+        file_path = FileDialogService.open_file(extensions, "Open PCF File", last_folder_path)
 
         if file_path is None:
             return
@@ -103,12 +101,10 @@ class PCFFileIO:
 
     def export_pcf(self):
 
-        last_path = app().config.get_last_folder_for("exported_pcf_folder")
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = app().config.get_last_folder_for("exported_pcf_folder", default=self.user_path)
 
         extensions = ["pcf"]
-        path = FileDialogService.save_file(extensions, "Export PCF file", last_path)
+        path = FileDialogService.save_file(extensions, "Export PCF file", last_folder_path)
 
         if path is None:
             return

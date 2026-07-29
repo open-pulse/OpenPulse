@@ -726,13 +726,9 @@ class FluidWidget(FluidInputWidget_UI):
 
         extensions = ["json"]
 
-        path = app().config.get_last_folder_for("export_data_folder")
-        if path is None:
-            last_path = Path().home()
-        else:
-            last_path = path
+        last_folder_path = app().config.get_last_folder_for("export_data_folder", default=Path().home())
+        file_path = FileDialogService.save_file(extensions, "Export fluid data", last_folder_path)
 
-        file_path = FileDialogService.save_file(extensions, "Export fluid data", last_path)
         if file_path is None:
             return False
 

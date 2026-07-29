@@ -74,9 +74,7 @@ class UserInput(QDialog):
 
             else:
 
-                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
-                if last_path is None:
-                    last_path = str(Path().home())
+                last_folder_path = app().main_window.config.get_last_folder_for("imported_table_folder", default=Path().home())
 
                 caption = f"Choose a table to import the {bc_label}"
                 if dof_label != "":
@@ -84,7 +82,7 @@ class UserInput(QDialog):
                 
                 extensions = ["xls", "xlsx", "csv", "dat", "txt"]
 
-                table_path = FileDialogService.open_file(extensions, caption, last_path)
+                table_path = FileDialogService.open_file(extensions, caption, last_folder_path)
 
                 if table_path is None:
                     return None, None
