@@ -9,11 +9,11 @@ from vtkmodules.vtkRenderingCore import vtkActor, vtkGlyph3DMapper
 from pulse import app
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.model.cross_section import CrossSection
-from pulse.model.node import Node
 from pulse.model.elements.element_attributes import ElementAttributes
-
+from pulse.model.node import Node
 from pulse.utils import cross_section_sources
 from pulse.utils.interface_utils import ColorMode
+from pulse.utils.time_utils import function_timer
 
 
 class TubeActor(vtkActor):
@@ -33,12 +33,9 @@ class TubeActor(vtkActor):
 
     def __init__(self, **kwargs) -> None:
         super().__init__()
-
         self.user_preferences = app().main_window.config.user_preferences
         self.elements_attributes = app().project.model.preprocessor.elements_attributes
         self.deformed_coordinates = app().project.model.preprocessor.deformed_coordinates
-
-        self.hidden_elements = kwargs.get("hidden_elements", set())
         self.build()
 
     @property
@@ -52,12 +49,10 @@ class TubeActor(vtkActor):
     def get_element_attributes(self, element_id: int):
         return self.preprocessor.elements_attributes.get(element_id)
 
+    @function_timer
     def build(self):
-        
         all_elements = np.array(list(self.elements_attributes.keys()), dtype=int)
-        visible_elements = all_elements[~np.isin(all_elements, self.hidden_elements)]
-
-        self._key_index = {j: i for i, j in enumerate(visible_elements)}
+        self._key_index = {j: i for i, j in enumerate(all_elements)}
 
         # visible_elements2 = {i: e for i, e in self.elements_attributes.items() if (i not in self.hidden_elements)}
         # self._key_index2 = {j: i for i, j in enumerate(visible_elements2.keys())}
@@ -81,13 +76,13 @@ class TubeActor(vtkActor):
 
         colors = vtkUnsignedCharArray()
         colors.SetNumberOfComponents(3)
-        colors.SetNumberOfTuples(len(visible_elements))
+        colors.SetNumberOfTuples(len(all_elements))
 
         colors.Fill(255)
         colors.SetName("colors")
 
         section_index = dict()
-        for element_id in visible_elements:
+        for element_id in all_elements:
             element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
             points.InsertNextPoint(self.get_element_coordinates(element_attributes.first_node))
@@ -124,7 +119,7 @@ class TubeActor(vtkActor):
         # self.GetProperty().SetSpecular(1.5)
         # self.GetProperty().SetSpecularPower(80)
         # self.GetProperty().SetSpecularColor(1, 1, 1)
-        
+
         self.clear_colors()
 
     def get_element_coordinates(self, node: Node) -> tuple[float, float, float]:
@@ -134,7 +129,6 @@ class TubeActor(vtkActor):
         return self.preprocessor.undeformed_section_rotations[element_id, :]
 
     def create_element_data(self, element_attributes: ElementAttributes):
-
         cross_section = element_attributes.cross_section
         length = element_attributes.length
         section_parameters_render = element_attributes.section_parameters_render
@@ -252,6 +246,7 @@ class TubeActor(vtkActor):
         data.GetPointData().SetScalars(colors)
         self.GetMapper().Update()
 
+    @function_timer
     def set_color_table(self, color_table: ColorTable):
         # This copy is needed, otherwise the mapper is not updated
         data: vtkPolyData = self.GetMapper().GetInput()
@@ -332,7 +327,7 @@ class TubeActor(vtkActor):
         self.GetMapper().RemoveAllClippingPlanes()
 
     def _hash_element_section(self, element_attributes: ElementAttributes):
-        
+
         cross_section = element_attributes.cross_section
         if cross_section is None:
             return 0
