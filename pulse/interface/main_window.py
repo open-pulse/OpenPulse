@@ -89,6 +89,8 @@ class MainWindow(MainWindow_UI):
 
         self.project_data_modified = False
 
+        self.user_path = Path().home()
+
     def _load_stylesheets(self):
         return
         stylesheets = list()
@@ -313,12 +315,10 @@ class MainWindow(MainWindow_UI):
 
     def export_geometry(self):
 
-        last_path = self.config.get_last_folder_for("exported_geometry_folder")
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = self.config.get_last_folder_for("exported_geometry_folder", default=self.user_path)
 
         extensions = ["step"]
-        path = FileDialogService.save_file(extensions, "Export geometry file", last_path)
+        path = FileDialogService.save_file(extensions, "Export geometry file", last_folder_path)
 
         if path is None:
             return
@@ -332,7 +332,7 @@ class MainWindow(MainWindow_UI):
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)
         self.results_widget.update_plot(reset_camera)
-        self.model_setup_widget.model_setup_items.update_items_apperence()
+        self.model_setup_widget.model_setup_items.update_items_appearence()
 
     def selection_changed_callback(self):
         # TODO: implement something useful
@@ -462,9 +462,9 @@ class MainWindow(MainWindow_UI):
     def initial_project_action(self, finalized):
 
         # t0 = time()
-        self.analysis_toolbar.setEnabled(False)
         self.project.none_project_action = False
         self.update_export_geometry_file_access()
+        self.analysis_toolbar.setEnabled(False)
         self.model_and_analysis_items.modify_model_setup_items_access(True)
 
         if finalized:
@@ -475,10 +475,11 @@ class MainWindow(MainWindow_UI):
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
                 # print(f"initial_project_action: {round(dt, 6)} s")
-                return True
 
             return True
 
+        self.analysis_toolbar.setEnabled(True)
+        self.model_and_analysis_items.modify_model_setup_items_access(False)
         self.project.none_project_action = True
         return False
 
@@ -954,12 +955,10 @@ class MainWindow(MainWindow_UI):
 
     def savePNG_call(self):
 
-        last_path = self.config.get_last_folder_for("exported_image_folder")
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = self.config.get_last_folder_for("exported_image_folder", default=self.user_path)
 
         extensions = ["png"]
-        path = FileDialogService.save_file(extensions, "Save Captured Image", last_path)
+        path = FileDialogService.save_file(extensions, "Save Captured Image", last_folder_path)
 
         if path is None:
             return
@@ -993,7 +992,6 @@ class MainWindow(MainWindow_UI):
         return False
 
     def new_project(self):
-
         none_save_path = self.project.save_path is None
         temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
         data_modified = self.project_data_modified
@@ -1005,15 +1003,7 @@ class MainWindow(MainWindow_UI):
             if self.save_project_data():
                 return
 
-        self.reset_temporary_folder()
-        self.project.reset(reset_all=True)
-        self.project.model.properties._reset_variables()
-        self.project.reset_project(reset_all=True)
-        self.update_plots()
-
-        self.reset_geometry_render()
         obj = NewProjectInput()
-
         if not self.initial_project_action(obj.complete):
             return
 
@@ -1066,6 +1056,7 @@ class MainWindow(MainWindow_UI):
             self.set_toolbars_visible(True)
             self.update_results_workspace_button_accessibility()
             self.view_toolbar.action_front_view_callback()
+            self.analysis_toolbar.update_reset_solution_button()
             self.update_plots()
             self.update_status_bar_info()
 
@@ -1073,13 +1064,10 @@ class MainWindow(MainWindow_UI):
 
     def open_project_dialog(self):
 
-        last_path = self.config.get_last_folder_for("project_folder")
-
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = self.config.get_last_folder_for("project_folder", default=self.user_path)
 
         extensions = ["pulse"]
-        project_path = FileDialogService.open_file(extensions, "Open Project", last_path)
+        project_path = FileDialogService.open_file(extensions, "Open Project", last_folder_path)
 
         if project_path is None:
             return True
@@ -1099,12 +1087,10 @@ class MainWindow(MainWindow_UI):
         if not obj.complete:
             return obj.complete
 
-        last_path = self.config.get_last_folder_for("project_folder")
-        if last_path is None:
-            last_path = str(Path.home())
+        last_folder_path = self.config.get_last_folder_for("project_folder", default=self.user_path)
 
         extensions = ["pulse"]
-        file_path = FileDialogService.save_file(extensions, "Save As", last_path)
+        file_path = FileDialogService.save_file(extensions, "Save As", last_folder_path)
 
         if file_path is None:
             return False

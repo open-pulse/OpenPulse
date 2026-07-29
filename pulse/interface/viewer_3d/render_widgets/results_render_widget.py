@@ -109,6 +109,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         project = app().project
 
         if not project.model.preprocessor.elements_attributes:
+            self.stop_animation()
             return
 
         # Default behavior
@@ -126,12 +127,18 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
                 unit_label = "Unit: [--]"
 
+            if self.structural_postprocessing.solution is None:
+                return
+
             deformed = True
             color_table, self.is_complex_result = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
 
         elif self.analysis_mode == AnalysisMode.STRESS:
             if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                 unit_label = "Unit: [Pa]"
+
+            if self.structural_postprocessing.solution is None:
+                return
 
             deformed = True
             color_table, self.is_complex_result = self._compute_stress_field(
@@ -145,6 +152,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
                 unit_label = "Unit: [--]"
+
+            if self.acoustic_postprocessing.solution is None:
+                return
 
             color_table, self.is_complex_result = self._compute_pressure_field(
                 self.current_frequency_index,

@@ -276,16 +276,19 @@ class AcousticSolver:
             natural_frequencies = np.sqrt(Wn_2) / (2 * np.pi)
 
             index_order = np.argsort(natural_frequencies)
+
+            natural_frequencies = natural_frequencies[index_order]
             modal_shapes = eigen_vectors[:, index_order]
 
         modal_shapes = self._reinsert_prescribed_dofs(modal_shapes, modal_analysis=True)
 
         for value in self.prescribed_values:
-            if value is not None:
-                if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
-                    self.flag_Modal_prescribed_NonNull_DOFs = True
-                    self.warning_modal_prescribed_pressures  = "The Prescribed Pressure values have been ignored in the modal analysis. "
-                    self.warning_modal_prescribed_pressures += "The null value has been attributed to those DOFs."
+            crit_A = value is not None
+            crit_B = (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0))
+            if crit_A and crit_B:
+                self.flag_Modal_prescribed_NonNull_DOFs = True
+                self.warning_modal_prescribed_pressures  = "The Prescribed Pressure values have been ignored in the modal analysis. "
+                self.warning_modal_prescribed_pressures += "The null value has been attributed to those DOFs."
 
         if self.stop_processing():
             return None, None

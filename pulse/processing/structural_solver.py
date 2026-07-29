@@ -258,10 +258,11 @@ class StructuralSolver:
         if not harmonic_analysis:
             modal_shapes = self._reinsert_prescribed_dofs(modal_shapes, modal_analysis=True)
             for value in self.prescribed_values:
-                if value is not None:
-                    if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
-                        self.warning_modal_prescribed_dofs  = "The Prescribed DOFs of non-zero values have been ignored in the modal analysis. "
-                        self.warning_modal_prescribed_dofs += "The null value has been attributed to those DOFs with non-zero values."
+                crit_A = value is not None
+                crit_B = (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0))
+                if crit_A and crit_B:
+                    self.warning_modal_prescribed_dofs  = "The Prescribed DOFs of non-zero values have been ignored in the modal analysis. "
+                    self.warning_modal_prescribed_dofs += "The null value has been attributed to those DOFs with non-zero values."
 
         if self.stop_processing():
             self.modal_shapes = None

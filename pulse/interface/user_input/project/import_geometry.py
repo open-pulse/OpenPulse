@@ -21,12 +21,10 @@ class ImportGeometry():
 
     def import_geometry(self):
 
-        last_path = app().config.get_last_folder_for("geometry_folder")
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = app().config.get_last_folder_for("geometry_folder", default=Path().home())
 
         extensions = ["iges", "igs", "step", "stp"]
-        geometry_path = FileDialogService.open_file(extensions, "Import geometry file", last_path)
+        geometry_path = FileDialogService.open_file(extensions, "Import geometry file", last_folder_path)
 
         if geometry_path is None:
             return
