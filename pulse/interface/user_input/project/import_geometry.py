@@ -45,6 +45,7 @@ class ImportGeometry:
         project_setup = deepcopy(app().project.project_setup)
         project_setup.import_type = ImportType.CAD_FILE
         project_setup.geometry_filename = geometry_path.name
+        project_setup.geometry_path_source = str(geometry_path)
 
         original_setup_dict = app().project.file.read_project_setup_from_file()
         original_project_setup = deepcopy(app().project.project_setup)
@@ -67,6 +68,7 @@ class ImportGeometry:
 
     def save_geometry_and_load_project(self, project_setup: ProjectSetup):
         #
+        app().main_window.reset_geometry_render()
         app().project.reset(reset_all=True)
         app().project.loader.load_project_data()
         app().project.model.mesh.set_mesher_setup(project_setup.mesher_setup)
