@@ -106,7 +106,7 @@ class TubeActor(vtkActor):
         self.clear_colors()
 
     def get_all_elements_coordinates(self) -> np.ndarray:
-        mesh = app().project.model.mesh
+        mesh = self.model.mesh
         return mesh.nodal_coordinates[mesh.lines_connectivity[:, 4], 1:]
 
     def get_all_elements_rotations(self):
