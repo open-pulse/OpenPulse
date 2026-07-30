@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+from vtkmodules.util.numpy_support import numpy_to_vtk
 from vtkmodules.vtkCommonCore import vtkDoubleArray, vtkIntArray, vtkPoints, vtkUnsignedCharArray
 from vtkmodules.vtkCommonDataModel import vtkPlane, vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
@@ -10,7 +11,6 @@ from pulse import app
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.model.cross_section import CrossSection
 from pulse.model.elements.element_attributes import ElementAttributes
-from pulse.model.node import Node
 from pulse.utils import cross_section_sources
 from pulse.utils.interface_utils import ColorMode
 from pulse.utils.time_utils import function_timer
@@ -46,60 +46,48 @@ class TubeActor(vtkActor):
     def preprocessor(self):
         return app().project.model.preprocessor
 
-    def get_element_attributes(self, element_id: int):
-        return self.preprocessor.elements_attributes.get(element_id)
-
     @function_timer
     def build(self):
         all_elements = np.array(list(self.elements_attributes.keys()), dtype=int)
         self._key_index = {j: i for i, j in enumerate(all_elements)}
 
-        # visible_elements2 = {i: e for i, e in self.elements_attributes.items() if (i not in self.hidden_elements)}
-        # self._key_index2 = {j: i for i, j in enumerate(visible_elements2.keys())}
-
-        # aux_1 = np.array([list(self._key_index.values()), list(self._key_index2.values())]).T
-        # aux_2 = np.array([list(self._key_index.keys()), list(self._key_index2.keys())]).T
-
-        # print(np.max(aux_1[:, 0] - aux_1[:, 1]))
-        # print(np.max(aux_2[:, 0] - aux_2[:, 1]))
-
         data = vtkPolyData()
         mapper = vtkGlyph3DMapper()
 
-        points = vtkPoints()
+        self.element_start_points = vtkPoints()
+        self.element_start_points.SetNumberOfPoints(len(all_elements))
+
+        self.element_rotations = vtkDoubleArray()
+        self.element_rotations.SetNumberOfComponents(3)
+        self.element_rotations.SetName("rotations")
+
         sources = vtkIntArray()
         sources.SetName("sources")
-
-        rotations = vtkDoubleArray()
-        rotations.SetNumberOfComponents(3)
-        rotations.SetName("rotations")
 
         colors = vtkUnsignedCharArray()
         colors.SetNumberOfComponents(3)
         colors.SetNumberOfTuples(len(all_elements))
-
         colors.Fill(255)
         colors.SetName("colors")
 
-        section_index = dict()
-        for element_id in all_elements:
-            element_attributes = self.preprocessor.elements_attributes.get(element_id)
+        self.update_element_coordinates_and_rotations()
 
-            points.InsertNextPoint(self.get_element_coordinates(element_attributes.first_node))
-            rotations.InsertNextTuple(self.get_element_rotations(element_id))
+        hashes = [id(el.cross_section) for el in self.elements_attributes.values()]
+        unique_hashes, first_occurrences, remapped_indexes = np.unique(hashes, return_index=True, return_inverse=True)
+        new_ids = np.arange(len(unique_hashes))
 
-            key = self._hash_element_section(element_attributes)
-            if key not in section_index:
-                section_index[key] = len(section_index)
-                source = self.create_element_data(element_attributes)
-                source = self._fixed_section(source)
-                mapper.SetSourceData(section_index[key], source)
+        sources.DeepCopy(numpy_to_vtk(remapped_indexes))
+        sources.SetName("sources")
 
-            sources.InsertNextTuple1(section_index[key])
+        for new_id, unique_hash, element_index in zip(new_ids, unique_hashes, first_occurrences):
+            element_attributes = self.elements_attributes.get(element_index)
+            source = self.create_element_data(element_attributes)
+            source = self._fixed_section(source)
+            mapper.SetSourceData(new_id, source)
 
-        data.SetPoints(points)
+        data.SetPoints(self.element_start_points)
         data.GetPointData().AddArray(sources)
-        data.GetPointData().AddArray(rotations)
+        data.GetPointData().AddArray(self.element_rotations)
         data.GetPointData().SetScalars(colors)
 
         mapper.SetInputData(data)
@@ -111,22 +99,26 @@ class TubeActor(vtkActor):
         mapper.SetScalarModeToUsePointData()
         mapper.ScalarVisibilityOn()
         mapper.Update()
-
         self.SetMapper(mapper)
 
         self.GetProperty().SetInterpolationToPhong()
         self.GetProperty().SetDiffuse(0.8)
-        # self.GetProperty().SetSpecular(1.5)
-        # self.GetProperty().SetSpecularPower(80)
-        # self.GetProperty().SetSpecularColor(1, 1, 1)
-
         self.clear_colors()
 
-    def get_element_coordinates(self, node: Node) -> tuple[float, float, float]:
-        return node.coordinates
+    def get_all_elements_coordinates(self) -> np.ndarray:
+        mesh = app().project.model.mesh
+        return mesh.nodal_coordinates[mesh.lines_connectivity[:, 4], 1:]
 
-    def get_element_rotations(self, element_id: int) -> tuple[float, float, float]:
-        return self.preprocessor.undeformed_section_rotations[element_id, :]
+    def get_all_elements_rotations(self):
+        return self.preprocessor.undeformed_section_rotations
+
+    def update_element_coordinates_and_rotations(self):
+        coordinates = self.get_all_elements_coordinates()
+        rotations = self.get_all_elements_rotations()
+
+        self.element_start_points.SetData(numpy_to_vtk(coordinates))
+        self.element_rotations.DeepCopy(numpy_to_vtk(rotations))
+        self.element_rotations.SetName("rotations")
 
     def create_element_data(self, element_attributes: ElementAttributes):
         cross_section = element_attributes.cross_section
