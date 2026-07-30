@@ -10,7 +10,6 @@ from PIL import Image, ImageDraw, ImageFont
 
 from functools import partial
 from pathlib import Path
-from PIL import Image
 
 
 class WelcomeWidget(QWidget):
@@ -20,23 +19,19 @@ class WelcomeWidget(QWidget):
         self.main_window = app().main_window
         self.widget_layout = QVBoxLayout(self)
         self.setLayout(self.widget_layout)
-        self.define_logo_variables()
+        self.load_logo_pixmaps()
         self.setup_image(self.widget_layout)
+        self.update_logo()
         self.setup_labels(self.widget_layout)
         self.create_recents_setup()
         self.update_recent_projects()
         self.setup_example_projects(self.widget_layout)
 
-        self.main_window.theme_changed.connect(self.update_logo_text)
+        self.main_window.theme_changed.connect(self.update_logo)
     
-    def define_logo_variables(self):
-        self.light_logo_text = """<html><head/><body style=\"font-size:72pt; font-family: 'Bauhaus 93';
-                                \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#4F4F4F;\">pen</span><span style=\"
-                                 color:#0055ff;\">P</span><span style=\" color:#4F4F4F;\">ulse</span></p></body></html>"""
-    
-        self.dark_logo_text = """<html><head/><body style=\"font-size:72pt; font-family: 'Bauhaus 93';
-                                \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#c8c8c8;\">pen</span><span style=\"
-                                 color:#0055ff;\">P</span><span style=\" color:#c8c8c8;\">ulse</span></p></body></html>"""
+    def load_logo_pixmaps(self):
+        self.light_logo_pixmap = QPixmap(str(ICON_DIR / "logos/op_light_theme.png"))
+        self.dark_logo_pixmap = QPixmap(str(ICON_DIR / "logos/op_dark_theme.png"))
 
     def setup_image(self, layout: QVBoxLayout):
         self.logo_label = QLabel(self)
@@ -47,11 +42,17 @@ class WelcomeWidget(QWidget):
         layout.addWidget(self.logo_label)
         layout.addStretch()
 
-    def update_logo_text(self):
+    def update_logo(self):
         if app().config.user_preferences.interface_theme == "dark":
-            self.logo_label.setText(self.dark_logo_text)
+            pixmap = self.dark_logo_pixmap
         else:
-            self.logo_label.setText(self.light_logo_text)
+            pixmap = self.light_logo_pixmap
+
+        dpr = self.devicePixelRatioF()
+        pixmap = pixmap.scaledToWidth(int(420 * dpr), Qt.SmoothTransformation)
+        pixmap.setDevicePixelRatio(dpr)
+
+        self.logo_label.setPixmap(pixmap)
 
     def setup_labels(self, layout):
         labels_layout = QHBoxLayout()
@@ -218,6 +219,3 @@ class WelcomeItem(QWidget):
 
             if draw.textlength(subtext, font) <= max_width:
                 return subtext
-
-
-    
