@@ -140,34 +140,34 @@ class TubeActor(vtkActor):
 
         if cross_section.section_type_label in ["pipe", "bend", "arc_bend", "reducer"]:
             if section_parameters_render is None:
-                d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
+                d_out, t, offset_y, offset_z, *_ = np.round(cross_section.section_parameters, 5)
             else:
-                d_out, t, offset_y, offset_z, *_ = section_parameters_render
+                d_out, t, offset_y, offset_z, *_ = np.round(section_parameters_render, 5)
 
             return cross_section_sources.pipe_data(length, d_out, t, offset_y, offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "rectangular_beam":
-            b, h, b_in, h_in, offset_y, offset_z, *_ = cross_section.section_parameters
+            b, h, b_in, h_in, offset_y, offset_z, *_ = np.round(cross_section.section_parameters, 5)
             return cross_section_sources.rectangular_beam_data(length, b, h, b_in, h_in, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "circular_beam":
-            d_out, t, offset_y, offset_z, *_ = cross_section.section_parameters
+            d_out, t, offset_y, offset_z, *_ = np.round(cross_section.section_parameters, 5)
             return cross_section_sources.circular_beam_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "c_beam":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = cross_section.section_parameters
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = np.round(cross_section.section_parameters, 5)
             return cross_section_sources.c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "i_beam":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = cross_section.section_parameters
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = np.round(cross_section.section_parameters, 5)
             return cross_section_sources.i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "t_beam":
-            h, w1, t1, tw, offset_y, offset_z, *_ = cross_section.section_parameters
+            h, w1, t1, tw, offset_y, offset_z, *_ = np.round(cross_section.section_parameters, 5)
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "expansion_joint":
-            d_eff, offset_y, offset_z, plot_key = section_parameters_render
+            d_eff, offset_y, offset_z, plot_key = np.round(section_parameters_render, 5)
 
             if plot_key == "major":
                 d_out = d_eff * 1.25
@@ -186,7 +186,7 @@ class TubeActor(vtkActor):
             return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "valve":
-            d_out, t, offset_y, offset_z, *_ = section_parameters_render
+            d_out, t, offset_y, offset_z, *_ = np.round(section_parameters_render, 5)
             return cross_section_sources.pipe_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z, sides=tube_sides)
 
         else:
