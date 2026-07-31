@@ -46,6 +46,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
         app().main_window.theme_changed.connect(self.set_theme)
+        app().main_window.theme_changed.connect(self._apply_logo_theme)
         app().main_window.visualization_changed.connect(self.visualization_changed_callback)
 
     def update_plot(self, reset_camera=True):
@@ -130,32 +131,75 @@ class GeometryRenderWidget(CommonRenderWidget):
     def create_logos(self):
         if not hasattr(self, "_light_logo"):
             self._light_logo = self.create_logo(ICON_DIR / "logos/op_light_theme.png")
-            self._light_logo.SetPosition(0.845, 0.89)
-            self._light_logo.SetPosition2(0.15, 0.15)
+            self._light_logo.SetShowBorderToOff()
+            self._light_logo.SetShowPolygonBackground(0)
 
         if not hasattr(self, "_dark_logo"):
             self._dark_logo = self.create_logo(ICON_DIR / "logos/op_dark_theme.png")
-            self._dark_logo.SetPosition(0.845, 0.89)
-            self._dark_logo.SetPosition2(0.15, 0.15)
+            self._dark_logo.SetShowBorderToOff()
+            self._dark_logo.SetShowPolygonBackground(0)
+
+        if getattr(self, "_logo_observer_id", None) is None:
+            self._logo_last_size = None
+            self._logo_observer_id = self.renderer.AddObserver("StartEvent", self._logo_size_callback)
 
         self._apply_logo_theme()
+        self.update_logo_geometry()
 
-    def _apply_logo_theme(self):
-        if app().main_window.config.user_preferences.interface_theme == "light":
-            self._light_logo.VisibilityOn()
-            self._dark_logo.VisibilityOff()
-            self.open_pulse_logo = self._light_logo
-        else:
-            self._dark_logo.VisibilityOn()
-            self._light_logo.VisibilityOff()
-            self.open_pulse_logo = self._dark_logo
+    def _logo_size_callback(self, *args, **kwargs):
+
+        size = tuple(self.renderer.GetSize())
+        if size != self._logo_last_size:
+            self._logo_last_size = size
+            self.update_logo_geometry()
+
+    def update_logo_geometry(self):
+        width_fraction = 0.15
+        min_width = 90
+        max_width = 240
+        max_height_ratio = 0.12
+        margin = 10
+
+        width, height = self.renderer.GetSize()
+        if width < 2 or height < 2:
+            return
+
+        for logo in (self._light_logo, self._dark_logo):
+            image = logo.GetImage()
+            if image is None:
+                continue
+
+            image_width, image_height, _ = image.GetDimensions()
+            if image_width < 1 or image_height < 1:
+                continue
+
+            aspect = image_width / image_height
+            logo_width = max(width_fraction * width, min_width)
+            logo_width = min(logo_width, max_width, 0.4 * width, max_height_ratio * height * aspect)
+            logo_height = logo_width / aspect
+
+            box_x = logo_width / width
+            box_y = logo_height / height
+
+            logo.SetPosition(1 - box_x - margin / width, 1 - box_y - margin / height)
+            logo.SetPosition2(box_x, box_y)
+            logo.Modified()
+
+    def _apply_logo_theme(self, *args, **kwargs):
+        light_theme = app().main_window.config.user_preferences.interface_theme == "light"
+        logo_visible = getattr(self, "_logo_visible", True)
+
+        self.open_pulse_logo = self._light_logo if light_theme else self._dark_logo
+        self._light_logo.SetVisibility(light_theme and logo_visible)
+        self._dark_logo.SetVisibility(not light_theme and logo_visible)
 
     def enable_open_pulse_logo(self):
-        return
-        # self.open_pulse_logo.VisibilityOn()
+        self._logo_visible = True
+        self._apply_logo_theme()
 
     def disable_open_pulse_logo(self):
-        self.open_pulse_logo.VisibilityOff()
+        self._logo_visible = False
+        self._apply_logo_theme()
 
     def visualization_changed_callback(self):
         if not self._actor_exists():
