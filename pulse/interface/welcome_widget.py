@@ -132,7 +132,7 @@ class WelcomeWidget(QWidget):
         layout.addLayout(examples_layout)
         layout.addStretch()
 
-        # Finds every file that end with ".vibra" in the examples
+        # Finds every file that end with ".pulse" in the examples
         # dir and use only the last N of them to show.
         number_of_examples = 5
         example_paths = (EXAMPLES_DIR / "openpulse_files/").glob("*.pulse")

@@ -428,14 +428,15 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
         return vtkPolyData()
 
     pipe = pipe_data(length, outside_diameter, thickness)
-    start_flange = flange_data(flange_length, flange_diameter, 0)
-    end_flange = apply_transform(start_flange, dx=length - flange_length)
     handle = valve_handle(outside_diameter)
     handle = apply_transform(handle, dx=length/2, rz=90)
 
     append_polydata.AddInputData(pipe)
-    append_polydata.AddInputData(start_flange)
-    append_polydata.AddInputData(end_flange)
+    if flange_diameter and flange_length:
+        start_flange = flange_data(flange_length, flange_diameter, 0)
+        end_flange = apply_transform(start_flange, dx=length - flange_length)
+        append_polydata.AddInputData(start_flange)
+        append_polydata.AddInputData(end_flange)
     append_polydata.AddInputData(handle)
     append_polydata.Update()
 
