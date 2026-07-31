@@ -126,8 +126,9 @@ class Valve(LinearStructure):
 
         valve_info = data["valve_info"]
         d_out, t, offset_y, offset_z, *_ = valve_info["body_section_parameters"]
-        flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
-        flange_length = valve_info["flange_length"]
+        flange_section_parameters = valve_info.get("flange_section_parameters")
+        flange_outer_diameter = flange_section_parameters[0] if flange_section_parameters else None
+        flange_length = valve_info.get("flange_length")
 
         structure = Valve(
             start,
