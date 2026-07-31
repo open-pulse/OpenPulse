@@ -99,6 +99,16 @@ class StructureOptions:
             if not isinstance(structure, self.structure_type):
                 continue
 
+            extra_info: dict = kwargs.get("extra_info")
+
+            fluid_id = structure.extra_info.get("fluid_id")
+            if isinstance(fluid_id, int):
+                extra_info.update({"fluid_id" : fluid_id})
+
+            material_id = structure.extra_info.get("material_id")
+            if isinstance(material_id, int):
+                extra_info.update({"material_id" : material_id})
+
             for k, v in kwargs.items():
                 setattr(structure, k, v)
 
