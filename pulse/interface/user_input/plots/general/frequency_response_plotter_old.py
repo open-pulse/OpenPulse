@@ -1,10 +1,9 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QToolButton
-from PySide6.QtGui import QCloseEvent, QColor
+from PySide6.QtWidgets import QDialog, QVBoxLayout
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.general.frequency_response_plot_ui import FrequencyResponsePlot_UI
-from pulse.interface.formatters import icons
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.data_handler.data_import_assistant import DataImportAssistant
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
@@ -77,7 +76,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
         self.pushButton_import_data.clicked.connect(self.import_file)
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         #
-        app().main_window.theme_changed.connect(self.paint_toolbar_icons)
         self._initial_config()
 
     def import_file(self):
@@ -249,21 +247,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
         else:
             return self.unit + "/s²"
 
-    def paint_toolbar_icons(self, *args, **kwargs):
-
-        from pulse.interface.user_input.plots.general.custom_navigation_toolbar import CustomNavigationToolbar
-
-        toolbar = self.findChild(CustomNavigationToolbar)
-        if toolbar is None:
-            return
-
-        if app().main_window.interface_theme == "dark":
-            color = QColor("#5f9af4")
-        else:
-            color = QColor("#1a73e8")
-
-        icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
-
     def plot_data_in_freq_domain(self):
 
         self.ax.cla()
@@ -273,13 +256,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
         if self._layout is None:
             from pulse.interface.user_input.plots.general.custom_navigation_toolbar import CustomNavigationToolbar
             toolbar = CustomNavigationToolbar(self.mpl_canvas_frequency_plot, self)
-
-            # Paint the toolbar icons and connect the buttons to paint
-            # themselves after every click or draw events
-            self.paint_toolbar_icons()
-            for button in toolbar.findChildren(QToolButton):
-                button.clicked.connect(self.paint_toolbar_icons)                    
-            self.mpl_canvas_frequency_plot.mpl_connect("draw_event", self.paint_toolbar_icons)
 
             self._layout = QVBoxLayout()
             self._layout.addWidget(toolbar)

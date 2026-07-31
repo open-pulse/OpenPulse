@@ -156,7 +156,7 @@ class StructuralModelInfo(StructuralModelInfo_UI):
 
     def load_project_info(self):
         self.lineEdit_number_nodes.setText(str(len(self.preprocessor.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.preprocessor.number_structural_elements)))
+        self.lineEdit_number_elements.setText(str(self.preprocessor.number_structural_elements))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:

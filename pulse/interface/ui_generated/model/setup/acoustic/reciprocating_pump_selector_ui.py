@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
     QSizePolicy, QSpacerItem, QTreeWidget, QTreeWidgetItem,
     QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -156,8 +158,7 @@ class Ui_Dialog(object):
 
         self.pushButton_reset_selection = QPushButton(self.frame_selection)
         self.pushButton_reset_selection.setObjectName(u"pushButton_reset_selection")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/broom.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/broom.png")
         self.pushButton_reset_selection.setIcon(icon)
 
         self.gridLayout_6.addWidget(self.pushButton_reset_selection, 0, 3, 1, 1)

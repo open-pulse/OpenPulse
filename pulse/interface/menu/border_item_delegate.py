@@ -2,6 +2,9 @@ from PySide6.QtGui import QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem
 from PySide6.QtCore import Qt, QSize
 
+from pulse.interface.formatters.icons import Icon
+
+
 class BorderItemDelegate(QStyledItemDelegate):
     MULTI_ICON_ROLE = Qt.ItemDataRole.UserRole + 2
 
@@ -13,7 +16,7 @@ class BorderItemDelegate(QStyledItemDelegate):
         super(BorderItemDelegate, self).initStyleOption(option, index)
         option.decorationAlignment = Qt.AlignmentFlag.AlignRight
         option.decorationPosition = QStyleOptionViewItem.Position.Right
-        option.icon = QIcon()  # prevent base paint from drawing the icon; drawn manually in paint()
+        option.icon = Icon()  # prevent base paint from drawing the icon; drawn manually in paint()
 
     def sizeHint(self, option, index):        
         size = super(BorderItemDelegate, self).sizeHint(option, index)

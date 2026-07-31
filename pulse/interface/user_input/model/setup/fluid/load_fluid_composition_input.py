@@ -3,9 +3,12 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.formatters.icons import change_icon_color_for_widgets
-from pulse.interface.ui_generated.model.setup.fluid.load_fluid_composition_ui import LoadFluidComposition_UI
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.ui_generated.model.setup.fluid.load_fluid_composition_ui import (
+    LoadFluidComposition_UI,
+)
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
@@ -54,18 +57,6 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
         if Path(self.file_path).exists():
             self.lineEdit_file_path.setText(self.file_path)
             self.load_composition_data_from_file()
-
-    def _paint_icons(self):
-        icon_color = None
-        theme = app().config.user_preferences.interface_theme
-        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
-        if theme == "dark":
-            icon_color = DARK_ICON_COLOR.to_qt()
-        else:
-            icon_color = LIGHT_ICON_COLOR.to_qt()
-
-        widgets = [self.pushButton_search]
-        change_icon_color_for_widgets(widgets, icon_color)
 
     def search_button_callback(self):
 

@@ -1,17 +1,10 @@
-from PySide6.QtWidgets import QToolBar, QSizePolicy
-from PySide6.QtGui import QAction, QIcon, QKeySequence
 from PySide6.QtCore import Qt, Signal
-
-from pulse import ICON_DIR
-from pulse.interface.viewer_3d.render_tools import (
-    RenderTool,
-    RotationTool,
-    GrabTool,
-    ZoomTool,
-    SelectionTool
-)
+from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtWidgets import QSizePolicy, QToolBar
 
 from pulse import app
+from pulse.interface.formatters.icons import Icon
+from pulse.interface.viewer_3d.render_tools import GrabTool, RenderTool, RotationTool, SelectionTool, ZoomTool
 
 
 class ViewToolbar(QToolBar):
@@ -44,25 +37,25 @@ class ViewToolbar(QToolBar):
         self.action_isometric_view = QAction(self)
 
     def _load_icons(self):
-        self.selection_tool_icon = QIcon(str(ICON_DIR / "common/selection_icon.png"))
-        self.grab_tool_icon = QIcon(str(ICON_DIR / "common/grab_icon.png"))
-        self.rotation_tool_icon = QIcon(str(ICON_DIR / "common/rotation_icon.png"))
-        self.zoom_tool_icon = QIcon(str(ICON_DIR / "common/zoom_icon.png"))
+        self.selection_tool_icon = Icon(":icons/common/selection_icon.png")
+        self.grab_tool_icon = Icon(":/icons/common/grab_icon.png")
+        self.rotation_tool_icon = Icon(":/icons/common/rotation_icon.png")
+        self.zoom_tool_icon = Icon(":/icons/common/zoom_icon.png")
 
-        self.top_view_icon = QIcon(str(ICON_DIR / "common/top.png"))
-        self.bottom_view_icon = QIcon(str(ICON_DIR / "common/bottom.png"))
-        self.left_view_icon = QIcon(str(ICON_DIR / "common/left.png"))
-        self.right_view_icon = QIcon(str(ICON_DIR / "common/right.png"))
-        self.front_view_icon = QIcon(str(ICON_DIR / "common/front.png"))
-        self.back_view_icon = QIcon(str(ICON_DIR / "common/back.png"))
-        self.isometric_view_icon = QIcon(str(ICON_DIR / "common/isometric.png"))
+        self.top_view_icon = Icon(":/icons/common/top.png")
+        self.bottom_view_icon = Icon(":/icons/common/bottom.png")
+        self.left_view_icon = Icon(":/icons/common/left.png")
+        self.right_view_icon = Icon(":/icons/common/right.png")
+        self.front_view_icon = Icon(":/icons/common/front.png")
+        self.back_view_icon = Icon(":/icons/common/back.png")
+        self.isometric_view_icon = Icon(":/icons/common/isometric.png")
 
     def _configure_layout(self):
         self.addAction(self.action_selection_tool)
         self.addAction(self.action_grab_tool)
         self.addAction(self.action_rotation_tool)
         self.addAction(self.action_zoom_tool)
-        
+
         self.addAction(self.action_top_view)
         self.addAction(self.action_bottom_view)
         self.addAction(self.action_left_view)

@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QGridLay
     QHeaderView, QPushButton, QSizePolicy, QSpacerItem,
     QTableWidget, QTableWidgetItem, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
@@ -174,8 +176,7 @@ class Ui_Form(object):
         self.pushButton_duplicate.setMaximumSize(QSize(28, 28))
         self.pushButton_duplicate.setFont(font1)
         self.pushButton_duplicate.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/mpltoolbar/copy_icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/copy_icon.png")
         self.pushButton_duplicate.setIcon(icon)
         self.pushButton_duplicate.setIconSize(QSize(18, 18))
 

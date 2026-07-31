@@ -2,10 +2,11 @@ import logging
 from typing import Literal
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QAction, QFont, QIcon
+from PySide6.QtGui import QAction, QFont
 from PySide6.QtWidgets import QComboBox, QLabel, QPushButton, QToolBar, QWidget
 
-from pulse import ICON_DIR, app
+from pulse import app
+from pulse.interface.formatters.icons import Icon
 from pulse.interface.user_input.analysis.harmonic_analysis_setup_input import HarmonicAnalysisSetupInput
 from pulse.interface.user_input.analysis.modal_analysis_input import ModalAnalysisInput
 from pulse.interface.user_input.analysis.static_analysis_input import StaticAnalysisInput
@@ -61,9 +62,9 @@ class AnalysisToolbar(QToolBar):
     def _config_widgets(self):
         
         # load icons
-        self.configure_analysis_icon = QIcon(str(ICON_DIR / "common/settings.png"))
-        self.run_analysis_icon = QIcon(str(ICON_DIR / "common/go_next.png"))
-        self.reset_solution_icon = QIcon(str(ICON_DIR / "common/reset_icon.png"))
+        self.configure_analysis_icon = Icon(":/icons/common/settings.png")
+        self.run_analysis_icon = Icon(":/icons/common/go_next.png")
+        self.reset_solution_icon = Icon(":/icons/common/reset_icon.png")
 
         # QComboBox
         self.combo_box_analysis_type = QComboBox()

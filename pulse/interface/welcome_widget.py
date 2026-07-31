@@ -1,15 +1,16 @@
-from PySide6.QtCore import QSize, Qt, Signal, QByteArray
-from PySide6.QtGui import QIcon, QImage, QPixmap
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QBoxLayout
-from pulse import app, EXAMPLES_DIR, ICON_DIR
-
 import io
 import logging
 import zipfile
-from PIL import Image, ImageDraw, ImageFont
-
 from functools import partial
 from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFont
+from PySide6.QtCore import QByteArray, QSize, Qt, Signal
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import QBoxLayout, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+
+from pulse import EXAMPLES_DIR, app
+from pulse.interface.formatters.icons import Icon
 
 
 class WelcomeWidget(QWidget):
@@ -30,8 +31,8 @@ class WelcomeWidget(QWidget):
         self.main_window.theme_changed.connect(self.update_logo)
     
     def load_logo_pixmaps(self):
-        self.light_logo_pixmap = QPixmap(str(ICON_DIR / "logos/op_light_theme.png"))
-        self.dark_logo_pixmap = QPixmap(str(ICON_DIR / "logos/op_dark_theme.png"))
+        self.light_logo_pixmap = QPixmap(":/icons/logos/op_light_theme.png")
+        self.dark_logo_pixmap = QPixmap(":/icons/logos/op_dark_theme.png")
 
     def setup_image(self, layout: QVBoxLayout):
         self.logo_label = QLabel(self)
@@ -57,10 +58,10 @@ class WelcomeWidget(QWidget):
     def setup_labels(self, layout):
         labels_layout = QHBoxLayout()
 
-        new_item = WelcomeItem("New Project", QIcon(str(ICON_DIR / "common/new_file.png")))
+        new_item = WelcomeItem("New Project", Icon(":/icons/common/new_file.png"))
         new_item.clicked.connect(self.new_project)
 
-        open_item = WelcomeItem("Open Project", QIcon(str(ICON_DIR / "common/import.png")))
+        open_item = WelcomeItem("Open Project", Icon(":/icons/common/import.png"))
         open_item.clicked.connect(self.open_project)
 
         labels_layout.addWidget(new_item)
@@ -100,7 +101,7 @@ class WelcomeWidget(QWidget):
                 thumbnail.save(bytes, format="PNG")
                 bytes_data = bytes.getvalue()
                 image = QImage.fromData(QByteArray(bytes_data))
-                icon = QIcon(QPixmap.fromImage(image))
+                icon = Icon(QPixmap.fromImage(image))
 
             handler = partial(self.main_window.open_project, path)
             item = WelcomeItem(path.stem, icon, False)
@@ -155,7 +156,7 @@ class WelcomeWidget(QWidget):
                 thumbnail.save(bytes, format="PNG")
                 bytes_data = bytes.getvalue()
                 image = QImage.fromData(QByteArray(bytes_data))
-                icon = QIcon(QPixmap.fromImage(image))
+                icon = Icon(QPixmap.fromImage(image))
 
             handler = partial(self.main_window.open_project, path)
             item = WelcomeItem(path.stem, icon, False)

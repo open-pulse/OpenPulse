@@ -118,8 +118,8 @@ class Ui_Form(object):
 
         self.frame = QFrame(self.frame_frequencies)
         self.frame.setObjectName(u"frame")
-        self.frame.setMinimumSize(QSize(0, 40))
-        self.frame.setMaximumSize(QSize(16777215, 120))
+        self.frame.setMinimumSize(QSize(0, 120))
+        self.frame.setMaximumSize(QSize(16777215, 160))
         self.frame.setFrameShape(QFrame.Shape.NoFrame)
         self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_9 = QGridLayout(self.frame)
@@ -266,7 +266,6 @@ class Ui_Form(object):
 
         self.frame_animation = QFrame(self.scrollAreaWidgetContents)
         self.frame_animation.setObjectName(u"frame_animation")
-        self.frame_animation.setMinimumSize(QSize(0, 80))
         self.frame_animation.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_animation.setFrameShadow(QFrame.Shadow.Raised)
 
