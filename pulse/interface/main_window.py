@@ -867,7 +867,8 @@ class MainWindow(MainWindow_UI):
 
     def action_import_geometry_callback(self):
         obj = ImportGeometry()
-        self.initial_project_action(obj.complete)
+        if obj.complete:
+            self.initial_project_action(True)
 
     def _add_analysis_toolbar(self):
         self.analysis_toolbar = AnalysisToolbar()
@@ -1003,6 +1004,14 @@ class MainWindow(MainWindow_UI):
             if self.save_project_data():
                 return
 
+        self.reset_temporary_folder()
+        self.project.reset(reset_all=True)
+        self.project.model.properties._reset_variables()
+        self.project.reset_project(reset_all=True)
+        self.update_plots()
+
+        self.reset_geometry_render()
+        self.configure_welcome_widget()
         obj = NewProjectInput()
         if not self.initial_project_action(obj.complete):
             return

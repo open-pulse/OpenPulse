@@ -184,6 +184,9 @@ class ProjectFile:
 
         if geometry_path.exists():
             return str(geometry_path)
+        
+        else:
+            return ""
 
     def read_project_setup_from_file(self):
         return self._read_file(self.project_setup_filename)
