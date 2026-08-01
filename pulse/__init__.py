@@ -8,7 +8,7 @@ from molde import Color
 from pathlib import Path
 
 __version__ = "2.0.11"
-__release_date__ = 'Jun 2026'
+__release_date__ = 'Jul 2026'
 
 VERSION = __version__
 RELEASE_DATE = __release_date__
