@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'get_started_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -18,6 +18,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
     QLabel, QPushButton, QSizePolicy, QSpacerItem,
     QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -122,8 +124,7 @@ class Ui_Form(object):
         self.project_button_1.setLayoutDirection(Qt.LeftToRight)
         self.project_button_1.setAutoFillBackground(False)
         self.project_button_1.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/002-analysis.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/002-analysis.png")
         self.project_button_1.setIcon(icon)
         self.project_button_1.setAutoDefault(False)
         self.project_button_1.setFlat(False)
@@ -271,8 +272,7 @@ class Ui_Form(object):
         self.create_button.setMaximumSize(QSize(190, 52))
         self.create_button.setFont(font3)
         self.create_button.setStyleSheet(u"")
-        icon1 = QIcon()
-        icon1.addFile(u":/icons/common/new_file.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon1 = Icon(u":/icons/common/new_file.png")
         self.create_button.setIcon(icon1)
         self.create_button.setIconSize(QSize(30, 32))
 
@@ -284,8 +284,7 @@ class Ui_Form(object):
         self.load_button.setMaximumSize(QSize(190, 52))
         self.load_button.setFont(font3)
         self.load_button.setStyleSheet(u"")
-        icon2 = QIcon()
-        icon2.addFile(u":/icons/common/import.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon2 = Icon(u":/icons/common/import.png")
         self.load_button.setIcon(icon2)
         self.load_button.setIconSize(QSize(30, 32))
 
@@ -297,8 +296,7 @@ class Ui_Form(object):
         self.reset_list_projects_button.setMaximumSize(QSize(190, 52))
         self.reset_list_projects_button.setFont(font3)
         self.reset_list_projects_button.setStyleSheet(u"")
-        icon3 = QIcon()
-        icon3.addFile(u":/icons/common/reset-image.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon3 = Icon(u":/icons/common/reset-image.png")
         self.reset_list_projects_button.setIcon(icon3)
         self.reset_list_projects_button.setIconSize(QSize(30, 32))
 
@@ -310,8 +308,7 @@ class Ui_Form(object):
         self.about_button.setMaximumSize(QSize(190, 52))
         self.about_button.setFont(font3)
         self.about_button.setStyleSheet(u"")
-        icon4 = QIcon()
-        icon4.addFile(u":/icons/pulse/pulse_icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon4 = Icon(u":/icons/pulse/pulse_icon.png")
         self.about_button.setIcon(icon4)
         self.about_button.setIconSize(QSize(30, 32))
 

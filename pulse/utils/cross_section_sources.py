@@ -207,6 +207,8 @@ def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
 
     Zc, Yc = IBeamCrossSection(h, w1, t1, w2, t2, tw, offset_y, offset_z).centroid
 
+    # TODO: avoid division by zero
+
     # compute the y coordinate centroid for the center rectangle of the I-Beam
     y_center = (((h/2 - t1)**2) - ((h/2 - t2)**2))*(tw/2) / ((h-(t1+t2))*tw)
 
@@ -426,14 +428,15 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
         return vtkPolyData()
 
     pipe = pipe_data(length, outside_diameter, thickness)
-    start_flange = flange_data(flange_length, flange_diameter, 0)
-    end_flange = apply_transform(start_flange, dx=length - flange_length)
     handle = valve_handle(outside_diameter)
     handle = apply_transform(handle, dx=length/2, rz=90)
 
     append_polydata.AddInputData(pipe)
-    append_polydata.AddInputData(start_flange)
-    append_polydata.AddInputData(end_flange)
+    if flange_diameter and flange_length:
+        start_flange = flange_data(flange_length, flange_diameter, 0)
+        end_flange = apply_transform(start_flange, dx=length - flange_length)
+        append_polydata.AddInputData(start_flange)
+        append_polydata.AddInputData(end_flange)
     append_polydata.AddInputData(handle)
     append_polydata.Update()
 

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'valve_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
     QLineEdit, QPushButton, QScrollArea, QSizePolicy,
     QSpacerItem, QTabWidget, QTreeWidget, QTreeWidgetItem,
     QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -148,37 +150,37 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.label_112, 8, 3, 1, 1)
 
-        self.lineEdit_stiffening_factor = QLineEdit(self.scrollAreaWidgetContents)
-        self.lineEdit_stiffening_factor.setObjectName(u"lineEdit_stiffening_factor")
-        self.lineEdit_stiffening_factor.setEnabled(True)
-        self.lineEdit_stiffening_factor.setMinimumSize(QSize(150, 28))
-        self.lineEdit_stiffening_factor.setMaximumSize(QSize(150, 28))
-        self.lineEdit_stiffening_factor.setSizeIncrement(QSize(0, 26))
-        self.lineEdit_stiffening_factor.setFont(font)
-        self.lineEdit_stiffening_factor.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_stiffening_factor.setStyleSheet(u"")
-        self.lineEdit_stiffening_factor.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_stiffening_factor.setClearButtonEnabled(True)
+        self.lineEdit_valve_stiffening_factor = QLineEdit(self.scrollAreaWidgetContents)
+        self.lineEdit_valve_stiffening_factor.setObjectName(u"lineEdit_valve_stiffening_factor")
+        self.lineEdit_valve_stiffening_factor.setEnabled(True)
+        self.lineEdit_valve_stiffening_factor.setMinimumSize(QSize(150, 28))
+        self.lineEdit_valve_stiffening_factor.setMaximumSize(QSize(150, 28))
+        self.lineEdit_valve_stiffening_factor.setSizeIncrement(QSize(0, 26))
+        self.lineEdit_valve_stiffening_factor.setFont(font)
+        self.lineEdit_valve_stiffening_factor.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_valve_stiffening_factor.setStyleSheet(u"")
+        self.lineEdit_valve_stiffening_factor.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_valve_stiffening_factor.setClearButtonEnabled(True)
 
-        self.gridLayout_10.addWidget(self.lineEdit_stiffening_factor, 8, 2, 1, 1)
+        self.gridLayout_10.addWidget(self.lineEdit_valve_stiffening_factor, 8, 2, 1, 1)
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.gridLayout_10.addItem(self.horizontalSpacer, 8, 0, 1, 1)
 
-        self.lineEdit_valve_effective_diameter = QLineEdit(self.scrollAreaWidgetContents)
-        self.lineEdit_valve_effective_diameter.setObjectName(u"lineEdit_valve_effective_diameter")
-        self.lineEdit_valve_effective_diameter.setEnabled(True)
-        self.lineEdit_valve_effective_diameter.setMinimumSize(QSize(150, 28))
-        self.lineEdit_valve_effective_diameter.setMaximumSize(QSize(150, 28))
-        self.lineEdit_valve_effective_diameter.setSizeIncrement(QSize(0, 26))
-        self.lineEdit_valve_effective_diameter.setFont(font)
-        self.lineEdit_valve_effective_diameter.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_valve_effective_diameter.setStyleSheet(u"")
-        self.lineEdit_valve_effective_diameter.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_valve_effective_diameter.setClearButtonEnabled(True)
+        self.lineEdit_effective_diameter = QLineEdit(self.scrollAreaWidgetContents)
+        self.lineEdit_effective_diameter.setObjectName(u"lineEdit_effective_diameter")
+        self.lineEdit_effective_diameter.setEnabled(True)
+        self.lineEdit_effective_diameter.setMinimumSize(QSize(150, 28))
+        self.lineEdit_effective_diameter.setMaximumSize(QSize(150, 28))
+        self.lineEdit_effective_diameter.setSizeIncrement(QSize(0, 26))
+        self.lineEdit_effective_diameter.setFont(font)
+        self.lineEdit_effective_diameter.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_effective_diameter.setStyleSheet(u"")
+        self.lineEdit_effective_diameter.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_effective_diameter.setClearButtonEnabled(True)
 
-        self.gridLayout_10.addWidget(self.lineEdit_valve_effective_diameter, 4, 2, 1, 1)
+        self.gridLayout_10.addWidget(self.lineEdit_effective_diameter, 4, 2, 1, 1)
 
         self.lineEdit_internal_valve_length = QLineEdit(self.scrollAreaWidgetContents)
         self.lineEdit_internal_valve_length.setObjectName(u"lineEdit_internal_valve_length")
@@ -198,8 +200,7 @@ class Ui_Dialog(object):
         self.pushButton_reset_entries.setObjectName(u"pushButton_reset_entries")
         self.pushButton_reset_entries.setMinimumSize(QSize(40, 28))
         self.pushButton_reset_entries.setMaximumSize(QSize(40, 28))
-        icon = QIcon()
-        icon.addFile(u":/icons/common/broom.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/broom.png")
         self.pushButton_reset_entries.setIcon(icon)
         self.pushButton_reset_entries.setIconSize(QSize(20, 20))
         self.pushButton_reset_entries.setAutoDefault(False)
@@ -438,19 +439,19 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.label_selected_id_12, 2, 1, 1, 1)
 
-        self.lineEdit_valve_wall_thickness = QLineEdit(self.scrollAreaWidgetContents)
-        self.lineEdit_valve_wall_thickness.setObjectName(u"lineEdit_valve_wall_thickness")
-        self.lineEdit_valve_wall_thickness.setEnabled(True)
-        self.lineEdit_valve_wall_thickness.setMinimumSize(QSize(150, 28))
-        self.lineEdit_valve_wall_thickness.setMaximumSize(QSize(150, 28))
-        self.lineEdit_valve_wall_thickness.setSizeIncrement(QSize(0, 26))
-        self.lineEdit_valve_wall_thickness.setFont(font)
-        self.lineEdit_valve_wall_thickness.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_valve_wall_thickness.setStyleSheet(u"")
-        self.lineEdit_valve_wall_thickness.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_valve_wall_thickness.setClearButtonEnabled(True)
+        self.lineEdit_wall_thickness = QLineEdit(self.scrollAreaWidgetContents)
+        self.lineEdit_wall_thickness.setObjectName(u"lineEdit_wall_thickness")
+        self.lineEdit_wall_thickness.setEnabled(True)
+        self.lineEdit_wall_thickness.setMinimumSize(QSize(150, 28))
+        self.lineEdit_wall_thickness.setMaximumSize(QSize(150, 28))
+        self.lineEdit_wall_thickness.setSizeIncrement(QSize(0, 26))
+        self.lineEdit_wall_thickness.setFont(font)
+        self.lineEdit_wall_thickness.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_wall_thickness.setStyleSheet(u"")
+        self.lineEdit_wall_thickness.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_wall_thickness.setClearButtonEnabled(True)
 
-        self.gridLayout_10.addWidget(self.lineEdit_valve_wall_thickness, 5, 2, 1, 1)
+        self.gridLayout_10.addWidget(self.lineEdit_wall_thickness, 5, 2, 1, 1)
 
         self.lineEdit_valve_name = QLineEdit(self.scrollAreaWidgetContents)
         self.lineEdit_valve_name.setObjectName(u"lineEdit_valve_name")
@@ -723,12 +724,12 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.tabWidget_main, self.lineEdit_valve_name)
         QWidget.setTabOrder(self.lineEdit_valve_name, self.comboBox_flange_setup)
         QWidget.setTabOrder(self.comboBox_flange_setup, self.comboBox_acoustic_behavior)
-        QWidget.setTabOrder(self.comboBox_acoustic_behavior, self.lineEdit_valve_effective_diameter)
-        QWidget.setTabOrder(self.lineEdit_valve_effective_diameter, self.lineEdit_valve_wall_thickness)
-        QWidget.setTabOrder(self.lineEdit_valve_wall_thickness, self.lineEdit_offset_y)
+        QWidget.setTabOrder(self.comboBox_acoustic_behavior, self.lineEdit_effective_diameter)
+        QWidget.setTabOrder(self.lineEdit_effective_diameter, self.lineEdit_wall_thickness)
+        QWidget.setTabOrder(self.lineEdit_wall_thickness, self.lineEdit_offset_y)
         QWidget.setTabOrder(self.lineEdit_offset_y, self.lineEdit_offset_z)
-        QWidget.setTabOrder(self.lineEdit_offset_z, self.lineEdit_stiffening_factor)
-        QWidget.setTabOrder(self.lineEdit_stiffening_factor, self.lineEdit_valve_mass)
+        QWidget.setTabOrder(self.lineEdit_offset_z, self.lineEdit_valve_stiffening_factor)
+        QWidget.setTabOrder(self.lineEdit_valve_stiffening_factor, self.lineEdit_valve_mass)
         QWidget.setTabOrder(self.lineEdit_valve_mass, self.lineEdit_flange_diameter)
         QWidget.setTabOrder(self.lineEdit_flange_diameter, self.lineEdit_flange_length)
         QWidget.setTabOrder(self.lineEdit_flange_length, self.lineEdit_internal_valve_length)
@@ -761,8 +762,8 @@ class Ui_Dialog(object):
 #endif // QT_CONFIG(tooltip)
         self.lineEdit_flange_length.setText(QCoreApplication.translate("Dialog", u"0.023", None))
         self.label_112.setText(QCoreApplication.translate("Dialog", u"[ - ]", None))
-        self.lineEdit_stiffening_factor.setText(QCoreApplication.translate("Dialog", u"10", None))
-        self.lineEdit_valve_effective_diameter.setText(QCoreApplication.translate("Dialog", u"0.180", None))
+        self.lineEdit_valve_stiffening_factor.setText(QCoreApplication.translate("Dialog", u"10", None))
+        self.lineEdit_effective_diameter.setText(QCoreApplication.translate("Dialog", u"0.180", None))
 #if QT_CONFIG(tooltip)
         self.lineEdit_internal_valve_length.setToolTip("")
 #endif // QT_CONFIG(tooltip)
@@ -796,7 +797,7 @@ class Ui_Dialog(object):
 
         self.label_valve_internal_length.setText(QCoreApplication.translate("Dialog", u"Orifice plate thickness:", None))
         self.label_selected_id_12.setText(QCoreApplication.translate("Dialog", u"Acoustic behavior:", None))
-        self.lineEdit_valve_wall_thickness.setText(QCoreApplication.translate("Dialog", u"0.010", None))
+        self.lineEdit_wall_thickness.setText(QCoreApplication.translate("Dialog", u"0.010", None))
         self.lineEdit_valve_name.setText(QCoreApplication.translate("Dialog", u"valve_test", None))
         self.label_flange_diameter_unit_4.setText(QCoreApplication.translate("Dialog", u"[m]", None))
         self.label_flange_diameter_unit_2.setText(QCoreApplication.translate("Dialog", u"[m]", None))
@@ -841,8 +842,8 @@ class ValveInput_UI(QDialog, Ui_Dialog):
                                                                         - label_valve_internal_length_unit: QLabel
                                                                         - lineEdit_flange_length: QLineEdit
                                                                         - label_112: QLabel
-                                                                        - lineEdit_stiffening_factor: QLineEdit
-                                                                        - lineEdit_valve_effective_diameter: QLineEdit
+                                                                        - lineEdit_valve_stiffening_factor: QLineEdit
+                                                                        - lineEdit_effective_diameter: QLineEdit
                                                                         - lineEdit_internal_valve_length: QLineEdit
                                                                         - pushButton_reset_entries: QPushButton
                                                                         - label_flange_diameter: QLabel
@@ -865,7 +866,7 @@ class ValveInput_UI(QDialog, Ui_Dialog):
                                                                         - comboBox_acoustic_behavior: QComboBox
                                                                         - label_valve_internal_length: QLabel
                                                                         - label_selected_id_12: QLabel
-                                                                        - lineEdit_valve_wall_thickness: QLineEdit
+                                                                        - lineEdit_wall_thickness: QLineEdit
                                                                         - lineEdit_valve_name: QLineEdit
                                                                         - label_flange_diameter_unit_4: QLabel
                                                                         - label_flange_diameter_unit_2: QLabel

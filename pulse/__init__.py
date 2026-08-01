@@ -7,6 +7,12 @@ from PySide6.QtWidgets import QApplication
 from molde import Color
 from pathlib import Path
 
+__version__ = "2.0.11"
+__release_date__ = 'Jul 2026'
+
+VERSION = __version__
+RELEASE_DATE = __release_date__
+
 OPEN_PULSE_DIR = Path(__file__).parent
 ICON_DIR = OPEN_PULSE_DIR / "interface/data/icons/"
 QSS_DIR = OPEN_PULSE_DIR / "interface/data/qss_files/"
@@ -18,23 +24,11 @@ FONT_DIR = OPEN_PULSE_DIR / "interface/data/fonts/"
 USER_PATH = Path().home()
 TEMP_PROJECT_DIR = USER_PATH / "temp_pulse"
 
-LIGHT_ICON_COLOR = Color("#1a73e8")
-DARK_ICON_COLOR = Color("#5F9AF4")
+LIGHT_ICON_COLOR = Color("#0051A2")
+DARK_ICON_COLOR = Color("#84AAFF")
 
 def app() -> "Application":
     '''
     Returns the instance of the current application.
     '''
     return QApplication.instance()
-
-def version() -> str:
-    '''
-    Returns the version of the software available in pyproject.toml
-    '''
-    return "2.0.11"
-
-def release_date() -> str:
-    '''
-    Returns a string containing the release date
-    '''
-    return 'Sep 30th 2024'

@@ -72,7 +72,7 @@ class SetFluidInputSimplified(SetFluidInputSimplified_UI):
     def reset_fluid_library_callback(self):
         self.hide()
         if self.fluid_widget.reset_library_callback():
-            app().main_window.update_plots()
+            app().main_window.update_plots(False)
 
     def reset_selected_fluid_lineEdit(self):
         self.lineEdit_selected_fluid_name.clear()

@@ -1,19 +1,20 @@
 
+from math import atan, cos, pi, sin, sqrt
+# from time import perf_counter
+
 import numpy as np
-from math import pi, sqrt, cos, sin, atan
-from numpy.linalg import inv, pinv, norm
+from numpy.linalg import inv, norm, pinv
 from scipy.sparse import coo_matrix
 
-from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
-from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
-from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
 from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
-from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
-from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
-from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
+from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
 from pulse.model.cross_sections.expansion_joint_cross_section import ExpansionJointCrossSection
+from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
+from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
 from pulse.model.cross_sections.valve_cross_section import ValveCrossSection
-
 
 rows, cols = 4, 2
 Nint_points = 4
@@ -49,7 +50,8 @@ def gauss_quadrature2D():
     return points, weight
 
 def shape_function(ksi,eta):
-    """ This function returns the two dimensional quadratic shape function and its derivative (9-node quadrilateral element) for one point in the dimensionless coordinate system (ksi,eta).
+    """ This function returns the two dimensional quadratic shape function and its derivative 
+    (9-node quadrilateral element) for one point in the dimensionless coordinate system (ksi,eta).
 
     Parameters
     ----------
@@ -502,6 +504,14 @@ class CrossSection:
         self.y_centroid = Qz/A
         self.z_centroid = Qy/A
 
+        # print()
+        # print(f"Area: {A}")
+        # print(f"Qy: {Qy}")
+        # print(f"Qz: {Qz}")
+        # print(f"Iy: {Iy}")
+        # print(f"Iz: {Iz}")
+        # print(f"Iyz: {Iyz}")
+
     def assembly_indexes(self):
         """
         This method updates the assembly process rows and columns indexing.
@@ -528,6 +538,7 @@ class CrossSection:
             Element type of the structural elements attributed to the tube.
             Default is None.
         """
+        # t0 = perf_counter()
         self.area_properties(el_type)
         self.assembly_indexes()
 
@@ -637,6 +648,17 @@ class CrossSection:
         # shear center
         self.y_shear = -(psi_z.T @ FT)/ccg
         self.z_shear = (psi_y.T @ FT)/ccg
+
+        # dt = perf_counter() - t0
+        # print(f"Time to compute Section 2D elements: {dt : .8f} s")
+
+        # print(f"res_y: {self.res_y}")
+        # print(f"res_z: {self.res_z}")
+        # print(f"res_yz: {self.res_yz}")
+        # print(f"shear_y: {self.y_shear}")
+        # print(f"shear_z: {self.z_shear}")
+        # print(f"A_shear_y: {self.area / self.res_y}")
+        # print(f"A_shear_z: {self.area / self.res_z}")
 
     def offset_rotation(self, el_type = 'pipe_1', avg_data=[]):
         """

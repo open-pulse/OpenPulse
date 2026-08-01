@@ -9,9 +9,10 @@ from pulse.interface.user_input.data_handler.imported_data import ImportedData, 
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 
 import numpy as np
-
+from pathlib import Path
 
 class DataImportAssistant(DataImportAssistant_UI):
+    
     def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.plotter = plotter
@@ -34,6 +35,7 @@ class DataImportAssistant(DataImportAssistant_UI):
 
         self.keep_window_open = True
         self.imported_data = None
+        self.imported_paths: list = list()
 
         self.imported_results: dict[int, ImportedData] = dict()
         self.ids_to_checkBox = dict()
@@ -75,30 +77,41 @@ class DataImportAssistant(DataImportAssistant_UI):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
 
     def import_results(self):
-
-        last_folder = app().config.get_last_folder_for("imported_data_folder")
+        last_folder_path = app().config.get_last_folder_for("imported_data_folder", default=Path().home())
         file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
 
-        imported_path  = FileDialogService.open_file(file_extensions, last_folder=last_folder)
+        new_paths = FileDialogService.open_multiple_files(file_extensions, last_folder=last_folder_path)
 
-        if not imported_path:
+        if not new_paths:
             return
-        
-        self.lineEdit_import_results_path.setText(str(imported_path))
 
-        file = FileHandler().read(imported_path)
+        self.imported_paths += new_paths
 
-        if isinstance(file, SpreadsheetData):
-            for sheet in file.sheets:
-                sheet.source_file = file.filename
-                key = self.get_data_index()
-                self.imported_results[key] = sheet
+        if len(self.imported_paths) == 1:
+            imported_text = str(self.imported_paths[0])
         else:
-            key = self.get_data_index()
-            self.imported_results[key] = file
+            imported_text = f"{self.imported_paths[0].name} (+{len(self.imported_paths) - 1} more)"
 
+        tooltip_text = "Imported files:\n" + "\n".join(map(str, self.imported_paths))
+        last_imported_file = str(self.imported_paths[-1])
+
+        self.lineEdit_import_results_path.setText(imported_text)
+        self.lineEdit_import_results_path.setToolTip(tooltip_text)
+
+        for imported_path in new_paths:
+            file = FileHandler().read(imported_path)
+
+            if isinstance(file, SpreadsheetData):
+                for sheet in file.sheets:
+                    sheet.source_file = file.filename
+                    key = self.get_data_index()
+                    self.imported_results[key] = sheet
+            else:
+                key = self.get_data_index()
+                self.imported_results[key] = file
+
+        app().config.write_last_folder_path_in_file("imported_data_folder", last_imported_file)
         self.update_treeWidget_info()
-        app().config.write_last_folder_path_in_file("imported_data_folder", str(imported_path))
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
@@ -190,6 +203,9 @@ class DataImportAssistant(DataImportAssistant_UI):
         self.lineEdit_import_results_path.clear()
         self.treeWidget_import_sheet_files.clear()
         self.treeWidget_import_text_files.clear()
+
+        self.plotter.reset_imported_results_data_to_plot()
+
         self._initialize()
 
     def add_imported_data_to_plot(self):

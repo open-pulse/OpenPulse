@@ -198,10 +198,10 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
 
     def search_callback(self):
         caption = "Choose a file to import element transfer data"
-        last_folder = app().config.get_last_folder_for("imported_table_folder")
+        last_folder_path = app().config.get_last_folder_for("imported_table_folder", default=Path().home())
         file_extensions = ["xls", "xlsx"]
-    
-        imported_path = FileDialogService.open_file(file_extensions, caption=caption, last_folder=last_folder)
+
+        imported_path = FileDialogService.open_file(file_extensions, caption=caption, last_folder=last_folder_path)
 
         if not imported_path:
             info_message = "Select the spreadsheet file to import "

@@ -1,3 +1,4 @@
+from pulse.utils.interface_utils import SelectionFilter
 from molde.colors import Color
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
@@ -17,6 +18,7 @@ from pulse.interface.viewer_3d.actors import (
 )
 from pulse.interface.viewer_3d.render_tools import SelectionTool
 from pulse.utils.image_functions import removes_image_background
+from pulse.utils.interface_utils import VisualizationFilter
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
@@ -28,6 +30,17 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
+        self.visualization_filter = VisualizationFilter(
+            points=True,
+            lines=True,
+            tubes=True,
+            acoustic_symbols=True,
+            structural_symbols=True,
+        )
+        self.selection_filter = SelectionFilter(
+            nodes=True,
+            lines=True,
+        )
 
         self.remove_all_actors()
 
@@ -46,6 +59,10 @@ class MeshRenderWidget(CommonRenderWidget):
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
 
+    @property
+    def preprocessor(self):
+        return app().project.model.preprocessor
+
     def _create_connections(self):
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
@@ -54,14 +71,13 @@ class MeshRenderWidget(CommonRenderWidget):
         app().main_window.theme_changed.connect(self._apply_logo_theme)
         app().main_window.visualization_changed.connect(self.visualization_changed_callback)
         app().main_window.selection_changed.connect(self.update_selection)
-        app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
+        app().main_window.section_plane.value_changed.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
         self.remove_all_actors()
         self.mesh_picker.update_bounds()
-        project = app().project
 
-        if not project.get_structural_elements():
+        if not self.preprocessor.elements_attributes:
             return
 
         self.nodes_actor = NodesActor()
@@ -118,16 +134,15 @@ class MeshRenderWidget(CommonRenderWidget):
         if not self._actor_exists():
             return
 
-        visualization = app().main_window.visualization_filter
-        self.points_actor.SetVisibility(visualization.points)
-        self.nodes_actor.SetVisibility(visualization.nodes)
-        self.lines_actor.SetVisibility(visualization.lines)
-        self.tubes_actor.SetVisibility(visualization.tubes)
-        opacity = 0.9 if visualization.transparent else 1
+        self.points_actor.SetVisibility(self.visualization_filter.points)
+        self.nodes_actor.SetVisibility(self.visualization_filter.nodes)
+        self.lines_actor.SetVisibility(self.visualization_filter.lines)
+        self.tubes_actor.SetVisibility(self.visualization_filter.tubes)
+        opacity = 0.9 if self.visualization_filter.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
 
-        self.symbols_actor.SetVisibility(visualization.structural_symbols)
-        self.symbols_actor_fixed.SetVisibility(visualization.structural_symbols)
+        self.symbols_actor.SetVisibility(self.visualization_filter.structural_symbols)
+        self.symbols_actor_fixed.SetVisibility(self.visualization_filter.structural_symbols)
 
         # To update default, material or fluid visualization
         self.tubes_actor.clear_colors()
@@ -180,26 +195,75 @@ class MeshRenderWidget(CommonRenderWidget):
     def create_logos(self):
         if not hasattr(self, "_light_logo"):
             self._light_logo = self.create_logo(ICON_DIR / "logos/op_light_theme.png")
-            self._light_logo.SetPosition(0.845, 0.89)
-            self._light_logo.SetPosition2(0.15, 0.15)
+            self._light_logo.SetShowBorderToOff()
+            self._light_logo.SetShowPolygonBackground(0)
 
         if not hasattr(self, "_dark_logo"):
             self._dark_logo = self.create_logo(ICON_DIR / "logos/op_dark_theme.png")
-            self._dark_logo.SetPosition(0.845, 0.89)
-            self._dark_logo.SetPosition2(0.15, 0.15)
+            self._dark_logo.SetShowBorderToOff()
+            self._dark_logo.SetShowPolygonBackground(0)
+
+        if getattr(self, "_logo_observer_id", None) is None:
+            self._logo_last_size = None
+            self._logo_observer_id = self.renderer.AddObserver("StartEvent", self._logo_size_callback)
 
         self._apply_logo_theme()
+        self.update_logo_geometry()
 
-    def _apply_logo_theme(self):
-        if app().main_window.config.user_preferences.interface_theme == "light":
-            self._light_logo.VisibilityOn()
-            self._dark_logo.VisibilityOff()
-            self.open_pulse_logo = self._light_logo
-        else:
-            self._dark_logo.VisibilityOn()
-            self._light_logo.VisibilityOff()
-            self.open_pulse_logo = self._dark_logo
-    
+    def _logo_size_callback(self, *args, **kwargs):
+        size = tuple(self.renderer.GetSize())
+        if size != self._logo_last_size:
+            self._logo_last_size = size
+            self.update_logo_geometry()
+
+    def update_logo_geometry(self):
+        width_fraction = 0.15
+        min_width = 90
+        max_width = 240
+        max_height_ratio = 0.12
+        margin = 10
+
+        width, height = self.renderer.GetSize()
+        if width < 2 or height < 2:
+            return
+
+        for logo in (self._light_logo, self._dark_logo):
+            image = logo.GetImage()
+            if image is None:
+                continue
+
+            image_width, image_height, _ = image.GetDimensions()
+            if image_width < 1 or image_height < 1:
+                continue
+
+            aspect = image_width / image_height
+            logo_width = max(width_fraction * width, min_width)
+            logo_width = min(logo_width, max_width, 0.4 * width, max_height_ratio * height * aspect)
+            logo_height = logo_width / aspect
+
+            box_x = logo_width / width
+            box_y = logo_height / height
+
+            logo.SetPosition(1 - box_x - margin / width, 1 - box_y - margin / height)
+            logo.SetPosition2(box_x, box_y)
+            logo.Modified()
+
+    def _apply_logo_theme(self, *args, **kwargs):
+        light_theme = app().main_window.config.user_preferences.interface_theme == "light"
+        logo_visible = getattr(self, "_logo_visible", True)
+
+        self.open_pulse_logo = self._light_logo if light_theme else self._dark_logo
+        self._light_logo.SetVisibility(light_theme and logo_visible)
+        self._dark_logo.SetVisibility(not light_theme and logo_visible)
+
+    def enable_open_pulse_logo(self):
+        self._logo_visible = True
+        self._apply_logo_theme()
+
+    def disable_open_pulse_logo(self):
+        self._logo_visible = False
+        self._apply_logo_theme()
+
     def save_thumbnail(self):
         thumbnail = app().project.thumbnail
 
@@ -252,12 +316,6 @@ class MeshRenderWidget(CommonRenderWidget):
         else:
             self.disable_open_pulse_logo()
 
-    def enable_open_pulse_logo(self):
-        self.open_pulse_logo.VisibilityOn()
-
-    def disable_open_pulse_logo(self):
-        self.open_pulse_logo.VisibilityOff()
-
     def update_scale_bar_visibility(self):
         user_preferences = app().config.user_preferences
 
@@ -278,7 +336,7 @@ class MeshRenderWidget(CommonRenderWidget):
     def selection_callback(self, x1, y1):
         if not self._actor_exists():
             return
-        
+
         if not isinstance(self.interactor_style, SelectionTool):
             return
 
@@ -287,38 +345,36 @@ class MeshRenderWidget(CommonRenderWidget):
 
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
-        selection_filter = app().main_window.selection_filter
-        visualization_filter = app().main_window.visualization_filter
 
         picked_nodes = set()
         picked_elements = set()
         picked_lines = set()
 
         if mouse_moved:
-            if selection_filter.nodes:
+            if self.selection_filter.nodes:
                 picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
 
-            if selection_filter.elements:
+            if self.selection_filter.elements:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
 
-            if selection_filter.lines:
+            if self.selection_filter.lines:
                 picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
 
         else:
-            if selection_filter.nodes:
+            if self.selection_filter.nodes:
                 picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
                 picked_nodes.difference_update([-1])  # remove -1 index
 
-            if selection_filter.elements:
+            if self.selection_filter.elements:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])  # remove -1 index
 
-            if selection_filter.lines:
+            if self.selection_filter.lines:
                 picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_lines.difference_update([-1])  # remove -1 index
 
-        if visualization_filter.points:
-            points_indexes = set(app().project.get_geometry_points().keys())
+        if self.visualization_filter.points:
+            points_indexes = set(self.preprocessor.get_geometry_points().keys())
             picked_nodes.intersection_update(points_indexes)
 
         # give priority to node selection
@@ -362,8 +418,8 @@ class MeshRenderWidget(CommonRenderWidget):
         if len(elements) == 1:
             self.element_axes_actor.VisibilityOn()
             element_id, *_ = elements
-            element = app().project.get_structural_element(element_id)
-            self.element_axes_actor.position_from_element(element)
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
+            self.element_axes_actor.position_from_element(element_attributes)
 
         self.update_info_text()
         self.update()

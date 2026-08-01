@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QApplication
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse import ICON_DIR, app
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.actors import (
     ElementLinesActor,
@@ -20,16 +21,7 @@ from pulse.interface.viewer_3d.actors import (
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.interface.viewer_3d.render_tools import RenderTool, SelectionTool
 from pulse.model import AnalysisID
-from pulse.postprocessing.plot_acoustic_data import (
-    get_acoustic_response,
-    get_max_min_values_of_pressures,
-)
-from pulse.postprocessing.plot_structural_data import (
-    get_min_max_resultant_displacements,
-    get_min_max_stresses_values,
-    get_stresses_to_plot,
-    get_structural_response,
-)
+from pulse.utils.interface_utils import VisualizationFilter
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import (
@@ -57,6 +49,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
+        self.visualization_filter = VisualizationFilter(tubes=True)
 
         self.open_pulse_logo = None
         self.nodes_actor = None
@@ -99,7 +92,15 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         app().main_window.theme_changed.connect(self._apply_logo_theme)
         app().main_window.visualization_changed.connect(self.visualization_changed_callback)
         app().main_window.selection_changed.connect(self.update_selection)
-        app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
+        app().main_window.section_plane.value_changed.connect(self.update_section_plane)
+
+    @property
+    def acoustic_postprocessing(self):
+        return app().project.get_acoustic_postprocessing()
+
+    @property
+    def structural_postprocessing(self):
+        return app().project.get_structural_postprocessing()
 
     def update_plot(self, reset_camera=False):
 
@@ -107,7 +108,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.mesh_picker.update_bounds()
         project = app().project
 
-        if not project.get_structural_elements():
+        if not project.model.preprocessor.elements_attributes:
+            self.stop_animation()
             return
 
         # Default behavior
@@ -125,15 +127,18 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
                 unit_label = "Unit: [--]"
 
+            if self.structural_postprocessing.solution is None:
+                return
+
             deformed = True
-            color_table, self.is_complex_result = self._compute_displacement_field(
-                self.current_frequency_index,
-                self.current_phase_step,
-            )
+            color_table, self.is_complex_result = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
 
         elif self.analysis_mode == AnalysisMode.STRESS:
             if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                 unit_label = "Unit: [Pa]"
+
+            if self.structural_postprocessing.solution is None:
+                return
 
             deformed = True
             color_table, self.is_complex_result = self._compute_stress_field(
@@ -147,6 +152,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
                 unit_label = "Unit: [--]"
+
+            if self.acoustic_postprocessing.solution is None:
+                return
 
             color_table, self.is_complex_result = self._compute_pressure_field(
                 self.current_frequency_index,
@@ -235,10 +243,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self._animation_current_cycle = 0
 
     def stop_animation(self):
+        from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
+
         # Do the things defined in the mother class
         super().stop_animation()
         # Change the animation button to paused
-        app().main_window.animation_toolbar.pause_animation()
+        animation_widget = app().main_window.results_viewer_widget.get_animation_widget()
+        if isinstance(animation_widget, AnimationWidget):
+            animation_widget.pause_animation()
 
     def clear_cache(self):
         self._animation_cached_data.clear()
@@ -286,12 +298,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not self._actor_exists():
             return
 
-        visualization = app().main_window.visualization_filter
-        self.points_actor.SetVisibility(visualization.points)
-        self.nodes_actor.SetVisibility(visualization.nodes)
-        self.lines_actor.SetVisibility(visualization.lines)
-        self.tubes_actor.SetVisibility(visualization.tubes)
-        opacity = 0.9 if visualization.transparent else 1
+        self.points_actor.SetVisibility(self.visualization_filter.points)
+        self.nodes_actor.SetVisibility(self.visualization_filter.nodes)
+        self.lines_actor.SetVisibility(self.visualization_filter.lines)
+        self.tubes_actor.SetVisibility(self.visualization_filter.tubes)
+        opacity = 0.9 if self.visualization_filter.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
         if update:
             self.update()
@@ -309,42 +320,39 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def show_displacement_field(self, frequency_index):
 
-        solution = app().project.get_structural_solution()
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
         self.analysis_mode = AnalysisMode.DISPLACEMENT
 
         self._reset_min_max_values()
-        tmp = get_min_max_resultant_displacements(solution, frequency_index)
+        tmp = self.structural_postprocessing.get_min_max_resultant_displacements(frequency_index)
         _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
 
         self.clear_cache()
         self.update_plot()
 
-    def show_stress_field(self, frequency_index):
-        solution = app().project.get_structural_solution()
+    def show_stress_field(self, frequency_index: int):
 
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
         self.analysis_mode = AnalysisMode.STRESS
 
         self._reset_min_max_values()
-        self.stress_min, self.stress_max = get_min_max_stresses_values()
-        tmp = get_min_max_resultant_displacements(solution, frequency_index)
+        self.stress_min, self.stress_max = self.structural_postprocessing.get_min_max_stresses_values()
+        tmp = self.structural_postprocessing.get_min_max_resultant_displacements(frequency_index)
         _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
 
         self.clear_cache()
         self.update_plot()
 
     def show_pressure_field(self, frequency_index):
-        solution = app().project.get_acoustic_solution()
 
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
         self.analysis_mode = AnalysisMode.PRESSURE
 
         self._reset_min_max_values()
-        tmp = get_max_min_values_of_pressures(solution, frequency_index)
+        tmp = self.acoustic_postprocessing.get_max_min_values_of_pressures(frequency_index)
         self.pressure_min, self.pressure_max = tmp
 
         self.clear_cache()
@@ -394,25 +402,74 @@ class ResultsRenderWidget(AnimatedRenderWidget):
     def create_logos(self):
         if not hasattr(self, "_light_logo"):
             self._light_logo = self.create_logo(ICON_DIR / "logos/op_light_theme.png")
-            self._light_logo.SetPosition(0.845, 0.89)
-            self._light_logo.SetPosition2(0.15, 0.15)
+            self._light_logo.SetShowBorderToOff()
+            self._light_logo.SetShowPolygonBackground(0)
 
         if not hasattr(self, "_dark_logo"):
             self._dark_logo = self.create_logo(ICON_DIR / "logos/op_dark_theme.png")
-            self._dark_logo.SetPosition(0.845, 0.89)
-            self._dark_logo.SetPosition2(0.15, 0.15)
+            self._dark_logo.SetShowBorderToOff()
+            self._dark_logo.SetShowPolygonBackground(0)
+
+        if getattr(self, "_logo_observer_id", None) is None:
+            self._logo_last_size = None
+            self._logo_observer_id = self.renderer.AddObserver("StartEvent", self._logo_size_callback)
 
         self._apply_logo_theme()
+        self.update_logo_geometry()
 
-    def _apply_logo_theme(self):
-        if app().main_window.config.user_preferences.interface_theme == "light":
-            self._light_logo.VisibilityOn()
-            self._dark_logo.VisibilityOff()
-            self.open_pulse_logo = self._light_logo
-        else:
-            self._dark_logo.VisibilityOn()
-            self._light_logo.VisibilityOff()
-            self.open_pulse_logo = self._dark_logo
+    def _logo_size_callback(self, *args, **kwargs):
+        size = tuple(self.renderer.GetSize())
+        if size != self._logo_last_size:
+            self._logo_last_size = size
+            self.update_logo_geometry()
+
+    def update_logo_geometry(self):
+        width_fraction = 0.15
+        min_width = 90
+        max_width = 240
+        max_height_ratio = 0.12
+        margin = 10
+
+        width, height = self.renderer.GetSize()
+        if width < 2 or height < 2:
+            return
+
+        for logo in (self._light_logo, self._dark_logo):
+            image = logo.GetImage()
+            if image is None:
+                continue
+
+            image_width, image_height, _ = image.GetDimensions()
+            if image_width < 1 or image_height < 1:
+                continue
+
+            aspect = image_width / image_height
+            logo_width = max(width_fraction * width, min_width)
+            logo_width = min(logo_width, max_width, 0.4 * width, max_height_ratio * height * aspect)
+            logo_height = logo_width / aspect
+
+            box_x = logo_width / width
+            box_y = logo_height / height
+
+            logo.SetPosition(1 - box_x - margin / width, 1 - box_y - margin / height)
+            logo.SetPosition2(box_x, box_y)
+            logo.Modified()
+
+    def _apply_logo_theme(self, *args, **kwargs):
+        light_theme = app().main_window.config.user_preferences.interface_theme == "light"
+        logo_visible = getattr(self, "_logo_visible", True)
+
+        self.open_pulse_logo = self._light_logo if light_theme else self._dark_logo
+        self._light_logo.SetVisibility(light_theme and logo_visible)
+        self._dark_logo.SetVisibility(not light_theme and logo_visible)
+
+    def enable_open_pulse_logo(self):
+        self._logo_visible = True
+        self._apply_logo_theme()
+
+    def disable_open_pulse_logo(self):
+        self._logo_visible = False
+        self._apply_logo_theme()
 
     def apply_user_preferences(self):
         self.update_open_pulse_logo_visibility()
@@ -438,12 +495,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.enable_open_pulse_logo()
         else:
             self.disable_open_pulse_logo()
-
-    def enable_open_pulse_logo(self):
-        self.open_pulse_logo.VisibilityOn()
-
-    def disable_open_pulse_logo(self):
-        self.open_pulse_logo.VisibilityOff()
 
     def update_scale_bar_visibility(self):
         user_preferences = app().config.user_preferences
@@ -474,7 +525,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
-        visualization_filter = app().main_window.visualization_filter
         selection_filter = app().main_window.selection_filter
 
         picked_nodes = set()
@@ -485,10 +535,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             if selection_filter.nodes:
                 picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
 
-            if selection_filter.elements and visualization_filter.lines:
+            if selection_filter.elements and self.visualization_filter.lines:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
 
-            if selection_filter.lines and visualization_filter.lines:
+            if selection_filter.lines and self.visualization_filter.lines:
                 picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
 
         else:
@@ -496,16 +546,16 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
                 picked_nodes.difference_update([-1])
 
-            if selection_filter.elements and visualization_filter.lines:
+            if selection_filter.elements and self.visualization_filter.lines:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])
 
-            if selection_filter.lines and visualization_filter.lines:
+            if selection_filter.lines and self.visualization_filter.lines:
                 picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_lines.difference_update([-1])
 
-        if visualization_filter.points:
-            points_indexes = set(app().project.get_geometry_points().keys())
+        if self.visualization_filter.points:
+            points_indexes = set(app().project.model.preprocessor.get_geometry_points().keys())
             picked_nodes.intersection_update(points_indexes)
 
         # give priority to node selection
@@ -583,49 +633,51 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         ]
         return all([actor is not None for actor in actors])
 
-    def _compute_displacement_field(self, frequency_index, phase_step):
-
-        project = app().project
-        preprocessor = project.model.preprocessor
-        solution = project.get_structural_solution()
+    def _compute_displacement_field(self, frequency_index: int, phase_step: float):
 
         # It is probably a bit unclear, but this function have some colateral
         # effects. It interprets the structural analysis and puts the meaningfull
         # data inside the correspondent nodes.
         # The return values are just extra information.
-        _, _, u_def, self._magnification_factor, _ = get_structural_response(
-            preprocessor,
-            solution,
+
+        animation_widget = app().main_window.results_viewer_widget.get_animation_widget()
+        if isinstance(animation_widget, AnimationWidget):
+            animation_widget.update_factor_label(max_value=self.r_xyz_abs)
+            magnification_factor = animation_widget.magnification_factor
+        else:
+            magnification_factor = 1
+
+        color_scalars, self._magnification_factor, _ = self.structural_postprocessing.get_structural_response(
             frequency_index,
             phase_step=phase_step,
             r_max=self.r_xyz_abs,
+            magnification_factor=magnification_factor,
         )
 
         min_max_values = (self.result_disp_min, self.result_disp_max)
-        color_table = ColorTable(
-            u_def,
-            min_max_values,
-            self.colormap,
-        )
+        color_table = ColorTable(color_scalars, min_max_values, self.colormap)
 
-        is_complex_result = np.imag(solution).any()
+        is_complex_result = np.imag(self.structural_postprocessing.solution).any()
 
         return color_table, is_complex_result
 
-    def _compute_stress_field(self, frequency_index, phase_step):
-        project = app().project
-        preprocessor = project.model.preprocessor
-        solution = project.get_structural_solution()
+    def _compute_stress_field(self, frequency_index: int, phase_step: float):
 
-        *_, self._magnification_factor, _delta = get_structural_response(
-            preprocessor,
-            solution,
+        animation_widget = app().main_window.results_viewer_widget.get_animation_widget()
+        if isinstance(animation_widget, AnimationWidget):
+            animation_widget.update_factor_label(max_value=self.r_xyz_abs)
+            magnification_factor = animation_widget.magnification_factor
+        else:
+            magnification_factor = 1
+
+        *_, self._magnification_factor, _delta = self.structural_postprocessing.get_structural_response(
             frequency_index,
             phase_step=phase_step,
             r_max=self.r_xyz_abs,
+            magnification_factor=magnification_factor,
         )
 
-        stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(
+        stresses_data, self.min_max_stresses_values_current = self.structural_postprocessing.get_stresses_to_plot(
             phase_step=phase_step,
             shift_phase=_delta,
         )
@@ -638,18 +690,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             stress_field_plot=True,
         )
 
-        is_complex_result = np.imag(solution).any()
+        is_complex_result = np.imag(self.structural_postprocessing.solution).any()
 
         return color_table, is_complex_result
 
     def _compute_pressure_field(self, frequency_index, phase_step):
 
-        project = app().project
-        preprocessor = project.model.preprocessor
-        solution = project.get_acoustic_solution()
-
-        *_, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(
-            preprocessor, solution, frequency_index, phase_step=phase_step
+        *_, pressure_field_data, self.min_max_pressures_values_current = self.acoustic_postprocessing.get_acoustic_response(
+            frequency_index, phase_step=phase_step
         )
 
         min_max_values = (self.pressure_min, self.pressure_max)
@@ -660,7 +708,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             pressure_field_plot=True,
         )
 
-        is_complex_result = np.imag(solution).any()
+        is_complex_result = np.imag(self.acoustic_postprocessing.solution).any()
 
         return color_table, is_complex_result
 

@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QWidget
-
+from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import IntEnum
+
+from PySide6.QtWidgets import QDialog, QLineEdit, QWidget
 
 from pulse import ICON_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -65,14 +66,23 @@ class SelectionFilter:
         return cls(*args)
 
 
+@contextmanager
+def block_signals(widget: QWidget):
+    widget.blockSignals(True)
+    try:
+        yield widget
+    finally:
+        widget.blockSignals(False)
+
+
 def check_inputs(
-        lineEdit: QLineEdit, 
-        label: str, 
-        only_positive: bool = True, 
-        zero_included: bool = False, 
-        title: str | None = None, 
-        parent: None | QDialog | QWidget = None,
-        ):
+    lineEdit: QLineEdit,
+    label: str,
+    only_positive: bool = True,
+    zero_included: bool = False,
+    title: str | None = None,
+    parent: None | QDialog | QWidget = None,
+):
 
     if title is None:
         title = "Invalid input"
@@ -90,13 +100,11 @@ def check_inputs(
                         message += "The zero value is allowed."
 
                 else:
-
                     if out <= 0:
                         message = f"Insert a positive value to the {label}. "
                         message += "The zero value is not allowed."
 
         except Exception as error_log:
-
             message = f"Wrong input for {label}.\n\n"
             message += str(error_log)
 
@@ -108,7 +116,6 @@ def check_inputs(
             message = f"Insert some value at the {label} input field."
 
     if message != "":
-
         if isinstance(parent, QWidget | QDialog):
             parent.hide()
 

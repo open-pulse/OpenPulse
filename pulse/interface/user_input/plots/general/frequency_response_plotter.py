@@ -2,14 +2,13 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QCloseEvent, QIcon
-from PySide6.QtWidgets import QDialog, QLineEdit, QToolButton, QVBoxLayout
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QDialog, QLineEdit, QVBoxLayout
 
-from pulse import app, ICON_DIR
+from pulse import app
 from pulse.interface import error_title
 from pulse.interface.ui_generated.plots.results.general.frequency_response_plotter_ui import FrequencyResponsePlotter_UI
-from pulse.interface.formatters import icons
-from pulse.interface.formatters.icons import change_icon_color_for_widgets
+from pulse.interface.formatters.icons import Icon
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.data_handler.data_import_assistant import DataImportAssistant
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
@@ -55,7 +54,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlotter_UI):
 
         self._config_window()
         self._initialize()
-        self._paint_icons()
         self._initialize_canvas()
         self._create_connections()
 
@@ -114,7 +112,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlotter_UI):
         #
         self.spinBox_harmonic_lines_number.valueChanged.connect(self.plot_harmonic_lines_callback)
         # 
-        app().main_window.theme_changed.connect(self._paint_icons_callback)
         #
         self._initial_config()
         self.plot_harmonic_lines_callback()
@@ -122,43 +119,17 @@ class FrequencyResponsePlotter(FrequencyResponsePlotter_UI):
     def update_harmonic_lines_legend_icon(self):
 
         if "Display" in self.pushButton_display_hfrequencies.toolTip():
-            icon = QIcon(str(ICON_DIR / "common/visibility_off.png"))
+            icon = Icon(":/icons/common/visibility_off.png")
             tool_tip = "Remove harmonic line frequencies"
 
         else:
-            icon = QIcon(str(ICON_DIR / "common/visibility.png"))
+            icon = Icon(":/icons/common/visibility.png")
             tool_tip = "Display harmonic line frequencies"
 
         self.pushButton_display_hfrequencies.setIcon(icon)
         self.pushButton_display_hfrequencies.setToolTip(tool_tip)
 
-        # update the icon colors
-        self._paint_icons([self.pushButton_display_hfrequencies])
-
         self.plot_harmonic_lines_callback()
-
-    def _paint_icons_callback(self):
-        self._paint_icons()
-        self.paint_toolbar_icons()
-
-    def _paint_icons(self, widgets: list | None = None):
-        icon_color = None
-        theme = app().config.user_preferences.interface_theme
-
-        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
-        if theme == "dark":
-            icon_color = DARK_ICON_COLOR.to_qt()
-        else:
-            icon_color = LIGHT_ICON_COLOR.to_qt()
-
-        if widgets is None:
-            widgets = [
-                self.pushButton_export_data,
-                self.pushButton_import_data,
-                self.pushButton_display_hfrequencies,
-                ]
-
-        change_icon_color_for_widgets(widgets, icon_color)
 
     def import_file(self):
 
@@ -427,22 +398,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlotter_UI):
         else:
             return self.unit + "/s²"
 
-    def paint_toolbar_icons(self, *args, **kwargs):
-
-        from pulse.interface.user_input.plots.general.custom_navigation_toolbar import CustomNavigationToolbar
-
-        toolbar = self.findChild(CustomNavigationToolbar)
-        if toolbar is None:
-            return
-
-        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
-        if app().config.user_preferences.interface_theme == "dark":
-            color = DARK_ICON_COLOR.to_qt()
-        else:
-            color = LIGHT_ICON_COLOR.to_qt()
-
-        icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
-
     def plot_data_in_freq_domain(self):
 
         self.ax.cla()
@@ -454,14 +409,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlotter_UI):
             from pulse.interface.user_input.plots.general.custom_navigation_toolbar import CustomNavigationToolbar
 
             toolbar = CustomNavigationToolbar(self.mpl_canvas_frequency_plot, self)
-
-            # Paint the toolbar icons and connect the buttons to paint
-            # themselves after every click or draw events
-            self.paint_toolbar_icons()
-            for button in toolbar.findChildren(QToolButton):
-                button.clicked.connect(self.paint_toolbar_icons)
-                  
-            self.mpl_canvas_frequency_plot.mpl_connect("draw_event", self.paint_toolbar_icons)
 
             self._layout = QVBoxLayout()
             self._layout.addWidget(toolbar)

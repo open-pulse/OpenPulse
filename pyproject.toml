@@ -1,6 +1,6 @@
 [project]
 name = "pulse"
-version = "2.1.3"
+version = "2.2.0"
 description = "Open Source Software for Pulsation Analysis of Pipeline Systems"
 authors = [
     { name = "Olavo Silva", email = "olavus@gmail.com" },
@@ -31,7 +31,7 @@ dependencies = [
     "pandas>=2.1.0,<3",
     "openpyxl>=3.1.2,<4",
     "h5py>=3.12.1,<4",
-    "molde ; python_full_version >= '3.10'",
+    "molde (>=0.1.18,<0.2.0)",
     "pyqtdarktheme>=2.1.0,<3 ; python_full_version >= '3.10' and python_full_version < '3.12'",
     "ordered-set>=4.1.0,<5",
     "pypardiso-mopt>=0.1.0,<0.2",
@@ -44,6 +44,7 @@ dependencies = [
 
 [project.scripts]
 pulse = "pulse.launch:main"
+bump = "scripts.bump_version:main"
 
 [dependency-groups]
 dev = [
@@ -57,9 +58,6 @@ dev = [
 ]
 
 [tool.uv]
-
-[tool.uv.sources]
-molde = { git = "https://github.com/andrefpf/molde.git", branch = "main" }
 
 [build-system]
 requires = ["hatchling"]

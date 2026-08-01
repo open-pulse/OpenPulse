@@ -44,24 +44,20 @@ class ModalAnalysisInput(ModalAnalysis_UI):
             self.label_title.setText("Structural modal analysis setup")
 
     def _create_connections(self):
-        self.pushButton_run_analysis.clicked.connect(self.run_analysis)
+        self.pushButton_run_analysis.clicked.connect(self.run_analysis_callback)
         self.pushButton_enter_setup.clicked.connect(self.enter_setup_callback)
 
     def _load_analysis_setup(self):
-        analysis_setup = app().project.file.read_analysis_setup_from_file()
 
-        if not analysis_setup:
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
+        if not isinstance(analysis_setup, dict):
             return
-        
-        if isinstance(analysis_setup, dict):
-            if analysis_setup["analysis_id"] in [
-                AnalysisID.STRUCTURAL_MODAL,
-                AnalysisID.ACOUSTIC_MODAL,
-            ]:
-                number_of_modes = analysis_setup["number_of_modes"]
-                sigma = analysis_setup["sigma_factor"]
-                self.lineEdit_number_modes.setText(str(number_of_modes))
-                self.lineEdit_sigma_factor.setText(str(sigma))
+
+        if AnalysisID.is_modal(analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)):
+            number_of_modes = analysis_setup.get("number_of_modes")
+            sigma = analysis_setup.get("sigma_factor")
+            self.lineEdit_number_modes.setText(str(number_of_modes))
+            self.lineEdit_sigma_factor.setText(str(sigma))
 
     def check_analysis_inputs(self):
 
@@ -118,8 +114,7 @@ class ModalAnalysisInput(ModalAnalysis_UI):
         app().main_window.analysis_toolbar.enable_pushbutons.emit()
         self.close()
 
-    def run_analysis(self):
-
+    def run_analysis_callback(self):
         if self.enter_setup_callback():
             return
 
@@ -130,6 +125,7 @@ class ModalAnalysisInput(ModalAnalysis_UI):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.run_analysis()
+            self.run_analysis_callback()
+
         elif event.key() == Qt.Key_Escape:
             self.close()

@@ -1,17 +1,17 @@
-
-from pulse import TEMP_PROJECT_DIR
-from pulse.model.cross_section import CrossSection
-from pulse.model.properties.material import Material
-from pulse.project.project import Project
-from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
-from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pathlib import Path
 
 import numpy as np
 
-from pathlib import Path
+from pulse.model.cross_section import CrossSection
+from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
+from pulse.model.data_classes.project_setup_data_classes import ImportType, MesherSetup, ProjectSetup
+from pulse.model.elements.elements_builder import build_structural_element
+from pulse.model.properties.material import Material
+from pulse.project.project import Project
 
 
-def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Path=TEMP_PROJECT_DIR):
+def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Path):
 
     ## Initialize a project
     project = Project()
@@ -19,7 +19,6 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
 
     ## Define usefull objects
     model = project.model
-    mesh = model.mesh
     preprocessor = model.preprocessor
 
     section_label = "rectangular_beam"
@@ -55,20 +54,17 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     # geometry_path = get_example_file_path("iges_files/run_by_script/reciprocating_pump_piping.step")
     project.file.write_line_properties_in_file()
 
-    ## Configure the mesher setup
-    mesher_setup = {
-                    "element_size" : 0.02,
-                    "geometry_tolerance" : 1e-6,
-                    "length_unit" : "meter",
-                    "import_type" : 1,
-                    # "geometry_path" : str(geometry_path)
-                    }
+    ## Configure the project setup
+    project_setup = ProjectSetup(
+        import_type = ImportType.BUILT_IN,
+        # geometry_path = str(geometry_path),
+        mesher_setup = MesherSetup(0.02, 1e-6, "meter"))
 
     project.reset(reset_all=True)
-    mesh.set_mesher_setup(mesher_setup=mesher_setup)
+    project.set_project_setup(project_setup)
 
-    ## Process the geometry and mesh
-    preprocessor.generate()
+    # ## Process the geometry and mesh
+    model.process_geometry_and_mesh()
 
     ## Define the material
     materials = create_materials()
@@ -86,8 +82,11 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     preprocessor.set_cross_section_by_lines(line_id, cross_section)
     preprocessor.set_structural_element_type_by_lines(line_id, "beam_1")
 
-    structural_elements = model.preprocessor.structural_elements
-    element = structural_elements[1]
+    element_attributes = model.preprocessor.elements_attributes.get(0)
+    if element_attributes is None:
+        return
+
+    element = build_structural_element(element_attributes)
 
     Ke, Me = element.matrices_gcs()
     # np.savetxt("Ke_beam1.dat", Ke, delimiter=",", fmt="%.24e")
@@ -126,10 +125,9 @@ def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Pat
     )
 
     project.file.write_line_properties_in_file()
-    project.file.write_project_setup_in_file(mesher_setup)
+    project.file.write_project_setup_in_file(project_setup.as_dict())
     project.file.write_analysis_setup_in_file(model.analysis_setup)
 
-    remove_files_from_temporary_folder()
 
 def create_materials():
 
@@ -165,21 +163,3 @@ def create_temporary_material_library(project: Project, materials: dict):
 
     project.file.write_material_library_in_file(material_data)
  
-
-def remove_files_from_temporary_folder():
-
-    from pulse import TEMP_PROJECT_DIR
-    from shutil import rmtree
-    from os import path, remove, listdir
-
-    if TEMP_PROJECT_DIR.exists():
-        for filename in listdir(TEMP_PROJECT_DIR).copy():
-            file_path = TEMP_PROJECT_DIR / filename
-            if path.exists(file_path):
-                if "." in filename:
-                    remove(file_path)
-                else:
-                    rmtree(file_path)
-
-if __name__ == "__main__":
-    test_elementary_matrices_for_beam1_element()

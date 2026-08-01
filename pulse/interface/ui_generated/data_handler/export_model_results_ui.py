@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'export_model_results.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -18,6 +18,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
     QLabel, QLineEdit, QPushButton, QSizePolicy,
     QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -59,8 +61,7 @@ class Ui_Dialog(object):
         font.setItalic(False)
         self.pushButton_choose_folder_export.setFont(font)
         self.pushButton_choose_folder_export.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/import.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/import.png")
         self.pushButton_choose_folder_export.setIcon(icon)
         self.pushButton_choose_folder_export.setIconSize(QSize(20, 20))
 

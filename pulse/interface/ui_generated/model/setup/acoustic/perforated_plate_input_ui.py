@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'perforated_plate_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
     QSpacerItem, QSpinBox, QTabWidget, QTreeWidget,
     QTreeWidgetItem, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -35,8 +37,7 @@ class Ui_Dialog(object):
         Dialog.setMinimumSize(QSize(480, 520))
         Dialog.setMaximumSize(QSize(480, 600))
         Dialog.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
-        icon = QIcon()
-        icon.addFile(u"../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u"../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png")
         Dialog.setWindowIcon(icon)
         self.gridLayout_2 = QGridLayout(Dialog)
         self.gridLayout_2.setSpacing(4)

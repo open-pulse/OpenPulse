@@ -1,6 +1,5 @@
 import numpy as np
 from scipy import signal
-import matplotlib.pyplot as plt
 
 
 def process_iFFT_of_onesided_spectrum(df: float, Xf: np.ndarray, remove_avg: bool = True):
@@ -16,9 +15,9 @@ def process_iFFT_of_onesided_spectrum(df: float, Xf: np.ndarray, remove_avg: boo
         Represents the terms of one-sided spectrum of input signal.
 
     remove_avg : bool (default True)
-    
+
         If True remove the average from signal output and False otherwise.
-    
+
     Returns
     -------
 
@@ -26,8 +25,8 @@ def process_iFFT_of_onesided_spectrum(df: float, Xf: np.ndarray, remove_avg: boo
         The time vector of output signal.
 
     x_t : ndarray (float data type)
-        The output signal in time domain. 
-    
+        The output signal in time domain.
+
     """
 
     N = len(Xf)
@@ -37,7 +36,6 @@ def process_iFFT_of_onesided_spectrum(df: float, Xf: np.ndarray, remove_avg: boo
 
     N_t = len(x_t)
     time = np.arange(0, N_t) / (df * N_t)
-    
 
     return time, x_t
 
@@ -50,7 +48,7 @@ def is_parseval_theorem_satisfied(x_t: np.ndarray, X_f: np.ndarray) -> bool:
     Parameters
     ----------
 
-    x_t : ndarray (normally, float data type). 
+    x_t : ndarray (normally, float data type).
         Represents the signal x(t) in time domain.
 
     X_f : ndarray (complex data type)
@@ -60,18 +58,18 @@ def is_parseval_theorem_satisfied(x_t: np.ndarray, X_f: np.ndarray) -> bool:
     Returns
     -------
 
-    True if the signal energy is conserved, and False otherwise.   
+    True if the signal energy is conserved, and False otherwise.
 
     """
-    xt_rms = np.sqrt(np.sum(x_t**2)/len(x_t))
-    Xf_rms = np.sqrt(np.sum(np.abs(X_f*np.conjugate(X_f))))
+    xt_rms = np.sqrt(np.sum(x_t**2) / len(x_t))
+    Xf_rms = np.sqrt(np.sum(np.abs(X_f * np.conjugate(X_f))))
 
     # print(xt_rms, Xf_rms)
-    if round(xt_rms,8) == round(Xf_rms,8):
+    if round(xt_rms, 8) == round(Xf_rms, 8):
         return True
 
     message = "Both domains do not have the same rms/energy values.\n"
-    message += f"x_t rms: {round(xt_rms,8)} \nX_f rms: {round(Xf_rms,8)}"
+    message += f"x_t rms: {round(xt_rms, 8)} \nX_f rms: {round(Xf_rms, 8)}"
     print(message)
     return False
 
@@ -98,18 +96,18 @@ def process_twosided_spectrum(Xf: np.ndarray) -> np.ndarray:
     if round(abs(np.imag(Xf[-1])), 15) == 0:
         N_out = 2 * (N_in - 1)
         output = np.zeros(N_out, dtype=complex)
-        output[1 : N_in] = Xf[1:] / 2
-        output[N_in : ] = np.conjugate(np.flip(Xf[1:-1])) / 2
+        output[1:N_in] = Xf[1:] / 2
+        output[N_in:] = np.conjugate(np.flip(Xf[1:-1])) / 2
 
     else:
         N_out = 2 * (N_in - 1) + 1
         output = np.zeros(N_out, dtype=complex)
-        output[1 : N_in] = Xf[1:] / 2
-        output[N_in : ] = np.conjugate(np.flip(Xf[1:])) / 2
+        output[1:N_in] = Xf[1:] / 2
+        output[N_in:] = np.conjugate(np.flip(Xf[1:])) / 2
 
     output[0] = Xf[0]
 
-    return output 
+    return output
 
 
 def process_ifft_from_one_sided_spectrum_signal(frequencies: np.ndarray, Xf_data: np.ndarray):
@@ -135,7 +133,7 @@ def process_ifft_from_one_sided_spectrum_signal(frequencies: np.ndarray, Xf_data
     dt = 1 / f_s
 
     # process the ifft from signal Xf
-    x_t = np.fft.irfft(Xf)# * (2*(N-1))
+    x_t = np.fft.irfft(Xf)  # * (2*(N-1))
     N_t = len(x_t)
 
     # corrects the signal amplitude
@@ -172,7 +170,7 @@ def process_two_sided_spectrum(x_data: np.ndarray, dt: float):
 
     # process the one-sided spectrum
     Xf_data = np.fft.fft(x_data) / len(x_data)
-    
+
     freq_vector = np.fft.fftshift(freq_vector)
     Xf_data = np.fft.fftshift(Xf_data)
 
@@ -193,20 +191,10 @@ def get_window_and_correction_factor(window_type: str, correction_type: str, N: 
     window = signal.get_window(window_type, N)
 
     if correction_type == "amplitude":
-        correction_factors = {  
-            "boxcar" : 1,
-            "hann" : 2,
-            "flattop" : 4.18,
-            "hamming" : 1.85  
-            }
+        correction_factors = {"boxcar": 1, "hann": 2, "flattop": 4.18, "hamming": 1.85}
 
     else:
-        correction_factors = {  
-            "boxcar" : 1,
-            "hann" : np.sqrt(8/3),
-            "flattop" : 2.26,
-            "hamming" : 1.59
-            }
+        correction_factors = {"boxcar": 1, "hann": np.sqrt(8 / 3), "flattop": 2.26, "hamming": 1.59}
 
     return window, correction_factors.get(window_type)
 
@@ -217,39 +205,42 @@ def check_if_signal_energy_is_conserved(x_data: np.ndarray, Xf_data: np.ndarray)
 
     if round(x_rms, 8) != round(Xf_rms, 8):
         message = "Both domains do not have the same rms/energy values.\n"
-        message += f"RMS value (x_data): {round(x_rms,8)} \n"
-        message += f"RMS value (Xf_data): {round(Xf_rms,8)}"
+        message += f"RMS value (x_data): {round(x_rms, 8)} \n"
+        message += f"RMS value (Xf_data): {round(Xf_rms, 8)}"
         print(message)
 
 
 def plot(x, y, x_label, y_label, title, label="", absolute=False):
+    import matplotlib.pyplot as plt
 
     fig = plt.figure(figsize=[8, 6])
-    ax = fig.add_subplot(1,1,1)
+    ax = fig.add_subplot(1, 1, 1)
 
     if absolute:
         y = np.abs(y)
 
-    ax.plot(x, y, color=[0,0,1], linewidth = 1, label = label)
+    ax.plot(x, y, color=[0, 0, 1], linewidth=1, label=label)
 
-    ax.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
-    ax.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
-    ax.set_title(title, fontsize = 12, fontweight = 'bold')
+    ax.set_xlabel(x_label, fontsize=11, fontweight="bold")
+    ax.set_ylabel(y_label, fontsize=11, fontweight="bold")
+    ax.set_title(title, fontsize=12, fontweight="bold")
 
     plt.grid()
     plt.show()
 
 
 def plot_original_and_windowed_spectrums(freq: np.ndarray, Xf: np.ndarray, Xf_w: np.ndarray):
+    import matplotlib.pyplot as plt
+
     fig = plt.figure(figsize=[8, 6])
-    ax = fig.add_subplot(1,1,1)
+    ax = fig.add_subplot(1, 1, 1)
 
-    ax.semilogy(freq, np.abs(Xf), color=[0,0,1], linewidth = 1, label = "non-windowed signal")
-    ax.semilogy(freq, np.abs(Xf_w), color=[1,0,0], linewidth = 1, label = "windowed signal")
+    ax.semilogy(freq, np.abs(Xf), color=[0, 0, 1], linewidth=1, label="non-windowed signal")
+    ax.semilogy(freq, np.abs(Xf_w), color=[1, 0, 0], linewidth=1, label="windowed signal")
 
-    ax.set_xlabel("Frequency [Hz]", fontsize = 11, fontweight = 'bold')
-    ax.set_ylabel("Amplitude [--]", fontsize = 11, fontweight = 'bold')
-    ax.set_title("", fontsize = 12, fontweight = 'bold')
+    ax.set_xlabel("Frequency [Hz]", fontsize=11, fontweight="bold")
+    ax.set_ylabel("Amplitude [--]", fontsize=11, fontweight="bold")
+    ax.set_title("", fontsize=12, fontweight="bold")
 
     plt.legend()
     plt.grid()
