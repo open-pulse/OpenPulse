@@ -13,7 +13,6 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.elements.element_attributes import ElementAttributes
 from pulse.utils import cross_section_sources
 from pulse.utils.interface_utils import ColorMode
-from pulse.utils.time_utils import function_timer
 
 
 class TubeActor(vtkActor):
@@ -46,7 +45,6 @@ class TubeActor(vtkActor):
     def preprocessor(self):
         return app().project.model.preprocessor
 
-    @function_timer
     def build(self):
         all_elements = np.array(list(self.elements_attributes.keys()), dtype=int)
         self._key_index = {j: i for i, j in enumerate(all_elements)}
@@ -69,8 +67,6 @@ class TubeActor(vtkActor):
         colors.SetNumberOfTuples(len(all_elements))
         colors.Fill(255)
         colors.SetName("colors")
-
-        self.update_element_coordinates_and_rotations()
 
         hashes = [id(el.cross_section) for el in self.elements_attributes.values()]
         unique_hashes, first_occurrences, remapped_indexes = np.unique(hashes, return_index=True, return_inverse=True)
@@ -100,9 +96,11 @@ class TubeActor(vtkActor):
         mapper.ScalarVisibilityOn()
         mapper.Update()
         self.SetMapper(mapper)
-
+        
         self.GetProperty().SetInterpolationToPhong()
         self.GetProperty().SetDiffuse(0.8)
+
+        self.update_element_coordinates_and_rotations()
         self.clear_colors()
 
     def get_all_elements_coordinates(self) -> np.ndarray:
@@ -116,9 +114,29 @@ class TubeActor(vtkActor):
         coordinates = self.get_all_elements_coordinates()
         rotations = self.get_all_elements_rotations()
 
-        self.element_start_points.SetData(numpy_to_vtk(coordinates))
-        self.element_rotations.DeepCopy(numpy_to_vtk(rotations))
-        self.element_rotations.SetName("rotations")
+        mapper = self.GetMapper()
+        if mapper is None:
+            return
+
+        data: vtkPolyData | None = mapper.GetInput()
+        if data is None:
+            return
+
+        points: vtkPoints | None = data.GetPoints()
+        if points is None:
+            return
+        
+        point_data = data.GetPointData()
+        if point_data is None:
+            return
+        
+        rotations_array = point_data.GetArray("rotations")
+        if rotations_array is None:
+            return
+        
+        points.SetData(numpy_to_vtk(coordinates))
+        rotations_array.DeepCopy(numpy_to_vtk(rotations))
+        rotations_array.SetName("rotations")
 
     def create_element_data(self, element_attributes: ElementAttributes):
         cross_section = element_attributes.cross_section
@@ -238,7 +256,6 @@ class TubeActor(vtkActor):
         data.GetPointData().SetScalars(colors)
         self.GetMapper().Update()
 
-    @function_timer
     def set_color_table(self, color_table: ColorTable):
         # This copy is needed, otherwise the mapper is not updated
         data: vtkPolyData = self.GetMapper().GetInput()
