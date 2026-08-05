@@ -1,11 +1,14 @@
+import logging
+
 import numpy as np
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse.interface.viewer_3d.actors import TubeActor
 from pulse.model.cross_section import CrossSection
 from pulse.model.elements.element_attributes import ElementAttributes
-from pulse.model.node import Node
 from pulse.utils import cross_section_sources
+
+logger = logging.getLogger(__name__)
 
 
 class TubeActorResults(TubeActor):
@@ -15,15 +18,26 @@ class TubeActorResults(TubeActor):
         super().__init__(**kwargs)
 
     def get_all_elements_coordinates(self) -> np.ndarray:
-        if self.show_deformed:
-            mesh = self.model.mesh
-            return self.deformed_coordinates[mesh.lines_connectivity[:, 4], 1:]
-        return super().get_all_elements_coordinates()
+        if not self.show_deformed:
+            return super().get_all_elements_coordinates()
+
+        deformed_coordinates = self.model.preprocessor.deformed_coordinates
+        if deformed_coordinates is None:
+            logger.warn("Invalid deformed coordinates.")
+            return super().get_all_elements_coordinates()
+
+        mesh = self.model.mesh
+        return deformed_coordinates[mesh.lines_connectivity[:, 4], 1:]
 
     def get_all_elements_rotations(self):
-        if self.show_deformed:
-            self.preprocessor.deformed_section_rotations
-        return super().get_all_elements_rotations()
+        if not self.show_deformed:
+            return super().get_all_elements_rotations()
+
+        if self.preprocessor.deformed_section_rotations is None:
+            logger.warn("Invalid deformed section rotations.")
+            return super().get_all_elements_rotations()
+
+        return self.preprocessor.deformed_section_rotations
 
     def create_element_data(self, element_attributes: ElementAttributes):
 
