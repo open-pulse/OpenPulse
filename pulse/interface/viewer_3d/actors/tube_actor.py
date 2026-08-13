@@ -67,7 +67,7 @@ class TubeActor(vtkActor):
         colors.Fill(255)
         colors.SetName("colors")
 
-        hashes = [id(el.cross_section) for el in self.elements_attributes.values()]
+        hashes = [self._hash_element_section(el) for el in self.elements_attributes.values()]
         unique_hashes, first_occurrences, remapped_indexes = np.unique(hashes, return_index=True, return_inverse=True)
         new_ids = np.arange(len(unique_hashes))
 
@@ -95,7 +95,7 @@ class TubeActor(vtkActor):
         mapper.ScalarVisibilityOn()
         mapper.Update()
         self.SetMapper(mapper)
-        
+
         self.GetProperty().SetInterpolationToPhong()
         self.GetProperty().SetDiffuse(0.8)
 
@@ -124,15 +124,15 @@ class TubeActor(vtkActor):
         points: vtkPoints | None = data.GetPoints()
         if points is None:
             return
-        
+
         point_data = data.GetPointData()
         if point_data is None:
             return
-        
+
         rotations_array = point_data.GetArray("rotations")
         if rotations_array is None:
             return
-        
+
         points.SetData(numpy_to_vtk(coordinates))
         rotations_array.DeepCopy(numpy_to_vtk(rotations))
         rotations_array.SetName("rotations")

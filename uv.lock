@@ -1208,7 +1208,7 @@ wheels = [
 
 [[package]]
 name = "pulse"
-version = "2.1.4"
+version = "2.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "ctrefprop" },
