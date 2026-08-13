@@ -1,11 +1,9 @@
-from PySide6.QtWidgets import QAbstractButton
-from PySide6.QtGui import QCloseEvent, QColor, QAction
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 from pathlib import Path
 
 from pulse import app
 from pulse.interface.ui_generated.project.get_started_input_ui import GetStartedInput_UI
-from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
@@ -21,7 +19,6 @@ class GetStartedInput(GetStartedInput_UI):
         self.config = app().main_window.config
         
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._create_connections()
         self.initial_actions()
@@ -33,12 +30,6 @@ class GetStartedInput(GetStartedInput_UI):
     def _initialize(self):
         self.complete = False
         self.keep_window_open = True
-
-    def _load_icons(self):
-        widgets = list()
-        for widget in [QAbstractButton, QAction]:
-            widgets += self.findChildren(widget)
-        icons.change_icon_color_for_widgets(widgets, QColor("#1a73e8"))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

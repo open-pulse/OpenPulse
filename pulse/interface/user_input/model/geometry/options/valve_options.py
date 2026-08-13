@@ -24,13 +24,24 @@ class ValveOptions(StructureOptions):
         if self.structure_info is None:
             return
 
-        return dict(
-            diameter=self.structure_info.get("valve_effective_diameter", 0),
-            flange_outer_diameter=self.structure_info.get("flange_section_parameters", [0])[0],
-            flange_length=self.structure_info.get("flange_length"),
+        kwargs = dict(
+            diameter=self.structure_info.get("effective_diameter", 0),
             thickness=0,
             extra_info=self._get_extra_info(),
         )
+
+        if "flange_diameter" in self.structure_info:
+            kwargs.update(
+                flange_outer_diameter=self.structure_info.get("flange_section_parameters", [0])[0],
+                flange_length=self.structure_info.get("flange_length"),
+            )
+        else:
+            kwargs.update(
+                flange_outer_diameter=None,
+                flange_length=None,
+            )
+
+        return kwargs
 
     def configure_structure(self):
         app().main_window.close_dialogs()
@@ -58,8 +69,8 @@ class ValveOptions(StructureOptions):
             outside_diameter, wall_thickness, offset_y, offset_z, *_ = pipe_section_info.section_parameters
             effective_diameter = outside_diameter - 2 * wall_thickness
 
-            self.valve_input.lineEdit_valve_effective_diameter.setText(f"{round(effective_diameter, 6)}")
-            self.valve_input.lineEdit_valve_wall_thickness.setText(f"{round(wall_thickness, 6)}")
+            self.valve_input.lineEdit_effective_diameter.setText(f"{round(effective_diameter, 6)}")
+            self.valve_input.lineEdit_wall_thickness.setText(f"{round(wall_thickness, 6)}")
             self.valve_input.lineEdit_offset_y.setText(f"{round(offset_y, 6)}")
             self.valve_input.lineEdit_offset_z.setText(f"{round(offset_z, 6)}")
 

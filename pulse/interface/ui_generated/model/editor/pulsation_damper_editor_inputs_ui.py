@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pulsation_damper_editor_inputs.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
     QLineEdit, QPushButton, QScrollArea, QSizePolicy,
     QSpacerItem, QTabWidget, QTreeWidget, QTreeWidgetItem,
     QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -94,8 +96,7 @@ class Ui_Dialog(object):
         self.pushButton_reset_entries.setObjectName(u"pushButton_reset_entries")
         self.pushButton_reset_entries.setMinimumSize(QSize(40, 28))
         self.pushButton_reset_entries.setMaximumSize(QSize(40, 28))
-        icon = QIcon()
-        icon.addFile(u":/icons/common/broom.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/broom.png")
         self.pushButton_reset_entries.setIcon(icon)
         self.pushButton_reset_entries.setIconSize(QSize(20, 20))
         self.pushButton_reset_entries.setAutoDefault(False)

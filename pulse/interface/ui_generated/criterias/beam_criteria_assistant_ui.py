@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'beam_criteria_assistant.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
     QHeaderView, QLabel, QLineEdit, QPushButton,
     QSizePolicy, QSpacerItem, QTreeWidget, QTreeWidgetItem,
     QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -147,8 +149,7 @@ class Ui_Dialog(object):
         self.pushButton_more_info.setMaximumSize(QSize(40, 26))
         self.pushButton_more_info.setFont(font1)
         self.pushButton_more_info.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/help.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/help.png")
         self.pushButton_more_info.setIcon(icon)
         self.pushButton_more_info.setAutoDefault(False)
 

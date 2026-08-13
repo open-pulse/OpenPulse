@@ -3,19 +3,12 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import (
-    RadiationImpedanceInput_UI,
-)
-from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
-    AcousticNodesInput,
-)
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
+from pulse.interface import warning_title
+from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import RadiationImpedanceInput_UI
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import AcousticNodesInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model import RadiationImpedanceType
-
-warning_title = "Warning"
+from pulse.model.elements.acoustic.acoustic_calculator import RadiationImpedanceType
 
 
 class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
@@ -124,16 +117,15 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
 
     def are_there_internal_nodes(self, node_ids: list[int]):
         for node_id in node_ids:
-            neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node.get(node_id)
-            if isinstance(neigh_elements, list):
-                if len(neigh_elements) != 1:
-                    self.hide()
-                    title = "Internal nodes detected"
-                    message = "At least one internal node was detected in the list of "
-                    message += "nodes entered. The radiation impedances are only allowed "
-                    message += "for termination nodes."
-                    PrintMessageInput([warning_title, title, message])
-                    return True
+            element_ids = app().project.model.preprocessor.elements_connected_to_node.get(node_id)
+            if len(element_ids) != 1:
+                self.hide()
+                title = "Internal nodes detected"
+                message = "At least one internal node was detected in the list of "
+                message += "nodes entered. The radiation impedances are only allowed "
+                message += "for termination nodes."
+                PrintMessageInput([warning_title, title, message])
+                return True
 
         return False
 

@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from pulse import app
 from pulse.editor import Pipeline
 from pulse.editor.structures import (
     ALL_STRUCTURE_TYPES,
@@ -16,9 +15,11 @@ from pulse.editor.structures import (
     Structure,
     Valve,
 )
+from pulse.editor.structures.rigid_element import RigidElement
 from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.data_classes.project_setup_data_classes import ImportType
 
 if TYPE_CHECKING:
     from pulse.project.project import Project
@@ -99,6 +100,11 @@ class GeometryHandler:
 
         # cad.remove_all_duplicates()
         cad.synchronize()
+
+        # Apply per-structure mesh constraints
+        for structure in self.project.pipeline.structures:
+            if isinstance(structure, RigidElement):
+                structure.define_gmsh_mesh_constraints()
 
         if gmsh_gui:
             gmsh.option.setNumber('General.FltkColorScheme', 1)
@@ -194,8 +200,6 @@ class GeometryHandler:
         self.pipeline.add_structures(structures)
         self.pipeline.commit()
         self.pipeline.merge_coincident_points()
-        if app() is not None:
-            app().main_window.update_plots()
 
     def export_cad_file(self, path):
         self.create_geometry()
@@ -251,9 +255,13 @@ class GeometryHandler:
         element_size = convert_length_unit(_element_size, self.length_unit, "m")
 
         if self.length_unit !=  "meter":
-            self.project.file.modify_project_attributes(length_unit = "meter", element_size = element_size)
-            if app() is not None:
-                app().main_window.mesh_toolbar.update_mesh_attributes()
+            project_setup = self.project.project_setup
+            project_setup.import_type = ImportType.BUILT_IN
+            mesher_setup = project_setup.mesher_setup
+            mesher_setup.length_unit = "meter"
+            mesher_setup.element_size = element_size
+            self.project.set_project_setup(project_setup)
+            self.project.file.modify_project_attributes(project_setup)
 
         if len(self.merged_points):
             self.print_merged_nodes_message()
@@ -667,9 +675,13 @@ class GeometryHandler:
         for line_id, damper_label in pulsation_damper_info.items():
             self.project.model.properties._set_line_property("pulsation_damper_label", damper_label, line_ids=line_id)
 
-
         self.project.file.write_line_properties_in_file()
-        self.project.file.modify_project_attributes(import_type = 1)
+
+        project_setup = self.project.project_setup
+        project_setup.import_type = ImportType.BUILT_IN
+
+        self.project.set_project_setup(project_setup)
+        self.project.file.modify_project_attributes(project_setup)
 
     def get_pipeline_data(self, structure):
 
@@ -689,7 +701,7 @@ class GeometryHandler:
             data["corner_coords"] = get_data(structure.corner.coords())
             data["curvature_radius"] = np.round(structure.curvature_radius, 8)
 
-        elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint):
+        elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint | RigidElement):
             data["structure_name"] = structure.name()
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())

@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
 
-from pulse import app, version
+from pulse import app, VERSION
 from pulse.interface.ui_generated.messages.get_user_confirmation_ui import GetUserConfirmation_UI
 
 
@@ -10,7 +10,7 @@ class GetUserConfirmationInput(GetUserConfirmation_UI):
         self.title = title
         self.message = message
         self.buttons_config = kwargs.get("buttons_config", dict())
-        self.window_title = kwargs.get("window_title", f"OpenPulse v{version()}")
+        self.window_title = kwargs.get("window_title", f"OpenPulse v{VERSION}")
 
         app().main_window.set_input_widget(self)
 

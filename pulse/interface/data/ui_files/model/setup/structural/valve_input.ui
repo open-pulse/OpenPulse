@@ -388,7 +388,7 @@
                   </widget>
                  </item>
                  <item row="8" column="2">
-                  <widget class="QLineEdit" name="lineEdit_stiffening_factor">
+                  <widget class="QLineEdit" name="lineEdit_valve_stiffening_factor">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -446,7 +446,7 @@
                   </spacer>
                  </item>
                  <item row="4" column="2">
-                  <widget class="QLineEdit" name="lineEdit_valve_effective_diameter">
+                  <widget class="QLineEdit" name="lineEdit_effective_diameter">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -1310,7 +1310,7 @@
                   </widget>
                  </item>
                  <item row="5" column="2">
-                  <widget class="QLineEdit" name="lineEdit_valve_wall_thickness">
+                  <widget class="QLineEdit" name="lineEdit_wall_thickness">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -2138,11 +2138,11 @@
   <tabstop>lineEdit_valve_name</tabstop>
   <tabstop>comboBox_flange_setup</tabstop>
   <tabstop>comboBox_acoustic_behavior</tabstop>
-  <tabstop>lineEdit_valve_effective_diameter</tabstop>
-  <tabstop>lineEdit_valve_wall_thickness</tabstop>
+  <tabstop>lineEdit_effective_diameter</tabstop>
+  <tabstop>lineEdit_wall_thickness</tabstop>
   <tabstop>lineEdit_offset_y</tabstop>
   <tabstop>lineEdit_offset_z</tabstop>
-  <tabstop>lineEdit_stiffening_factor</tabstop>
+  <tabstop>lineEdit_valve_stiffening_factor</tabstop>
   <tabstop>lineEdit_valve_mass</tabstop>
   <tabstop>lineEdit_flange_diameter</tabstop>
   <tabstop>lineEdit_flange_length</tabstop>

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'set_fluid_composition_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -26,7 +26,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(1000, 650)
+        Dialog.resize(1000, 726)
         Dialog.setMinimumSize(QSize(1000, 650))
         Dialog.setMaximumSize(QSize(1200, 800))
         self.gridLayout_11 = QGridLayout(Dialog)
@@ -70,45 +70,72 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 980, 374))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 980, 450))
         self.gridLayout_2 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_2.setSpacing(4)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setContentsMargins(4, 4, 4, 4)
-        self.treeWidget_refprop_fluids = QTreeWidget(self.scrollAreaWidgetContents)
-        __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_refprop_fluids.setHeaderItem(__qtreewidgetitem)
-        self.treeWidget_refprop_fluids.setObjectName(u"treeWidget_refprop_fluids")
-        self.treeWidget_refprop_fluids.setMinimumSize(QSize(390, 0))
-        self.treeWidget_refprop_fluids.setMaximumSize(QSize(390, 16777215))
+        self.tableWidget_new_fluid = QTableWidget(self.scrollAreaWidgetContents)
+        if (self.tableWidget_new_fluid.columnCount() < 2):
+            self.tableWidget_new_fluid.setColumnCount(2)
+        __qtablewidgetitem = QTableWidgetItem()
+        self.tableWidget_new_fluid.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        self.tableWidget_new_fluid.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        self.tableWidget_new_fluid.setObjectName(u"tableWidget_new_fluid")
+        self.tableWidget_new_fluid.setMinimumSize(QSize(390, 0))
+        self.tableWidget_new_fluid.setMaximumSize(QSize(390, 16777215))
         font1 = QFont()
         font1.setFamilies([u"MS Shell Dlg 2"])
         font1.setPointSize(8)
-        self.treeWidget_refprop_fluids.setFont(font1)
-        self.treeWidget_refprop_fluids.setStyleSheet(u"")
-        self.treeWidget_refprop_fluids.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.treeWidget_refprop_fluids.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustIgnored)
-        self.treeWidget_refprop_fluids.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)
+        self.tableWidget_new_fluid.setFont(font1)
+        self.tableWidget_new_fluid.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
+        self.tableWidget_new_fluid.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked|QAbstractItemView.EditTrigger.EditKeyPressed)
+        self.tableWidget_new_fluid.setDragDropOverwriteMode(False)
+        self.tableWidget_new_fluid.setDragDropMode(QAbstractItemView.DragDropMode.DropOnly)
+        self.tableWidget_new_fluid.setAlternatingRowColors(False)
+        self.tableWidget_new_fluid.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectItems)
+        self.tableWidget_new_fluid.setSortingEnabled(True)
+        self.tableWidget_new_fluid.horizontalHeader().setStretchLastSection(True)
 
-        self.gridLayout_2.addWidget(self.treeWidget_refprop_fluids, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tableWidget_new_fluid, 0, 2, 1, 1)
 
         self.frame_middle = QFrame(self.scrollAreaWidgetContents)
         self.frame_middle.setObjectName(u"frame_middle")
-        self.frame_middle.setMinimumSize(QSize(140, 0))
-        self.frame_middle.setMaximumSize(QSize(160, 16777215))
+        self.frame_middle.setMinimumSize(QSize(160, 0))
+        self.frame_middle.setMaximumSize(QSize(180, 16777215))
         self.frame_middle.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_middle.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_18 = QGridLayout(self.frame_middle)
         self.gridLayout_18.setObjectName(u"gridLayout_18")
+        self.pushButton_add_gas = QPushButton(self.frame_middle)
+        self.pushButton_add_gas.setObjectName(u"pushButton_add_gas")
+        self.pushButton_add_gas.setMinimumSize(QSize(130, 30))
+        self.pushButton_add_gas.setMaximumSize(QSize(140, 30))
+        font2 = QFont()
+        font2.setPointSize(10)
+        self.pushButton_add_gas.setFont(font2)
+        self.pushButton_add_gas.setStyleSheet(u"")
+
+        self.gridLayout_18.addWidget(self.pushButton_add_gas, 5, 0, 1, 1)
+
+        self.pushButton_remove_gas = QPushButton(self.frame_middle)
+        self.pushButton_remove_gas.setObjectName(u"pushButton_remove_gas")
+        self.pushButton_remove_gas.setMinimumSize(QSize(130, 30))
+        self.pushButton_remove_gas.setMaximumSize(QSize(140, 30))
+        self.pushButton_remove_gas.setFont(font2)
+        self.pushButton_remove_gas.setStyleSheet(u"")
+
+        self.gridLayout_18.addWidget(self.pushButton_remove_gas, 6, 0, 1, 1)
+
         self.label_remaining_composition = QLabel(self.frame_middle)
         self.label_remaining_composition.setObjectName(u"label_remaining_composition")
         self.label_remaining_composition.setMinimumSize(QSize(130, 28))
         self.label_remaining_composition.setMaximumSize(QSize(140, 28))
-        font2 = QFont()
-        font2.setPointSize(10)
-        font2.setItalic(False)
-        self.label_remaining_composition.setFont(font2)
+        font3 = QFont()
+        font3.setPointSize(10)
+        font3.setItalic(False)
+        self.label_remaining_composition.setFont(font3)
         self.label_remaining_composition.setStyleSheet(u"QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}\n"
 "QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}")
         self.label_remaining_composition.setFrameShape(QFrame.Shape.Box)
@@ -117,51 +144,35 @@ class Ui_Dialog(object):
 
         self.gridLayout_18.addWidget(self.label_remaining_composition, 3, 0, 1, 1)
 
-        self.verticalSpacer_8 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.gridLayout_18.addItem(self.verticalSpacer_8, 1, 0, 1, 1)
-
-        self.pushButton_add_gas = QPushButton(self.frame_middle)
-        self.pushButton_add_gas.setObjectName(u"pushButton_add_gas")
-        self.pushButton_add_gas.setMinimumSize(QSize(130, 30))
-        self.pushButton_add_gas.setMaximumSize(QSize(140, 30))
-        font3 = QFont()
-        font3.setPointSize(10)
-        self.pushButton_add_gas.setFont(font3)
-        self.pushButton_add_gas.setStyleSheet(u"")
-
-        self.gridLayout_18.addWidget(self.pushButton_add_gas, 5, 0, 1, 1)
-
         self.pushButton_fluid_configuration_mode = QPushButton(self.frame_middle)
         self.pushButton_fluid_configuration_mode.setObjectName(u"pushButton_fluid_configuration_mode")
         self.pushButton_fluid_configuration_mode.setMinimumSize(QSize(130, 30))
         self.pushButton_fluid_configuration_mode.setMaximumSize(QSize(140, 30))
-        self.pushButton_fluid_configuration_mode.setFont(font3)
+        self.pushButton_fluid_configuration_mode.setFont(font2)
         self.pushButton_fluid_configuration_mode.setStyleSheet(u"")
 
         self.gridLayout_18.addWidget(self.pushButton_fluid_configuration_mode, 9, 0, 1, 1)
 
-        self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_7 = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_18.addItem(self.verticalSpacer_7, 4, 0, 1, 1)
 
-        self.pushButton_load_composition = QPushButton(self.frame_middle)
-        self.pushButton_load_composition.setObjectName(u"pushButton_load_composition")
-        self.pushButton_load_composition.setMinimumSize(QSize(130, 30))
-        self.pushButton_load_composition.setMaximumSize(QSize(140, 30))
-        self.pushButton_load_composition.setFont(font3)
-        self.pushButton_load_composition.setStyleSheet(u"")
+        self.verticalSpacer_9 = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.gridLayout_18.addWidget(self.pushButton_load_composition, 8, 0, 1, 1)
+        self.gridLayout_18.addItem(self.verticalSpacer_9, 11, 0, 1, 1)
 
-        self.pushButton_remove_gas = QPushButton(self.frame_middle)
-        self.pushButton_remove_gas.setObjectName(u"pushButton_remove_gas")
-        self.pushButton_remove_gas.setMinimumSize(QSize(130, 30))
-        self.pushButton_remove_gas.setMaximumSize(QSize(140, 30))
-        self.pushButton_remove_gas.setFont(font3)
-        self.pushButton_remove_gas.setStyleSheet(u"")
+        self.verticalSpacer_8 = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.gridLayout_18.addWidget(self.pushButton_remove_gas, 6, 0, 1, 1)
+        self.gridLayout_18.addItem(self.verticalSpacer_8, 1, 0, 1, 1)
+
+        self.pushButton_reset_fluid = QPushButton(self.frame_middle)
+        self.pushButton_reset_fluid.setObjectName(u"pushButton_reset_fluid")
+        self.pushButton_reset_fluid.setMinimumSize(QSize(130, 30))
+        self.pushButton_reset_fluid.setMaximumSize(QSize(140, 30))
+        self.pushButton_reset_fluid.setFont(font2)
+        self.pushButton_reset_fluid.setStyleSheet(u"")
+
+        self.gridLayout_18.addWidget(self.pushButton_reset_fluid, 7, 0, 1, 1)
 
         self.label_title_remaining_fraction = QLabel(self.frame_middle)
         self.label_title_remaining_fraction.setObjectName(u"label_title_remaining_fraction")
@@ -175,39 +186,78 @@ class Ui_Dialog(object):
 
         self.gridLayout_18.addWidget(self.label_title_remaining_fraction, 2, 0, 1, 1)
 
-        self.pushButton_reset_fluid = QPushButton(self.frame_middle)
-        self.pushButton_reset_fluid.setObjectName(u"pushButton_reset_fluid")
-        self.pushButton_reset_fluid.setMinimumSize(QSize(130, 30))
-        self.pushButton_reset_fluid.setMaximumSize(QSize(140, 30))
-        self.pushButton_reset_fluid.setFont(font3)
-        self.pushButton_reset_fluid.setStyleSheet(u"")
+        self.pushButton_load_composition = QPushButton(self.frame_middle)
+        self.pushButton_load_composition.setObjectName(u"pushButton_load_composition")
+        self.pushButton_load_composition.setMinimumSize(QSize(130, 30))
+        self.pushButton_load_composition.setMaximumSize(QSize(140, 30))
+        self.pushButton_load_composition.setFont(font2)
+        self.pushButton_load_composition.setStyleSheet(u"")
 
-        self.gridLayout_18.addWidget(self.pushButton_reset_fluid, 7, 0, 1, 1)
+        self.gridLayout_18.addWidget(self.pushButton_load_composition, 8, 0, 1, 1)
+
+        self.pushButton_export_fluid_composition = QPushButton(self.frame_middle)
+        self.pushButton_export_fluid_composition.setObjectName(u"pushButton_export_fluid_composition")
+        self.pushButton_export_fluid_composition.setMinimumSize(QSize(130, 30))
+        self.pushButton_export_fluid_composition.setMaximumSize(QSize(140, 30))
+        self.pushButton_export_fluid_composition.setFont(font2)
+        self.pushButton_export_fluid_composition.setStyleSheet(u"")
+
+        self.gridLayout_18.addWidget(self.pushButton_export_fluid_composition, 10, 0, 1, 1)
 
 
         self.gridLayout_2.addWidget(self.frame_middle, 0, 1, 1, 1)
 
-        self.tableWidget_new_fluid = QTableWidget(self.scrollAreaWidgetContents)
-        if (self.tableWidget_new_fluid.columnCount() < 2):
-            self.tableWidget_new_fluid.setColumnCount(2)
-        __qtablewidgetitem = QTableWidgetItem()
-        self.tableWidget_new_fluid.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        self.tableWidget_new_fluid.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        self.tableWidget_new_fluid.setObjectName(u"tableWidget_new_fluid")
-        self.tableWidget_new_fluid.setMinimumSize(QSize(390, 0))
-        self.tableWidget_new_fluid.setMaximumSize(QSize(390, 16777215))
-        self.tableWidget_new_fluid.setFont(font1)
-        self.tableWidget_new_fluid.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
-        self.tableWidget_new_fluid.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked|QAbstractItemView.EditTrigger.EditKeyPressed)
-        self.tableWidget_new_fluid.setDragDropOverwriteMode(False)
-        self.tableWidget_new_fluid.setDragDropMode(QAbstractItemView.DragDropMode.DropOnly)
-        self.tableWidget_new_fluid.setAlternatingRowColors(False)
-        self.tableWidget_new_fluid.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectItems)
-        self.tableWidget_new_fluid.setSortingEnabled(True)
-        self.tableWidget_new_fluid.horizontalHeader().setStretchLastSection(True)
+        self.frame_refprop_fluids = QFrame(self.scrollAreaWidgetContents)
+        self.frame_refprop_fluids.setObjectName(u"frame_refprop_fluids")
+        self.frame_refprop_fluids.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_refprop_fluids.setFrameShadow(QFrame.Shadow.Plain)
+        self.frame_refprop_fluids.setLineWidth(0)
+        self.gridLayout_5 = QGridLayout(self.frame_refprop_fluids)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.frame_search_fluids = QFrame(self.frame_refprop_fluids)
+        self.frame_search_fluids.setObjectName(u"frame_search_fluids")
+        self.frame_search_fluids.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_search_fluids.setFrameShadow(QFrame.Shadow.Raised)
+        self.gridLayout_7 = QGridLayout(self.frame_search_fluids)
+        self.gridLayout_7.setObjectName(u"gridLayout_7")
+        self.lineEdit_search_fluid = QLineEdit(self.frame_search_fluids)
+        self.lineEdit_search_fluid.setObjectName(u"lineEdit_search_fluid")
 
-        self.gridLayout_2.addWidget(self.tableWidget_new_fluid, 0, 2, 1, 1)
+        self.gridLayout_7.addWidget(self.lineEdit_search_fluid, 0, 1, 1, 1)
+
+        self.label_seach_fluid = QLabel(self.frame_search_fluids)
+        self.label_seach_fluid.setObjectName(u"label_seach_fluid")
+        self.label_seach_fluid.setMinimumSize(QSize(0, 28))
+        self.label_seach_fluid.setMaximumSize(QSize(140, 28))
+        font5 = QFont()
+        font5.setPointSize(10)
+        font5.setKerning(False)
+        self.label_seach_fluid.setFont(font5)
+        self.label_seach_fluid.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_7.addWidget(self.label_seach_fluid, 0, 0, 1, 1)
+
+
+        self.gridLayout_5.addWidget(self.frame_search_fluids, 0, 0, 1, 1)
+
+        self.treeWidget_refprop_fluids = QTreeWidget(self.frame_refprop_fluids)
+        __qtreewidgetitem = QTreeWidgetItem()
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_refprop_fluids.setHeaderItem(__qtreewidgetitem)
+        self.treeWidget_refprop_fluids.setObjectName(u"treeWidget_refprop_fluids")
+        self.treeWidget_refprop_fluids.setMinimumSize(QSize(390, 0))
+        self.treeWidget_refprop_fluids.setMaximumSize(QSize(500, 16777215))
+        self.treeWidget_refprop_fluids.setFont(font1)
+        self.treeWidget_refprop_fluids.setStyleSheet(u"")
+        self.treeWidget_refprop_fluids.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.treeWidget_refprop_fluids.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustIgnored)
+        self.treeWidget_refprop_fluids.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)
+
+        self.gridLayout_5.addWidget(self.treeWidget_refprop_fluids, 1, 0, 1, 1)
+
+
+        self.gridLayout_2.addWidget(self.frame_refprop_fluids, 0, 0, 1, 1)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
@@ -235,9 +285,6 @@ class Ui_Dialog(object):
         self.label_5.setObjectName(u"label_5")
         self.label_5.setMinimumSize(QSize(0, 28))
         self.label_5.setMaximumSize(QSize(140, 28))
-        font5 = QFont()
-        font5.setPointSize(10)
-        font5.setKerning(False)
         self.label_5.setFont(font5)
         self.label_5.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -297,6 +344,7 @@ class Ui_Dialog(object):
         self.label_selected_fluid.setWordWrap(True)
         self.label_selected_fluid.setMargin(2)
         self.label_selected_fluid.setIndent(2)
+        self.label_selected_fluid.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByMouse|Qt.TextInteractionFlag.TextSelectableByKeyboard|Qt.TextInteractionFlag.TextSelectableByMouse)
 
         self.gridLayout_14.addWidget(self.label_selected_fluid, 2, 2, 1, 1)
 
@@ -366,20 +414,6 @@ class Ui_Dialog(object):
 
         self.gridLayout_15.addWidget(self.label_pressure, 2, 1, 1, 1)
 
-        self.comboBox_temperature_units = QComboBox(self.frame_10)
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
-        self.comboBox_temperature_units.setMinimumSize(QSize(100, 28))
-        self.comboBox_temperature_units.setMaximumSize(QSize(100, 28))
-        font10 = QFont()
-        font10.setFamilies([u"MS Shell Dlg 2"])
-        font10.setItalic(False)
-        self.comboBox_temperature_units.setFont(font10)
-
-        self.gridLayout_15.addWidget(self.comboBox_temperature_units, 1, 4, 1, 1)
-
         self.lineEdit_pressure_left = QLineEdit(self.frame_10)
         self.lineEdit_pressure_left.setObjectName(u"lineEdit_pressure_left")
         self.lineEdit_pressure_left.setEnabled(True)
@@ -420,6 +454,20 @@ class Ui_Dialog(object):
 
         self.gridLayout_15.addWidget(self.lineEdit_pressure_right, 2, 3, 1, 1)
 
+        self.comboBox_temperature_units = QComboBox(self.frame_10)
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
+        self.comboBox_temperature_units.setMinimumSize(QSize(100, 28))
+        self.comboBox_temperature_units.setMaximumSize(QSize(100, 28))
+        font10 = QFont()
+        font10.setFamilies([u"MS Shell Dlg 2"])
+        font10.setItalic(False)
+        self.comboBox_temperature_units.setFont(font10)
+
+        self.gridLayout_15.addWidget(self.comboBox_temperature_units, 1, 4, 1, 1)
+
         self.comboBox_pressure_units = QComboBox(self.frame_10)
         self.comboBox_pressure_units.addItem("")
         self.comboBox_pressure_units.addItem("")
@@ -458,7 +506,7 @@ class Ui_Dialog(object):
         self.spinBox_number_of_fluids.setObjectName(u"spinBox_number_of_fluids")
         self.spinBox_number_of_fluids.setMinimumSize(QSize(100, 28))
         self.spinBox_number_of_fluids.setMaximumSize(QSize(16777215, 28))
-        self.spinBox_number_of_fluids.setFont(font3)
+        self.spinBox_number_of_fluids.setFont(font2)
         self.spinBox_number_of_fluids.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.spinBox_number_of_fluids.setMinimum(1)
         self.spinBox_number_of_fluids.setMaximum(100)
@@ -515,7 +563,7 @@ class Ui_Dialog(object):
         self.comboBox_distribution_type.setObjectName(u"comboBox_distribution_type")
         self.comboBox_distribution_type.setMinimumSize(QSize(100, 28))
         self.comboBox_distribution_type.setMaximumSize(QSize(16777215, 28))
-        self.comboBox_distribution_type.setFont(font3)
+        self.comboBox_distribution_type.setFont(font2)
 
         self.gridLayout_6.addWidget(self.comboBox_distribution_type, 0, 5, 1, 1)
 
@@ -527,7 +575,7 @@ class Ui_Dialog(object):
         self.doubleSpinBox_decay_factor.setObjectName(u"doubleSpinBox_decay_factor")
         self.doubleSpinBox_decay_factor.setMinimumSize(QSize(100, 28))
         self.doubleSpinBox_decay_factor.setMaximumSize(QSize(16777215, 28))
-        self.doubleSpinBox_decay_factor.setFont(font3)
+        self.doubleSpinBox_decay_factor.setFont(font2)
         self.doubleSpinBox_decay_factor.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.doubleSpinBox_decay_factor.setDecimals(4)
         self.doubleSpinBox_decay_factor.setMaximum(0.900000000000000)
@@ -542,7 +590,7 @@ class Ui_Dialog(object):
         self.comboBox_color_scale.setObjectName(u"comboBox_color_scale")
         self.comboBox_color_scale.setMinimumSize(QSize(100, 28))
         self.comboBox_color_scale.setMaximumSize(QSize(16777215, 28))
-        self.comboBox_color_scale.setFont(font3)
+        self.comboBox_color_scale.setFont(font2)
 
         self.gridLayout_6.addWidget(self.comboBox_color_scale, 0, 9, 1, 1)
 
@@ -565,23 +613,23 @@ class Ui_Dialog(object):
         self.gridLayout_4.setSpacing(0)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.pushButton_exit = QPushButton(self.frame_buttons)
-        self.pushButton_exit.setObjectName(u"pushButton_exit")
-        self.pushButton_exit.setMinimumSize(QSize(160, 30))
-        self.pushButton_exit.setMaximumSize(QSize(160, 30))
-        self.pushButton_exit.setFont(font3)
-        self.pushButton_exit.setStyleSheet(u"")
+        self.pushButton_cancel = QPushButton(self.frame_buttons)
+        self.pushButton_cancel.setObjectName(u"pushButton_cancel")
+        self.pushButton_cancel.setMinimumSize(QSize(160, 30))
+        self.pushButton_cancel.setMaximumSize(QSize(160, 30))
+        self.pushButton_cancel.setFont(font2)
+        self.pushButton_cancel.setStyleSheet(u"")
 
-        self.gridLayout_4.addWidget(self.pushButton_exit, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.pushButton_cancel, 0, 0, 1, 1)
 
-        self.pushButton_confirm = QPushButton(self.frame_buttons)
-        self.pushButton_confirm.setObjectName(u"pushButton_confirm")
-        self.pushButton_confirm.setMinimumSize(QSize(160, 30))
-        self.pushButton_confirm.setMaximumSize(QSize(160, 30))
-        self.pushButton_confirm.setFont(font3)
-        self.pushButton_confirm.setStyleSheet(u"")
+        self.pushButton_get_fluid_properties = QPushButton(self.frame_buttons)
+        self.pushButton_get_fluid_properties.setObjectName(u"pushButton_get_fluid_properties")
+        self.pushButton_get_fluid_properties.setMinimumSize(QSize(160, 30))
+        self.pushButton_get_fluid_properties.setMaximumSize(QSize(160, 30))
+        self.pushButton_get_fluid_properties.setFont(font2)
+        self.pushButton_get_fluid_properties.setStyleSheet(u"")
 
-        self.gridLayout_4.addWidget(self.pushButton_confirm, 0, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.pushButton_get_fluid_properties, 0, 1, 1, 1)
 
 
         self.gridLayout_11.addWidget(self.frame_buttons, 2, 0, 1, 1)
@@ -590,11 +638,9 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_temperature_left, self.lineEdit_temperature_right)
         QWidget.setTabOrder(self.lineEdit_temperature_right, self.lineEdit_pressure_left)
         QWidget.setTabOrder(self.lineEdit_pressure_left, self.lineEdit_pressure_right)
-        QWidget.setTabOrder(self.lineEdit_pressure_right, self.comboBox_temperature_units)
-        QWidget.setTabOrder(self.comboBox_temperature_units, self.pushButton_confirm)
-        QWidget.setTabOrder(self.pushButton_confirm, self.pushButton_exit)
-        QWidget.setTabOrder(self.pushButton_exit, self.treeWidget_refprop_fluids)
-        QWidget.setTabOrder(self.treeWidget_refprop_fluids, self.tableWidget_new_fluid)
+        QWidget.setTabOrder(self.lineEdit_pressure_right, self.pushButton_get_fluid_properties)
+        QWidget.setTabOrder(self.pushButton_get_fluid_properties, self.pushButton_cancel)
+        QWidget.setTabOrder(self.pushButton_cancel, self.tableWidget_new_fluid)
 
         self.retranslateUi(Dialog)
 
@@ -607,23 +653,25 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Set fluid mixture composition", None))
         self.label_title.setText(QCoreApplication.translate("Dialog", u"Set the fluid composition", None))
+        ___qtablewidgetitem = self.tableWidget_new_fluid.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("Dialog", u"Fluid name", None))
+        ___qtablewidgetitem1 = self.tableWidget_new_fluid.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Dialog", u"Molar fraction [%]", None))
+        self.pushButton_add_gas.setText(QCoreApplication.translate("Dialog", u"Add gas", None))
+        self.pushButton_remove_gas.setText(QCoreApplication.translate("Dialog", u"Remove gas", None))
+        self.label_remaining_composition.setText("")
+        self.pushButton_fluid_configuration_mode.setText(QCoreApplication.translate("Dialog", u"Single fluid mode", None))
+        self.pushButton_reset_fluid.setText(QCoreApplication.translate("Dialog", u"Reset fluid", None))
+        self.label_title_remaining_fraction.setText(QCoreApplication.translate("Dialog", u"Remaining molar \n"
+"fraction [%]", None))
+        self.pushButton_load_composition.setText(QCoreApplication.translate("Dialog", u"Load composition", None))
+        self.pushButton_export_fluid_composition.setText(QCoreApplication.translate("Dialog", u"Export compositon", None))
+        self.label_seach_fluid.setText(QCoreApplication.translate("Dialog", u"Search fluid:", None))
         ___qtreewidgetitem = self.treeWidget_refprop_fluids.headerItem()
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Fluids from refprop library", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_refprop_fluids.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>To add a new fluid to the mixture, you can either double-click or drag and drop.</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
-        self.label_remaining_composition.setText("")
-        self.pushButton_add_gas.setText(QCoreApplication.translate("Dialog", u"Add gas", None))
-        self.pushButton_fluid_configuration_mode.setText(QCoreApplication.translate("Dialog", u"Single fluid mode", None))
-        self.pushButton_load_composition.setText(QCoreApplication.translate("Dialog", u"Load composition", None))
-        self.pushButton_remove_gas.setText(QCoreApplication.translate("Dialog", u"Remove gas", None))
-        self.label_title_remaining_fraction.setText(QCoreApplication.translate("Dialog", u"Remaining molar \n"
-"fraction [%]", None))
-        self.pushButton_reset_fluid.setText(QCoreApplication.translate("Dialog", u"Reset fluid", None))
-        ___qtablewidgetitem = self.tableWidget_new_fluid.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Dialog", u"Fluid name", None))
-        ___qtablewidgetitem1 = self.tableWidget_new_fluid.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Dialog", u"Molar fraction [%]", None))
         self.label_5.setText(QCoreApplication.translate("Dialog", u"Fluid name:", None))
 #if QT_CONFIG(whatsthis)
         self.lineEdit_fluid_name.setWhatsThis(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Insert a fluid name</p></body></html>", None))
@@ -636,14 +684,14 @@ class Ui_Dialog(object):
         self.label_temperature.setText(QCoreApplication.translate("Dialog", u"Temperature:", None))
         self.lineEdit_temperature_right.setText("")
         self.label_pressure.setText(QCoreApplication.translate("Dialog", u"Pressure:", None))
-        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
-        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
-        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
-
         self.lineEdit_pressure_left.setText("")
         self.label_thermostate_left.setText(QCoreApplication.translate("Dialog", u"Suction", None))
         self.label_thermostate_right.setText(QCoreApplication.translate("Dialog", u"Discharge", None))
         self.lineEdit_pressure_right.setText("")
+        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
+        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
+        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
+
         self.comboBox_pressure_units.setItemText(0, QCoreApplication.translate("Dialog", u"Pa (a)", None))
         self.comboBox_pressure_units.setItemText(1, QCoreApplication.translate("Dialog", u"kPa (a)", None))
         self.comboBox_pressure_units.setItemText(2, QCoreApplication.translate("Dialog", u"atm (a)", None))
@@ -672,8 +720,8 @@ class Ui_Dialog(object):
         self.comboBox_color_scale.setItemText(0, QCoreApplication.translate("Dialog", u"Red-to-blue", None))
         self.comboBox_color_scale.setItemText(1, QCoreApplication.translate("Dialog", u"Blue-to-red", None))
 
-        self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
-        self.pushButton_confirm.setText(QCoreApplication.translate("Dialog", u"Get fluid properties", None))
+        self.pushButton_cancel.setText(QCoreApplication.translate("Dialog", u"Cancel", None))
+        self.pushButton_get_fluid_properties.setText(QCoreApplication.translate("Dialog", u"Get fluid properties", None))
     # retranslateUi
 
 
@@ -691,17 +739,24 @@ class SetFluidCompositionInput_UI(QDialog, Ui_Dialog):
                             - scrollArea: QScrollArea
                                 - scrollAreaWidgetContents: QWidget
                                     - (Layout): QGridLayout
-                                            - treeWidget_refprop_fluids: QTreeWidget
+                                            - tableWidget_new_fluid: QTableWidget
                                             - frame_middle: QFrame
                                                 - (Layout): QGridLayout
-                                                        - label_remaining_composition: QLabel
                                                         - pushButton_add_gas: QPushButton
-                                                        - pushButton_fluid_configuration_mode: QPushButton
-                                                        - pushButton_load_composition: QPushButton
                                                         - pushButton_remove_gas: QPushButton
-                                                        - label_title_remaining_fraction: QLabel
+                                                        - label_remaining_composition: QLabel
+                                                        - pushButton_fluid_configuration_mode: QPushButton
                                                         - pushButton_reset_fluid: QPushButton
-                                            - tableWidget_new_fluid: QTableWidget
+                                                        - label_title_remaining_fraction: QLabel
+                                                        - pushButton_load_composition: QPushButton
+                                                        - pushButton_export_fluid_composition: QPushButton
+                                            - frame_refprop_fluids: QFrame
+                                                - (Layout): QGridLayout
+                                                        - frame_search_fluids: QFrame
+                                                            - (Layout): QGridLayout
+                                                                    - lineEdit_search_fluid: QLineEdit
+                                                                    - label_seach_fluid: QLabel
+                                                        - treeWidget_refprop_fluids: QTreeWidget
                             - frame_states: QFrame
                                 - (Layout): QGridLayout
                                         - frame_5: QFrame
@@ -717,11 +772,11 @@ class SetFluidCompositionInput_UI(QDialog, Ui_Dialog):
                                                     - label_temperature: QLabel
                                                     - lineEdit_temperature_right: QLineEdit
                                                     - label_pressure: QLabel
-                                                    - comboBox_temperature_units: QComboBox
                                                     - lineEdit_pressure_left: QLineEdit
                                                     - label_thermostate_left: QLabel
                                                     - label_thermostate_right: QLabel
                                                     - lineEdit_pressure_right: QLineEdit
+                                                    - comboBox_temperature_units: QComboBox
                                                     - comboBox_pressure_units: QComboBox
                                         - frame_multiple_fluids: QFrame
                                             - (Layout): QGridLayout
@@ -735,8 +790,8 @@ class SetFluidCompositionInput_UI(QDialog, Ui_Dialog):
                                                     - comboBox_color_scale: QComboBox
                 - frame_buttons: QFrame
                     - (Layout): QGridLayout
-                            - pushButton_exit: QPushButton
-                            - pushButton_confirm: QPushButton
+                            - pushButton_cancel: QPushButton
+                            - pushButton_get_fluid_properties: QPushButton
     """
 
     def __init__(self, *args, **kwargs):

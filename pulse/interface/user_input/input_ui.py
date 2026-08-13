@@ -1,5 +1,6 @@
 from pulse.interface.user_input.model.setup.material.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
+from pulse.interface.user_input.model.setup.mesher_setup_input import MesherSetupInput
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
@@ -34,19 +35,19 @@ from pulse.interface.user_input.model.criteria.reciprocating_pump_pulsation_crit
 from pulse.interface.user_input.model.criteria.reciprocating_pump_inlet_pressure_criteria import ReciprocatingPumpInletPressureCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
 #
-from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
-from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
+# from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
+# from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
 from pulse.interface.user_input.plots.structural.plot_nodal_results_for_harmonic_analysis import PlotNodalResultsForHarmonicAnalysis
 from pulse.interface.user_input.plots.structural.plot_nodal_results_for_static_analysis import PlotNodalResultsForStaticAnalysis
 from pulse.interface.user_input.plots.structural.plot_reactions_for_harmonic_analysis import PlotReactionsForHarmonicAnalysis
 from pulse.interface.user_input.plots.structural.plot_reactions_for_static_analysis import PlotReactionsForStaticAnalysis
-from pulse.interface.user_input.plots.structural.plot_stresses_field_for_harmonic_analysis import PlotStressesFieldForHarmonicAnalysis
-from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressesFieldForStaticAnalysis
+# from pulse.interface.user_input.plots.structural.plot_stresses_field_for_harmonic_analysis import PlotStressesFieldForHarmonicAnalysis
+# from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressesFieldForStaticAnalysis
 from pulse.interface.user_input.plots.structural.plot_stresses_for_harmonic_analysis import PlotStressesForHarmonicAnalysis
 from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 #
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
+# from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
+# from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response import PlotAcousticFrequencyResponse
 from pulse.interface.user_input.plots.acoustic.acoustic_pressure_waveform_inputs import AcousticPressureWaveformInputs
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunction
@@ -153,6 +154,9 @@ class InputUi:
 
     def set_fluid(self):
         self.process_input(SetFluidInput)
+    
+    def mesh_setup(self):
+        return self.process_input(MesherSetupInput)
 
     def set_fluid_composition(self):
         self.process_input(SetFluidCompositionInput)
@@ -193,35 +197,6 @@ class InputUi:
     def pulsation_damper_editor(self, device_to_delete=None):
         self.process_input(PulsationDamperEditorInputs, device_to_delete=device_to_delete)
 
-    def plot_structural_mode_shapes(self):
-        self.project.set_min_max_type_stresses("", "", "")
-        solution = self.project.get_structural_solution()
-        if app().project.analysis_id in [
-            AnalysisID.STRUCTURAL_MODAL, 
-            AnalysisID.ACOUSTIC_MODAL
-            ]:
-
-            if solution is None:
-                return None
-
-            app().main_window.results_widget.show_empty()
-            return self.process_input(PlotStructuralModeShape)      
-
-    def plot_displacement_field(self):
-        self.project.set_min_max_type_stresses("", "", "")
-        solution = self.project.get_structural_solution()
-        if app().project.analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC,
-            AnalysisID.COUPLED_HARMONIC,
-            AnalysisID.STRUCTURAL_STATIC,
-            ]:
-
-            if solution is None:
-                return None
-
-            app().main_window.results_widget.show_empty()
-            return self.process_input(PlotNodalResultsFieldForHarmonicAnalysis)
-
     def plot_structural_frequency_response(self):
         if app().project.analysis_id in [
             AnalysisID.STRUCTURAL_HARMONIC,
@@ -229,8 +204,7 @@ class InputUi:
             AnalysisID.STRUCTURAL_STATIC,
             ]:
 
-            solution = self.project.get_structural_solution()
-            if solution is None:
+            if self.project.model.structural_solution is None:
                 return None
 
             if app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
@@ -253,31 +227,14 @@ class InputUi:
             app().main_window.results_widget.show_empty()
             return self.process_input(PlotReactionsForStaticAnalysis)  
 
-    def plot_stress_field(self):
-        if app().project.analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC,
-            AnalysisID.COUPLED_HARMONIC,
-            AnalysisID.STRUCTURAL_STATIC,
-            ]:
-
-            solution = self.project.get_structural_solution()
-            if solution is None:
-                return
-
-            elif app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
-                return self.process_input(PlotStressesFieldForStaticAnalysis)
-
-            return self.process_input(PlotStressesFieldForHarmonicAnalysis)
-
     def plot_stress_frequency_response(self):
-        solution = self.project.get_structural_solution()
         if app().project.analysis_id in [
             AnalysisID.STRUCTURAL_HARMONIC,
             AnalysisID.COUPLED_HARMONIC,
             AnalysisID.STRUCTURAL_STATIC,
             ]:
 
-            if solution is None:
+            if self.project.model.structural_solution is None:
                 return
 
             elif app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
@@ -287,41 +244,13 @@ class InputUi:
             app().main_window.results_widget.show_empty()
             return self.process_input(PlotStressesForHarmonicAnalysis)     
 
-    def plot_acoustic_mode_shapes(self):
-        solution = self.project.get_acoustic_solution()
-        if app().project.analysis_id in [
-            AnalysisID.STRUCTURAL_MODAL, 
-            AnalysisID.ACOUSTIC_MODAL,
-            ]:
-
-            if solution is None:
-                return None
-
-            app().main_window.results_widget.show_empty()
-            return self.process_input(PlotAcousticModeShape)           
-
-    def plot_acoustic_pressure_field(self):
-        self.project.set_min_max_type_stresses("", "", "")
-        solution = self.project.get_acoustic_solution()
-        if app().project.analysis_id in [
-            AnalysisID.ACOUSTIC_HARMONIC, 
-            AnalysisID.COUPLED_HARMONIC
-            ]:
-
-            if solution is None:
-                return None
-
-            app().main_window.results_widget.show_empty()
-            return self.process_input(PlotAcousticPressureField)
-
     def plot_acoustic_frequency_response(self):
         if app().project.analysis_id in [
             AnalysisID.ACOUSTIC_HARMONIC, 
             AnalysisID.COUPLED_HARMONIC,
             ]:
 
-            solution = self.project.get_acoustic_solution()
-            if solution is None:
+            if self.project.model.acoustic_solution is None:
                 return None
 
             app().main_window.results_widget.show_empty()
@@ -333,8 +262,7 @@ class InputUi:
             AnalysisID.COUPLED_HARMONIC
             ]:
 
-            solution = self.project.get_acoustic_solution()
-            if solution is None:
+            if self.project.model.acoustic_solution is None:
                 return None
 
             app().main_window.results_widget.show_empty()
@@ -346,8 +274,7 @@ class InputUi:
             AnalysisID.COUPLED_HARMONIC
             ]:
 
-            solution = self.project.get_acoustic_solution()
-            if solution is None:
+            if self.project.model.acoustic_solution is None:
                 return None
 
             app().main_window.results_widget.show_empty()
@@ -359,8 +286,7 @@ class InputUi:
             AnalysisID.COUPLED_HARMONIC
             ]:
 
-            solution = self.project.get_acoustic_solution()
-            if solution is None:
+            if self.project.model.acoustic_solution is None:
                 return None
 
             return self.process_input(PlotAcousticDeltaPressure)
@@ -371,8 +297,7 @@ class InputUi:
             AnalysisID.COUPLED_HARMONIC
             ]:
 
-            solution = self.project.get_acoustic_solution()
-            if solution is None:
+            if self.project.model.acoustic_solution is None:
                 return None
 
             return self.process_input(PlotTransmissionLoss)

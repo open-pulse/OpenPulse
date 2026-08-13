@@ -30,28 +30,12 @@ class UserInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self._config_window()
-        self._paint_icons()
-
-        app().main_window.theme_changed.connect(self._paint_icons)
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _paint_icons(self):
-        theme = app().main_window.config.user_preferences.interface_theme
-
-        if theme == "dark":
-            icon_color = QColor(color_names.BLUE_6.to_hex())
-
-        elif theme == "light":
-            icon_color = QColor(color_names.BLUE_4.to_hex())
-
-        widgets = self.findChildren(QWidget)
-
-        icons.change_icon_color_for_widgets(widgets, icon_color)
     
     def _check_table_frequency_vector(self, frequencies: np.ndarray):
         if len(frequencies) == 1:
@@ -74,9 +58,7 @@ class UserInput(QDialog):
 
             else:
 
-                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
-                if last_path is None:
-                    last_path = str(Path().home())
+                last_folder_path = app().main_window.config.get_last_folder_for("imported_table_folder", default=Path().home())
 
                 caption = f"Choose a table to import the {bc_label}"
                 if dof_label != "":
@@ -84,7 +66,7 @@ class UserInput(QDialog):
                 
                 extensions = ["xls", "xlsx", "csv", "dat", "txt"]
 
-                table_path = FileDialogService.open_file(extensions, caption, last_path)
+                table_path = FileDialogService.open_file(extensions, caption, last_folder_path)
 
                 if table_path is None:
                     return None, None
@@ -180,6 +162,8 @@ class UserInput(QDialog):
     def update_analysis_setup_in_file(self, frequencies: np.ndarray):
 
         analysis_setup = app().project.file.read_analysis_setup_from_file()
+        if not isinstance(analysis_setup, dict):
+            analysis_setup = dict()
 
         analysis_setup.update(
             {

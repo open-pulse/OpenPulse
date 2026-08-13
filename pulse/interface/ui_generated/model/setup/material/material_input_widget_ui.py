@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'material_input_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -18,6 +18,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QGridLayout,
     QHeaderView, QPushButton, QSizePolicy, QSpacerItem,
     QTableWidget, QTableWidgetItem, QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -174,8 +176,7 @@ class Ui_Form(object):
         self.pushButton_duplicate.setMaximumSize(QSize(28, 28))
         self.pushButton_duplicate.setFont(font1)
         self.pushButton_duplicate.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/mpltoolbar/copy_icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/copy_icon.png")
         self.pushButton_duplicate.setIcon(icon)
         self.pushButton_duplicate.setIconSize(QSize(18, 18))
 

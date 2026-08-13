@@ -1,4 +1,3 @@
-
 import logging
 import os
 from functools import partial
@@ -8,16 +7,10 @@ from sys import argv
 
 # from time import time
 from molde import stylesheets
-from molde.colors import color_names
 from molde.render_widgets import CommonRenderWidget
 from PySide6.QtCore import QEvent, QPoint, Qt, Signal
-from PySide6.QtGui import QAction, QCloseEvent, QColor, QCursor
-from PySide6.QtWidgets import (
-    QAbstractButton,
-    QApplication,
-    QDialog,
-    QMessageBox,
-)
+from PySide6.QtGui import QAction, QCloseEvent, QCursor
+from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QToolBar, QWidget
 
 from pulse import (
     QSS_DIR,
@@ -26,6 +19,7 @@ from pulse import (
     USER_PATH,
     app,
 )
+from pulse.interface.data.icons.theme_resources import set_icon_theme
 from pulse.interface.formatters import icons
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.handler.pcf_file_io import PCFFileIO
@@ -33,26 +27,18 @@ from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
-from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
-from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
+from pulse.interface.toolbars.view_toolbar import ViewToolbar
 from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
 from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
-from pulse.interface.user_input.data_handler.file_dialog_service import (
-    FileDialogService,
-)
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.input_ui import InputUi
-from pulse.interface.user_input.model.geometry.geometry_designer_widget import (
-    GeometryDesignerWidget,
-)
+from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
-from pulse.interface.user_input.project.save_project_data_selector import (
-    SaveProjectDataSelector,
-)
+from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 from pulse.interface.viewer_3d.render_widgets import (
     GeometryRenderWidget,
@@ -60,8 +46,8 @@ from pulse.interface.viewer_3d.render_widgets import (
     ResultsRenderWidget,
 )
 from pulse.interface.welcome_widget import WelcomeWidget
-from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter
-
+from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter, block_signals
+from pulse.model.data_classes.project_setup_data_classes import MesherSetup
 
 class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
@@ -77,11 +63,11 @@ class MainWindow(MainWindow_UI):
         self.selected_elements = set()
 
         self.visualization_filter = VisualizationFilter.all_true()
-        self.selection_filter = SelectionFilter.all_false()
+        self.selection_filter = SelectionFilter.all_true()
         self.filter_tab_scroll_by_wheel()
-        
+
         self.ui_dir = UI_DIR
-        self.config= app().config
+        self.config = app().config
         self.project = app().project
 
         self._initialize()
@@ -103,11 +89,13 @@ class MainWindow(MainWindow_UI):
 
         self.project_data_modified = False
 
+        self.user_path = Path().home()
+
     def _load_stylesheets(self):
         return
         stylesheets = list()
         common_dir = QSS_DIR / "common_theme"
-        
+
         if self.interface_theme == "light":
             theme_dir = QSS_DIR / "light_theme"
         elif self.interface_theme == "dark":
@@ -131,14 +119,14 @@ class MainWindow(MainWindow_UI):
         self.setWindowIcon(self.pulse_icon)
 
     def _connect_actions(self):
-        '''
+        """
         Instead of connecting every action manually, one by one,
         this function loops through every action and connects it
         to a function ending with "_callback".
 
-        For example an action named "action_new" will be connected to 
+        For example an action named "action_new" will be connected to
         the function named "action_new_callback" if it exists.
-        '''
+        """
         for action in self.findChildren(QAction):
             function_name = action.objectName() + "_callback"
             function_exists = hasattr(self, function_name)
@@ -152,7 +140,7 @@ class MainWindow(MainWindow_UI):
         self.selection_changed.connect(self.selection_changed_callback)
 
     def disable_workspace_selector_and_geometry_editor(self, _bool):
-        #TODO: improve as soon as possible
+        # TODO: improve as soon as possible
         self.action_results_workspace.setDisabled(_bool)
         self.action_plot_geometry_editor.setDisabled(_bool)
         self.action_export_geometry.setDisabled(_bool)
@@ -181,7 +169,7 @@ class MainWindow(MainWindow_UI):
         self.setup_widgets_stack.addWidget(self.results_viewer_widget)
 
         self.splitter.setSizes([100, 400])
-        self.splitter.widget(0).setMinimumWidth(360)
+        self.splitter.widget(0).setMinimumWidth(420)
         self._update_visualization()
 
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
@@ -223,30 +211,54 @@ class MainWindow(MainWindow_UI):
 
         if not self.is_temporary_folder_empty():
             self.recovery_dialog()
-        
+
         else:
             self.try_to_open_argv_path()
-    
+
+    def update_toolbars_stylesheets(self):
+        if self.analysis_toolbar.styleSheet() == "":
+            style_sheet = self.get_toolbars_stylesheet()
+            self.analysis_toolbar.setStyleSheet(style_sheet)
+            self.main_toolbar.setStyleSheet(style_sheet)
+            self.view_toolbar.setStyleSheet(style_sheet)
+            self.workspaces_toolbar.setStyleSheet(style_sheet)
+            return
+
+        self.analysis_toolbar.setStyleSheet("")
+        self.main_toolbar.setStyleSheet("")
+        self.view_toolbar.setStyleSheet("")
+        self.workspaces_toolbar.setStyleSheet("")
+
+    def get_toolbars_stylesheet(self):
+        style_sheet = """
+            QToolBar {
+                border-style: solid;
+                border-width: 0.5px;
+                border-color: #888888;
+            }
+            """
+        return style_sheet
+
     def try_to_open_argv_path(self):
-        '''
+        """
         Check every argument passed in the command line and try to open it if it is a valid file.
-        '''
+        """
 
         if len(argv) <= 1:
             return
-        
+
         for arg in argv[1:]:
             path = Path(arg)
-            
+
             if not path.is_file():
                 continue
-            
+
             if not path.exists():
                 continue
-            
+
             if path.suffix == ".pulse":
                 self.open_project(path)
-                break        
+                break
 
     def create_temporary_folder(self):
         create_new_folder(USER_PATH, "temp_pulse")
@@ -266,7 +278,7 @@ class MainWindow(MainWindow_UI):
             if os.listdir(TEMP_PROJECT_DIR):
                 return False
         return True
-    
+
     def filter_tab_scroll_by_wheel(self):
         from PySide6.QtCore import QEvent, QObject
         from PySide6.QtWidgets import QTabBar
@@ -280,18 +292,13 @@ class MainWindow(MainWindow_UI):
 
         filter = Filter(self)
         self.installEventFilter(filter)
-    
+
     def recovery_dialog(self):
 
         caption = "The recovery project data has been detected in the application backup files. "
         caption += "Would you like to try to recover the last project files?"
 
-        obj = QMessageBox.question(   
-                                    self, 
-                                    "Project recovery", 
-                                    caption, 
-                                    QMessageBox.Yes | QMessageBox.No
-                                  )
+        obj = QMessageBox.question(self, "Project recovery", caption, QMessageBox.Yes | QMessageBox.No)
 
         if obj == QMessageBox.Yes:
             self.open_project()
@@ -308,13 +315,11 @@ class MainWindow(MainWindow_UI):
 
     def export_geometry(self):
 
-        last_path = self.config.get_last_folder_for("exported_geometry_folder")
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = self.config.get_last_folder_for("exported_geometry_folder", default=self.user_path)
 
         extensions = ["step"]
-        path = FileDialogService.save_file(extensions, "Export geometry file", last_path)
-    
+        path = FileDialogService.save_file(extensions, "Export geometry file", last_folder_path)
+
         if path is None:
             return
 
@@ -323,11 +328,11 @@ class MainWindow(MainWindow_UI):
 
     # public
     def update_plots(self, reset_camera=True):
-        self.model_setup_widget.model_setup_items.update_items_apperence()
         self.project.model.enhance_pipe_sections_appearance()
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)
         self.results_widget.update_plot(reset_camera)
+        self.model_setup_widget.model_setup_items.update_items_appearence()
 
     def selection_changed_callback(self):
         # TODO: implement something useful
@@ -365,10 +370,10 @@ class MainWindow(MainWindow_UI):
             self.selected_elements = set(elements)
 
         self.selection_changed.emit()
-    
+
     def clear_selection(self):
         self.set_selection()
-    
+
     def list_selected_nodes(self) -> list[int]:
         return list(self.selected_nodes)
 
@@ -392,40 +397,48 @@ class MainWindow(MainWindow_UI):
         if self.action_results_workspace.isChecked():
             return
         self.action_results_workspace.trigger()
-    
+
     def configure_welcome_widget(self):
         self.render_widgets_stack.setCurrentWidget(self.welcome_widget)
         self.setup_widgets_stack.setVisible(False)
 
-        self.analysis_toolbar.setDisabled(True)
-        self.mesh_toolbar.setDisabled(True)
-        self.tool_bar.setDisabled(True)
-        self.workspaces_toolbar.setDisabled(True)
-        self.animation_toolbar.setDisabled(True)
+        self.analysis_toolbar.setVisible(False)
+        self.main_toolbar.setVisible(False)
+        self.workspaces_toolbar.setVisible(False)
+        self.view_toolbar.setVisible(False)
 
     def plot_lines(self):
         self._configure_visualization(points=True, lines=True)
 
     def plot_lines_with_cross_sections(self):
         self._configure_visualization(
-            points=True, lines=True, tubes=True,
-            acoustic_symbols=True, structural_symbols=True,
+            points=True,
+            lines=True,
+            tubes=True,
+            acoustic_symbols=True,
+            structural_symbols=True,
         )
 
     def plot_mesh(self):
         self._configure_visualization(
-            nodes=True, lines=True, tubes=True,
-            acoustic_symbols=True, structural_symbols=True,
+            nodes=True,
+            lines=True,
+            tubes=True,
+            acoustic_symbols=True,
+            structural_symbols=True,
         )
-    
+
     def plot_geometry_points(self):
         self._configure_visualization(
-            points=True, lines=True, tubes=True,
-            acoustic_symbols=True, structural_symbols=True,
-        )    
+            points=True,
+            lines=True,
+            tubes=True,
+            acoustic_symbols=True,
+            structural_symbols=True,
+        )
 
     def plot_results(self):
-        self._configure_visualization(tubes=True)  
+        self._configure_visualization(tubes=True)
 
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
@@ -434,7 +447,7 @@ class MainWindow(MainWindow_UI):
         self.project.reset_solutions()
         self.project.file.remove_results_data_from_project_file()
 
-        self.analysis_toolbar.pushButton_reset_solution.setDisabled(True)
+        self.analysis_toolbar.reset_solution_action.setDisabled(True)
         self.project_data_modified = True
         self.results_widget.show_empty()
         self.use_model_setup_workspace()
@@ -442,16 +455,16 @@ class MainWindow(MainWindow_UI):
 
     def set_window_title(self, msg=""):
         title = "OpenPulse"
-        if (msg != ""):
+        if msg != "":
             title += " - " + msg
-        self.setWindowTitle(title) 
+        self.setWindowTitle(title)
 
     def initial_project_action(self, finalized):
 
         # t0 = time()
-        self.analysis_toolbar.setEnabled(False)
         self.project.none_project_action = False
         self.update_export_geometry_file_access()
+        self.analysis_toolbar.setEnabled(False)
         self.model_and_analysis_items.modify_model_setup_items_access(True)
 
         if finalized:
@@ -462,10 +475,11 @@ class MainWindow(MainWindow_UI):
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
                 # print(f"initial_project_action: {round(dt, 6)} s")
-                return True
 
             return True
 
+        self.analysis_toolbar.setEnabled(True)
+        self.model_and_analysis_items.modify_model_setup_items_access(False)
         self.project.none_project_action = True
         return False
 
@@ -486,7 +500,7 @@ class MainWindow(MainWindow_UI):
         for path in self.config.get_recent_files():
             if not path.exists():
                 continue
-    
+
             import_action = QAction(path.parent.name + "/" + path.name)
             import_action.triggered.connect(partial(self.open_project, path))
             self.menu_recent.addAction(import_action)
@@ -498,29 +512,64 @@ class MainWindow(MainWindow_UI):
     def _configure_visualization(self, *args, **kwargs):
         kwargs.setdefault("color_mode", self.visualization_filter.color_mode)
 
-        self.visualization_filter = VisualizationFilter(*args, **kwargs)
-        self.action_show_geometry_data.setChecked(self.visualization_filter.points)
-        self.action_show_mesh_data.setChecked(self.visualization_filter.nodes)
-        self.action_show_lines.setChecked(self.visualization_filter.lines)
-        self.action_show_tubes.setChecked(self.visualization_filter.tubes)
-        symbols = self.visualization_filter.acoustic_symbols | self.visualization_filter.structural_symbols
-        self.action_show_symbols.setChecked(symbols)
+        if visualization_filter := self.get_current_visualization_filter():
+            self.apply_visualization_filter(visualization_filter)
+
         self.visualization_changed.emit()
         self._update_visualization()
 
     def _update_visualization(self):
-        symbols = self.action_show_symbols.isChecked()
-        self.visualization_filter.nodes = self.action_show_mesh_data.isChecked()
-        self.visualization_filter.points = self.action_show_geometry_data.isChecked()
-        self.visualization_filter.tubes = self.action_show_tubes.isChecked()
-        self.visualization_filter.lines = self.action_show_lines.isChecked()
-        self.visualization_filter.transparent = self.action_show_transparent.isChecked()
-        self.visualization_filter.acoustic_symbols = symbols
-        self.visualization_filter.structural_symbols = symbols
-        self.selection_filter.nodes = self.visualization_filter.nodes | self.visualization_filter.points
-        self.selection_filter.elements = self.visualization_filter.nodes
-        self.selection_filter.lines = not self.selection_filter.elements
+        if visualization_filter := self.get_current_visualization_filter():
+            self.update_visualization_filter(visualization_filter)
+
+        if selection_filter := self.get_current_selection_filter():
+            self.update_selection_filter(selection_filter)
+
         self.visualization_changed.emit()
+
+    def get_current_render_widget(self) -> CommonRenderWidget | None:
+        return self.render_widgets_stack.currentWidget()
+
+    def get_current_setup_widget(self) -> QWidget | None:
+        return self.setup_widgets_stack.currentWidget()
+
+    def get_current_visualization_filter(self) -> VisualizationFilter | None:
+        render_widget = self.get_current_render_widget()
+        if not hasattr(render_widget, "visualization_filter"):
+            return None
+        return render_widget.visualization_filter
+
+    def get_current_selection_filter(self) -> SelectionFilter | None:
+        render_widget = self.get_current_render_widget()
+        if not hasattr(render_widget, "selection_filter"):
+            return None
+        return render_widget.selection_filter
+
+    def apply_visualization_filter(self, filter: VisualizationFilter):
+        with block_signals(self):
+            self.action_show_geometry_data.setChecked(filter.points)
+            self.action_show_mesh_data.setChecked(filter.nodes)
+            self.action_show_lines.setChecked(filter.lines)
+            self.action_show_tubes.setChecked(filter.tubes)
+            self.action_show_symbols.setChecked(filter.acoustic_symbols | filter.structural_symbols)
+
+    def update_visualization_filter(self, filter: VisualizationFilter):
+        filter.nodes = self.action_show_mesh_data.isChecked()
+        filter.points = self.action_show_geometry_data.isChecked()
+        filter.tubes = self.action_show_tubes.isChecked()
+        filter.lines = self.action_show_lines.isChecked()
+        filter.transparent = self.action_show_transparent.isChecked()
+        filter.acoustic_symbols = self.action_show_symbols.isChecked()
+        filter.structural_symbols = self.action_show_symbols.isChecked()
+
+    def update_selection_filter(self, filter: SelectionFilter):
+        filter.nodes = self.action_show_mesh_data.isChecked() | self.action_show_geometry_data.isChecked()
+        filter.elements = self.action_show_mesh_data.isChecked()
+        filter.lines = not self.action_show_mesh_data.isChecked()
+
+    def reload_visualization_filter(self):
+        if visualization_filter := self.get_current_visualization_filter():
+            self.apply_visualization_filter(visualization_filter)
 
     def _load_section_plane(self):
         self.section_plane = SectionPlaneWidget()
@@ -551,76 +600,91 @@ class MainWindow(MainWindow_UI):
         CheckREFPROP()
 
     def action_geometry_editor_workspace_callback(self):
-
         self.clear_selection()
-        self._configure_visualization(
-            points=True, lines=True, tubes=True,
-            acoustic_symbols=self.visualization_filter.acoustic_symbols,
-            structural_symbols=self.visualization_filter.structural_symbols,
-        )
         self.close_dialogs()
-        self.tool_bar.setDisabled(False)
+
+        self.main_toolbar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
-        self.mesh_toolbar.setDisabled(True)
-        self.animation_toolbar.setDisabled(True)
-        self.render_tools_toolbar.enable_selection_tool()
-
-        self.action_geometry_editor_workspace.setEnabled(False)
-        if not self.action_model_setup_workspace.isEnabled():
-            self.action_model_setup_workspace.setEnabled(True)
-        elif not self.action_results_workspace.isEnabled():
-            self.action_results_workspace.setEnabled(True)
-        
+        self.view_toolbar.enable_selection_tool()
         self.setup_widgets_stack.setVisible(True)
+
+        self.action_geometry_editor_workspace.setChecked(True)
+        self.action_model_setup_workspace.setChecked(False)
+        self.action_results_workspace.setChecked(False)
 
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
-
-        self.splitter.widget(0).setMinimumWidth(420)
+        self.reload_visualization_filter()
 
     def action_model_setup_workspace_callback(self):
+        if self.ask_finalize_question() == QMessageBox.StandardButton.Cancel:
+            self.action_model_setup_workspace.setChecked(False)
+            return
+
         self.setup_widgets_stack.setVisible(True)
 
-        self.mesh_toolbar.setDisabled(False)
-        self.tool_bar.setDisabled(False)
+        self.main_toolbar.setDisabled(False)
         self.workspaces_toolbar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
-        self.animation_toolbar.setDisabled(True)
-        self.render_tools_toolbar.enable_selection_tool()
+        self.view_toolbar.enable_selection_tool()
 
-        self.action_model_setup_workspace.setEnabled(False)
-        if not self.action_geometry_editor_workspace.isEnabled():
-            self.action_geometry_editor_workspace.setEnabled(True)
-        elif not self.action_results_workspace.isEnabled():
-            self.action_results_workspace.setEnabled(True)
+        self.action_model_setup_workspace.setChecked(True)
+        self.action_geometry_editor_workspace.setChecked(False)
+        self.action_results_workspace.setChecked(False)
 
         self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
-
-        self.splitter.widget(0).setMinimumWidth(360)
+        self.reload_visualization_filter()
 
     def action_results_workspace_callback(self):
+        if self.ask_finalize_question() == QMessageBox.StandardButton.Cancel:
+            self.action_results_workspace.setChecked(False)
+            return
 
         if not self.project.is_the_solution_finished():
             return
 
         self.results_widget.update_selection()
         self.results_viewer_widget.update_visibility_items()
-        self.animation_toolbar.setEnabled(False)    
-        self.render_tools_toolbar.disable_selection_tool()
+        self.view_toolbar.disable_selection_tool()
 
-        self.action_results_workspace.setEnabled(False)
-        if not self.action_geometry_editor_workspace.isEnabled():
-            self.action_geometry_editor_workspace.setEnabled(True)
-        elif not self.action_model_setup_workspace.isEnabled():
-            self.action_model_setup_workspace.setEnabled(True)
+        self.action_results_workspace.setChecked(True)
+        self.action_geometry_editor_workspace.setChecked(False)
+        self.action_model_setup_workspace.setChecked(False)
 
         self.geometry_input_wigdet.setVisible(False)
         self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
         self.results_viewer_widget.update_visibility_items()
-        self._configure_visualization(tubes=True)
+        self.reload_visualization_filter()
+
+    def ask_finalize_question(self) -> QMessageBox.StandardButton | None:
+        setup_widget = self.get_current_setup_widget()
+        if not isinstance(setup_widget, GeometryDesignerWidget):
+            return QMessageBox.StandardButton.Default
+
+        if not setup_widget.modified:
+            return QMessageBox.StandardButton.Default
+
+        message_box = QMessageBox.question(
+            self,
+            "Finalize geometry",
+            "Apply geometry changes before changing workspace?",
+            QMessageBox.StandardButton.Cancel | QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Yes,
+        )
+
+        match message_box:
+            case QMessageBox.StandardButton.Yes:
+                setup_widget.finalize_callback()
+
+            case QMessageBox.StandardButton.Discard:
+                setup_widget.cancel_callback()
+
+            case QMessageBox.StandardButton.Cancel:
+                pass
+
+        return message_box
 
     def update_results_workspace_button_accessibility(self, solution_exists: bool | None = None):
         if solution_exists is None:
@@ -643,9 +707,9 @@ class MainWindow(MainWindow_UI):
 
     def action_save_as_png_callback(self):
         self.savePNG_call()
-    
+
     def action_reset_callback(self):
-        #TODO: reimplement the project resetting
+        # TODO: reimplement the project resetting
         return
         self.input_ui.reset_project()
 
@@ -655,9 +719,48 @@ class MainWindow(MainWindow_UI):
         self.action_show_tubes.setChecked(True)
         self.action_show_symbols.setChecked(True)
         self.use_geometry_workspace()
-    
+
     def action_user_preferences_callback(self):
         self.input_ui.mesh_setup_visibility()
+
+    def action_home_exit_callback(self):
+        none_save_path = self.project.save_path is None
+        temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
+        data_modified = self.project_data_modified
+
+        condition = (none_save_path and temp_file_exists) or data_modified
+        empty_project = app().project.file.read_line_properties_from_file() is None
+
+        if condition and not empty_project:
+            if self.save_project_data():
+                return
+
+        self.close_dialogs()
+        self.reset_temporary_folder()
+        self.project.reset(reset_all=True)
+
+        if self.project.model.properties is not None:
+            self.project.model.properties._reset_variables()
+
+        self.project.reset_project(reset_all=True)
+
+        if self.project.model.mesh is not None:
+            self.project.model.mesh.set_mesher_setup(MesherSetup())
+
+        self.reset_geometry_render()
+        self.clear_selection()
+        self.results_widget.show_empty()
+        self.update_plots()
+        self.status_bar.reset_labels_visibility()
+        self.section_plane.reset_state()
+        self.project_data_modified = False
+        self.set_window_title()
+        self.update_results_workspace_button_accessibility(False)
+        self.action_geometry_editor_workspace.setChecked(False)
+        self.action_model_setup_workspace.setChecked(False)
+        self.action_results_workspace.setChecked(False)
+        self.welcome_widget.update_recent_projects()
+        self.configure_welcome_widget()
 
     def action_exit_callback(self):
         self.close_app()
@@ -686,40 +789,12 @@ class MainWindow(MainWindow_UI):
     def action_plot_cross_section_callback(self):
         self.input_ui.plot_cross_section()
 
-    def action_isometric_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_isometric_view()
-
-    def action_top_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_top_view()
-
-    def action_bottom_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_bottom_view()
-
-    def action_left_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_left_view()
-
-    def action_right_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_right_view()
-
-    def action_front_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_front_view()
-
-    def action_back_view_callback(self):
-        render_widget = self.render_widgets_stack.currentWidget()
-        render_widget.set_back_view()
-    
     def action_section_plane_callback(self, condition):
         if condition:
             self.section_plane.show()
         else:
             self.section_plane.keep_section_plane = False
-            self.section_plane.close()
+            self.section_plane.disable_section_plane()
 
     def action_zoom_callback(self):
         self.geometry_widget.renderer.ResetCamera()
@@ -731,7 +806,7 @@ class MainWindow(MainWindow_UI):
 
     def action_acoustic_model_info_callback(self):
         self.input_ui.acoustic_model_info()
-    
+
     def action_structural_model_info_callback(self):
         self.input_ui.structural_model_info()
 
@@ -747,7 +822,7 @@ class MainWindow(MainWindow_UI):
         self.action_show_geometry_data.setChecked(status and not cond)
         self.action_show_geometry_data.blockSignals(False)
         self._update_visualization()
-    
+
     def action_show_geometry_data_callback(self, cond):
         self.action_show_mesh_data.blockSignals(True)
         status = self.action_show_mesh_data.isChecked()
@@ -763,10 +838,10 @@ class MainWindow(MainWindow_UI):
 
     def action_show_symbols_callback(self, cond):
         self._update_visualization()
-    
+
     def action_show_transparent_callback(self, cond):
         self._update_visualization()
-    
+
     def action_select_elements_callback(self, cond):
         self._update_visualization()
 
@@ -781,62 +856,55 @@ class MainWindow(MainWindow_UI):
 
     def get_color_mode(self):
         return self.visualization_filter.color_mode
-    
+
     def set_color_mode(self, color_mode):
         self.visualization_filter.color_mode = color_mode
         self.visualization_changed.emit()
 
     def update_export_geometry_file_access(self):
-        import_type = app().project.model.mesh.import_type
-        if import_type == 0:
-            self.action_export_geometry.setDisabled(True)
-        elif import_type == 1:
-            self.action_export_geometry.setDisabled(False)
+        import_type = app().project.project_setup.import_type
+        self.action_export_geometry.setEnabled(bool(import_type))
 
     def action_import_geometry_callback(self):
         obj = ImportGeometry()
-        self.initial_project_action(obj.complete)
-
-    def _add_mesh_toolbar(self):
-        self.mesh_toolbar = MeshToolbar()
-        self.addToolBar(self.mesh_toolbar)
-        self.insertToolBarBreak(self.mesh_toolbar)
+        if obj.complete:
+            self.initial_project_action(True)
 
     def _add_analysis_toolbar(self):
         self.analysis_toolbar = AnalysisToolbar()
         self.addToolBar(self.analysis_toolbar)
-        self.analysis_toolbar.setDisabled(True)
 
         if hasattr(self.analysis_toolbar, "domain_changed"):
             self.analysis_toolbar.domain_changed.connect(self.analysis_changed)
 
-    def _add_animation_toolbar(self):
-        self.animation_toolbar = AnimationToolbar()
-        self.addToolBar(self.animation_toolbar)
-        self.insertToolBarBreak(self.animation_toolbar)
-    
-    def _add_render_tools_toolbar(self):
-        self.render_tools_toolbar = RenderToolsToolbar()
-        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.render_tools_toolbar)
-        self.render_tools_toolbar.setVisible(False)
+    def _add_view_toolbar(self):
+        self.view_toolbar = ViewToolbar()
+        self.addToolBar(Qt.RightToolBarArea, self.view_toolbar)
 
         for render in self.get_renderer_widgets():
-            self.render_tools_toolbar.render_tool_changed.connect(render.add_render_tool)
+            self.view_toolbar.render_tool_changed.connect(render.add_render_tool)
+
+        self.addToolBarBreak()
 
     def _add_toolbars(self):
-        self._add_mesh_toolbar()
+        self._add_view_toolbar()
         self._add_analysis_toolbar()
-        self._add_animation_toolbar()
-        self._add_render_tools_toolbar()
+        self._configure_workspace_buttons()
 
-    def show_render_tools_toolbar(self):
-        self.render_tools_toolbar.setVisible(True)
-    
+    def _configure_workspace_buttons(self):
+        self.action_geometry_editor_workspace.setCheckable(True)
+        self.action_model_setup_workspace.setCheckable(True)
+        self.action_results_workspace.setCheckable(True)
+        self.action_results_workspace.setEnabled(False)
+
+    def set_toolbars_visible(self, visible: bool):
+        toolbars = self.findChildren(QToolBar)
+
+        for toolbar in toolbars:
+            toolbar.setVisible(visible)
+
     def get_renderer_widgets(self):
-        return [
-            self.geometry_widget, 
-            self.mesh_widget,
-            self.results_widget]
+        return [self.geometry_widget, self.mesh_widget, self.results_widget]
 
     def _create_status_bar(self):
         self.status_bar = StatusBar(self)
@@ -864,48 +932,34 @@ class MainWindow(MainWindow_UI):
         self.config.user_preferences.set_light_theme()
         self.set_theme()
         self.config.update_config_file()
-        
+
         self.update_plots()
 
     def set_theme(self):
         theme = self.config.user_preferences.interface_theme
 
-        # if theme not in ["light", "dark"]:
-        #     return
-    
-        # self.update_themes_in_file()
         if self.interface_theme == theme:
             return
 
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            self.icon_color = QColor(color_names.BLUE_7.to_hex())
 
-        elif theme == "light":
-            self.icon_color = QColor(color_names.BLUE_4.to_hex())
-    
         self.interface_theme = theme
         stylesheets.set_theme(theme)
+        set_icon_theme(theme)
         self.theme_changed.emit(theme)
-        
+
         self.action_set_light_theme.setDisabled(theme == "light")
         self.action_set_dark_theme.setDisabled(theme == "dark")
         self.action_user_preferences.setDisabled(0)
 
-        # paint the icons of every children widget
-        widgets = self.findChildren(QAbstractButton)
-        widgets += self.findChildren(QAction)
-        icons.change_icon_color_for_widgets(widgets, self.icon_color)
-
     def savePNG_call(self):
 
-        last_path = self.config.get_last_folder_for("exported_image_folder")
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = self.config.get_last_folder_for("exported_image_folder", default=self.user_path)
 
         extensions = ["png"]
-        path = FileDialogService.save_file(extensions, "Save Captured Image", last_path)
+        path = FileDialogService.save_file(extensions, "Save Captured Image", last_folder_path)
 
         if path is None:
             return
@@ -915,18 +969,17 @@ class MainWindow(MainWindow_UI):
 
     def positioning_cursor_on_widget(self, widget):
         width, height = widget.width(), widget.height()
-        final_pos = widget.mapToGlobal(QPoint(int(width/2), int(height/2)))
+        final_pos = widget.mapToGlobal(QPoint(int(width / 2), int(height / 2)))
         QCursor.setPos(final_pos)
 
     def save_project_data(self):
-
         self.close_dialogs()
 
-        message_box = QMessageBox.question(   
-            self, 
-            "Quit", 
-            "Would you like to save the project data before exit?", 
-            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
+        message_box = QMessageBox.question(
+            self,
+            "Quit",
+            "Would you like to save the project data before exit?",
+            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save,
         )
 
         if message_box == QMessageBox.Cancel:
@@ -940,7 +993,6 @@ class MainWindow(MainWindow_UI):
         return False
 
     def new_project(self):
-
         none_save_path = self.project.save_path is None
         temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
         data_modified = self.project_data_modified
@@ -953,20 +1005,21 @@ class MainWindow(MainWindow_UI):
                 return
 
         self.reset_temporary_folder()
-        self.project.reset(reset_all = True)
+        self.project.reset(reset_all=True)
         self.project.model.properties._reset_variables()
-        self.project.reset_project(reset_all = True)
+        self.project.reset_project(reset_all=True)
         self.update_plots()
 
         self.reset_geometry_render()
+        self.configure_welcome_widget()
         obj = NewProjectInput()
-
         if not self.initial_project_action(obj.complete):
             return
 
         self.action_geometry_editor_workspace_callback()
-        self.show_render_tools_toolbar()
+        self.set_toolbars_visible(True)
         self.update_results_workspace_button_accessibility()
+        self.section_plane.reset_state()
 
         return obj.complete
 
@@ -977,19 +1030,18 @@ class MainWindow(MainWindow_UI):
             self.reset_geometry_render()
 
             if project_path is not None:
-
                 app().project.file.extract_from_file(project_path)
 
                 if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
-                    self.project.reset(reset_all = True)
+                    self.project.reset(reset_all=True)
                     self.project.model.properties._reset_variables()
 
                     if app().config.remove_path_from_config_file(project_path):
                         self.welcome_widget.update_recent_projects()
 
                     return
-                
+
                 self.config.add_recent_file(project_path)
                 self.config.write_last_folder_path_in_file("project_folder", project_path)
 
@@ -997,7 +1049,6 @@ class MainWindow(MainWindow_UI):
 
             # logging.info("Loading project [30%]")
             self.project.load_project()
-            self.mesh_toolbar.update_mesh_attributes()
 
             if project_path is not None:
                 path = Path(project_path)
@@ -1011,27 +1062,27 @@ class MainWindow(MainWindow_UI):
 
             logging.info("Configuring visualization [95%]")
             self.action_model_setup_workspace_callback()
-            self.show_render_tools_toolbar()
+            self.set_toolbars_visible(True)
             self.update_results_workspace_button_accessibility()
+            self.view_toolbar.action_front_view_callback()
+            self.analysis_toolbar.update_reset_solution_button()
             self.update_plots()
+            self.update_status_bar_info()
 
         LoadingWindow(tmp).run()
 
     def open_project_dialog(self):
 
-        last_path = self.config.get_last_folder_for("project_folder")
-    
-        if last_path is None:
-            last_path = str(Path().home())
+        last_folder_path = self.config.get_last_folder_for("project_folder", default=self.user_path)
 
         extensions = ["pulse"]
-        project_path = FileDialogService.open_file(extensions, "Open Project", last_path)
+        project_path = FileDialogService.open_file(extensions, "Open Project", last_folder_path)
 
         if project_path is None:
             return True
 
         self.open_project(project_path)
-        self.show_render_tools_toolbar()
+        self.set_toolbars_visible(True)
 
     def save_project_dialog(self):
         if self.project.save_path is None:
@@ -1045,12 +1096,10 @@ class MainWindow(MainWindow_UI):
         if not obj.complete:
             return obj.complete
 
-        last_path = self.config.get_last_folder_for("project_folder")
-        if last_path is None:
-            last_path = str(Path.home())
+        last_folder_path = self.config.get_last_folder_for("project_folder", default=self.user_path)
 
         extensions = ["pulse"]
-        file_path = FileDialogService.save_file(extensions, "Save As", last_path)
+        file_path = FileDialogService.save_file(extensions, "Save As", last_folder_path)
 
         if file_path is None:
             return False
@@ -1066,9 +1115,17 @@ class MainWindow(MainWindow_UI):
         return True
 
     def save_project_as(self, path):
+        def finalize_geometry_if_needed():
+            setup_widget = self.get_current_setup_widget()
+            if not isinstance(setup_widget, GeometryDesignerWidget):
+                return
+
+            if not setup_widget.modified:
+                return
+
+            setup_widget.finalize_callback()
 
         def save_data(path):
-
             logging.info("Saving the project data... [10%]")
 
             from datetime import datetime
@@ -1095,16 +1152,17 @@ class MainWindow(MainWindow_UI):
             print(f"The project data has been saved @ {datetime.now()}")
             sleep(0.5)
 
+        LoadingWindow(finalize_geometry_if_needed).run()
         LoadingWindow(save_data).run(path)
-    
+
     def action_capture_image_callback(self):
         self.capture_image()
-    
+
     def capture_image(self):
         extensions = ["png"]
 
         path = FileDialogService.save_file(extensions, "PNG")
-        
+
         if path is None:
             return
 
@@ -1114,7 +1172,7 @@ class MainWindow(MainWindow_UI):
             with open(str(path), "wb") as file:
                 image.save(file)
 
-    def update_window_title(self, project_path : str | Path):
+    def update_window_title(self, project_path: str | Path):
         if isinstance(project_path, str):
             project_path = Path(project_path)
         project_name = project_path.stem
@@ -1136,6 +1194,17 @@ class MainWindow(MainWindow_UI):
 
             window.close()
 
+    def hide_dialogs(self):
+        for window in app().topLevelWidgets():
+            if isinstance(window, MainWindow):
+                continue
+
+            if isinstance(window, LoadingWindow):
+                continue
+
+            if window.isVisible():
+                window.hide()
+
     def minimize_dialogs(self):
         for window in app().topLevelWidgets():
             if isinstance(window, MainWindow):
@@ -1146,7 +1215,7 @@ class MainWindow(MainWindow_UI):
 
             if window.isVisible():
                 window.showMinimized()
-    
+
     def restore_open_dialogs(self):
         for window in app().topLevelWidgets():
             if isinstance(window, MainWindow):
@@ -1215,7 +1284,8 @@ class MainWindow(MainWindow_UI):
         self.close_app()
         event.ignore()
 
-def create_new_folder(path : Path, folder_name : str) -> Path:
+
+def create_new_folder(path: Path, folder_name: str) -> Path:
     folder_path = path / folder_name
     folder_path.mkdir(exist_ok=True)
     return folder_path

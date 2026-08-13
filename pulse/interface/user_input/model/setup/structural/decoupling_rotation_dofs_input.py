@@ -14,7 +14,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.model.structural_element import decoupling_matrix
+from pulse.model.elements.element_attributes import decoupling_matrix_default
 
 
 class TabIndex(IntEnum):
@@ -87,26 +87,26 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
 
         element_id = selected_elements[0]
         self.lineEdit_element_id.setText(str(element_id))
-        element = self.preprocessor.structural_elements[element_id]
 
-        if element.element_type != "beam_1":
+        element_attributes = self.preprocessor.elements_attributes.get(element_id)
+        if element_attributes is None:
+            return
+
+        if element_attributes.structural_element_type != "beam_1":
             self.reset_line_edits()
             return
     
         node_ids = [
-            element.first_node.external_index,
-            element.last_node.external_index,
+            element_attributes.first_node.index,
+            element_attributes.last_node.index,
         ]
 
         for node_id in node_ids:
-            neighboor_elements = (
-                self.preprocessor.structural_elements_connected_to_node[
-                    node_id
-                ]
-            )
-            if len(neighboor_elements) >= 3:
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
+            if len(element_ids) >= 3:
                 self.lineEdit_tjoint_node_id.setText(str(node_id))
                 return
+
             self.lineEdit_tjoint_node_id.clear()
 
     def _config_widgets(self):
@@ -135,10 +135,7 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
 
     def attribute_callback(self):
 
-        if (
-            self.lineEdit_element_id.text() == ""
-            and app().main_window.list_selected_elements()
-        ):
+        if self.lineEdit_element_id.text() == "" and app().main_window.list_selected_elements():
             self.hide()
             title = "Invalid element selected"
             message = "To proceed, selecting a beam element connected to the pipe is necessary."
@@ -146,22 +143,18 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
             return
 
         lineEdit = self.lineEdit_element_id.text()
-        stop, element_id = self.before_run.check_selected_ids(
-            lineEdit, "elements", single_id=True
-        )
+        stop, element_id = self.before_run.check_selected_ids(lineEdit, "elements", single_id=True)
         if stop:
             return
 
-        element = self.preprocessor.structural_elements[element_id]
-
         tjoint_node_id = None
-        node_ids = [element.first_node.external_index, element.last_node.external_index]
+        element_atributes = self.preprocessor.elements_attributes.get(element_id)
+
+        node_ids = [element_atributes.first_node.index, element_atributes.last_node.index]
 
         for node_id in node_ids:
-            neighboor_elements = (
-                self.preprocessor.structural_elements_connected_to_node[node_id]
-            )
-            if len(neighboor_elements) >= 3:
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
+            if len(element_ids) >= 3:
                 tjoint_node_id = node_id
                 break
 
@@ -173,13 +166,11 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
             PrintMessageInput([error_title, title, message])
             return
 
-        element_type = element.element_type
         rotations_mask = self.get_rotation_mask()
-
         if not any(rotations_mask):
             return
 
-        if element_type != "beam_1":
+        if element_atributes.structural_element_type != "beam_1":
             return
 
         node = app().project.model.preprocessor.nodes[node_id]
@@ -191,9 +182,7 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
             }
 
         self.preprocessor.set_B2P_rotation_decoupling(element_id, data)
-        self.properties._set_element_property(
-            "B2P_rotation_decoupling", data, element_ids=element_id
-        )
+        self.properties._set_element_property("B2P_rotation_decoupling", data, element_ids=element_id)
 
         self.actions_to_finalize()
         self.complete = True
@@ -212,9 +201,10 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
                 continue
 
             element_id = int(item.text(0))
-            element = self.preprocessor.structural_elements[element_id]
-            element.decoupling_matrix = decoupling_matrix
-            element.decoupling_info = None
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
+
+            element_attributes.decoupling_matrix = decoupling_matrix_default
+            element_attributes.decoupling_info = None
 
             self.properties._remove_element_property(
                 "B2P_rotation_decoupling", element_id
@@ -247,9 +237,10 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
                 element_ids.append(element_id)
 
         for element_id in element_ids:
-            element = self.preprocessor.structural_elements[element_id]
-            element.decoupling_matrix = decoupling_matrix
-            element.decoupling_info = None
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
+
+            element_attributes.decoupling_matrix = decoupling_matrix_default
+            element_attributes.decoupling_info = None
 
             self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 

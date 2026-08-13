@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'about_open_pulse.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -37,6 +37,7 @@ class Ui_Dialog(object):
         self.gridLayout_2.setContentsMargins(8, 8, 8, 8)
         self.label_main_info = QLabel(self.frame)
         self.label_main_info.setObjectName(u"label_main_info")
+        self.label_main_info.setMinimumSize(QSize(0, 200))
         font = QFont()
         font.setFamilies([u"MS Shell Dlg 2"])
         font.setPointSize(11)

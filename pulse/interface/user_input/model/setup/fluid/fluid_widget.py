@@ -4,12 +4,12 @@ from itertools import count
 from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QColor, QIcon
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QDialog, QHeaderView, QMenu, QTableWidgetItem
 
-from pulse import app, ICON_DIR
+from pulse import app
 from pulse.interface import error_title
-from pulse.interface.formatters.icons import change_icon_color_for_widgets
+from pulse.interface.formatters.icons import Icon
 from pulse.interface.ui_generated.model.setup.fluid.fluid_input_widget_ui import (
     FluidInputWidget_UI,
 )
@@ -50,7 +50,6 @@ class FluidWidget(FluidInputWidget_UI):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self._paint_icons()
         self.load_data_from_fluids_library()
 
     def _initialize(self):
@@ -113,18 +112,6 @@ class FluidWidget(FluidInputWidget_UI):
             self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         else:
             self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-
-    def _paint_icons(self):
-        icon_color = None
-        theme = app().config.user_preferences.interface_theme
-        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
-        if theme == "dark":
-            icon_color = DARK_ICON_COLOR.to_qt()
-        else:
-            icon_color = LIGHT_ICON_COLOR.to_qt()
-
-        widgets = [self.pushButton_duplicate]
-        change_icon_color_for_widgets(widgets, icon_color)
 
     def _add_icon_and_title(self):
         self._config_window()
@@ -687,7 +674,7 @@ class FluidWidget(FluidInputWidget_UI):
     def right_click_callback(self, pos):
         menu = QMenu(self)
         export_action = menu.addAction("Export fluid")
-        export_icon = QIcon(str(ICON_DIR / "common/save_as.png"))
+        export_icon = Icon(":/icons/common/save_as.png")
         export_action.setIcon(export_icon)
 
         font = export_action.font()
@@ -726,13 +713,9 @@ class FluidWidget(FluidInputWidget_UI):
 
         extensions = ["json"]
 
-        path = app().config.get_last_folder_for("export_data_folder")
-        if path is None:
-            last_path = Path().home()
-        else:
-            last_path = path
+        last_folder_path = app().config.get_last_folder_for("export_data_folder", default=Path().home())
+        file_path = FileDialogService.save_file(extensions, "Export fluid data", last_folder_path)
 
-        file_path = FileDialogService.save_file(extensions, "Export fluid data", last_path)
         if file_path is None:
             return False
 

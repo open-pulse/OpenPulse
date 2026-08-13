@@ -1,3 +1,4 @@
+from functools import cache
 
 import numpy as np
 from vtkmodules.vtkCommonCore import vtkPoints
@@ -19,11 +20,13 @@ from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
 from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
 
+
 def load_symbol(path):
     reader = vtkOBJReader()
     reader.SetFileName(str(path))
     reader.Update()
     return reader.GetOutput()
+
 
 def apply_transform(data, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0, sx=1, sy=1, sz=1):
     transform = vtkTransform()
@@ -39,8 +42,11 @@ def apply_transform(data, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0, sx=1, sy=1, sz=1):
     transform_filter.Update()
     return transform_filter.GetOutput()
 
+
 VALVE_WHEEL = load_symbol(SYMBOLS_DIR / "other/valve_wheel.obj")
 
+
+@cache
 def closed_pipe_data(length, outside_diameter, offset_y=0, offset_z=0, sides=20):
     cilinder = vtkCylinderSource()
     cilinder.SetResolution(sides)
@@ -52,6 +58,8 @@ def closed_pipe_data(length, outside_diameter, offset_y=0, offset_z=0, sides=20)
 
     return apply_transform(cilinder.GetOutput(), rz=-90, dy=offset_y, dz=offset_z)
 
+
+@cache
 def pipe_data(length, outside_diameter, thickness, offset_y=0, offset_z=0, sides=20):
     if (thickness == 0) or (2 * thickness > outside_diameter):
         return closed_pipe_data(length, outside_diameter, offset_y, offset_z, sides)
@@ -100,6 +108,8 @@ def pipe_data(length, outside_diameter, thickness, offset_y=0, offset_z=0, sides
 
     return apply_transform(append_polydata.GetOutput(), rz=-90, dy=offset_y, dz=offset_z)
 
+
+@cache
 def circular_beam_data(length, outside_diameter, thickness, offset_y=0, offset_z=0):
     return pipe_data(
         length,
@@ -110,6 +120,8 @@ def circular_beam_data(length, outside_diameter, thickness, offset_y=0, offset_z
         sides=12,
     )
 
+
+@cache
 def closed_rectangular_beam_data(length, b, h, offset_y=0, offset_z=0):
     rectangle = vtkCubeSource()
     rectangle.SetXLength(length)
@@ -120,6 +132,8 @@ def closed_rectangular_beam_data(length, b, h, offset_y=0, offset_z=0):
 
     return rectangle.GetOutput()
 
+
+@cache
 def rectangular_beam_data(length, b, h, b_in, h_in, offset_y=0, offset_z=0):
 
     tb = (b - b_in) / 2
@@ -140,13 +154,13 @@ def rectangular_beam_data(length, b, h, b_in, h_in, offset_y=0, offset_z=0):
     rectangular_top.Update()
 
     rectangular_left.SetXLength(length)
-    rectangular_left.SetYLength(h - 2*th)
+    rectangular_left.SetYLength(h - 2 * th)
     rectangular_left.SetZLength(th)
     rectangular_left.SetCenter(length / 2, offset_y, -(b - th) / 2 + offset_z)
     rectangular_left.Update()
 
     rectangular_right.SetXLength(length)
-    rectangular_right.SetYLength(h - 2*th)
+    rectangular_right.SetYLength(h - 2 * th)
     rectangular_right.SetZLength(th)
     rectangular_right.SetCenter(length / 2, offset_y, (b - th) / 2 + offset_z)
     rectangular_right.Update()
@@ -166,12 +180,14 @@ def rectangular_beam_data(length, b, h, b_in, h_in, offset_y=0, offset_z=0):
 
     return append_polydata.GetOutput()
 
+
+@cache
 def c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
 
     Zc, Yc = CBeamCrossSection(h, w1, t1, w2, t2, tw, offset_y, offset_z).centroid
 
     # compute the y coordinate centroid for the left rectangle of the C-Beam
-    y_left = (((h/2 - t1)**2) - ((h/2 - t2)**2))*(tw/2) / ((h-(t1+t2))*tw)
+    y_left = (((h / 2 - t1) ** 2) - ((h / 2 - t2) ** 2)) * (tw / 2) / ((h - (t1 + t2)) * tw)
 
     rectangular_top = vtkCubeSource()
     rectangular_left = vtkCubeSource()
@@ -192,7 +208,7 @@ def c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
     rectangular_bottom.SetXLength(length)
     rectangular_bottom.SetYLength(t2)
     rectangular_bottom.SetZLength(w2)
-    rectangular_bottom.SetCenter(length / 2, -(h - t2) / 2 + offset_y - Yc,  (w2 / 2) - Zc + offset_z)
+    rectangular_bottom.SetCenter(length / 2, -(h - t2) / 2 + offset_y - Yc, (w2 / 2) - Zc + offset_z)
     rectangular_bottom.Update()
 
     append_polydata = vtkAppendPolyData()
@@ -203,12 +219,16 @@ def c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
 
     return append_polydata.GetOutput()
 
+
+@cache
 def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
 
     Zc, Yc = IBeamCrossSection(h, w1, t1, w2, t2, tw, offset_y, offset_z).centroid
 
+    # TODO: avoid division by zero
+
     # compute the y coordinate centroid for the center rectangle of the I-Beam
-    y_center = (((h/2 - t1)**2) - ((h/2 - t2)**2))*(tw/2) / ((h-(t1+t2))*tw)
+    y_center = (((h / 2 - t1) ** 2) - ((h / 2 - t2) ** 2)) * (tw / 2) / ((h - (t1 + t2)) * tw)
 
     rectangular_top = vtkCubeSource()
     rectangular_center = vtkCubeSource()
@@ -221,7 +241,7 @@ def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
     rectangular_top.Update()
 
     rectangular_center.SetXLength(length)
-    rectangular_center.SetYLength(h - (t1+t2))
+    rectangular_center.SetYLength(h - (t1 + t2))
     rectangular_center.SetZLength(tw)
     rectangular_center.SetCenter(length / 2, y_center - Yc + offset_y, -Zc + offset_z)
     rectangular_center.Update()
@@ -240,6 +260,8 @@ def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
 
     return append_polydata.GetOutput()
 
+
+@cache
 def t_beam_data(length, h, w1, t1, tw, offset_y=0, offset_z=0):
 
     hw = h - t1
@@ -257,7 +279,7 @@ def t_beam_data(length, h, w1, t1, tw, offset_y=0, offset_z=0):
     rectangular_center.SetXLength(length)
     rectangular_center.SetYLength(hw)
     rectangular_center.SetZLength(tw)
-    rectangular_center.SetCenter(length / 2, - Yc + offset_y, -Zc + offset_z)
+    rectangular_center.SetCenter(length / 2, -Yc + offset_y, -Zc + offset_z)
     rectangular_center.Update()
 
     append_polydata = vtkAppendPolyData()
@@ -268,6 +290,8 @@ def t_beam_data(length, h, w1, t1, tw, offset_y=0, offset_z=0):
 
     return append_polydata.GetOutput()
 
+
+@cache
 def reducer_data(
     length,
     initial_diameter,
@@ -327,6 +351,8 @@ def reducer_data(
 
     return append_polydata.GetOutput()
 
+
+@cache
 def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offset_z=0):
     pipe = closed_pipe_data(length, outside_diameter, offset_y, offset_z)
     append_polydata = vtkAppendPolyData()
@@ -339,7 +365,7 @@ def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offs
         dz = offset_z + (outside_diameter - bolt_radius * 4) * np.cos(angle) / 2
         dy = offset_y + (outside_diameter - bolt_radius * 4) * np.sin(angle) / 2
 
-        bolt = closed_pipe_data(bolt_length, 2*bolt_radius, offset_y=dy, offset_z=dz)
+        bolt = closed_pipe_data(bolt_length, 2 * bolt_radius, offset_y=dy, offset_z=dz)
         bolt = apply_transform(bolt, dx=-bolt_radius)
         append_polydata.AddInputData(bolt)
 
@@ -347,12 +373,14 @@ def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offs
 
     return append_polydata.GetOutput()
 
+
+@cache
 def expansion_joint_data(length, outside_diameter, thickness, offset_y=0, offset_z=0):
     append_polydata = vtkAppendPolyData()
 
     width = 0.15 * outside_diameter
     pipe = pipe_data(length, outside_diameter, thickness)
-    start_flange = flange_data(width, outside_diameter + 3*width, width)
+    start_flange = flange_data(width, outside_diameter + 3 * width, width)
 
     # I just wanted to move the flange to the end of the structure
     # but that is the only way vtk let me do it.
@@ -360,7 +388,7 @@ def expansion_joint_data(length, outside_diameter, thickness, offset_y=0, offset
     transform.Translate(length - width, 0, 0)
     transform.Update()
     transform_filter = vtkTransformFilter()
-    transform_filter.SetInputData(flange_data(width, outside_diameter + 3*width, width))
+    transform_filter.SetInputData(flange_data(width, outside_diameter + 3 * width, width))
     transform_filter.SetTransform(transform)
     transform_filter.Update()
     end_flange = transform_filter.GetOutput()
@@ -418,6 +446,8 @@ def expansion_joint_data(length, outside_diameter, thickness, offset_y=0, offset
 
     return apply_transform(append_polydata.GetOutput(), dy=offset_y, dz=offset_z)
 
+
+@cache
 def valve_data(length, outside_diameter, thickness, flange_diameter, flange_length, offset_y=0, offset_z=0):
     append_polydata = vtkAppendPolyData()
 
@@ -426,19 +456,22 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
         return vtkPolyData()
 
     pipe = pipe_data(length, outside_diameter, thickness)
-    start_flange = flange_data(flange_length, flange_diameter, 0)
-    end_flange = apply_transform(start_flange, dx=length - flange_length)
     handle = valve_handle(outside_diameter)
-    handle = apply_transform(handle, dx=length/2, rz=90)
+    handle = apply_transform(handle, dx=length / 2, rz=90)
 
     append_polydata.AddInputData(pipe)
-    append_polydata.AddInputData(start_flange)
-    append_polydata.AddInputData(end_flange)
+    if flange_diameter and flange_length:
+        start_flange = flange_data(flange_length, flange_diameter, 0)
+        end_flange = apply_transform(start_flange, dx=length - flange_length)
+        append_polydata.AddInputData(start_flange)
+        append_polydata.AddInputData(end_flange)
     append_polydata.AddInputData(handle)
     append_polydata.Update()
 
     return apply_transform(append_polydata.GetOutput(), dy=offset_y, dz=offset_z)
 
+
+@cache
 def valve_handle(outside_diameter):
     height = 1.5 * outside_diameter
     width = 0.20 * outside_diameter

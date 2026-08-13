@@ -45,72 +45,70 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
         return super().build()
 
+    @property
+    def preprocessor(self):
+        return app().project.model.preprocessor
+
+    @property
+    def properties(self):
+        return app().project.model.properties
+
     def create_compressor_symbol(self):
-        nodal_properties = app().project.model.properties.nodal_properties
+        for (property_name, *args), data in self.properties.nodal_properties.items():
+            if property_name != "reciprocating_compressor_excitation":
+                continue
 
-        for (property_name, *args), data in nodal_properties.items():
-            if property_name == "reciprocating_compressor_excitation":
-                node_id = args[0]
-                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+            node_id = args[0]
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
 
-                if len(elements) != 1:
-                    continue
+            if len(element_ids) != 1:
+                continue
 
-                node = app().project.model.preprocessor.nodes[node_id]
-                element = elements[0]
-                orientation = element.last_node.coordinates - element.first_node.coordinates
+            node = self.preprocessor.nodes[node_id]
+            element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
+            orientation = element_attributes.last_node.coordinates - element_attributes.first_node.coordinates
 
-                if node != element.first_node:
-                    orientation = -orientation
+            if node != element_attributes.first_node:
+                orientation = -orientation
 
-                node_id = int(*args)
-                line_ids = app().project.model.mesh.lines_from_node[node_id]
-                outer_diameter = app().project.model.properties._get_property("cross_section", line_id=line_ids[0])
-                scale = outer_diameter.outer_diameter
+            node_id = int(*args)
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
+            cross_section = self.preprocessor.get_element_cross_section(element_ids[0])
 
-                if data["connection_type"] == "discharge":
-                    self.add_symbol(create_compressor_discharge, data["coords"], orientation, color=color_names.RED_2, scale=scale)
+            scale = cross_section.outer_diameter
 
-                elif data["connection_type"] == "suction":
-                    self.add_symbol(create_compressor_suction, data["coords"], orientation, color=color_names.BLUE_2, scale=scale)
+            if data["connection_type"] == "discharge":
+                self.add_symbol(create_compressor_discharge, data["coords"], orientation, color=color_names.RED_2, scale=scale)
+
+            elif data["connection_type"] == "suction":
+                self.add_symbol(create_compressor_suction, data["coords"], orientation, color=color_names.BLUE_2, scale=scale)
 
     def create_reciprocating_pump_excitation(self):
-        nodal_properties = app().project.model.properties.nodal_properties
+        for (property_name, *args), data in self.properties.nodal_properties.items():
+            if property_name != "reciprocating_pump_excitation":
+                continue
 
-        for (property_name, *args), data in nodal_properties.items():
-            if property_name == "reciprocating_pump_excitation":
-                node_id = args[0]
-                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
-                if len(elements) != 1:
-                    continue
+            node_id = args[0]
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
 
-                node = app().project.model.preprocessor.nodes[node_id]
-                element = elements[0]
-                orientation = element.last_node.coordinates - element.first_node.coordinates
+            if len(element_ids) != 1:
+                continue
 
-                if node != element.first_node:
-                    orientation = -orientation
+            node = self.preprocessor.nodes[node_id]
+            element_attributes = self.preprocessor.elements_attributes.get(element_ids[0])
+            orientation = element_attributes.last_node.coordinates - element_attributes.first_node.coordinates
 
-                if data["connection_type"] == "discharge":
-                    self.add_symbol(
-                        create_pump_discharge,
-                        data["coords"],
-                        orientation,
-                        color=color_names.RED,
-                    )
+            if node != element_attributes.first_node:
+                orientation = -orientation
 
-                elif data["connection_type"] == "suction":
-                    self.add_symbol(
-                        create_pump_suction,
-                        data["coords"],
-                        orientation,
-                        color=color_names.BLUE,
-                    )
+            if data["connection_type"] == "discharge":
+                self.add_symbol(create_pump_discharge, data["coords"], orientation, color=color_names.RED)
+
+            elif data["connection_type"] == "suction":
+                self.add_symbol(create_pump_suction, data["coords"], orientation, color=color_names.BLUE)
 
     def create_structural_links(self):
-        nodal_properties = app().project.model.properties.nodal_properties
-
-        for (property_name, *args), data in nodal_properties.items():
+        for (property_name, *args), data in self.properties.nodal_properties.items():
             if property_name not in ["stiffness_nodal_links", "damping_nodal_links"]:
                 continue
 
@@ -118,9 +116,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             self.add_symbol(func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
     def create_psd_structural_links(self):
-        nodal_properties = app().project.model.properties.nodal_properties
-
-        for (property_name, *args), data in nodal_properties.items():
+        for (property_name, *args), data in self.properties.nodal_properties.items():
             if property_name != "psd_structural_links":
                 continue
 
@@ -128,9 +124,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
     def create_psd_acoustic_links(self):
-        nodal_properties = app().project.model.properties.nodal_properties
-
-        for (property_name, *args), data in nodal_properties.items():
+        for (property_name, *args), data in self.properties.nodal_properties.items():
             if property_name != "psd_acoustic_link":
                 continue
 
@@ -138,9 +132,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
     def create_acoustic_transfer_element(self):
-        nodal_properties = app().project.model.properties.nodal_properties
-
-        for (property_name, *args), data in nodal_properties.items():
+        for (property_name, *args), data in self.properties.nodal_properties.items():
             if property_name != "acoustic_transfer_element":
                 continue
 
@@ -148,46 +140,53 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
     def create_perforated_plates(self):
-        element_properties = app().project.model.properties.element_properties
-        perforated_plate_many_holes = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_many_holes.obj")
-        perforated_plate_single_hole = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_single_hole.obj")
+        pp_many_holes = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_many_holes.obj")
+        pp_single_hole = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_single_hole.obj")
 
-        for (property_name, element_id), data in element_properties.items():
+        for (property_name, element_id), data in self.properties.element_properties.items():
             if property_name != "perforated_plate":
                 continue
 
-            element = app().project.model.preprocessor.structural_elements.get(element_id)
-            if element is None:
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
+            if element_attributes is None:
                 continue
+
+            cross_section = element_attributes.cross_section
 
             # There must be a cleaner way, but I will just
             # copy this code from the previous version
-            thickness = element.perforated_plate.thickness
-            if element.valve_data:
-                d_in = element.valve_data["valve_effective_diameter"]
-                diameter = d_in / 2
-            else:
-                diameter = element.cross_section.inner_diameter
 
-            coord_a = element.first_node.coordinates
-            coord_b = element.last_node.coordinates
+            perforated_plate = element_attributes.perforated_plate_data
+            pp_thickness = perforated_plate.plate_thickness
+            if element_attributes.valve_data is not None:
+                d_in = element_attributes.valve_data.effective_diameter
+                diameter = d_in / 2
+
+            else:
+                diameter = cross_section.inner_diameter
+
+            coord_a = element_attributes.first_node.coordinates
+            coord_b = element_attributes.last_node.coordinates
             vector = coord_b - coord_a
 
-            if element.perforated_plate.single_hole:
-                data = perforated_plate_single_hole
-            else:
-                data = perforated_plate_many_holes
+            obj_data = pp_single_hole if perforated_plate.single_hole else pp_many_holes
 
-            data = transform_polydata(
-                data,
+            func = partial(
+                transform_polydata,
+                obj_data,
                 rotation=(0, 0, 90),
-                scale=(thickness, diameter, diameter),
+                scale=(pp_thickness, diameter, diameter),
             )
 
-            self.add_symbol(lambda: data, coord_a, vector, color_names.PINK_6)
+            self.add_symbol(
+                func,
+                (coord_a + coord_b) / 2,
+                vector,
+                color_names.PINK_6,
+            )
 
     def create_valves(self):
-        line_properties = app().project.model.properties.line_properties
+        line_properties = self.properties.line_properties
 
         for line_id, data in line_properties.items():
             if "valve_info" not in data.keys():
@@ -205,8 +204,9 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
             valve_info = data["valve_info"]
             outside_diameter, thickness, offset_y, offset_z, *_ = valve_info["body_section_parameters"]
-            flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
-            flange_length = valve_info["flange_length"]
+            flange_section_parameters = valve_info.get("flange_section_parameters")
+            flange_outer_diameter = flange_section_parameters[0] if flange_section_parameters else None
+            flange_length = valve_info.get("flange_length")
 
             source = valve_data(
                 length,

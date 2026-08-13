@@ -4,18 +4,11 @@ import numpy as np
 from PySide6.QtCore import QEvent, QObject, Qt, Signal
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_function_ui import (
-    GetAcousticFrequencyResponseFunction_UI,
-)
-from pulse.interface.user_input.data_handler.export_model_results import (
-    ExportModelResults,
-)
+from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_function_ui import GetAcousticFrequencyResponseFunction_UI
+from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.numeric_checks.double_validator import StrictDoubleValidator
-from pulse.interface.user_input.plots.general.frequency_response_plotter import (
-    FrequencyResponsePlotter,
-)
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.model.properties.fluid import Fluid
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 
 class CutoffFrequency(IntEnum):
@@ -40,7 +33,6 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
         self.selection_callback()
 
     def _initialize(self):
-        self.solution = self.project.get_acoustic_solution()
         self.before_run = self.project.get_pre_solution_model_checks()
         self.analysis_method = self.project.analysis_method
         self.frequencies = self.model.frequencies
@@ -163,10 +155,8 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
                 return True
 
     def get_response(self):
-
-        preprocessor = app().project.model.preprocessor
-        numerator = get_acoustic_frf(preprocessor, self.solution, self.output_node_id)
-        denominator = get_acoustic_frf(preprocessor, self.solution, self.input_node_id)
+        numerator = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(self.output_node_id)
+        denominator = self.project.acoustic_postprocessing.get_acoustic_response_spectrum(self.input_node_id)
 
         if complex(0) in denominator:
             denominator += 1e-12

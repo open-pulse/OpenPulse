@@ -7,7 +7,6 @@ from PySide6.QtWidgets import QDialog, QHeaderView, QTableWidgetItem
 
 from pulse import app
 from pulse.interface import error_title
-from pulse.interface.formatters.icons import change_icon_color_for_widgets
 from pulse.interface.ui_generated.model.setup.material.material_input_widget_ui import (
     MaterialInputWidget_UI,
 )
@@ -34,7 +33,6 @@ class MaterialWidget(MaterialInputWidget_UI):
         self._initialize()
         self.create_connections()
         self._config_widgets()
-        self._paint_icons()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
@@ -75,18 +73,6 @@ class MaterialWidget(MaterialInputWidget_UI):
 
     def _config_widgets(self):
         self.tableWidget_material_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
-    
-    def _paint_icons(self):
-        icon_color = None
-        theme = app().config.user_preferences.interface_theme
-        from pulse import DARK_ICON_COLOR, LIGHT_ICON_COLOR
-        if theme == "dark":
-            icon_color = DARK_ICON_COLOR.to_qt()
-        else:
-            icon_color = LIGHT_ICON_COLOR.to_qt()
-
-        widgets = [self.pushButton_duplicate]
-        change_icon_color_for_widgets(widgets, icon_color)
 
     def _update_size_policy(self):
         if len(self.materials_from_library) > 6:
