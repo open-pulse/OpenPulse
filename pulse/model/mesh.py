@@ -154,6 +154,7 @@ class Mesh:
         except Exception as log_error:
             from traceback import print_exception
             print_exception(log_error)
+            raise
 
     def _remove_orphan_points(self):
 
@@ -274,7 +275,7 @@ class Mesh:
         return self.nodal_coordinates[node_ids, 1:]
     
     def get_line_from_element(self, element_id: int) -> None | int:
-        if element_id >= self.line_from_element.shape[0]:
+        if self.line_from_element is None or element_id >= self.line_from_element.shape[0]:
             return None
 
         return self.line_from_element[element_id, 1]

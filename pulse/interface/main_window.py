@@ -7,11 +7,10 @@ from sys import argv
 
 # from time import time
 from molde import stylesheets
-from molde.colors import color_names
 from molde.render_widgets import CommonRenderWidget
 from PySide6.QtCore import QEvent, QPoint, Qt, Signal
-from PySide6.QtGui import QAction, QCloseEvent, QColor, QCursor
-from PySide6.QtWidgets import QAbstractButton, QApplication, QDialog, QMessageBox, QToolBar, QWidget
+from PySide6.QtGui import QAction, QCloseEvent, QCursor
+from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QToolBar, QWidget
 
 from pulse import (
     QSS_DIR,
@@ -20,6 +19,7 @@ from pulse import (
     USER_PATH,
     app,
 )
+from pulse.interface.data.icons.theme_resources import set_icon_theme
 from pulse.interface.formatters import icons
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.handler.pcf_file_io import PCFFileIO
@@ -867,7 +867,8 @@ class MainWindow(MainWindow_UI):
 
     def action_import_geometry_callback(self):
         obj = ImportGeometry()
-        self.initial_project_action(obj.complete)
+        if obj.complete:
+            self.initial_project_action(True)
 
     def _add_analysis_toolbar(self):
         self.analysis_toolbar = AnalysisToolbar()
@@ -937,33 +938,21 @@ class MainWindow(MainWindow_UI):
     def set_theme(self):
         theme = self.config.user_preferences.interface_theme
 
-        # if theme not in ["light", "dark"]:
-        #     return
-
-        # self.update_themes_in_file()
         if self.interface_theme == theme:
             return
 
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            self.icon_color = QColor(color_names.BLUE_7.to_hex())
-
-        elif theme == "light":
-            self.icon_color = QColor(color_names.BLUE_4.to_hex())
 
         self.interface_theme = theme
         stylesheets.set_theme(theme)
+        set_icon_theme(theme)
         self.theme_changed.emit(theme)
 
         self.action_set_light_theme.setDisabled(theme == "light")
         self.action_set_dark_theme.setDisabled(theme == "dark")
         self.action_user_preferences.setDisabled(0)
-
-        # paint the icons of every children widget
-        widgets = self.findChildren(QAbstractButton)
-        widgets += self.findChildren(QAction)
-        icons.change_icon_color_for_widgets(widgets, self.icon_color)
 
     def savePNG_call(self):
 
@@ -1015,6 +1004,14 @@ class MainWindow(MainWindow_UI):
             if self.save_project_data():
                 return
 
+        self.reset_temporary_folder()
+        self.project.reset(reset_all=True)
+        self.project.model.properties._reset_variables()
+        self.project.reset_project(reset_all=True)
+        self.update_plots()
+
+        self.reset_geometry_render()
+        self.configure_welcome_widget()
         obj = NewProjectInput()
         if not self.initial_project_action(obj.complete):
             return

@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QFrame,
     QPushButton, QSizePolicy, QSpinBox, QTreeWidget,
     QTreeWidgetItem, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -267,8 +269,7 @@ class Ui_Dialog(object):
         font6.setItalic(False)
         self.pushButton_search_file_to_import.setFont(font6)
         self.pushButton_search_file_to_import.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/import.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/import.png")
         self.pushButton_search_file_to_import.setIcon(icon)
         self.pushButton_search_file_to_import.setIconSize(QSize(20, 20))
 

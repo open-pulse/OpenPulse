@@ -19,11 +19,13 @@ from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
     QPushButton, QSizePolicy, QSlider, QSpacerItem,
     QSpinBox, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(366, 222)
+        Form.resize(366, 324)
         self.gridLayout_2 = QGridLayout(Form)
         self.gridLayout_2.setSpacing(4)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
@@ -38,8 +40,8 @@ class Ui_Form(object):
         self.gridLayout.setContentsMargins(4, 6, 4, 6)
         self.frame_2 = QFrame(self.frame)
         self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setMinimumSize(QSize(0, 80))
-        self.frame_2.setMaximumSize(QSize(16777215, 80))
+        self.frame_2.setMinimumSize(QSize(0, 100))
+        self.frame_2.setMaximumSize(QSize(16777215, 120))
         self.frame_2.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_2)
@@ -66,8 +68,7 @@ class Ui_Form(object):
         self.pushButton_animation_loop.setObjectName(u"pushButton_animation_loop")
         self.pushButton_animation_loop.setMinimumSize(QSize(40, 28))
         self.pushButton_animation_loop.setMaximumSize(QSize(16777215, 28))
-        icon = QIcon()
-        icon.addFile(u":/icons/common/infinite_symbol.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/infinite_symbol.png")
         self.pushButton_animation_loop.setIcon(icon)
         self.pushButton_animation_loop.setIconSize(QSize(22, 22))
         self.pushButton_animation_loop.setCheckable(False)
@@ -160,7 +161,8 @@ class Ui_Form(object):
 
         self.frame_middle = QFrame(self.frame)
         self.frame_middle.setObjectName(u"frame_middle")
-        self.frame_middle.setMaximumSize(QSize(16777215, 16777215))
+        self.frame_middle.setMinimumSize(QSize(0, 80))
+        self.frame_middle.setMaximumSize(QSize(16777215, 90))
         self.frame_middle.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_middle.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_5 = QGridLayout(self.frame_middle)

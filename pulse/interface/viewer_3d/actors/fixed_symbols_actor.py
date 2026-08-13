@@ -204,8 +204,9 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
             valve_info = data["valve_info"]
             outside_diameter, thickness, offset_y, offset_z, *_ = valve_info["body_section_parameters"]
-            flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
-            flange_length = valve_info["flange_length"]
+            flange_section_parameters = valve_info.get("flange_section_parameters")
+            flange_outer_diameter = flange_section_parameters[0] if flange_section_parameters else None
+            flange_length = valve_info.get("flange_length")
 
             source = valve_data(
                 length,

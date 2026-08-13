@@ -450,7 +450,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../../icons/resources.qrc">
-             <normaloff>:/icons/mpltoolbar/copy_icon.png</normaloff>:/icons/mpltoolbar/copy_icon.png</iconset>
+             <normaloff>:/icons/common/copy_icon.png</normaloff>:/icons/common/copy_icon.png</iconset>
            </property>
            <property name="iconSize">
             <size>

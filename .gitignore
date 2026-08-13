@@ -9,8 +9,10 @@ src/
 .config
 test.py
 *.md5
-
 .idea/
+
+# ignore all root folders whose name start with a dot
+.*/
 
 # Profiling files
 *.log

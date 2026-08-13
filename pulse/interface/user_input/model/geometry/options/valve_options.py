@@ -24,13 +24,24 @@ class ValveOptions(StructureOptions):
         if self.structure_info is None:
             return
 
-        return dict(
+        kwargs = dict(
             diameter=self.structure_info.get("effective_diameter", 0),
-            flange_outer_diameter=self.structure_info.get("flange_section_parameters", [0])[0],
-            flange_length=self.structure_info.get("flange_length"),
             thickness=0,
             extra_info=self._get_extra_info(),
         )
+
+        if "flange_diameter" in self.structure_info:
+            kwargs.update(
+                flange_outer_diameter=self.structure_info.get("flange_section_parameters", [0])[0],
+                flange_length=self.structure_info.get("flange_length"),
+            )
+        else:
+            kwargs.update(
+                flange_outer_diameter=None,
+                flange_length=None,
+            )
+
+        return kwargs
 
     def configure_structure(self):
         app().main_window.close_dialogs()

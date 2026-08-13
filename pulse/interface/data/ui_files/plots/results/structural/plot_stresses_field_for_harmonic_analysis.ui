@@ -48,8 +48,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>339</width>
-        <height>578</height>
+        <width>327</width>
+        <height>678</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_11">
@@ -109,13 +109,13 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>160</height>
+              <height>200</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>180</height>
+              <height>220</height>
              </size>
             </property>
             <property name="frameShape">
@@ -879,12 +879,6 @@
        </item>
        <item row="3" column="0">
         <widget class="QFrame" name="frame_animation">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>60</height>
-          </size>
-         </property>
          <property name="frameShape">
           <enum>QFrame::Shape::NoFrame</enum>
          </property>
@@ -905,7 +899,7 @@
   <tabstop>comboBox_stress_type</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../icons/resources.qrc"/>
+  <include location="../../../../icons/dark_theme/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

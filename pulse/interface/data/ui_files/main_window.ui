@@ -800,7 +800,7 @@
   <action name="action_capture_image">
    <property name="icon">
     <iconset resource="../icons/resources.qrc">
-     <normaloff>:/icons/cube-scan.png</normaloff>:/icons/cube-scan.png</iconset>
+     <normaloff>:/icons/common/cube-scan.png</normaloff>:/icons/common/cube-scan.png</iconset>
    </property>
    <property name="text">
     <string>Capture Image</string>
@@ -808,7 +808,8 @@
   </action>
   <action name="action_home_exit">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::GoHome"/>
+    <iconset resource="../icons/resources.qrc">
+     <normaloff>:/icons/common/home.png</normaloff>:/icons/common/home.png</iconset>
    </property>
    <property name="text">
     <string>Home Exit</string>

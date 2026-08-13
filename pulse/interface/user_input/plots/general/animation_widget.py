@@ -1,11 +1,9 @@
 import numpy as np
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QPushButton
 
-from pulse import DARK_ICON_COLOR, ICON_DIR, LIGHT_ICON_COLOR, app
+from pulse import app
 from pulse.interface import error_title
-from pulse.interface.formatters import icons
+from pulse.interface.formatters.icons import Icon
 from pulse.interface.ui_generated.plots.animation.animation_widget_ui import AnimationWidget_UI
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.project.loading_window import LoadingWindow
@@ -20,9 +18,10 @@ class AnimationWidget(AnimationWidget_UI):
         self._create_connections()
 
     def _load_icons(self):
-        self.play_icon = QIcon(str(ICON_DIR / "common/play.png"))
-        self.pause_icon = QIcon(str(ICON_DIR / "common/pause.png"))
-        self.export_icon = QIcon(str(ICON_DIR / "common/save_as.png"))
+        self.play_icon = Icon(":/icons/common/play.png")
+        self.pause_icon = Icon(":/icons/common/pause.png")
+        self.export_icon = Icon(":/icons/common/save_as.png")
+        self.loop_icon = Icon(":/icons/common/infinite_symbol.png")
 
     def _config_widgets(self):
 
@@ -36,6 +35,8 @@ class AnimationWidget(AnimationWidget_UI):
         self.pushButton_export_video.setIconSize(QSize(20, 20))
         self.pushButton_export_video.setCursor(Qt.PointingHandCursor)
 
+        self.pushButton_animation_loop.setIcon(self.loop_icon)
+        self.pushButton_animation_loop.setIconSize(QSize(20, 20))
         self.pushButton_animation_loop.setCursor(Qt.PointingHandCursor)
         self.pushButton_animation_loop.setToolTip("Loop the animation")
         self.pushButton_animation_loop.setCheckable(True)
@@ -56,8 +57,6 @@ class AnimationWidget(AnimationWidget_UI):
         # QSpinBox
         self.spinBox_frames.setValue(app().project.frames)
         self.spinBox_cycles.setValue(app().project.cycles)
-
-        self._configure_icons()
         self.update_phase_slider_steps()
 
     def _create_connections(self):
@@ -72,18 +71,6 @@ class AnimationWidget(AnimationWidget_UI):
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
         #
-        app().main_window.theme_changed.connect(self._configure_icons)
-
-    def _configure_icons(self, *args):
-
-        icon_color = None
-        theme = app().config.user_preferences.interface_theme
-        if theme == "dark":
-            icon_color = DARK_ICON_COLOR.to_qt()
-        else:
-            icon_color = LIGHT_ICON_COLOR.to_qt()
-
-        icons.change_icon_color_for_widgets(self.findChildren(QPushButton), icon_color)
 
     @property
     def phase_in_radians(self):
@@ -161,7 +148,6 @@ class AnimationWidget(AnimationWidget_UI):
 
     def update_animate_button_icons(self, state: bool):
         self.pushButton_animate.setIcon(self.pause_icon if state else self.play_icon)
-        self._configure_icons()
 
     def update_degree_label(self):
         value = self.phase_slider.value()

@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QApplication
 
 from pulse import FONT_DIR
 from pulse.interface.others.splash_screen import SplashScreen
+from pulse.interface.data.icons.theme_resources import set_icon_theme
 
 
 class Application(QApplication):
@@ -21,6 +22,7 @@ class Application(QApplication):
         from pulse.project.config import Config
 
         self.config = Config()
+        set_icon_theme(self.config.user_preferences.interface_theme)
 
         from pulse.project.project import Project
 

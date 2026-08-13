@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
     QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
     QTreeWidget, QTreeWidgetItem, QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -34,8 +36,7 @@ class Ui_Dialog(object):
         Dialog.setMinimumSize(QSize(450, 500))
         Dialog.setMaximumSize(QSize(450, 500))
         Dialog.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
-        icon = QIcon()
-        icon.addFile(u"../../../../../../../../../Downloads/load - Copia.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u"../../../../../../../../../Downloads/load - Copia.png")
         Dialog.setWindowIcon(icon)
         self.gridLayout_4 = QGridLayout(Dialog)
         self.gridLayout_4.setSpacing(4)

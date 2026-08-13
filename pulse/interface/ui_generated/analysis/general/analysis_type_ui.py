@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
     QLabel, QPushButton, QSizePolicy, QSpacerItem,
     QWidget)
 
+from pulse.interface.formatters.icons import Icon
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
@@ -33,8 +35,7 @@ class Ui_Dialog(object):
         Dialog.setMinimumSize(QSize(340, 380))
         Dialog.setMaximumSize(QSize(340, 380))
         Dialog.setContextMenuPolicy(Qt.DefaultContextMenu)
-        icon = QIcon()
-        icon.addFile(u"../../../../../Downloads/load - Copia.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u"../../../../../Downloads/load - Copia.png")
         Dialog.setWindowIcon(icon)
         self.gridLayout_2 = QGridLayout(Dialog)
         self.gridLayout_2.setSpacing(4)
@@ -89,8 +90,7 @@ class Ui_Dialog(object):
         font1.setItalic(False)
         self.pushButton_harmonic_structural.setFont(font1)
         self.pushButton_harmonic_structural.setStyleSheet(u"")
-        icon1 = QIcon()
-        icon1.addFile(u"../../../../../Downloads/load.png", QSize(), QIcon.Mode.Active, QIcon.State.On)
+        icon1 = Icon(u"../../../../../Downloads/load.png")
         self.pushButton_harmonic_structural.setIcon(icon1)
         self.pushButton_harmonic_structural.setAutoDefault(False)
         self.pushButton_harmonic_structural.setFlat(False)

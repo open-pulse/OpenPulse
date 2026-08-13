@@ -8,7 +8,7 @@ from molde import Color
 from pathlib import Path
 
 __version__ = "2.0.11"
-__release_date__ = 'Jun 2026'
+__release_date__ = 'Jul 2026'
 
 VERSION = __version__
 RELEASE_DATE = __release_date__
@@ -24,8 +24,8 @@ FONT_DIR = OPEN_PULSE_DIR / "interface/data/fonts/"
 USER_PATH = Path().home()
 TEMP_PROJECT_DIR = USER_PATH / "temp_pulse"
 
-LIGHT_ICON_COLOR = Color("#1a73e8")
-DARK_ICON_COLOR = Color("#5F9AF4")
+LIGHT_ICON_COLOR = Color("#0051A2")
+DARK_ICON_COLOR = Color("#84AAFF")
 
 def app() -> "Application":
     '''

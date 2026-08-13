@@ -14,7 +14,6 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         super().__init__(*args, **kwargs)
         self._initialize()
         self._create_connections()
-        self._config_widgets()
         self._add_animation_widget()
         
 
@@ -49,6 +48,11 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
 
         font = QFont()
         font.setPointSize(9)
+
+        # full reset of the treeWidget_frequencies
+        self.treeWidget_frequencies.clear()
+        self.treeWidget_frequencies.setColumnCount(0)
+        self.treeWidget_frequencies.setHeaderLabels([])
 
         for i, header in enumerate(headers):
             self.treeWidget_frequencies.headerItem().setFont(i, font)
@@ -131,6 +135,8 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
 
     def load_natural_frequencies(self):
 
+        self._config_widgets()
+
         if isinstance(app().project.complex_natural_frequencies_acoustic, np.ndarray):
             self.natural_frequencies = list(app().project.complex_natural_frequencies_acoustic)
 
@@ -140,7 +146,6 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         modes = np.arange(1, len(self.natural_frequencies) + 1, 1)
         self.modes_to_frequencies = dict(zip(modes, self.natural_frequencies))
 
-        self.treeWidget_frequencies.clear()
         for mode, value in self.modes_to_frequencies.items():
             if isinstance(value, complex):
                 cols = 3
