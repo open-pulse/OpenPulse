@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'frequency_response_plotter.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
     QFrame, QGridLayout, QLabel, QLineEdit,
     QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
     QSpinBox, QVBoxLayout, QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -569,8 +571,7 @@ class Ui_Dialog(object):
         self.pushButton_display_hfrequencies = QPushButton(self.frame_hlines_main)
         self.pushButton_display_hfrequencies.setObjectName(u"pushButton_display_hfrequencies")
         self.pushButton_display_hfrequencies.setMinimumSize(QSize(30, 0))
-        icon = QIcon()
-        icon.addFile(u":/icons/common/visibility.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/visibility.png")
         self.pushButton_display_hfrequencies.setIcon(icon)
         self.pushButton_display_hfrequencies.setIconSize(QSize(20, 20))
         self.pushButton_display_hfrequencies.setCheckable(False)
@@ -645,8 +646,7 @@ class Ui_Dialog(object):
         font6.setItalic(False)
         self.pushButton_export_data.setFont(font6)
         self.pushButton_export_data.setStyleSheet(u"")
-        icon1 = QIcon()
-        icon1.addFile(u":/icons/common/save_as_2.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon1 = Icon(u":/icons/common/save_as_2.png")
         self.pushButton_export_data.setIcon(icon1)
         self.pushButton_export_data.setIconSize(QSize(20, 20))
         self.pushButton_export_data.setAutoDefault(False)
@@ -660,8 +660,7 @@ class Ui_Dialog(object):
         self.pushButton_import_data.setMaximumSize(QSize(120, 32))
         self.pushButton_import_data.setFont(font6)
         self.pushButton_import_data.setStyleSheet(u"")
-        icon2 = QIcon()
-        icon2.addFile(u":/icons/common/document_search.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon2 = Icon(u":/icons/common/document_search.png")
         self.pushButton_import_data.setIcon(icon2)
         self.pushButton_import_data.setIconSize(QSize(20, 20))
         self.pushButton_import_data.setAutoDefault(False)

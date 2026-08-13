@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.get_stresses_for_harmonic_analysis_ui import GetStressesForHarmonicAnalysis_UI
-from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
+from pulse.postprocessing.structural_postprocessing import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
@@ -23,38 +23,37 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
         self.selection_callback()
 
     def _initialize(self):
-        
-        self.keys = np.arange(7)
-        self.labels = np.array([
-            "Normal axial", 
-            "Normal bending y", 
-            "Normal bending z", 
-            "Hoop", 
-            "Torsional shear", 
-            "Transversal shear xy", 
-            "Transversal shear xz"
-            ])
 
-        self.stress_data = list()
+        self.stresses_data = None
+
+        self.stresses_labels = np.array(
+            ["Normal axial", "Normal bending y", "Normal bending z", "Hoop", "Torsional shear", "Transversal shear xy", "Transversal shear xz"]
+        )
 
         self.before_run = app().project.get_pre_solution_model_checks()
-        self.frequencies = app().project.model.frequencies
+
+    @property
+    def model(self):
+        return app().project.model
+
+    @property
+    def structural_solver(self):
+        return app().project.structural_solver
 
     def _load_structural_solver(self):
 
-        if app().project.structural_solver is None:
+        if self.structural_solver is not None:
+            return
 
-            def callback():
-                logging.info("Processing the cross-sections [75%]")
-                app().project.model.preprocessor.process_cross_sections_mapping()
-            LoadingWindow(callback).run()
+        def process_cross_sections():
+            logging.info("Processing the cross-sections [75%]")
+            self.model.preprocessor.process_cross_sections_mapping()
 
-            self.structural_solver = app().project.get_structural_solver()
-            if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
+        LoadingWindow(process_cross_sections).run()
 
-        else:
-            self.structural_solver = app().project.structural_solver
+        app().project.structural_solver = app().project.get_structural_solver()
+        if self.structural_solver.solution is None:
+            self.structural_solver.solution = self.model.structural_solution
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -87,48 +86,42 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
         if stop:
             return True
 
-        index = self.comboBox_stress_type.currentIndex()
-        self.stress_label = self.labels[index]
-        self.stress_key = self.keys[index]
-
     def get_stress_data(self, element_id):
 
-        if len(self.stress_data) == 0 or self.update_damping:
-            damping_effect = self.checkBox_damping_effect.isChecked()
+        index = self.comboBox_stress_type.currentIndex()
+        damping_effect = self.checkBox_damping_effect.isChecked()
 
-            self.stress_data = self.structural_solver.stress_calculate(damping=damping_effect)
+        if self.stresses_data is None or self.update_damping:
+            self.stresses_data = self.structural_solver.stress_calculate(damping=damping_effect)
             self.update_damping = False
 
-        response = get_stress_spectrum_data(
-                                            self.stress_data, 
-                                            element_id, 
-                                            self.stress_key
-                                            )
-
-        return response
+        return get_stress_spectrum_data(self.stresses_data, element_id, index)
         
     def join_model_data(self):
 
         self.model_results = dict()
         title = f"Structural frequency response - {app().project.analysis_method} method"
 
+        index = self.comboBox_stress_type.currentIndex()
+        stress_label = self.stresses_labels[index]
+
         for k, element_id in enumerate(self.element_ids):
                 
             key = ("element", element_id)
-            legend_label = f"{self.stress_label} stress at element [{element_id}]"
+            legend_label = f"{stress_label} stress at element [{element_id}]"
 
-            self.model_results[key] = {  
-                                        "x_data" : self.frequencies,
-                                        "y_data" : self.get_stress_data(element_id),
-                                        "x_label" : "Frequency [Hz]",
-                                        "y_label" : "Stress",
-                                        "title" : title,
-                                        "data_information" : legend_label,
-                                        "legend" : legend_label,
-                                        "unit" : "Pa",
-                                        "color" : self.get_color(k),
-                                        "linestyle" : "-"  
-                                       }
+            self.model_results[key] = {
+                "x_data": self.model.frequencies,
+                "y_data": self.get_stress_data(element_id),
+                "x_label": "Frequency [Hz]",
+                "y_label": "Stress",
+                "title": title,
+                "data_information": legend_label,
+                "legend": legend_label,
+                "unit": "Pa",
+                "color": self.get_color(k),
+                "linestyle": "-",
+            }
 
     def get_color(self, index):
 

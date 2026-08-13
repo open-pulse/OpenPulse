@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from molde.stylesheets import set_qproperty
 
 from pulse import app
+from pulse.editor.structures import Beam
 from pulse.utils.text_utils import pascal_to_spaced_case
 
 if TYPE_CHECKING:
@@ -98,6 +99,16 @@ class StructureOptions:
         for structure in self.pipeline.selected_structures:
             if not isinstance(structure, self.structure_type):
                 continue
+
+            extra_info: dict = kwargs.get("extra_info")
+
+            fluid_id = structure.extra_info.get("fluid_id")
+            if isinstance(fluid_id, int) and not isinstance(structure, Beam):
+                extra_info.update({"fluid_id" : fluid_id})
+
+            material_id = structure.extra_info.get("material_id")
+            if isinstance(material_id, int):
+                extra_info.update({"material_id" : material_id})
 
             for k, v in kwargs.items():
                 setattr(structure, k, v)

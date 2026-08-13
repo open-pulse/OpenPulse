@@ -52,6 +52,12 @@
       </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_main_info">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>200</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
@@ -268,6 +274,8 @@
    </item>
   </layout>
  </widget>
- <resources><include location="../../icons/resources.qrc" /></resources>
+ <resources>
+  <include location="../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

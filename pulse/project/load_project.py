@@ -1,23 +1,18 @@
 from typing import TYPE_CHECKING
 
-from pulse import version
+from pulse import VERSION
 from pulse.interface import error_title, warning_title
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
 from pulse.model.cross_sections.c_beam_cross_section import CBeamCrossSection
-from pulse.model.cross_sections.circular_beam_cross_section import (
-    CircularBeamCrossSection,
-)
-from pulse.model.cross_sections.generic_beam_cross_section import (
-    GenericBeamCrossSection,
-)
+from pulse.model.cross_sections.circular_beam_cross_section import CircularBeamCrossSection
+from pulse.model.cross_sections.generic_beam_cross_section import GenericBeamCrossSection
 from pulse.model.cross_sections.i_beam_cross_section import IBeamCrossSection
 from pulse.model.cross_sections.pipe_cross_section import PipeCrossSection
-from pulse.model.cross_sections.rectangular_beam_cross_section import (
-    RectangularBeamCrossSection,
-)
+from pulse.model.cross_sections.rectangular_beam_cross_section import RectangularBeamCrossSection
 from pulse.model.cross_sections.t_beam_cross_section import TBeamCrossSection
-from pulse.model.perforated_plate import PerforatedPlate
+from pulse.model.data_classes.perforated_plate_data_class import PerforatedPlateData
+from pulse.model.data_classes.project_setup_data_classes import MesherSetup, ProjectSetup
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 
@@ -36,6 +31,7 @@ class LoadProject:
         super().__init__()
 
         self.project = project
+        self.model = project.model
         self.properties = project.model.properties
         self.preprocessor = project.model.preprocessor
 
@@ -56,7 +52,7 @@ class LoadProject:
         #
         self.reset_model_properties()
         #
-        self.load_mesh_setup_from_file()
+        self.load_project_setup_from_file()
         self.load_imported_table_data_from_file()
         #
         self.load_fluids_library()
@@ -280,7 +276,7 @@ class LoadProject:
                 self.preprocessor.set_element_length_correction_by_element(element_id, prop_data)
 
             elif property == "perforated_plate":
-                perforated_plate = PerforatedPlate(prop_data)
+                perforated_plate = PerforatedPlateData(**prop_data)
                 self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
 
             elif property == "acoustic_element_turned_off":
@@ -302,20 +298,13 @@ class LoadProject:
         if not isinstance(prop_data, dict):
             return
 
-        prop_data["joint_length"] = self.properties.get_line_length(line_id)
+        prop_data["ejoint_length"] = self.properties.get_line_length(line_id)
 
         if "effective_diameter" not in prop_data.keys():
             return
     
-        self.preprocessor.add_expansion_joint_by_lines(
-            line_id, 
-            prop_data,
-            )
-
-        self.preprocessor.set_cross_sections_to_expansion_joint(
-            line_id, 
-            prop_data,
-            )
+        self.preprocessor.add_expansion_joint_by_lines(line_id, prop_data)
+        self.preprocessor.set_cross_sections_to_expansion_joint(line_id, prop_data)
 
 
     def load_valves(self, line_id: int, data: dict):
@@ -342,7 +331,7 @@ class LoadProject:
     def load_cross_sections(self, line_id: list, data: dict):
 
         if "cross_section" in data.keys():
-            cross_section = data["cross_section"]
+            cross_section = data.get("cross_section")
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
 
         elif "section_type_label" in data.keys():
@@ -401,9 +390,9 @@ class LoadProject:
     def load_imported_table_data_from_file(self):
         imported_tables = self.project.file.load_imported_table_data_from_file()
         if "acoustic" in imported_tables.keys():
-            self.project.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
+            self.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
         if "structural" in imported_tables.keys():
-            self.project.model.properties.structural_imported_tables = imported_tables["structural"]
+            self.model.properties.structural_imported_tables = imported_tables["structural"]
 
 
     def check_file_version(self):
@@ -417,12 +406,14 @@ class LoadProject:
             return True
 
         if "version" in project_setup.keys():
-            file_version = project_setup["version"]
+            file_version = project_setup.get("version")
+            if isinstance(file_version, list):
+                file_version = file_version[0]
         else:
             #TODO: remove this as soon as possible
-            file_version = version()
+            file_version = VERSION
 
-        software_version = version()
+        software_version = VERSION
         if Version(file_version) > Version(software_version):
             title = "Incorrect file version"
             message = "The project file version is incompatible with the current OpenPulse version. "
@@ -431,14 +422,22 @@ class LoadProject:
             return True
 
 
-    def load_mesh_setup_from_file(self):
+    def load_project_setup_from_file(self):
 
-        project_setup = self.project.file.read_project_setup_from_file()
-        if project_setup is None:
-            return
+        project_setup_dict = self.project.file.read_project_setup_from_file()
+        mesher_setup: dict = project_setup_dict.get("mesher_setup", dict())
 
-        if "mesher_setup" in project_setup.keys():
-            self.preprocessor.mesh.set_mesher_setup(mesher_setup=project_setup["mesher_setup"])
+        import_type = project_setup_dict.get("import_type")
+
+        project_setup = ProjectSetup()
+        project_setup.import_type = mesher_setup.get("import_type") if import_type is None else import_type
+        project_setup.geometry_filename = project_setup_dict.get("geometry_filename", "")
+        project_setup.geometry_path_source = project_setup_dict.get("geometry_path_source", "")
+        project_setup.geometry_path_internal = self.project.file.read_geometry_from_file()
+        project_setup.version = project_setup_dict.get("version", VERSION)
+        project_setup.mesher_setup = MesherSetup(**project_setup_dict.get("mesher_setup", dict()))
+
+        self.project.model.set_project_setup(project_setup)
 
 
     def load_inertia_load_setup(self):
@@ -450,14 +449,14 @@ class LoadProject:
         gravity = np.array(inertia_load["gravity"], dtype=float)
         stiffening_effect = inertia_load["stiffening_effect"]
 
-        self.project.model.set_gravity_vector(gravity)
+        self.model.set_gravity_vector(gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
 
 
     def load_analysis_setup(self):
         analysis_setup = self.project.file.load_analysis_file()
         if isinstance(analysis_setup, dict):
-            self.project.model.set_analysis_setup(analysis_setup)
+            self.model.set_analysis_setup(analysis_setup)
 
 
     def get_psd_related_lines(self):
@@ -563,6 +562,8 @@ class LoadProject:
                 continue
         
             coords = np.array(data["coords"], dtype=float)
+
+            # two nodes-related boundary conditions id mapping
             if len(coords) == 6:
 
                 node_id1, node_id2 = args
@@ -576,16 +577,18 @@ class LoadProject:
                     property_to_remove[property] = args
 
                 if new_node_id1 is None:
-                    non_mapped_nodes.append((node_id1, coords))
-                    continue
+                    non_mapped_nodes.append((node_id1, coords_1))
 
                 if new_node_id2 is None:
-                    non_mapped_nodes.append((node_id2, coords))
+                    non_mapped_nodes.append((node_id2, coords_2))
+
+                if (new_node_id1, new_node_id2).count(None):
                     continue
 
                 sorted_indexes = np.sort([new_node_id1, new_node_id2])
                 new_key = (property, sorted_indexes[0], sorted_indexes[1])
 
+            # one node-related boundary conditions id mapping
             elif len(coords) == 3:
 
                 node_id = args
@@ -597,12 +600,13 @@ class LoadProject:
                     continue
 
                 if property in ["radiation_impedance", "specific_impedance"]:        
-                    neigh_elements = self.preprocessor.structural_elements_connected_to_node.get(new_node_id)
-                    if isinstance(neigh_elements, list):
-                        if len(neigh_elements) != 1:
-                            internal_impedances.append((new_node_id, coords))
-                            property_to_remove[property] = args                 
-                            continue
+                    element_ids = self.preprocessor.elements_connected_to_node.get(new_node_id)
+
+                    # remove these nodal properties if they do not belong to end nodes
+                    if len(element_ids) != 1:
+                        internal_impedances.append((new_node_id, coords))
+                        property_to_remove[property] = args                 
+                        continue
 
             aux_nodal[new_key] = data
     
@@ -657,28 +661,31 @@ class LoadProject:
         non_mapped_elements = list()
 
         for (property, element_id), data in self.properties.element_properties.items():
-            if property in ["element_length_correction", "B2P_rotation_decoupling"]:
+            if property not in ["element_length_correction", "B2P_rotation_decoupling"]:
+                continue
 
-                if "coords" in data.keys():
-                    coords = np.array(data["coords"], dtype=float)
-                    node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+            if not isinstance(data, dict):
+                continue
 
-                    if isinstance(node_id, int):
-                        if property == "B2P_rotation_decoupling":
-                            neigh_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
-                        else:
-                            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
+            coords = data.get("coords")
+            if coords is None:
+                continue
 
-                        for element in neigh_elements:
-                            if property == "B2P_rotation_decoupling":
-                                if element.element_type != "beam_1":
-                                    continue
+            coords = np.array(data["coords"], dtype=float)
+            node_id = self.preprocessor.get_node_id_by_coordinates(coords)
 
-                            new_key = (property, element.index)
-                            aux_elements[new_key] = data
+            if isinstance(node_id, int):
+                for element_id in self.preprocessor.elements_connected_to_node[node_id]:
+                    element_attributes = self.preprocessor.elements_attributes.get(element_id)
+                    if property == "B2P_rotation_decoupling":
+                        if element_attributes.structural_element_type != "beam_1":
+                            continue
 
-                    else:
-                        non_mapped_elements.append((element_id, node_id))
+                    new_key = (property, element_attributes.index)
+                    aux_elements[new_key] = data
+
+            else:
+                non_mapped_elements.append((element_id, node_id))
 
         pp_removed = list()
         for (property, element_id), data in self.properties.element_properties.items():
@@ -707,8 +714,8 @@ class LoadProject:
                 length = np.linalg.norm(coords_1 - coords_2)
 
                 for _element_id in elements_from_lines:
-                    element = self.preprocessor.structural_elements[_element_id]
-                    ecc = element.center_coordinates
+                    element_attributes = self.preprocessor.elements_attributes.get(_element_id)
+                    ecc = element_attributes.center_coordinates
 
                     if np.linalg.norm(coords_1 - ecc) < length:
                         elements_inside_bounds[_element_id].append("first_node")
@@ -783,26 +790,26 @@ class LoadProject:
                         self.project.complex_natural_frequencies_acoustic = data["natural_frequencies"]
                     else:
                         self.project.natural_frequencies_acoustic = data["natural_frequencies"]
-                    self.project.acoustic_solution = data["modal_shape"]
+                    self.project.set_acoustic_solution(data["modal_shape"])
 
                 if key == "modal_structural":
                     str_modal_analysis = True
                     self.project.natural_frequencies_structural = data["natural_frequencies"]
-                    self.project.structural_solution = data["modal_shape"]
+                    self.project.set_structural_solution(data["modal_shape"])
 
                 if key == "harmonic_acoustic":
                     act_harmonic_analysis = True
-                    self.project.model.frequencies = data["frequencies"]
-                    self.project.acoustic_solution = data["solution"]
+                    self.model.frequencies = data["frequencies"]
+                    self.project.set_acoustic_solution(data["solution"])
 
                 if key == "harmonic_structural":
                     str_harmonic_analysis = True
-                    self.project.model.frequencies = data["frequencies"]
-                    self.project.structural_solution = data["solution"]
+                    self.model.frequencies = data["frequencies"]
+                    self.project.set_structural_solution(data["solution"])
 
                 if key == "static_structural":
                     # str_static_analysis = True
-                    self.project.structural_solution = data["solution"]
+                    self.project.set_structural_solution(data["solution"])
 
             logging.info("Updating analysis render [75%]")
             if act_modal_analysis:

@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 from pathlib import Path
 
 from PySide6.QtCore import Qt
@@ -6,12 +7,13 @@ from PySide6.QtGui import QCloseEvent
 
 from pulse import app
 from pulse.interface.ui_generated.project.new_project_input_ui import NewProjectInput_UI
-from pulse.interface.user_input.data_handler.file_dialog_service import (
-    FileDialogService,
-)
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.data_classes.project_setup_data_classes import ImportType, MesherSetup, ProjectSetup
+from pulse.utils.geometry_validator import format_validation_error, validate_geometry_file
 
 window_title = "Error"
+
 
 class NewProjectInput(NewProjectInput_UI):
     def __init__(self, *args, **kwargs):
@@ -64,42 +66,42 @@ class NewProjectInput(NewProjectInput_UI):
         self.label_geometry_tolerance.setText(f"Geometry tolerance: [{label}]")
 
     def update_available_inputs(self):
-        index = self.comboBox_start_project.currentIndex()
-        if index == 0:
-            self.pushButton_import_geometry.setDisabled(False)
-        elif index == 1:
-            self.pushButton_import_geometry.setDisabled(True)
+        index_type = self.comboBox_start_project.currentIndex()
+        self.pushButton_import_geometry.setEnabled(index_type == ImportType.CAD_FILE)
 
     def import_geometry(self):
 
         self.hide()
-        last_geometry_file = app().main_window.config.get_last_folder_for("geometry_folder")
-
-        if last_geometry_file is None:
-            suggested_path = str(Path().home())
-        else:
-            suggested_path = last_geometry_file
+        last_folder_path = app().main_window.config.get_last_folder_for("geometry_folder", default=Path().home())
 
         extensions = ["iges", "igs", "step", "stp"]
-        geometry_path = FileDialogService.open_file(extensions, last_folder=suggested_path)
+        geometry_path = FileDialogService.open_file(extensions, last_folder=last_folder_path)
 
         if geometry_path is None:
             return
-        
+
         self.lineEdit_geometry_path.setText(str(geometry_path))
         app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
     def check_project_inputs(self):
-        
-        if self.comboBox_start_project.currentIndex() == 0:
+
+        if self.comboBox_start_project.currentIndex() == ImportType.CAD_FILE:
             if self.lineEdit_geometry_path.text() == "":
-                title = 'Empty geometry at selection'
+                title = "Empty geometry at selection"
                 message = "Please, select a valid *.iges or *.step format geometry to continue."
                 PrintMessageInput([window_title, title, message], auto_close=True)
                 return True
-        
+
+            geometry_path = Path(self.lineEdit_geometry_path.text())
+            result = validate_geometry_file(geometry_path)
+            if not result.is_valid:
+                title = "Unsupported geometry entities"
+                message = format_validation_error(result)
+                PrintMessageInput([window_title, title, message])
+                return True
+
         if self.lineEdit_element_size.text() == "":
-            title = 'Empty element size'
+            title = "Empty element size"
             message = "Please, inform a valid input to the element size."
             PrintMessageInput([window_title, title, message], auto_close=True)
             return True
@@ -107,13 +109,13 @@ class NewProjectInput(NewProjectInput_UI):
             try:
                 self.element_size = float(self.lineEdit_element_size.text())
             except Exception:
-                title = 'Invalid element size'
+                title = "Invalid element size"
                 message = "Please, inform a valid input to the element size."
                 PrintMessageInput([window_title, title, message], auto_close=True)
                 return True
 
         if self.lineEdit_geometry_tolerance.text() == "":
-            title = 'Empty geometry tolerance'
+            title = "Empty geometry tolerance"
             message = "Please, inform a valid input to the geometry tolerance."
             PrintMessageInput([window_title, title, message], auto_close=True)
             return True
@@ -121,7 +123,7 @@ class NewProjectInput(NewProjectInput_UI):
             try:
                 self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
             except Exception:
-                title = 'Invalid geometry tolerance'
+                title = "Invalid geometry tolerance"
                 message = "Please, inform a valid input to the geometry tolerance."
                 PrintMessageInput([window_title, title, message], auto_close=True)
                 return True
@@ -129,20 +131,26 @@ class NewProjectInput(NewProjectInput_UI):
     def create_project(self):
 
         try:
+            app().main_window.reset_temporary_folder()
+            self.project.model.properties._reset_variables()
+            self.project.reset_project(reset_all=True)
 
-            mesher_setup = self.create_project_file()
+            app().main_window.update_plots()
+            app().main_window.reset_geometry_render()
+            app().main_window.results_widget.show_empty()
 
-            self.project.reset(reset_all = True)
-            app().project.model.mesh.set_mesher_setup(mesher_setup = mesher_setup)
+            project_setup = self.create_project_setup()
 
-            if self.comboBox_start_project.currentIndex() == 1:
+            app().project.model.set_project_setup(project_setup)
+            app().project.file.modify_project_attributes(project_setup)
+
+            if self.comboBox_start_project.currentIndex() == ImportType.BUILT_IN:
                 app().project.model.mesh._create_gmsh_geometry()
             else:
-                self.project.process_geometry_and_mesh()
+                self.project.model.process_geometry_and_mesh()
 
         except Exception as error_log:
-
-            app().project.model.mesh.set_mesher_setup()
+            app().project.model.mesh.set_mesher_setup(MesherSetup())
             app().main_window.reset_temporary_folder()
             app().project.model.mesh._create_gmsh_geometry()
 
@@ -150,35 +158,33 @@ class NewProjectInput(NewProjectInput_UI):
             title = "Error while creating new project"
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
-            
+
             return True
 
-    def create_project_file(self):
+    def create_project_setup(self) -> ProjectSetup:
 
         self.length_unit = self.comboBox_length_unit.currentText().replace(" ", "")
         import_type = self.comboBox_start_project.currentIndex()
 
-        setup_data = { 
-                      "length_unit" : self.length_unit,
-                      "element_size" : self.element_size,
-                      "geometry_tolerance" : self.geometry_tolerance,
-                      "import_type" : import_type,
-                      }
+        mesh_setup = MesherSetup(self.element_size, self.geometry_tolerance, self.length_unit)
+        project_setup = ProjectSetup(import_type, mesher_setup=mesh_setup)
 
-        geometry_path = ""
-        self.geometry_filename = ""
+        if import_type == ImportType.CAD_FILE:
+            geometry_path_source = self.lineEdit_geometry_path.text()
+            geometry_filename = os.path.basename(geometry_path_source)
+        else:
+            geometry_filename = ""
+            geometry_path_source = ""
 
-        if import_type == 0:
-            geometry_path = self.lineEdit_geometry_path.text()
-            self.geometry_filename = os.path.basename(geometry_path)
-            setup_data["geometry_filename"] = self.geometry_filename
+        project_setup.geometry_filename = geometry_filename
+        project_setup.geometry_path_source = geometry_path_source
 
-        app().project.file.write_project_setup_in_file(setup_data, geometry_path = geometry_path)
-        
-        if import_type == 0:
-            setup_data["geometry_path"] = app().project.file.read_geometry_from_file()
+        app().project.file.write_project_setup_in_file(project_setup.as_dict())
 
-        return setup_data
+        if import_type == ImportType.CAD_FILE:
+            project_setup.geometry_path_internal = app().project.file.read_geometry_from_file()
+
+        return project_setup
 
     def start_project(self):
 
@@ -192,17 +198,18 @@ class NewProjectInput(NewProjectInput_UI):
 
         if self.create_project():
             return
-        
+
         app().main_window._update_recent_projects()
         app().main_window.set_window_title("New project (*)")
-        
+
         if self.comboBox_start_project.currentIndex() == 1:
             app().main_window.action_plot_geometry_editor_callback()
-        
+
         else:
             app().main_window.use_model_setup_workspace()
 
         app().main_window.update_plots()
+        app().main_window.update_status_bar_info()
 
         self.complete = True
 

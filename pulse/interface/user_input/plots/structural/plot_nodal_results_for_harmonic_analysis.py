@@ -2,7 +2,6 @@ from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.get_nodal_results_for_harmonic_analysis_ui import GetNodalResultsForHarmonicAnalysis_UI
-from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
@@ -27,7 +26,6 @@ class PlotNodalResultsForHarmonicAnalysis(GetNodalResultsForHarmonicAnalysis_UI)
         self.before_run = self.project.get_pre_solution_model_checks()
         self.nodes = self.project.model.preprocessor.nodes
         self.frequencies = self.model.frequencies
-        self.solution = self.project.get_structural_solution()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -97,10 +95,7 @@ class PlotNodalResultsForHarmonicAnalysis(GetNodalResultsForHarmonicAnalysis_UI)
         return False
 
     def get_response(self, node_id):
-        response = get_structural_frf(  self.preprocessor,
-                                        self.solution,
-                                        node_id, 
-                                        self.local_dof  )
+        response = self.project.structural_postprocessing.get_structural_response_spectrum(node_id, self.local_dof)
         return response
 
     def join_model_data(self):

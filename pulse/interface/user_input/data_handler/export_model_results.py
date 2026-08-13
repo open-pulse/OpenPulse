@@ -83,20 +83,15 @@ class ExportModelResults(QFileDialog):
     def call_file_dialog_and_export_data(self):
 
         caption = "Export the model results"
+        last_folder_path = app().config.get_last_folder_for("export_data_folder", default=Path().home())
 
-        path = app().config.get_last_folder_for("export_data_folder")
-        if path is None:
-            directory_path = Path().home()
-        else:
-            directory_path = path
-
-        extensions = list()
+        extensions = []
         if len(self.data) == 1:
             extensions = ["xlsx", "xls", "dat", "txt", "csv"]
         else:
             extensions = ["xlsx"]
 
-        file_path = FileDialogService.save_file(extensions, caption, directory_path)
+        file_path = FileDialogService.save_file(extensions, caption, last_folder_path)
     
         if not file_path:
             return

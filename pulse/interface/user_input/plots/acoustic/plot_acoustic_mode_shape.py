@@ -1,12 +1,12 @@
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.plots.results.acoustic.acoustic_mode_shape_ui import (
-    AcousticModeShape_UI,
-)
+from pulse.interface.ui_generated.plots.results.acoustic.acoustic_mode_shape_ui import AcousticModeShape_UI
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
+from pulse.interface.viewer_3d.coloring.color_palettes import COLORMAP_NAMES
 
 
 class PlotAcousticModeShape(AcousticModeShape_UI):
@@ -14,32 +14,16 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         super().__init__(*args, **kwargs)
         self._initialize()
         self._create_connections()
-        self._config_widgets()
-        self.load_natural_frequencies()
-        self.load_user_preference_colormap()
-       
+        self._add_animation_widget()
+        
+
     def _initialize(self):
         self.mode_index = None
-        self.colormaps = [
-            "jet",
-            "viridis",
-            "inferno",
-            "magma",
-            "plasma",
-            "bwr",
-            "PiYG",
-            "PRGn",
-            "BrBG",
-            "PuOR",
-            "grayscale",
-        ]
 
     def _create_connections(self):
         #
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
-        #
-        self.pushButton_plot.clicked.connect(self.update_plot)
         #
         self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
         #      
@@ -52,7 +36,6 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
 
     def _config_widgets(self):
 
-        self.frame_button.setVisible(False)
         self.lineEdit_natural_frequency.setDisabled(True)
 
         if isinstance(app().project.complex_natural_frequencies_acoustic, np.ndarray):
@@ -66,34 +49,59 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         font = QFont()
         font.setPointSize(9)
 
+        # full reset of the treeWidget_frequencies
+        self.treeWidget_frequencies.clear()
+        self.treeWidget_frequencies.setColumnCount(0)
+        self.treeWidget_frequencies.setHeaderLabels([])
+
         for i, header in enumerate(headers):
             self.treeWidget_frequencies.headerItem().setFont(i, font)
             self.treeWidget_frequencies.headerItem().setText(i, header)
             if i < 2:
                 self.treeWidget_frequencies.setColumnWidth(i, widths[i])
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+    
+    def _add_animation_widget(self):
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.frame_animation.setLayout(self.grid_layout)
+
+        self.animation_widget = AnimationWidget()
+        self.grid_layout.addWidget(self.animation_widget)
+        self.frame_animation.adjustSize()
+        self.animation_widget.set_magnification_slider_visible(False)
             
     def update_animation_widget_visibility(self):
-        index = self.comboBox_color_scale.currentIndex()
-        if index >= 2:
-            app().main_window.animation_toolbar.setDisabled(True)
-        else:
-            app().main_window.animation_toolbar.setDisabled(False) 
+        if not hasattr(self, "animation_widget"):
+            return
+        is_animation = self.comboBox_color_scale.currentText().startswith("Animation")
+        self.animation_widget.setDisabled(not is_animation)
 
     def load_user_preference_colormap(self):
         try:
             colormap = app().config.user_preferences.color_map
-            if colormap in self.colormaps:
-                index = self.colormaps.index(colormap)
+            if colormap in COLORMAP_NAMES:
+                index = COLORMAP_NAMES.index()
                 self.comboBox_colormaps.setCurrentIndex(index)
+
         except Exception:
             self.comboBox_colormaps.setCurrentIndex(0)
 
     def update_colormap_type(self):
+        colormap = self.get_colormap()
+        app().config.user_preferences.color_map = colormap
+        app().config.update_config_file()
+        try:
+            app().main_window.results_widget.set_colormap(colormap)
+            self.update_plot()
+        except AttributeError:
+            pass
+
+    def get_colormap(self) -> str:
         index = self.comboBox_colormaps.currentIndex()
-        colormap = self.colormaps[index]
-        app().main_window.results_widget.set_colormap(colormap)
-        self.update_plot()
+        if not (0 <= index < len(COLORMAP_NAMES)):
+            return "jet"
+        return COLORMAP_NAMES[index]
 
     def update_plot(self):
 
@@ -127,6 +135,8 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
 
     def load_natural_frequencies(self):
 
+        self._config_widgets()
+
         if isinstance(app().project.complex_natural_frequencies_acoustic, np.ndarray):
             self.natural_frequencies = list(app().project.complex_natural_frequencies_acoustic)
 
@@ -136,7 +146,6 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         modes = np.arange(1, len(self.natural_frequencies) + 1, 1)
         self.modes_to_frequencies = dict(zip(modes, self.natural_frequencies))
 
-        self.treeWidget_frequencies.clear()
         for mode, value in self.modes_to_frequencies.items():
             if isinstance(value, complex):
                 cols = 3
@@ -152,6 +161,15 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
             
             self.treeWidget_frequencies.addTopLevelItem(new)
 
+        self.select_first_frequency()
+
+    def select_first_frequency(self):
+        if self.treeWidget_frequencies.topLevelItemCount() == 0:
+            return
+        item = self.treeWidget_frequencies.topLevelItem(0)
+        self.treeWidget_frequencies.setCurrentItem(item)
+        self.on_click_item(item)
+
     def on_click_item(self, item):
 
         selected_frequency = self.modes_to_frequencies[int(item.text(0))]
@@ -164,6 +182,7 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
             self.lineEdit_natural_frequency.setText(str(round(selected_frequency, 4)))
 
         self.selected_frequency = selected_frequency
+        self.animation_widget.reset_sliders()
         self.update_plot()
 
     def on_doubleclick_item(self, item):
@@ -172,5 +191,3 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.update_plot()
-    #     elif event.key() == Qt.Key_Escape:
-    #         self.close()

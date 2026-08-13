@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.model import RadiationImpedanceType
+from pulse.model.elements.acoustic.acoustic_calculator import RadiationImpedanceType
 from pulse.interface.ui_generated.model.info.acoustic_model_info_ui import AcousticModelInfo_UI
 
 import numpy as np
@@ -132,10 +132,10 @@ class AcousticModelInfo(AcousticModelInfo_UI):
                 self.treeWidget_perforated_plate.addTopLevelItem(item)
 
     def load_project_info(self):
-        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
+        acoustic_elements = self.preprocessor.get_acoustic_elements()
         self.nodes = self.preprocessor.get_nodes_relative_to_acoustic_elements()
         self.lineEdit_number_nodes.setText(str(len(self.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.acoustic_elements)))
+        self.lineEdit_number_elements.setText(str(len(acoustic_elements)))
 
     def get_radiation_type_text(self, index: int):
         if index == RadiationImpedanceType.ANECHOIC:

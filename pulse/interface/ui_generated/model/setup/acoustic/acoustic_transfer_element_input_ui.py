@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'acoustic_transfer_element_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
     QGridLayout, QHeaderView, QLabel, QLineEdit,
     QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
     QTreeWidget, QTreeWidgetItem, QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -86,8 +88,7 @@ class Ui_Dialog(object):
         font1.setItalic(False)
         self.pushButton_search.setFont(font1)
         self.pushButton_search.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/document_search.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/document_search.png")
         self.pushButton_search.setIcon(icon)
         self.pushButton_search.setIconSize(QSize(22, 22))
         self.pushButton_search.setAutoDefault(False)
@@ -159,8 +160,7 @@ class Ui_Dialog(object):
         font3.setItalic(False)
         self.pushButton_invert_selection.setFont(font3)
         self.pushButton_invert_selection.setStyleSheet(u"")
-        icon1 = QIcon()
-        icon1.addFile(u":/icons/common/swap_horizontal_arrows.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon1 = Icon(u":/icons/common/swap_horizontal_arrows.png")
         self.pushButton_invert_selection.setIcon(icon1)
         self.pushButton_invert_selection.setIconSize(QSize(20, 20))
         self.pushButton_invert_selection.setAutoDefault(False)

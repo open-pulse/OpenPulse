@@ -69,6 +69,12 @@ class SaveProjectDataSelector(SaveProjectDataSelector_UI):
         self.complete = True
         self.close()
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.proceed_callback()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
+
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         return super().closeEvent(a0)

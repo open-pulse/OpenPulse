@@ -27,6 +27,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_top_general_settings = self.add_top_item('General Settings')
         self.item_child_set_material = self.add_item('Material', property_name="material")
         self.item_child_set_fluid = self.add_item('Fluid', property_name="fluid")
+        self.item_child_mesh_setup = self.add_item('Mesh Setup', property_name="mesh_setup")
         self.item_child_set_crossSection = self.add_item('Cross-Section', property_name="cross_section")
         #
         self.item_top_structural_model_setup = self.add_top_item('Structural Model Setup')
@@ -67,6 +68,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_set_material.clicked.connect(self.item_child_set_material_callback)
         self.item_child_set_fluid.clicked.connect(self.item_child_set_fluid_callback)
         self.item_child_set_crossSection.clicked.connect(self.item_child_set_cross_section_callback)
+        self.item_child_mesh_setup.clicked.connect(self.item_child_mesh_setup_callback)
         #
         # Structural Model Setup
         self.item_child_set_structural_element_type.clicked.connect(self.item_child_set_structural_element_type_callback)
@@ -121,6 +123,10 @@ class ModelSetupItems(CommonMenuItems):
     def item_child_set_cross_section_callback(self):
         self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_cross_section()
+        app().main_window.set_input_widget(None)
+    
+    def item_child_mesh_setup_callback(self):
+        app().main_window.input_ui.mesh_setup()
         app().main_window.set_input_widget(None)
 
     def item_child_set_structural_element_type_callback(self):
@@ -252,7 +258,7 @@ class ModelSetupItems(CommonMenuItems):
                 app().main_window.plot_lines_with_cross_sections()
 
     def enable_actions_according_to_import_type(self):
-        import_type = app().project.model.mesh.import_type
+        import_type = app().project.model.project_setup.import_type
         if import_type == 0:
             pass
 
@@ -262,6 +268,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
+        self.item_child_mesh_setup.setDisabled(bool_key)
         #
         self.item_child_set_structural_element_type.setDisabled(bool_key) 
         self.item_child_set_prescribed_dof.setDisabled(bool_key)
@@ -330,9 +337,50 @@ class ModelSetupItems(CommonMenuItems):
         if (properties := app().project.model.properties) is None:
             return False
 
+        if property_name == "mass_spring_damper":
+            return bool(self.get_mass_spring_damper_icons())
+
+        if property_name == "elastic_nodal_links":
+            return bool(self.get_elastic_nodal_links_icons())
+
+        property_name = {
+            "valve": "valve_info",
+            "expansion_joint": "expansion_joint_info",
+        }.get(property_name, property_name)
+
+        if property_name in ["material", "fluid"]:
+            mesh = app().project.model.mesh
+            if mesh is None:
+                return False
+
+            return properties.is_property_applied_to_all_lines(property_name, mesh.lines_from_model)
+
         return properties.is_the_property_applied(property_name)
 
-    def update_items_apperence(self):
+    def get_mass_spring_damper_icons(self) -> list[str]:
+        return self._get_icons_for_properties({
+            "lumped_masses": "mass",
+            "lumped_stiffness": "spring",
+            "lumped_dampings": "damper",
+        })
+
+    def get_elastic_nodal_links_icons(self) -> list[str]:
+        return self._get_icons_for_properties({
+            "stiffness_nodal_links": "spring",
+            "damping_nodal_links": "damper",
+        })
+
+    def _get_icons_for_properties(self, icon_by_property: dict[str, str]) -> list[str]:
+        if (properties := app().project.model.properties) is None:
+            return []
+
+        return [
+            icon_name
+            for property_name, icon_name in icon_by_property.items()
+            if properties.is_the_property_applied(property_name)
+        ]
+
+    def update_items_appearence(self):
         physical_domain = self._get_physical_domain()
         for top_level_items in self.top_level_items:
             for index in range(top_level_items.childCount()):
@@ -342,9 +390,17 @@ class ModelSetupItems(CommonMenuItems):
                     continue
 
                 item_child.set_warning(False)
+                item_child.set_multi_icon([], visible=False)
 
                 if self.contains_property(item_child.property_name):
-                    item_child.set_icon()
+                    if item_child.property_name == "mass_spring_damper":
+                        item_child.set_icon(visible=False)
+                        item_child.set_multi_icon(self.get_mass_spring_damper_icons())
+                    elif item_child.property_name == "elastic_nodal_links":
+                        item_child.set_icon(visible=False)
+                        item_child.set_multi_icon(self.get_elastic_nodal_links_icons())
+                    else:
+                        item_child.set_icon()
 
                 elif self.needs_property(item_child.property_name, physical_domain):
                     item_child.set_warning(True)
@@ -384,5 +440,5 @@ class ModelSetupItems(CommonMenuItems):
     def _connect_domain_filter(self):
         app().main_window.analysis_changed.connect(self.filter_by_domain)
         app().main_window.analysis_changed.connect(self.update_tooltips_warnings)
-        app().main_window.analysis_changed.connect(self.update_items_apperence)
+        app().main_window.analysis_changed.connect(self.update_items_appearence)
         self.filter_by_domain()

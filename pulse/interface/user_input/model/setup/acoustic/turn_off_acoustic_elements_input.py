@@ -89,15 +89,13 @@ class TurnOffAcousticElementsInput(ElementsInput, TurnOffAcousticElementsInput_U
 
         for element_id in element_ids:
             coords = list()
-            element = self.preprocessor.acoustic_elements[element_id]
-            coords.extend(list(np.round(element.first_node.coordinates, 5)))
-            coords.extend(list(np.round(element.last_node.coordinates, 5)))
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
+            coords.extend(list(np.round(element_attributes.first_node.coordinates, 5)))
+            coords.extend(list(np.round(element_attributes.last_node.coordinates, 5)))
 
             data = {"coords": coords, "turned_off": not bool(index)}
 
-            self.properties._set_element_property(
-                "acoustic_element_turned_off", data, element_ids=element_id
-            )
+            self.properties._set_element_property("acoustic_element_turned_off", data, element_ids=element_id)
 
         self.actions_to_finalize()
 
@@ -153,7 +151,7 @@ class TurnOffAcousticElementsInput(ElementsInput, TurnOffAcousticElementsInput_U
     def actions_to_finalize(self):
         self.load_elements_info()
         app().project.file.write_element_properties_in_file()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
 
     def load_elements_info(self):
 

@@ -89,37 +89,33 @@ class AcousticElementLengthCorrectionInput(
         filtered_data = dict()
 
         for element_id in element_ids:
-            element = self.preprocessor.acoustic_elements[element_id]
+            element_attributes = self.preprocessor.elements_attributes.get(element_id)
 
-            first_node = element.first_node.external_index
+            first_node = element_attributes.first_node.index
             if first_node not in node_ids:
                 node_ids.append(first_node)
 
-            last_node = element.last_node.external_index
+            last_node = element_attributes.last_node.index
             if last_node not in node_ids:
                 node_ids.append(last_node)
 
         for node_id in node_ids:
-            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[
-                node_id
-            ]
+            element_ids = self.preprocessor.elements_connected_to_node.get(node_id)
 
             if correction_type in [1, 2]:
-                if len(neigh_elements) == 3:
+                if len(element_ids) == 3:
                     node = app().project.model.preprocessor.nodes[node_id]
                     coords = list(np.round(node.coordinates, 5))
                     filtered_data[node_id] = {
                         "correction_type": correction_type,
                         "coords": coords,
-                        "element_ids": [
-                            int(element.index) for element in neigh_elements
-                        ],
+                        "element_ids": element_ids,
                     }
 
             else:
-                if len(neigh_elements) == 2:
-                    cross_e0 = neigh_elements[0].cross_section
-                    cross_e1 = neigh_elements[1].cross_section
+                if len(element_ids) == 2:
+                    cross_e0 = self.preprocessor.get_element_cross_section(element_ids[0])
+                    cross_e1 = self.preprocessor.get_element_cross_section(element_ids[1])
 
                     inside_diam_0 = cross_e0.outer_diameter - 2 * cross_e0.thickness
                     inside_diam_1 = cross_e1.outer_diameter - 2 * cross_e1.thickness
@@ -130,9 +126,7 @@ class AcousticElementLengthCorrectionInput(
                         filtered_data[node_id] = {
                             "correction_type": correction_type,
                             "coords": coords,
-                            "element_ids": [
-                                int(element.index) for element in neigh_elements
-                            ],
+                            "element_ids": element_ids,
                         }
 
         if filtered_data:

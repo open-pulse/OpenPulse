@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'plot_transmission_loss.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -18,6 +18,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
     QLabel, QLineEdit, QPushButton, QSizePolicy,
     QSpacerItem, QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -233,8 +235,7 @@ class Ui_Form(object):
         self.pushButton_flip_nodes.setMaximumSize(QSize(40, 28))
         self.pushButton_flip_nodes.setFont(font3)
         self.pushButton_flip_nodes.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/invert_icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/invert_icon.png")
         self.pushButton_flip_nodes.setIcon(icon)
         self.pushButton_flip_nodes.setIconSize(QSize(22, 22))
         self.pushButton_flip_nodes.setFlat(False)

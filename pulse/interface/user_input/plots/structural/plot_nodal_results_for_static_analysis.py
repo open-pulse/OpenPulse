@@ -1,10 +1,9 @@
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLineEdit
 
 from pulse import app
 from pulse.interface.ui_generated.plots.results.structural.get_nodal_results_for_static_analysis_ui import GetNodalResultsForStaticAnalysis_UI
-
-
-import numpy as np
 
 
 class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
@@ -14,15 +13,10 @@ class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
         self.project = app().main_window.project
 
         self._config_window()
-        self._initialize()
         self._create_list_lineEdits()
         self._create_connections()
         self._config_widgets()
         self.selection_callback()
-
-    def _initialize(self):
-        solution = self.project.get_structural_solution()
-        self.solution = np.real(solution)
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -46,20 +40,22 @@ class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
             self._reset_lineEdits()
 
     def _create_list_lineEdits(self):
-        self.lineEdits = [  self.lineEdit_node_id,
-                            self.lineEdit_response_ux,
-                            self.lineEdit_response_uy,
-                            self.lineEdit_response_uz,
-                            self.lineEdit_response_rx,
-                            self.lineEdit_response_ry,
-                            self.lineEdit_response_rz  ]
+        self.line_edits: list[QLineEdit] = [
+            self.lineEdit_node_id,
+            self.lineEdit_response_ux,
+            self.lineEdit_response_uy,
+            self.lineEdit_response_uz,
+            self.lineEdit_response_rx,
+            self.lineEdit_response_ry,
+            self.lineEdit_response_rz,
+        ]
 
     def _config_widgets(self):
         return
 
     def _reset_lineEdits(self):
-        for lineEdit in self.lineEdits:
-            lineEdit.clear()
+        for line_edit in self.line_edits:
+            line_edit.clear()
 
     def reset_selection(self):
         self._reset_lineEdits()
@@ -67,10 +63,8 @@ class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
     def _update_lineEdit(self, selected_nodes : list):
         node_id = selected_nodes[0]
         node = self.project.model.preprocessor.nodes[node_id]
-        results = self.solution[node.global_dof, 0]
-        self.lineEdit_response_ux.setText("{:.6e}".format(results[0]))
-        self.lineEdit_response_uy.setText("{:.6e}".format(results[1]))
-        self.lineEdit_response_uz.setText("{:.6e}".format(results[2]))
-        self.lineEdit_response_rx.setText("{:.6e}".format(results[3]))
-        self.lineEdit_response_ry.setText("{:.6e}".format(results[4]))
-        self.lineEdit_response_rz.setText("{:.6e}".format(results[5]))
+        nodal_results = self.project.model.structural_solution[node.structural_global_dof, 0]
+        nodal_results_real = np.real(nodal_results)
+
+        for i, line_edit in enumerate(self.line_edits[1:]):
+            line_edit.setText("{:.6e}".format(nodal_results_real[i]))

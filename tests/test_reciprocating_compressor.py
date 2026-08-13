@@ -1,0 +1,138 @@
+import pytest
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
+
+import os
+import numpy as np
+
+from pathlib import Path
+
+pi = 3.141592653589
+
+def load_default_compressor_setup(crank_angle=0):
+
+    parameters = {  'bore_diameter' : 0.780,
+                    'stroke' : 0.33,
+                    'connecting_rod_length' : 1.25,
+                    'rod_diameter' : 0.135,
+                    'pressure_ratio' : 1.90788804,
+                    'clearance_HE' : 15.8,
+                    'clearance_CE' : 18.39,
+                    'tdc_crank_angle_1' : crank_angle,
+                    'rotational_speed' : 360,
+                    'capacity' : 100,
+                    'acting_label' : 0,
+                    'suction_pressure' : 19.65,
+                    'pressure_unit' : "bar",
+                    'suction_temperature' : 45,
+                    'temperature_unit' : "°C",
+                    'isentropic_exponent' : 1.400,
+                    'molar_mass' : 2.01568  }
+
+    compressor = ReciprocatingCompressorModel(**parameters)
+    compressor.update_fluid_properties(parameters['isentropic_exponent'],
+                                       parameters['molar_mass'])
+
+    compressor.number_of_cylinders = 1
+
+    return compressor
+
+@pytest.mark.skip
+def test_PV_diagram(print_log=True, export_data=True):
+        
+    for angle in [0, 90, 180, 270]:
+    
+        path_crank_end = Path(f"tests/data/compressor/PV_diagram/PV_diagram_crank_end_crank_angle_{angle}.txt")
+        path_head_end = Path(f"tests/data/compressor/PV_diagram/PV_diagram_head_end_crank_angle_{angle}.txt")
+
+        external_data = dict()
+
+        if os.path.exists(path_crank_end):
+            external_data[f"crank_end_{angle}"] = np.loadtxt(path_crank_end, skiprows=4)
+        else:
+            continue
+        
+        if os.path.exists(path_head_end):
+            external_data[f"head_end_{angle}"] = np.loadtxt(path_head_end, skiprows=4)
+        else:
+            continue
+        
+        N_he = external_data[f"head_end_{angle}"].shape[0]
+        N_ce = external_data[f"crank_end_{angle}"].shape[0]
+
+        if N_ce != N_he:
+            return
+
+        compressor = load_default_compressor_setup(crank_angle = angle)
+        compressor.number_points = N_he - 1
+
+        volume_HE, pressure_HE, *args = compressor.process_head_end_volumes_and_pressures(export_data=export_data)
+        volume_CE, pressure_CE, *args = compressor.process_crank_end_volumes_and_pressures(export_data=export_data)
+
+        volume_error_head_end = (np.max(np.abs(external_data[f"head_end_{angle}"][:, 0] - volume_HE)/np.abs(external_data[f"head_end_{angle}"][:, 0] + volume_HE)/2))
+        pressure_error_head_end = (np.max(np.abs(external_data[f"head_end_{angle}"][:, 1] - pressure_HE)/np.abs(external_data[f"head_end_{angle}"][:, 1] + pressure_HE)/2))
+
+        volume_error_crank_end = (np.max(np.abs(external_data[f"crank_end_{angle}"][:, 0] - volume_CE)/np.abs(external_data[f"crank_end_{angle}"][:, 0] + volume_CE)/2))
+        pressure_error_crank_end = (np.max(np.abs(external_data[f"crank_end_{angle}"][:, 1] - pressure_CE)/np.abs(external_data[f"crank_end_{angle}"][:, 1] + pressure_CE)/2))
+
+        assert volume_error_head_end < 1e-8
+        assert volume_error_crank_end < 1e-8
+        assert pressure_error_head_end < 1e-8
+        assert pressure_error_crank_end < 1e-8
+
+        # use poetry run pytest tests/test_compressor.py -s to print the logs
+        if print_log:
+            print("\n")
+            print(f"Crank angle: {angle} deg")
+            print(f"volume error (head end): {volume_error_head_end*100}%")
+            print(f"pressure error (head end): {pressure_error_head_end*100}%")
+            print(f"volume error (crank end): {volume_error_crank_end*100}%")
+            print(f"pressure error (crank end): {pressure_error_crank_end*100}%")
+            # print("\n")
+
+        if export_data:
+
+            data_HE = np.array([external_data[f"head_end_{angle}"][:, 0],
+                                external_data[f"head_end_{angle}"][:, 1],
+                                volume_HE,
+                                pressure_HE], dtype=float).T
+            
+            data_CE = np.array([external_data[f"crank_end_{angle}"][:, 0],
+                                external_data[f"crank_end_{angle}"][:, 1],
+                                volume_CE,
+                                pressure_CE], dtype=float).T
+
+            np.savetxt(f"teste_head_end_{angle}.dat", data_HE, delimiter=",")
+            np.savetxt(f"teste_crank_end_{angle}.dat", data_CE, delimiter=",")       
+
+def test_suction_flow_rate():
+    crank_angle = 0
+    reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
+    reciprocating_compressor.number_points = 1023
+
+    flow_rate = reciprocating_compressor.process_sum_of_volumetric_flow_rate('in_flow', smooth_data=False)
+
+    assert flow_rate is not None, "Suction flow rate computation returned None"
+    N = len(flow_rate)
+    assert N > 0, "Suction flow rate array is empty"
+    assert np.all(np.isfinite(flow_rate)), "Non-finite values in suction flow rate"
+
+
+def test_discharge_flow_rate():
+    crank_angle = 0
+    reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
+    reciprocating_compressor.number_points = 1023
+
+    flow_rate = reciprocating_compressor.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=False)
+
+    assert flow_rate is not None, "Discharge flow rate computation returned None"
+    N = len(flow_rate)
+    assert N > 0, "Discharge flow rate array is empty"
+    assert np.all(np.isfinite(flow_rate)), "Non-finite values in discharge flow rate"
+
+
+def check_angles():
+    crank_angle = 0
+    compressor = load_default_compressor_setup(crank_angle = crank_angle)
+    compressor.number_points = 1023
+
+    compressor.get_cycles_boundary_data(acting_label="HE")

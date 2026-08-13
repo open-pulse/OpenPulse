@@ -69,7 +69,7 @@ class SetMaterialSimplified(SetMaterialSimplified_UI):
     def reset_material_library_callback(self):
         self.hide()
         if self.material_widget.reset_library_callback():
-            app().main_window.update_plots()
+            app().main_window.update_plots(False)
 
     def reset_selected_material_lineEdit(self):
         self.lineEdit_selected_name.clear()

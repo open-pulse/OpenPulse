@@ -60,7 +60,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         self.comboBox_method.currentIndexChanged.connect(self.analysis_method_callback)
         #
         self.pushButton_enter_setup.clicked.connect(self.enter_setup_callback)
-        self.pushButton_run_analysis.clicked.connect(self.run_analysis)
+        self.pushButton_run_analysis.clicked.connect(self.run_analysis_callback)
 
     def analysis_method_callback(self):
 
@@ -301,9 +301,10 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
 
         return value
 
-    def run_analysis(self):
+    def run_analysis_callback(self):
         if self.enter_setup_callback():
             return
+
         self.solve_analysis = True
         app().main_window.analysis_toolbar.enable_pushbutons.emit()
 
@@ -313,6 +314,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.run_analysis()
+            self.run_analysis_callback()
+
         elif event.key() == Qt.Key_Escape:
             self.close()

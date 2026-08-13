@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'data_import_assistant.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.11.0
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QFrame,
     QGridLayout, QHeaderView, QLabel, QLineEdit,
     QPushButton, QSizePolicy, QSpinBox, QTreeWidget,
     QTreeWidgetItem, QWidget)
+
+from pulse.interface.formatters.icons import Icon
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -267,8 +269,7 @@ class Ui_Dialog(object):
         font6.setItalic(False)
         self.pushButton_search_file_to_import.setFont(font6)
         self.pushButton_search_file_to_import.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/import.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon = Icon(u":/icons/common/import.png")
         self.pushButton_search_file_to_import.setIcon(icon)
         self.pushButton_search_file_to_import.setIconSize(QSize(20, 20))
 
@@ -355,7 +356,7 @@ class Ui_Dialog(object):
         ___qtreewidgetitem1 = self.treeWidget_import_text_files.headerItem()
         ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"Add to plot", None))
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Filename", None))
-        self.label_11.setText(QCoreApplication.translate("Dialog", u"Path:", None))
+        self.label_11.setText(QCoreApplication.translate("Dialog", u"Files", None))
         self.pushButton_search_file_to_import.setText("")
         self.pushButton_add_imported_data_to_plot.setText(QCoreApplication.translate("Dialog", u"Add imported data", None))
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
