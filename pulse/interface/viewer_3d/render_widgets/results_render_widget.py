@@ -22,6 +22,7 @@ from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.interface.viewer_3d.render_tools import RenderTool, SelectionTool
 from pulse.model import AnalysisID
 from pulse.utils.interface_utils import VisualizationFilter
+from pulse.utils.time_utils import function_timer
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import (
@@ -112,68 +113,17 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.stop_animation()
             return
 
-        # Default behavior
-        self.colorbar_actor.VisibilityOn()
-        deformed = False
-
-        unit_label = ""
-        analysis_id = project.analysis_id
-
         # update the data according to the current analysis
-        if self.analysis_mode == AnalysisMode.DISPLACEMENT:
-            if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
-                unit_label = "Unit: [m]"
-
-            elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
-                unit_label = "Unit: [--]"
-
-            if self.structural_postprocessing.solution is None:
-                return
-
-            deformed = True
-            color_table, self.is_complex_result = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
-
-        elif self.analysis_mode == AnalysisMode.STRESS:
-            if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
-                unit_label = "Unit: [Pa]"
-
-            if self.structural_postprocessing.solution is None:
-                return
-
-            deformed = True
-            color_table, self.is_complex_result = self._compute_stress_field(
-                self.current_frequency_index,
-                self.current_phase_step,
-            )
-
-        elif self.analysis_mode == AnalysisMode.PRESSURE:
-            if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
-                unit_label = "Unit: [Pa]"
-
-            elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
-                unit_label = "Unit: [--]"
-
-            if self.acoustic_postprocessing.solution is None:
-                return
-
-            color_table, self.is_complex_result = self._compute_pressure_field(
-                self.current_frequency_index,
-                self.current_phase_step,
-            )
-
-        else:
-            # Empty color table
-            color_table = ColorTable([], [0, 0], self.colormap)
-            self.colorbar_actor.VisibilityOff()
-
         acoustic_plot = self.analysis_mode == AnalysisMode.PRESSURE
 
-        self.lines_actor = ElementLinesActor(show_deformed=deformed)
-        self.nodes_actor = NodesActor(show_deformed=deformed)
-        self.points_actor = PointsActor(show_deformed=deformed)
-        self.tubes_actor = TubeActorResults(show_deformed=deformed, acoustic_plot=acoustic_plot)
+        self.lines_actor = ElementLinesActor()
+        self.nodes_actor = NodesActor()
+        self.points_actor = PointsActor()
+        self.tubes_actor = TubeActorResults(acoustic_plot=acoustic_plot)
         self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
         self.plane_actor.VisibilityOff()
+
+        self.update_colors_and_deformation()
 
         self.add_actors(
             self.lines_actor,
@@ -182,10 +132,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.tubes_actor,
             self.plane_actor,
         )
-
-        self.colorbar_actor.SetTitle(unit_label)
-        self.colorbar_actor.SetLookupTable(color_table)
-        self.tubes_actor.set_color_table(color_table)
 
         self.visualization_changed_callback(update=False)
         self.update_section_plane()
@@ -199,6 +145,70 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         # It needs to appear after the update to work propperly
         self.set_tube_actors_transparency(self.transparency)
+
+    def update_colors_and_deformation(self, render=True):
+        if self.tubes_actor is None:
+            return
+
+        project = app().project
+        if project is None:
+            return
+
+        unit_label = "Unit: [--]"
+        analysis_id = project.analysis_id
+        self.colorbar_actor.VisibilityOn()
+
+        match self.analysis_mode:
+            case AnalysisMode.DISPLACEMENT:
+                if self.structural_postprocessing.solution is None:
+                    return
+
+                if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                    unit_label = "Unit: [m]"
+
+                deformed = True
+                color_table, self.is_complex_result = self._compute_displacement_field(
+                    self.current_frequency_index,
+                    self.current_phase_step,
+                )
+
+            case AnalysisMode.STRESS:
+                if self.structural_postprocessing.solution is None:
+                    return
+
+                if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                    unit_label = "Unit: [m]"
+
+                deformed = True
+                color_table, self.is_complex_result = self._compute_stress_field(
+                    self.current_frequency_index,
+                    self.current_phase_step,
+                )
+
+            case AnalysisMode.PRESSURE:
+                if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                    unit_label = "Unit: [Pa]"
+
+                deformed = False
+                color_table, self.is_complex_result = self._compute_pressure_field(
+                    self.current_frequency_index,
+                    self.current_phase_step,
+                )
+
+            case _:
+                deformed = False
+                color_table = ColorTable([], [0, 0], self.colormap)
+                self.colorbar_actor.VisibilityOff()
+
+        self.colorbar_actor.SetTitle(unit_label)
+        self.colorbar_actor.SetLookupTable(color_table)
+
+        self.tubes_actor.show_deformed = deformed
+        self.tubes_actor.update_element_coordinates_and_rotations()
+        self.tubes_actor.set_color_table(color_table)
+
+        if render:
+            self.update()
 
     def set_colormap(self, colormap):
         self.colormap = colormap
@@ -228,7 +238,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 phase_step = frame * d_theta
                 self.current_phase_step = phase_step
 
-                self.update_plot()
+                self.update_colors_and_deformation(render=False)
                 cached = []
                 for actor in self.actors_to_cache():
                     pd = vtkPolyData()
@@ -309,7 +319,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def slider_callback(self, phase_deg):
         self.current_phase_step = phase_deg * (2 * np.pi / 360)
-        self.update_plot()
+        self.update_colors_and_deformation()
 
     def show_empty(self, *args, **kwargs):
         self.analysis_mode = AnalysisMode.EMPTY
