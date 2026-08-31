@@ -3,6 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 
 from pulse import app
+from pulse.extensions import SUPPORTED_SPREADSHEET_EXTENSIONS
 from pulse.interface.ui_generated.model.setup.fluid.load_fluid_composition_ui import (
     LoadFluidComposition_UI,
 )
@@ -59,13 +60,9 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
             self.load_composition_data_from_file()
 
     def search_button_callback(self):
-
-        last_folder_path = app().config.get_last_folder_for("fluid_composition_folder", default=Path().home())
-
         caption = "Open the fluid composition file"
-        extensions = ["xlsx", "xls"]
 
-        file_path = FileDialogService.open_file(extensions, caption, last_folder_path)
+        file_path = FileDialogService.open_file(SUPPORTED_SPREADSHEET_EXTENSIONS, caption, "fluid_composition_folder")
 
         if file_path is None:
             self.file_path = ""
@@ -73,8 +70,6 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
         
         if isinstance(file_path, Path):
             self.file_path = str(file_path)
-        
-        app().config.write_last_folder_path_in_file("fluid_composition_folder", self.file_path)
 
         self.lineEdit_file_path.setText(self.file_path)
         self.load_composition_data_from_file()

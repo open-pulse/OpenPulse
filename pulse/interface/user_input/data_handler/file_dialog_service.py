@@ -24,7 +24,8 @@ class FileDialogService:
             suffix = f".{FileDialogService._get_path_extension(selected_filter)}"
             path = path.with_suffix(suffix)
 
-        app().config.write_last_folder_path_in_file(last_folder, path)
+        if last_folder != "":
+            app().config.write_last_folder_path_in_file(last_folder, path)
 
         return path
 
@@ -45,7 +46,8 @@ class FileDialogService:
                 suffix = f".{FileDialogService._get_path_extension(selected_filter)}"
                 paths[i] = path.with_suffix(suffix)
 
-        app().config.write_last_folder_path_in_file(last_folder, paths[-1])
+        if last_folder != "":
+            app().config.write_last_folder_path_in_file(last_folder, paths[-1])
 
         return paths
 
@@ -65,7 +67,8 @@ class FileDialogService:
             suffix = f".{FileDialogService._get_path_extension(selected_filter)}"
             path = path.with_suffix(suffix)
 
-        app().config.write_last_folder_path_in_file(last_folder, path)
+        if last_folder != "":
+            app().config.write_last_folder_path_in_file(last_folder, path)
 
         return path
 
@@ -94,7 +97,7 @@ class FileDialogService:
 
     @staticmethod
     def _generate_file_extensions_str(file_extensions: list[str], all_files=True):
-        file_extensions.sort(key=FileDialogService._sort_extensions)
+        file_extensions = sorted(file_extensions, key=FileDialogService._sort_extensions)
 
         ext_dict = defaultdict(list)
         last_label = FileDialogService._get_file_label(file_extensions[0])

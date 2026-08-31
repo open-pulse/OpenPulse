@@ -1,7 +1,6 @@
 import re
 from copy import deepcopy
 from itertools import count
-from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QColor
@@ -713,8 +712,7 @@ class FluidWidget(FluidInputWidget_UI):
 
         extensions = ["json"]
 
-        last_folder_path = app().config.get_last_folder_for("export_data_folder", default=Path().home())
-        file_path = FileDialogService.save_file(extensions, "Export fluid data", last_folder_path)
+        file_path = FileDialogService.save_file(extensions, "Export fluid data", "export_data_folder")
 
         if file_path is None:
             return False

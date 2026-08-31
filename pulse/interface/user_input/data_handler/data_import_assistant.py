@@ -3,13 +3,14 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
+from pulse.extensions import SUPPORTED_SPREADSHEET_EXTENSIONS, SUPPORTED_TEXT_EXTENSIONS
 from pulse.interface.ui_generated.data_handler.data_import_assistant_ui import DataImportAssistant_UI
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.data_handler.imported_data import ImportedData, SpreadsheetData, SpreadsheetSheet
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 
 import numpy as np
-from pathlib import Path
+
 
 class DataImportAssistant(DataImportAssistant_UI):
     
@@ -77,10 +78,9 @@ class DataImportAssistant(DataImportAssistant_UI):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
 
     def import_results(self):
-        last_folder_path = app().config.get_last_folder_for("imported_data_folder", default=Path().home())
-        file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
+        file_extensions = SUPPORTED_SPREADSHEET_EXTENSIONS + SUPPORTED_TEXT_EXTENSIONS
 
-        new_paths = FileDialogService.open_multiple_files(file_extensions, last_folder=last_folder_path)
+        new_paths = FileDialogService.open_multiple_files(file_extensions, last_folder="imported_data_folder")
 
         if not new_paths:
             return
@@ -93,7 +93,6 @@ class DataImportAssistant(DataImportAssistant_UI):
             imported_text = f"{self.imported_paths[0].name} (+{len(self.imported_paths) - 1} more)"
 
         tooltip_text = "Imported files:\n" + "\n".join(map(str, self.imported_paths))
-        last_imported_file = str(self.imported_paths[-1])
 
         self.lineEdit_import_results_path.setText(imported_text)
         self.lineEdit_import_results_path.setToolTip(tooltip_text)
@@ -110,7 +109,6 @@ class DataImportAssistant(DataImportAssistant_UI):
                 key = self.get_data_index()
                 self.imported_results[key] = file
 
-        app().config.write_last_folder_path_in_file("imported_data_folder", last_imported_file)
         self.update_treeWidget_info()
 
     def update_treeWidget_info(self):

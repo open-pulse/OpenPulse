@@ -6,7 +6,6 @@ from pulse.interface.user_input.data_handler.file_dialog_service import FileDial
 
 from pulse import app
 
-from pathlib import Path
 
 class PCFFileIO:
     def __init__(self):
@@ -14,18 +13,14 @@ class PCFFileIO:
 
     def _initialize(self):
         self.complete = False
-        self.user_path = Path().home()
 
     def open_pcf(self):
         '''
         This function is absolutelly disgusting. I will refactor this next week, 
         but for now it will be like this just in order to make the bosses happy =)
         '''
-
-        last_folder_path = app().config.get_last_folder_for("pcf_folder", default=self.user_path)
-
         extensions = ["pcf"]
-        file_path = FileDialogService.open_file(extensions, "Open PCF File", last_folder_path)
+        file_path = FileDialogService.open_file(extensions, "Open PCF File", "pcf_folder")
 
         if file_path is None:
             return
@@ -100,11 +95,8 @@ class PCFFileIO:
         app().main_window.geometry_widget.update_plot(reset_camera=True)
 
     def export_pcf(self):
-
-        last_folder_path = app().config.get_last_folder_for("exported_pcf_folder", default=self.user_path)
-
         extensions = ["pcf"]
-        path = FileDialogService.save_file(extensions, "Export PCF file", last_folder_path)
+        path = FileDialogService.save_file(extensions, "Export PCF file", "exported_pcf_folder")
 
         if path is None:
             return
