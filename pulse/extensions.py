@@ -1,0 +1,34 @@
+SUPPORTED_GEOMETRY_EXTENSIONS = [
+    "iges",
+    "igs",
+    "step",
+    "stp",
+]
+
+SUPPORTED_TEXT_EXTENSIONS = [
+    "dat",
+    "txt",
+    "csv"
+]
+
+SUPPORTED_SPREADSHEET_EXTENSIONS = [
+    "xls",
+    "xlsx"
+]
+
+SUPPORTED_OUTPUT_DATA_EXTENSIONS = SUPPORTED_TEXT_EXTENSIONS + SUPPORTED_SPREADSHEET_EXTENSIONS
+
+SUPPORTED_ANIMATION_EXTENSIONS = [
+    "webp",
+    "gif"
+]
+
+SUPPORTED_VIDEO_EXTENSIONS = [
+    "mp4",
+]
+
+SUPPORTED_SIMULATION_DATA = [
+    "h5",
+    "hd5",
+    "hdf5"
+]
