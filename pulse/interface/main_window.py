@@ -314,11 +314,8 @@ class MainWindow(MainWindow_UI):
         pcf_file.export_pcf()
 
     def export_geometry(self):
-
-        last_folder_path = self.config.get_last_folder_for("exported_geometry_folder", default=self.user_path)
-
         extensions = ["step"]
-        path = FileDialogService.save_file(extensions, "Export geometry file", last_folder_path)
+        path = FileDialogService.save_file(extensions, "Export geometry file", "exported_geometry_folder")
 
         if path is None:
             return
@@ -955,11 +952,8 @@ class MainWindow(MainWindow_UI):
         self.action_user_preferences.setDisabled(0)
 
     def savePNG_call(self):
-
-        last_folder_path = self.config.get_last_folder_for("exported_image_folder", default=self.user_path)
-
         extensions = ["png"]
-        path = FileDialogService.save_file(extensions, "Save Captured Image", last_folder_path)
+        path = FileDialogService.save_file(extensions, "Save Captured Image", "exported_image_folder")
 
         if path is None:
             return
@@ -1072,11 +1066,8 @@ class MainWindow(MainWindow_UI):
         LoadingWindow(tmp).run()
 
     def open_project_dialog(self):
-
-        last_folder_path = self.config.get_last_folder_for("project_folder", default=self.user_path)
-
         extensions = ["pulse"]
-        project_path = FileDialogService.open_file(extensions, "Open Project", last_folder_path)
+        project_path = FileDialogService.open_file(extensions, "Open Project", "project_folder")
 
         if project_path is None:
             return True
@@ -1096,10 +1087,8 @@ class MainWindow(MainWindow_UI):
         if not obj.complete:
             return obj.complete
 
-        last_folder_path = self.config.get_last_folder_for("project_folder", default=self.user_path)
-
         extensions = ["pulse"]
-        file_path = FileDialogService.save_file(extensions, "Save As", last_folder_path)
+        file_path = FileDialogService.save_file(extensions, "Save As", "project_folder")
 
         if file_path is None:
             return False
