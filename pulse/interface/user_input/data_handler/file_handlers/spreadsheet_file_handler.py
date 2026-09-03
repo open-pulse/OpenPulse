@@ -50,10 +50,13 @@ class SpreadsheetFileHandler(IOHandler):
         return imported_spreadsheet
 
     @staticmethod
-    def save(file_path: str | Path, sheet_name: str, data: PolarsDataFrame, index_rows: bool = False):
+    def save(file_path: str | Path, sheet_name: str, data: PolarsDataFrame, index_rows: bool = False, append=False):
         from pandas import ExcelWriter
 
-        with ExcelWriter(str(file_path)) as writer:
+        mode = "a" if append else "w"
+        kwargs = {"if_sheet_exists": "replace"} if append else {}
+
+        with ExcelWriter(str(file_path), mode=mode, **kwargs) as writer:
             data.to_pandas().to_excel(writer, sheet_name=sheet_name, index=index_rows)
 
     @staticmethod

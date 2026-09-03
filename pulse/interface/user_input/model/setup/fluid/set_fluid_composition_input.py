@@ -1,6 +1,5 @@
 
 import logging
-import platform
 from pathlib import Path
 
 import numpy as np
@@ -8,17 +7,19 @@ from numpy import ndarray
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
-    QFileDialog,
     QHeaderView,
     QTableWidgetItem,
     QTreeWidgetItem,
 )
 
 from pulse import app
+from pulse.extensions import SUPPORTED_SPREADSHEET_EXTENSIONS
 from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.fluid.set_fluid_composition_input_ui import (
     SetFluidCompositionInput_UI,
 )
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import (
     LoadFluidCompositionInput,
 )
@@ -1261,35 +1262,16 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         app().main_window.set_input_widget(self)
 
     def export_fluid_composition_callback(self):
-
         self.hide()
-        last_folder_path = app().config.get_last_folder_for("fluid_composition_folder", default=self.user_path)
 
-        ext_filter = (
-            "Spreasheet file (*.xlsx)"
-            ";;Spreasheet file (*.xls)"
-            ";;All Files (*)"
-        )
+        file_path = FileDialogService.save_file(file_extensions=SUPPORTED_SPREADSHEET_EXTENSIONS,
+                                    caption="Export the fluid composition data in spreadsheet file",
+                                    last_folder="fluid_composition_folder")
 
-        kwargs = {}
-        if platform.system() == "Linux":
-            kwargs["options"] = QFileDialog.Option.DontUseNativeDialog
-
-        file_path, check = QFileDialog.getSaveFileName(
-            self,
-            "Export the fluid composition data in spreadsheet file",
-            str(last_folder_path),
-            filter=ext_filter,
-            **kwargs,
-        )
-
-        if not check:
+        if file_path is None:
             return True
 
-        app().config.write_last_folder_path_in_file("fluid_composition_folder", file_path)
-
         data_to_export = self.get_fluid_composition_data_to_export()
-
         self.export_data_in_spreadsheet_format(data_to_export, file_path)
 
     def get_fluid_composition_data_to_export(self):
@@ -1331,19 +1313,18 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         return data_to_export
 
-    def export_data_in_spreadsheet_format(self, data_to_export: dict, export_path: str):
-
-        from pandas import ExcelWriter
+    def export_data_in_spreadsheet_format(self, data_to_export: dict, export_path: str | Path):
         from polars import DataFrame
 
-        with ExcelWriter(export_path) as writer:
+        append = False
+        for sheet_name, (header, sheet_data) in data_to_export.items():
+            if not isinstance(sheet_data, ndarray | list):
+                continue
 
-            for sheet_name, (header, sheet_data) in data_to_export.items():
-                if not isinstance(sheet_data, ndarray | list):
-                    continue
+            df = DataFrame(sheet_data, schema=header, orient="row")
+            FileHandler.save_spreadsheet_file(export_path, sheet_name, df, append=append)
 
-                df = DataFrame(sheet_data, schema=header, orient="row")
-                df.to_pandas().to_excel(writer, sheet_name=sheet_name, index=False)
+            append = True
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

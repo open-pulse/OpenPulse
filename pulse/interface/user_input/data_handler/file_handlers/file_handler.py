@@ -59,7 +59,7 @@ class FileHandler:
             raise FileHandler.raise_extensions_error(file_path, all_extensions)
             
     @staticmethod
-    def save_text_file(file_path: str, data: np.array, delimiter=",", header=""):
+    def save_text_file(file_path: str | Path, data: np.array, delimiter=",", header=""):
         file_path = Path(file_path)
 
         if not file_path.parent.exists():
@@ -71,7 +71,7 @@ class FileHandler:
         TextFileHandler.save(file_path, data, delimiter=delimiter, header=header)
 
     @staticmethod
-    def save_spreadsheet_file(file_path: str, sheetname: str, data: PolarsDataFrame, index_rows: bool = False):
+    def save_spreadsheet_file(file_path: str | Path, sheetname: str, data: PolarsDataFrame, index_rows: bool = False, append=False):
         file_path = Path(file_path)
 
         if not file_path.parent.exists():
@@ -80,7 +80,7 @@ class FileHandler:
         if file_path.suffix not in SpreadsheetFileHandler.EXTENSIONS:
             raise FileHandler.raise_extensions_error(file_path, SpreadsheetFileHandler.EXTENSIONS)
 
-        SpreadsheetFileHandler.save(file_path, sheetname, data, index_rows)
+        SpreadsheetFileHandler.save(file_path, sheetname, data, index_rows, append)
 
     @staticmethod
     def generate_extensions_string_for_error_message(extensions: list[str]) -> str:
