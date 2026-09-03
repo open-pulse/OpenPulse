@@ -17,6 +17,7 @@ from pulse.interface.user_input.data_handler.file_dialog_service import (
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import (
     FileHandler,
 )
+from pulse.interface.user_input.data_handler.imported_data import SpreadsheetData
 from pulse.interface.user_input.model.setup.nodes_input import UserInput
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
@@ -230,6 +231,9 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         self.element_transfer_data.clear()
     
         imported_file = FileHandler().read(imported_path)
+
+        if not isinstance(imported_file, SpreadsheetData):
+            return
 
         for sheet in imported_file.sheets:
             if sheet.name:
