@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import QFileDialog
 
 from pulse import app
+from pulse.extensions import SUPPORTED_SPREADSHEET_EXTENSIONS, SUPPORTED_TEXT_EXTENSIONS
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
-from pathlib import Path
 import numpy as np
 
 
@@ -81,22 +81,17 @@ class ExportModelResults(QFileDialog):
                 df.to_pandas().to_excel(writer, sheet_name=sheet_name, index=False)
 
     def call_file_dialog_and_export_data(self):
-
         caption = "Export the model results"
-        last_folder_path = app().config.get_last_folder_for("export_data_folder", default=Path().home())
 
-        extensions = []
         if len(self.data) == 1:
-            extensions = ["xlsx", "xls", "dat", "txt", "csv"]
+            extensions = SUPPORTED_SPREADSHEET_EXTENSIONS + SUPPORTED_TEXT_EXTENSIONS 
         else:
             extensions = ["xlsx"]
 
-        file_path = FileDialogService.save_file(extensions, caption, last_folder_path)
+        file_path = FileDialogService.save_file(extensions, caption, "export_data_folder")
     
-        if not file_path:
+        if file_path is None:
             return
-                
-        app().config.write_last_folder_path_in_file("export_data_folder", file_path)
 
         if file_path.suffix.lower() in [".xlsx"]:
             self.export_data_in_spreadsheet_format(file_path)

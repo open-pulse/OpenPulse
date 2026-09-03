@@ -6,6 +6,7 @@ from PySide6.QtCore import QEvent, QObject, Qt, Signal
 from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
+from pulse.extensions import SUPPORTED_SPREADSHEET_EXTENSIONS
 from pulse.interface import error_title, warning_title
 from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element_input_ui import (
     AcousticTransferElementInput_UI,
@@ -16,6 +17,7 @@ from pulse.interface.user_input.data_handler.file_dialog_service import (
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import (
     FileHandler,
 )
+from pulse.interface.user_input.data_handler.imported_data import SpreadsheetData
 from pulse.interface.user_input.model.setup.nodes_input import UserInput
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
@@ -198,12 +200,10 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
 
     def search_callback(self):
         caption = "Choose a file to import element transfer data"
-        last_folder_path = app().config.get_last_folder_for("imported_table_folder", default=Path().home())
-        file_extensions = ["xls", "xlsx"]
 
-        imported_path = FileDialogService.open_file(file_extensions, caption=caption, last_folder=last_folder_path)
+        imported_path = FileDialogService.open_file(SUPPORTED_SPREADSHEET_EXTENSIONS, caption=caption, last_folder="imported_table_folder")
 
-        if not imported_path:
+        if imported_path is None:
             info_message = "Select the spreadsheet file to import "
             info_message += "the acoustic transfer element data."
             self.lineEdit_spreadsheet_path.setToolTip(info_message)
@@ -212,8 +212,6 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         path = str(imported_path)
         self.lineEdit_spreadsheet_path.setText(path)
         self.lineEdit_spreadsheet_path.setToolTip(path)
-
-        app().config.write_last_folder_path_in_file("imported_table_folder", path)
 
     def check_inputs(self):
 
@@ -233,6 +231,9 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         self.element_transfer_data.clear()
     
         imported_file = FileHandler().read(imported_path)
+
+        if not isinstance(imported_file, SpreadsheetData):
+            return
 
         for sheet in imported_file.sheets:
             if sheet.name:

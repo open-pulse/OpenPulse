@@ -3,13 +3,12 @@ from functools import partial
 from pathlib import Path
 
 import numpy as np
-from molde.colors import color_names
-from PySide6.QtGui import QCloseEvent, QColor, Qt
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QWidget
+from PySide6.QtGui import QCloseEvent, Qt
+from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton
 
 from pulse import app
+from pulse.extensions import SUPPORTED_SPREADSHEET_EXTENSIONS, SUPPORTED_TEXT_EXTENSIONS
 from pulse.interface import error_title
-from pulse.interface.formatters import icons
 from pulse.interface.user_input.data_handler.file_dialog_service import (
     FileDialogService,
 )
@@ -46,7 +45,6 @@ class UserInput(QDialog):
         return not np.allclose(f_steps, f_steps[0], atol=1e-8)
     
     def load_table(self, line_edit: QLineEdit, bc_label: str, dof_label: str = "", direct_load: bool = False):
-
         title = "Error while loading table"
 
         try:
@@ -57,16 +55,13 @@ class UserInput(QDialog):
                     return None, None
 
             else:
-
-                last_folder_path = app().main_window.config.get_last_folder_for("imported_table_folder", default=Path().home())
-
                 caption = f"Choose a table to import the {bc_label}"
                 if dof_label != "":
                     caption += f" ({dof_label})"
                 
-                extensions = ["xls", "xlsx", "csv", "dat", "txt"]
+                extensions = SUPPORTED_SPREADSHEET_EXTENSIONS + SUPPORTED_TEXT_EXTENSIONS
 
-                table_path = FileDialogService.open_file(extensions, caption, last_folder_path)
+                table_path = FileDialogService.open_file(extensions, caption, "imported_table_folder")
 
                 if table_path is None:
                     return None, None
@@ -102,8 +97,6 @@ class UserInput(QDialog):
                 PrintMessageInput([error_title, title, message])
                 line_edit.setFocus()
                 return None, None
-
-            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", table_path)
 
             return imported_data, str(table_path)
 
