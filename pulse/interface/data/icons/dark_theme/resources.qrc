@@ -75,6 +75,12 @@
         <file alias="pulse/pulse_icon.png">../pulse/pulse_icon.png</file>
         <file alias="warnings/transparent_warning.png">../warnings/transparent_warning.png</file>
         <file alias="warnings/warning_2.png">../warnings/warning_2.png</file>
+        <file alias="figures/Circular.PNG">../figures/Circular.PNG</file>
+        <file alias="figures/Pipe.PNG">../figures/Pipe.PNG</file>
+        <file alias="figures/Rectangular.PNG">../figures/Rectangular.PNG</file>
+        <file alias="figures/C_profile.PNG">../figures/C_profile.PNG</file>
+        <file alias="figures/T_profile.PNG">../figures/T_profile.PNG</file>
+        <file alias="figures/I_profile.PNG">../figures/I_profile.PNG</file>
         <file alias="logos/op_dark_theme.png">../logos/op_dark_theme.png</file>
         <file alias="logos/op_light_theme.png">../logos/op_light_theme.png</file>
         <file alias="common/moon_icon.png">common/moon_icon.png</file>
