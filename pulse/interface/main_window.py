@@ -19,6 +19,7 @@ from pulse import (
     USER_PATH,
     app,
 )
+from pulse.interface import warning_title
 from pulse.interface.data.icons.theme_resources import set_icon_theme
 from pulse.interface.formatters import icons
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -37,6 +38,7 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.new_project import NewProjectInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
@@ -144,6 +146,7 @@ class MainWindow(MainWindow_UI):
         self.action_results_workspace.setDisabled(_bool)
         self.action_plot_geometry_editor.setDisabled(_bool)
         self.action_export_geometry.setDisabled(_bool)
+        self.action_export_mesh.setDisabled(_bool)
         self.action_export_pcf.setDisabled(_bool)
         self.action_import_geometry.setDisabled(_bool)
         self.action_import_pcf.setDisabled(_bool)
@@ -325,6 +328,31 @@ class MainWindow(MainWindow_UI):
 
         geometry_handler = GeometryHandler(app().project)
         geometry_handler.export_cad_file(path)
+
+    def export_mesh(self):
+
+        if not app().project.file.check_pipeline_data():
+            title = "No mesh to export"
+            message = "There is no geometry data available to export. Please, build the model and generate the mesh before exporting."
+            PrintMessageInput([warning_title, title, message])
+            return
+
+        last_folder_path = self.config.get_last_folder_for("exported_mesh_folder", default=self.user_path)
+
+        extensions = ["msh"]
+        path = FileDialogService.save_file(extensions, "Export mesh file", last_folder_path)
+
+        if path is None:
+            return
+
+        project_setup = app().project.project_setup
+        mesh = self.project.model.mesh
+
+        LoadingWindow(mesh.export_mesh, parent=self).run(
+            path, project_setup.import_type, geometry_path=project_setup.geometry_path_internal
+        )
+
+        self.config.write_last_folder_path_in_file("exported_mesh_folder", path)
 
     # public
     def update_plots(self, reset_camera=True):
@@ -595,6 +623,9 @@ class MainWindow(MainWindow_UI):
 
     def action_export_geometry_callback(self):
         self.export_geometry()
+
+    def action_export_mesh_callback(self):
+        self.export_mesh()
 
     def action_check_refprop_callback(self):
         CheckREFPROP()

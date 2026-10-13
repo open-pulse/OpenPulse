@@ -71,11 +71,32 @@ class Mesh:
         """
         This method loads geometry file or data and process the mesh.
         """
+        if not self._build_mesh(import_type, geometry_path):
+            return
+
+        self._finalize_gmsh()
+
+    def export_mesh(self, export_path: str, import_type: ImportType, geometry_path: str = ""):
+        """
+        This method builds the gmsh model and exports the generated mesh to a file.
+        """
+        if not self._build_mesh(import_type, geometry_path):
+            return False
+
+        gmsh.write(str(export_path))
+        self._finalize_gmsh()
+        return True
+
+    def _build_mesh(self, import_type: ImportType, geometry_path: str = ""):
+        """
+        This method loads geometry file or data, creates the gmsh geometry
+        and generates the mesh, keeping the gmsh model initialized.
+        """
         self.reset_variables()
 
         if import_type == ImportType.CAD_FILE:
             if not os.path.exists(geometry_path):
-                return
+                return False
 
             self._load_cad_geometry_on_gmsh(geometry_path)
 
@@ -84,7 +105,7 @@ class Mesh:
 
         self._process_mesh()
         self._save_geometry_points()
-        self._finalize_gmsh()
+        return True
     
     def _load_cad_geometry_on_gmsh(self, geometry_path: str):
         """
