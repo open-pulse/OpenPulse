@@ -11,19 +11,9 @@ class CouplingElement(LinearStructure):
         super().__init__(start, end, *args, **kwargs)
         self.color = PURPLE_7
 
-    def add_to_gmsh(self, cad, convert_unit):
-        line_tags = super().add_to_gmsh(cad, convert_unit)
-        self._gmsh_line_tags = line_tags
-        return line_tags
-    
     def as_vtk(self):
         from pulse.interface.viewer_3d.actors import CouplingElementActor
         return CouplingElementActor(self)
-
-    def define_gmsh_mesh_constraints(self):
-        import gmsh
-        for tag in self._gmsh_line_tags:
-            gmsh.model.mesh.setTransfiniteCurve(tag, 2)
 
     @classmethod
     def load_from_data(cls, data: dict) -> "CouplingElement":

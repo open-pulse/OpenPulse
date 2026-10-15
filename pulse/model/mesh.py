@@ -169,11 +169,12 @@ class Mesh:
             self._remove_orphan_points()
 
             # Apply per-structure mesh constraints after removing the
-            # duplicates, since removeAllDuplicates resets the transfinite
-            # curve settings (e.g. the coupling element 2-node constraint).
-            for structure in self.project.pipeline.structures:
-                if isinstance(structure, CouplingElement):
-                    structure.define_gmsh_mesh_constraints()
+            # duplicates, since removeAllDuplicates may invalidate the line
+            # tags stored when the geometry was built. The coupling element
+            # line is resolved again from its endpoints to guarantee the
+            # 2-node (transfinite) constraint is applied to the surviving
+            # entity and that the element is included in the exported mesh.
+            self._apply_coupling_element_constraints()
 
             # generate mesh for 1D elements
             gmsh.model.mesh.generate(1)
@@ -201,6 +202,41 @@ class Mesh:
         dim_tags = [(0, orphan_point) for orphan_point in orphan_points]
         gmsh.model.occ.remove(dim_tags, recursive=False)
         gmsh.model.occ.synchronize()
+
+    def _apply_coupling_element_constraints(self):
+        """
+        Applies the 2-node (transfinite) constraint to every coupling element
+        line. The line entity is resolved again from the structure endpoints
+        instead of relying on the line tags stored while the geometry was
+        built, because those tags may become invalid after the duplicate
+        removal and orphan point cleanup steps.
+        """
+        coupling_elements = [
+            structure
+            for structure in self.project.pipeline.structures
+            if isinstance(structure, CouplingElement)
+        ]
+        if not coupling_elements:
+            return
+
+        lines_coords = {}
+        for _, tag in gmsh.model.getEntities(1):
+            boundary = gmsh.model.getBoundary([(1, tag)], oriented=False)
+            if len(boundary) != 2:
+                continue
+            coords = [gmsh.model.getValue(*point, []) for point in boundary]
+            lines_coords[tag] = [np.round(coords[0], 6), np.round(coords[1], 6)]
+
+        for structure in coupling_elements:
+            start = np.round(convert_length_unit(structure.start.coords(), self.length_unit, "mm"), 6)
+            end = np.round(convert_length_unit(structure.end.coords(), self.length_unit, "mm"), 6)
+
+            for tag, coords in lines_coords.items():
+                if (np.allclose(coords[0], start) and np.allclose(coords[1], end)) or (
+                    np.allclose(coords[0], end) and np.allclose(coords[1], start)
+                ):
+                    gmsh.model.mesh.setTransfiniteCurve(tag, 2)
+                    break
 
     def _post_process_mesh_data(self):
         """

@@ -454,10 +454,10 @@ class MainEditor(Editor):
             if point not in structure.get_points():
                 continue
 
-            if id(structure.end) == id(point):
+            if point == structure.end:
                 pipe_before = structure
 
-            elif id(structure.start) == id(point):
+            elif point == structure.start:
                 pipe_after = structure
 
         return pipe_before, pipe_after
