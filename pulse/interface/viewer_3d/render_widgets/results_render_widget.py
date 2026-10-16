@@ -674,7 +674,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         else:
             magnification_factor = 1
 
-        color_scalars, self._magnification_factor, _ = self.structural_postprocessing.get_structural_response(
+        color_scalars, self._magnification_factor = self.structural_postprocessing.get_structural_response(
             frequency_index,
             phase_step=phase_step,
             r_max=self.r_xyz_abs,
@@ -697,7 +697,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         else:
             magnification_factor = 1
 
-        *_, self._magnification_factor, _delta = self.structural_postprocessing.get_structural_response(
+        _, self._magnification_factor = self.structural_postprocessing.get_structural_response(
             frequency_index,
             phase_step=phase_step,
             r_max=self.r_xyz_abs,
@@ -706,7 +706,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         stresses_data, self.min_max_stresses_values_current = self.structural_postprocessing.get_stresses_to_plot(
             phase_step=phase_step,
-            shift_phase=_delta,
         )
 
         min_max_values = (self.stress_min, self.stress_max)
