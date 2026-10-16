@@ -147,6 +147,8 @@ class MainWindow(MainWindow_UI):
         self.action_plot_geometry_editor.setDisabled(_bool)
         self.action_export_geometry.setDisabled(_bool)
         self.action_export_mesh.setDisabled(_bool)
+        self.action_export_nodal_coordinates.setDisabled(_bool)
+        self.action_export_mesh_connectivity.setDisabled(_bool)
         self.action_export_pcf.setDisabled(_bool)
         self.action_import_geometry.setDisabled(_bool)
         self.action_import_pcf.setDisabled(_bool)
@@ -351,6 +353,50 @@ class MainWindow(MainWindow_UI):
         LoadingWindow(mesh.export_mesh, parent=self).run(
             path, project_setup.import_type, geometry_path=project_setup.geometry_path_internal
         )
+
+        self.config.write_last_folder_path_in_file("exported_mesh_folder", path)
+
+    def export_nodal_coordinates(self):
+
+        if not app().project.file.check_pipeline_data():
+            title = "No mesh to export"
+            message = "There is no geometry data available to export. Please, build the model and generate the mesh before exporting."
+            PrintMessageInput([warning_title, title, message])
+            return
+
+        last_folder_path = self.config.get_last_folder_for("exported_mesh_folder", default=self.user_path)
+
+        extensions = ["inp", "txt"]
+        path = FileDialogService.save_file(extensions, "Export nodal coordinates file", last_folder_path)
+
+        if path is None:
+            return
+
+        mesh = self.project.model.mesh
+
+        LoadingWindow(mesh.export_nodal_coords, parent=self).run(path)
+
+        self.config.write_last_folder_path_in_file("exported_mesh_folder", path)
+
+    def export_mesh_connectivity(self):
+
+        if not app().project.file.check_pipeline_data():
+            title = "No mesh to export"
+            message = "There is no geometry data available to export. Please, build the model and generate the mesh before exporting."
+            PrintMessageInput([warning_title, title, message])
+            return
+
+        last_folder_path = self.config.get_last_folder_for("exported_mesh_folder", default=self.user_path)
+
+        extensions = ["inp", "txt"]
+        path = FileDialogService.save_file(extensions, "Export mesh connectivity file", last_folder_path)
+
+        if path is None:
+            return
+
+        mesh = self.project.model.mesh
+
+        LoadingWindow(mesh.export_mesh_connectivity, parent=self).run(path)
 
         self.config.write_last_folder_path_in_file("exported_mesh_folder", path)
 
@@ -626,6 +672,12 @@ class MainWindow(MainWindow_UI):
 
     def action_export_mesh_callback(self):
         self.export_mesh()
+
+    def action_export_nodal_coordinates_callback(self):
+        self.export_nodal_coordinates()
+
+    def action_export_mesh_connectivity_callback(self):
+        self.export_mesh_connectivity()
 
     def action_check_refprop_callback(self):
         CheckREFPROP()
