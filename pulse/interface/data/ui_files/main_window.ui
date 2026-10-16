@@ -128,7 +128,7 @@
     </widget>
     <widget class="QMenu" name="menuExport_Mesh_files">
      <property name="title">
-      <string>Export Mesh files</string>
+      <string>Export Mesh Files</string>
      </property>
      <addaction name="action_export_mesh"/>
      <addaction name="action_export_nodal_coordinates"/>
@@ -834,12 +834,12 @@
   </action>
   <action name="action_export_nodal_coordinates">
    <property name="text">
-    <string>Export nodal coordinates</string>
+    <string>Export Nodal Coordinates</string>
    </property>
   </action>
   <action name="action_export_mesh_connectivity">
    <property name="text">
-    <string>Export mesh connectivity</string>
+    <string>Export Mesh Connectivity</string>
    </property>
   </action>
  </widget>
