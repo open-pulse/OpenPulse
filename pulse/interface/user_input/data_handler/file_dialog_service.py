@@ -153,12 +153,14 @@ class FileDialogService:
                 return 1
             case "dat":
                 return 2
-            case "txt":
+            case "inp":
                 return 3
-            case "pulse":
+            case "txt":
                 return 4
-            case _:
+            case "pulse":
                 return 5
+            case _:
+                return 6
 
 
 

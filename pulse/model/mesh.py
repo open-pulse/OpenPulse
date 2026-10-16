@@ -87,6 +87,56 @@ class Mesh:
         self._finalize_gmsh()
         return True
 
+    def export_nodal_coords(self, export_path: str):
+        """
+        Exports the nodal coordinates to a text file, one node per line, in the
+        format: N, node_id, x, y, z
+
+        Parameters
+        ----------
+        export_path: str
+            The path of the text file to be written.
+
+        Returns
+        -------
+        bool
+            True if the file was written, False if there is no mesh to export.
+        """
+        nodal_coordinates = getattr(self, "nodal_coordinates", None)
+        if nodal_coordinates is None or nodal_coordinates.size == 0:
+            return False
+
+        with open(export_path, "w") as file:
+            file.writelines(f"N, {int(node_id)}, {x}, {y}, {z}\n" for node_id, x, y, z in nodal_coordinates)
+
+        return True
+
+    def export_mesh_connectivity(self, export_path: str):
+        """
+        Exports the element connectivity to a text file, one element per line,
+        in the format: E, element_id, node_1, node_2
+
+        Parameters
+        ----------
+        export_path: str
+            The path of the text file to be written.
+
+        Returns
+        -------
+        bool
+            True if the file was written, False if there is no mesh to export.
+        """
+        if getattr(self, "lines_connectivity", None) is None:
+            return False
+
+        with open(export_path, "w") as file:
+            file.writelines(
+                f"E, {int(element_id)}, {int(node_1)}, {int(node_2)}\n"
+                for element_id, node_1, node_2 in self.get_connectivity_matrix()
+            )
+
+        return True
+
     def _build_mesh(self, import_type: ImportType, geometry_path: str = ""):
         """
         This method loads geometry file or data, creates the gmsh geometry
