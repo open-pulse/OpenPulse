@@ -8,9 +8,10 @@ from sys import argv
 # from time import time
 from molde import stylesheets
 from molde.render_widgets import CommonRenderWidget
-from PySide6.QtCore import QEvent, QPoint, Qt, Signal
+from PySide6.QtCore import QPoint, Qt, Signal
 from PySide6.QtGui import QAction, QCloseEvent, QCursor
-from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QToolBar, QWidget
+from PySide6.QtWidgets import QDialog, QMessageBox, QToolBar, QWidget
+from vtkmodules.vtkRenderingCore import vtkProperty
 
 from pulse import (
     QSS_DIR,
@@ -26,6 +27,8 @@ from pulse.interface.handler.pcf_file_io import PCFFileIO
 from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.others.status_bar import StatusBar
+from pulse.interface.shortcuts import register_global_shortcuts
+from pulse.interface.shortcuts_help import ShortcutsHelp
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
 from pulse.interface.toolbars.view_toolbar import ViewToolbar
 from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
@@ -48,6 +51,9 @@ from pulse.interface.viewer_3d.render_widgets import (
 from pulse.interface.welcome_widget import WelcomeWidget
 from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter, block_signals
 from pulse.model.data_classes.project_setup_data_classes import MesherSetup
+
+# vtkProperty does not expose its representation enums in the Python wrapping
+WIREFRAME_REPRESENTATION = 1  # vtkProperty::VTK_WIREFRAME
 
 class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
@@ -114,7 +120,6 @@ class MainWindow(MainWindow_UI):
 
     def _config_window(self):
         self.showMinimized()
-        self.installEventFilter(self)
         self.pulse_icon = icons.get_openpulse_icon()
         self.setWindowIcon(self.pulse_icon)
 
@@ -189,6 +194,7 @@ class MainWindow(MainWindow_UI):
         self._create_status_bar()
         self._update_recent_projects()
         self._add_toolbars()
+        register_global_shortcuts(self)
         app().splash.update_progress(70)
         # dt = time() - t1
         # print(f"Time to process B: {round(dt, 6)} [s]")
@@ -1184,6 +1190,67 @@ class MainWindow(MainWindow_UI):
         if isinstance(self.dialog, QDialog):
             self.dialog.setStyleSheet(self.combined_stylesheet)
 
+    def action_copy_screenshot_to_clipboard_callback(self):
+        widget = self.render_widgets_stack.currentWidget()
+        if not isinstance(widget, CommonRenderWidget):
+            return
+
+        image = widget.get_screenshot()
+        app().clipboard().setImage(image.toqimage())
+
+    def action_toggle_section_plane_callback(self):
+        self.action_section_plane.trigger()
+
+    def action_toggle_wireframe_callback(self):
+        self._set_actors_representation(
+            surface=self._current_actors_are_wireframe(),
+        )
+
+    def action_set_surface_rendering_callback(self):
+        self._set_actors_representation(surface=True)
+
+    def _current_actors_are_wireframe(self) -> bool:
+        widget = self.get_current_render_widget()
+        if not isinstance(widget, CommonRenderWidget):
+            return False
+
+        for actor in widget.renderer.GetActors():
+            actor_prop = actor.GetProperty()
+
+            if not isinstance(actor_prop, vtkProperty):
+                continue
+
+            return actor_prop.GetRepresentation() == WIREFRAME_REPRESENTATION
+
+        return False
+
+    def _set_actors_representation(self, *, surface: bool):
+        widget = self.get_current_render_widget()
+        if not isinstance(widget, CommonRenderWidget):
+            return
+
+        for actor in widget.renderer.GetActors():
+            actor_prop = actor.GetProperty()
+
+            if not isinstance(actor_prop, vtkProperty):
+                continue
+
+            if surface:
+                actor_prop.SetRepresentationToSurface()
+            else:
+                actor_prop.SetRepresentationToWireframe()
+
+        widget.update()
+
+    def action_show_shortcuts_help_callback(self):
+        for window in app().topLevelWidgets():
+            if isinstance(window, ShortcutsHelp):
+                window.raise_()
+                window.activateWindow()
+                return
+
+        ShortcutsHelp(self)
+
     def close_dialogs(self):
         for window in app().topLevelWidgets():
             if isinstance(window, MainWindow):
@@ -1261,24 +1328,6 @@ class MainWindow(MainWindow_UI):
         self.mesh_widget.render_interactor.Finalize()
         self.results_widget.render_interactor.Finalize()
         app().quit()
-
-    def eventFilter(self, obj, event):
-        modifiers = QApplication.keyboardModifiers()
-        alt_pressed = modifiers & Qt.AltModifier
-
-        if event.type() == QEvent.ShortcutOverride:
-            if alt_pressed and (event.key() == Qt.Key_E):
-                self.set_selection()
-                self.use_geometry_workspace()
-            elif alt_pressed and (event.key() == Qt.Key_S):
-                self.use_model_setup_workspace()
-            elif alt_pressed and (event.key() == Qt.Key_A):
-                self.use_model_setup_workspace()
-            elif alt_pressed and (event.key() == Qt.Key_R):
-                self.use_results_workspace()
-            elif event.key() == Qt.Key_F5:
-                self.update_plots()
-        return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event: QCloseEvent | None) -> None:
         self.close_app()

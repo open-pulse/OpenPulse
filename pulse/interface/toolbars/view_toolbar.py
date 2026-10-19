@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QSizePolicy, QToolBar
 
 from pulse import app
@@ -56,12 +56,12 @@ class ViewToolbar(QToolBar):
         self.addAction(self.action_rotation_tool)
         self.addAction(self.action_zoom_tool)
 
-        self.addAction(self.action_top_view)
-        self.addAction(self.action_bottom_view)
-        self.addAction(self.action_left_view)
-        self.addAction(self.action_right_view)
         self.addAction(self.action_front_view)
         self.addAction(self.action_back_view)
+        self.addAction(self.action_left_view)
+        self.addAction(self.action_right_view)
+        self.addAction(self.action_top_view)
+        self.addAction(self.action_bottom_view)
         self.addAction(self.action_isometric_view)
 
     def _configure_appearence(self):
@@ -97,37 +97,30 @@ class ViewToolbar(QToolBar):
         self.action_top_view.setIcon(self.top_view_icon)
         self.action_top_view.setText("Top View")
         self.action_top_view.setToolTip("Top View")
-        self.action_top_view.setShortcut(QKeySequence("Ctrl+Shift+1"))
 
         self.action_bottom_view.setIcon(self.bottom_view_icon)
         self.action_bottom_view.setText("Bottom View")
         self.action_bottom_view.setToolTip("Bottom View")
-        self.action_bottom_view.setShortcut(QKeySequence("Ctrl+Shift+2"))
 
         self.action_left_view.setIcon(self.left_view_icon)
         self.action_left_view.setText("Left View")
         self.action_left_view.setToolTip("Left View")
-        self.action_left_view.setShortcut(QKeySequence("Ctrl+Shift+5"))
 
         self.action_right_view.setIcon(self.right_view_icon)
         self.action_right_view.setText("Right View")
         self.action_right_view.setToolTip("Right View")
-        self.action_right_view.setShortcut(QKeySequence("Ctrl+Shift+6"))
 
         self.action_front_view.setIcon(self.front_view_icon)
         self.action_front_view.setText("Front View")
         self.action_front_view.setToolTip("Front View")
-        self.action_front_view.setShortcut(QKeySequence("Ctrl+Shift+3"))
 
         self.action_back_view.setIcon(self.back_view_icon)
         self.action_back_view.setText("Back View")
         self.action_back_view.setToolTip("Back View")
-        self.action_back_view.setShortcut(QKeySequence("Ctrl+Shift+4"))
 
         self.action_isometric_view.setIcon(self.isometric_view_icon)
         self.action_isometric_view.setText("Isometric View")
         self.action_isometric_view.setToolTip("Isometric View")
-        self.action_isometric_view.setShortcut(QKeySequence("Ctrl+Shift+7"))
 
     def _connect_actions(self):
         self.action_selection_tool.triggered.connect(self.action_selection_tool_callback)

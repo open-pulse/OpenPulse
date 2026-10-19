@@ -121,7 +121,7 @@
       <string>Recent Projects</string>
      </property>
      <property name="icon">
-      <iconset resource="../icons/resources.qrc">
+      <iconset>
        <normaloff>:/icons/common/recent.png</normaloff>:/icons/common/recent.png</iconset>
      </property>
      <addaction name="actionfiles"/>
@@ -241,7 +241,7 @@
   </widget>
   <action name="action_new_project">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
    </property>
    <property name="text">
@@ -253,7 +253,7 @@
   </action>
   <action name="action_open_project">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/import.png</normaloff>:/icons/common/import.png</iconset>
    </property>
    <property name="text">
@@ -277,7 +277,7 @@
   </action>
   <action name="action_reset">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/reset-image.png</normaloff>:/icons/common/reset-image.png</iconset>
    </property>
    <property name="text">
@@ -292,7 +292,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/save.png</normaloff>:/icons/common/save.png</iconset>
    </property>
    <property name="text">
@@ -307,7 +307,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/save_as.png</normaloff>:/icons/common/save_as.png</iconset>
    </property>
    <property name="text">
@@ -322,7 +322,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/geometry_icon.png</normaloff>:/icons/common/geometry_icon.png</iconset>
    </property>
    <property name="text">
@@ -350,7 +350,7 @@
   </action>
   <action name="action_exit">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/exit.png</normaloff>:/icons/common/exit.png</iconset>
    </property>
    <property name="text">
@@ -369,24 +369,15 @@
    <property name="text">
     <string>Plot Lines</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+2</string>
-   </property>
   </action>
   <action name="action_plot_mesh">
    <property name="text">
     <string>Plot Mesh</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+4</string>
-   </property>
   </action>
   <action name="action_plot_lines_with_cross_section">
    <property name="text">
     <string>Plot Lines with Cross-section</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+3</string>
    </property>
   </action>
   <action name="action_plot_cross_section">
@@ -415,7 +406,7 @@
   </action>
   <action name="action_user_preferences">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/user_preferences_icon.png</normaloff>:/icons/common/user_preferences_icon.png</iconset>
    </property>
    <property name="text">
@@ -425,9 +416,6 @@
   <action name="action_plot_geometry_editor">
    <property name="text">
     <string>Plot Geometry Editor</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="action_create_edit_geometry">
@@ -566,7 +554,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/show_mesh_points.png</normaloff>:/icons/common/show_mesh_points.png</iconset>
    </property>
    <property name="text">
@@ -584,7 +572,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/show_lines.png</normaloff>:/icons/common/show_lines.png</iconset>
    </property>
    <property name="text">
@@ -599,7 +587,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/show_tubes.png</normaloff>:/icons/common/show_tubes.png</iconset>
    </property>
    <property name="text">
@@ -614,7 +602,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/show_symbols.png</normaloff>:/icons/common/show_symbols.png</iconset>
    </property>
    <property name="text">
@@ -645,7 +633,7 @@
   </action>
   <action name="action_set_dark_theme">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/moon_icon.png</normaloff>:/icons/common/moon_icon.png</iconset>
    </property>
    <property name="text">
@@ -654,7 +642,7 @@
   </action>
   <action name="action_set_light_theme">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/sun_icon.png</normaloff>:/icons/common/sun_icon.png</iconset>
    </property>
    <property name="text">
@@ -674,7 +662,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/mesh.png</normaloff>:/icons/common/mesh.png</iconset>
    </property>
    <property name="text">
@@ -707,7 +695,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/section_plane_icon.png</normaloff>:/icons/common/section_plane_icon.png</iconset>
    </property>
    <property name="text">
@@ -716,7 +704,7 @@
   </action>
   <action name="action_zoom">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/zoom_icon.png</normaloff>:/icons/common/zoom_icon.png</iconset>
    </property>
    <property name="text">
@@ -736,7 +724,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/show_geometry_points.png</normaloff>:/icons/common/show_geometry_points.png</iconset>
    </property>
    <property name="text">
@@ -753,7 +741,7 @@
   </action>
   <action name="action_geometry_editor_workspace">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/model_settings.png</normaloff>:/icons/common/model_settings.png</iconset>
    </property>
    <property name="text">
@@ -765,7 +753,7 @@
   </action>
   <action name="action_model_setup_workspace">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/engineering.png</normaloff>:/icons/common/engineering.png</iconset>
    </property>
    <property name="text">
@@ -777,7 +765,7 @@
   </action>
   <action name="action_results_workspace">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/calculate.png</normaloff>:/icons/common/calculate.png</iconset>
    </property>
    <property name="text">
@@ -799,7 +787,7 @@
   </action>
   <action name="action_capture_image">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/cube-scan.png</normaloff>:/icons/common/cube-scan.png</iconset>
    </property>
    <property name="text">
@@ -808,7 +796,7 @@
   </action>
   <action name="action_home_exit">
    <property name="icon">
-    <iconset resource="../icons/resources.qrc">
+    <iconset>
      <normaloff>:/icons/common/home.png</normaloff>:/icons/common/home.png</iconset>
    </property>
    <property name="text">
@@ -816,8 +804,6 @@
    </property>
   </action>
  </widget>
- <resources>
-  <include location="../icons/resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
