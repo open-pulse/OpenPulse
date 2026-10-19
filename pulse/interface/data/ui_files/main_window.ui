@@ -378,24 +378,15 @@
    <property name="text">
     <string>Plot Lines</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+2</string>
-   </property>
   </action>
   <action name="action_plot_mesh">
    <property name="text">
     <string>Plot Mesh</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+4</string>
-   </property>
   </action>
   <action name="action_plot_lines_with_cross_section">
    <property name="text">
     <string>Plot Lines with Cross-section</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+3</string>
    </property>
   </action>
   <action name="action_plot_cross_section">
@@ -434,9 +425,6 @@
   <action name="action_plot_geometry_editor">
    <property name="text">
     <string>Plot Geometry Editor</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="action_create_edit_geometry">
