@@ -167,8 +167,7 @@ class StructuralPostprocessing:
         amplitudes = np.abs(self.solution[:, column])
         phases_rad = np.angle(self.solution[:, column])
 
-        phase_shift = -phases_rad[np.argmax(amplitudes)]
-        cossines_phases = np.cos(phases_rad + phase_step + phase_shift)
+        cossines_phases = np.cos(phases_rad + phase_step)
 
         _nodal_solution = amplitudes * cossines_phases
 
@@ -218,7 +217,7 @@ class StructuralPostprocessing:
         # dt = perf_counter() - t0
         # print(f"Elapsed time (B): {dt : .8f} s")
 
-        return r_xyz_plot, mag_fact, phase_shift
+        return r_xyz_plot, mag_fact
 
     def get_min_max_stresses_values(self, elements_stress_data: np.ndarray | None = None):
 
@@ -267,7 +266,7 @@ class StructuralPostprocessing:
 
             return stress_min, stress_max
 
-    def get_stresses_to_plot(self, phase_step: float = 0.0, shift_phase: float = 0.0, elements_stress_data: np.ndarray | None = None):
+    def get_stresses_to_plot(self, phase_step: float = 0.0, elements_stress_data: np.ndarray | None = None):
 
         absolute = self.model.color_scale_setup.get("absolute", False)
         real_values = self.model.color_scale_setup.get("real_values", False)
@@ -290,10 +289,7 @@ class StructuralPostprocessing:
             _stresses = np.abs(elements_stress_data)
             _phase = np.angle(elements_stress_data)
 
-            # NOTE: the shift_phase variable is used to synchronize both
-            # the displacement and stress fields while computing
-            # the animation-related data
-            stresses = _stresses * np.cos(phase_step + _phase + shift_phase)
+            stresses = _stresses * np.cos(phase_step + _phase)
 
             if absolute_animation:
                 stresses = np.absolute(stresses)
