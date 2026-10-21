@@ -126,6 +126,14 @@
      </property>
      <addaction name="actionfiles"/>
     </widget>
+    <widget class="QMenu" name="menuExport_Mesh_files">
+     <property name="title">
+      <string>Export Mesh Files</string>
+     </property>
+     <addaction name="action_export_mesh"/>
+     <addaction name="action_export_nodal_coordinates"/>
+     <addaction name="action_export_mesh_connectivity"/>
+    </widget>
     <addaction name="action_new_project"/>
     <addaction name="action_open_project"/>
     <addaction name="menu_recent"/>
@@ -136,6 +144,7 @@
     <addaction name="separator"/>
     <addaction name="action_import_geometry"/>
     <addaction name="action_export_geometry"/>
+    <addaction name="menuExport_Mesh_files"/>
     <addaction name="action_import_pcf"/>
     <addaction name="action_export_pcf"/>
     <addaction name="separator"/>
@@ -801,6 +810,24 @@
    </property>
    <property name="text">
     <string>Home Exit</string>
+   </property>
+  </action>
+  <action name="action_export_mesh">
+   <property name="text">
+    <string>Export Mesh</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="action_export_nodal_coordinates">
+   <property name="text">
+    <string>Export Nodal Coordinates</string>
+   </property>
+  </action>
+  <action name="action_export_mesh_connectivity">
+   <property name="text">
+    <string>Export Mesh Connectivity</string>
    </property>
   </action>
  </widget>

@@ -240,6 +240,13 @@ class Ui_MainWindow(object):
         self.action_home_exit.setObjectName(u"action_home_exit")
         icon25 = Icon(u":/icons/common/home.png")
         self.action_home_exit.setIcon(icon25)
+        self.action_export_mesh = QAction(MainWindow)
+        self.action_export_mesh.setObjectName(u"action_export_mesh")
+        self.action_export_mesh.setMenuRole(QAction.MenuRole.NoRole)
+        self.action_export_nodal_coordinates = QAction(MainWindow)
+        self.action_export_nodal_coordinates.setObjectName(u"action_export_nodal_coordinates")
+        self.action_export_mesh_connectivity = QAction(MainWindow)
+        self.action_export_mesh_connectivity.setObjectName(u"action_export_mesh_connectivity")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setStyleSheet(u"")
@@ -297,6 +304,8 @@ class Ui_MainWindow(object):
         self.menu_recent.setObjectName(u"menu_recent")
         icon26 = Icon(u":/icons/common/recent.png")
         self.menu_recent.setIcon(icon26)
+        self.menuExport_Mesh_files = QMenu(self.menu_project)
+        self.menuExport_Mesh_files.setObjectName(u"menuExport_Mesh_files")
         self.menu_plots = QMenu(self.menubar)
         self.menu_plots.setObjectName(u"menu_plots")
         self.menu_model_info = QMenu(self.menubar)
@@ -335,6 +344,7 @@ class Ui_MainWindow(object):
         self.menu_project.addSeparator()
         self.menu_project.addAction(self.action_import_geometry)
         self.menu_project.addAction(self.action_export_geometry)
+        self.menu_project.addAction(self.menuExport_Mesh_files.menuAction())
         self.menu_project.addAction(self.action_import_pcf)
         self.menu_project.addAction(self.action_export_pcf)
         self.menu_project.addSeparator()
@@ -342,6 +352,9 @@ class Ui_MainWindow(object):
         self.menu_project.addAction(self.action_exit)
         self.menu_project.addSeparator()
         self.menu_recent.addAction(self.actionfiles)
+        self.menuExport_Mesh_files.addAction(self.action_export_mesh)
+        self.menuExport_Mesh_files.addAction(self.action_export_nodal_coordinates)
+        self.menuExport_Mesh_files.addAction(self.action_export_mesh_connectivity)
         self.menu_plots.addAction(self.action_plot_geometry_editor)
         self.menu_plots.addAction(self.action_plot_lines)
         self.menu_plots.addAction(self.action_plot_lines_with_cross_section)
@@ -513,8 +526,12 @@ class Ui_MainWindow(object):
         self.action_pulsation_damper_editor.setText(QCoreApplication.translate("MainWindow", u"Pulsation damper editor", None))
         self.action_capture_image.setText(QCoreApplication.translate("MainWindow", u"Capture Image", None))
         self.action_home_exit.setText(QCoreApplication.translate("MainWindow", u"Home Exit", None))
+        self.action_export_mesh.setText(QCoreApplication.translate("MainWindow", u"Export Mesh", None))
+        self.action_export_nodal_coordinates.setText(QCoreApplication.translate("MainWindow", u"Export Nodal Coordinates", None))
+        self.action_export_mesh_connectivity.setText(QCoreApplication.translate("MainWindow", u"Export Mesh Connectivity", None))
         self.menu_project.setTitle(QCoreApplication.translate("MainWindow", u"Project", None))
         self.menu_recent.setTitle(QCoreApplication.translate("MainWindow", u"Recent Projects", None))
+        self.menuExport_Mesh_files.setTitle(QCoreApplication.translate("MainWindow", u"Export Mesh Files", None))
         self.menu_plots.setTitle(QCoreApplication.translate("MainWindow", u"Plots", None))
         self.menu_model_info.setTitle(QCoreApplication.translate("MainWindow", u"Model Info", None))
         self.menu_help.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
@@ -542,6 +559,7 @@ class MainWindow_UI(QMainWindow, Ui_MainWindow):
         - menubar: QMenuBar
             - menu_project: QMenu
                 - menu_recent: QMenu
+                - menuExport_Mesh_files: QMenu
             - menu_plots: QMenu
             - menu_model_info: QMenu
             - menu_help: QMenu
