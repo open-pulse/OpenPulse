@@ -703,6 +703,7 @@ class Ui_Form(object):
         self.structure_combobox.addItem("")
         self.structure_combobox.addItem("")
         self.structure_combobox.addItem("")
+        self.structure_combobox.addItem("")
         self.structure_combobox.setObjectName(u"structure_combobox")
         sizePolicy2.setHeightForWidth(self.structure_combobox.sizePolicy().hasHeightForWidth())
         self.structure_combobox.setSizePolicy(sizePolicy2)
@@ -901,6 +902,7 @@ class Ui_Form(object):
         self.structure_combobox.setItemText(9, QCoreApplication.translate("Form", u"Valve", None))
         self.structure_combobox.setItemText(10, QCoreApplication.translate("Form", u"Point", None))
         self.structure_combobox.setItemText(11, QCoreApplication.translate("Form", u"Coupling Element", None))
+        self.structure_combobox.setItemText(12, QCoreApplication.translate("Form", u"Uncorrected Branch", None))
 
         self.cancel_button.setText(QCoreApplication.translate("Form", u"Cancel", None))
         self.finalize_button.setText(QCoreApplication.translate("Form", u"Finalize", None))

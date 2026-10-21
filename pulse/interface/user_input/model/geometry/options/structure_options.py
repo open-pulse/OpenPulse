@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 class StructureOptions:
     structure_type = None
+    correct_t_junction = True
 
     def __init__(self, geometry_designer_widget: "GeometryDesignerWidget"):
         self.pipeline = app().project.pipeline
@@ -39,7 +40,12 @@ class StructureOptions:
 
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_structure_deltas(self.structure_type, xyz, **kwargs)
+        self.pipeline.add_structure_deltas(
+            self.structure_type,
+            xyz,
+            correct_t_junction=self.correct_t_junction,
+            **kwargs,
+        )
 
     def length_callback(self, length: float):
         if self.structure_type is None:

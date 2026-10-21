@@ -36,12 +36,19 @@ class MainEditor(Editor):
 
         self.next_border = list()
 
+        # False attaches branches directly to the junction point,
+        # without the CouplingElement correction.
+        self.correct_t_junction = True
+
     def add_structure_deltas(
         self,
         structure_type: t_structure,
         deltas: tuple[float, float, float],
+        correct_t_junction: bool = True,
         **kwargs,
     ) -> list[t_structure]:
+
+        self.correct_t_junction = correct_t_junction
 
         if not issubclass(structure_type, Structure):
             return list()
@@ -379,7 +386,7 @@ class MainEditor(Editor):
 
         structures = list()
         for point in self.pipeline.selected_points:
-            if self._is_junction(point):
+            if self._is_junction(point) and self.correct_t_junction:
                 new_structures = self._add_corrected_t_junction(structure_type, deltas, point, **kwargs)
             else:
                 new_structures = [

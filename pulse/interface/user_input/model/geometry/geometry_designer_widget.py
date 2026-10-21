@@ -36,6 +36,7 @@ from pulse.interface.user_input.model.geometry.options import (
     CouplingElementOptions,
     StructureOptions,
     TBeamOptions,
+    UncorrectedBranchOptions,
     ValveOptions,
 )
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import (
@@ -89,6 +90,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             ValveOptions,
             PointOptions,
             CouplingElementOptions,
+            UncorrectedBranchOptions,
         ]
 
         # Initialize the StructureOptions classes
