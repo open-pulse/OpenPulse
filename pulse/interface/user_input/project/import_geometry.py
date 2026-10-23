@@ -1,8 +1,7 @@
 from copy import deepcopy
-from pathlib import Path
 
 from pulse import app
-from pulse.interface import error_title
+from pulse.extensions import SUPPORTED_GEOMETRY_EXTENSIONS
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.data_classes.project_setup_data_classes import ImportType, ProjectSetup
@@ -24,11 +23,7 @@ class ImportGeometry:
         self.complete = False
 
     def import_geometry(self):
-
-        last_folder_path = app().config.get_last_folder_for("geometry_folder", default=Path().home())
-
-        extensions = ["iges", "igs", "step", "stp"]
-        geometry_path = FileDialogService.open_file(extensions, "Import geometry file", last_folder_path)
+        geometry_path = FileDialogService.open_file(SUPPORTED_GEOMETRY_EXTENSIONS, "Import geometry file", "geometry_folder")
 
         if geometry_path is None:
             return
@@ -39,8 +34,6 @@ class ImportGeometry:
             message = format_validation_error(result)
             PrintMessageInput(["Error", title, message])
             return
-
-        app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
         project_setup = deepcopy(app().project.project_setup)
         project_setup.import_type = ImportType.CAD_FILE

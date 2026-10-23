@@ -1,17 +1,16 @@
 from abc import ABC, abstractmethod
-from pulse.interface.user_input.data_handler.imported_data import ImportedData
-
 from pathlib import Path
+
+from pulse.interface.user_input.data_handler.imported_data import ImportedData
 
 
 class IOHandler(ABC):
 
-    def __init__(self):
-        super().__init__()
-
+    @staticmethod
     @abstractmethod
     def read(self, file_path: str | Path) -> ImportedData:
         pass
-    
+
+    @staticmethod
     def save(self):
         pass

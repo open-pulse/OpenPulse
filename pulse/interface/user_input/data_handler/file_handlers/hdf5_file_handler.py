@@ -1,25 +1,19 @@
-from pulse.interface.user_input.data_handler.file_handlers.io_handler import IOHandler
-from pulse.interface.user_input.data_handler.imported_data import SimulationData
-
 from pathlib import Path
 
-import numpy as np
 import h5py
+import numpy as np
+
+from pulse.interface.user_input.data_handler.file_handlers.io_handler import IOHandler
+from pulse.interface.user_input.data_handler.imported_data import SimulationData
 
 
 class HDF5FileHandler(IOHandler):
 
-    EXTENSIONS = [".h5", ".hdf5"]
+    EXTENSIONS = [".h5", ".hd5", ".hdf5"]
 
-    def __init__(self):
-        super().__init__()
-
-    def read(self, file_path: str | Path) -> SimulationData:
-        simulation_data = SimulationData(
-            file_path.stem,
-            file_path.suffix,
-            str(file_path)
-        )
+    @staticmethod
+    def read(file_path: Path) -> SimulationData:
+        simulation_data = SimulationData(file_path)
 
         with h5py.File(file_path, 'r') as hf:
 

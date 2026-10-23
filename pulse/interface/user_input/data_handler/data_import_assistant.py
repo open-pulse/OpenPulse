@@ -1,15 +1,17 @@
-from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QTreeWidgetItem, QWidget
-from PySide6.QtGui import QCloseEvent
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QTreeWidgetItem, QWidget
 
 from pulse import app
+from pulse.extensions import SUPPORTED_SPREADSHEET_READ_EXTENSIONS, SUPPORTED_TEXT_EXTENSIONS
+from pulse.interface import error_title
 from pulse.interface.ui_generated.data_handler.data_import_assistant_ui import DataImportAssistant_UI
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.imported_data import ImportedData, SpreadsheetData, SpreadsheetSheet
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
+from pulse.interface.user_input.data_handler.imported_data import ImportedData, SpreadsheetData, SpreadsheetSheet
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-import numpy as np
-from pathlib import Path
 
 class DataImportAssistant(DataImportAssistant_UI):
     
@@ -77,41 +79,60 @@ class DataImportAssistant(DataImportAssistant_UI):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
 
     def import_results(self):
-        last_folder_path = app().config.get_last_folder_for("imported_data_folder", default=Path().home())
-        file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
+        file_extensions = SUPPORTED_SPREADSHEET_READ_EXTENSIONS + SUPPORTED_TEXT_EXTENSIONS
 
-        new_paths = FileDialogService.open_multiple_files(file_extensions, last_folder=last_folder_path)
+        new_paths = FileDialogService.open_multiple_files(file_extensions, last_folder="imported_data_folder")
 
         if not new_paths:
             return
 
-        self.imported_paths += new_paths
-
-        if len(self.imported_paths) == 1:
-            imported_text = str(self.imported_paths[0])
-        else:
-            imported_text = f"{self.imported_paths[0].name} (+{len(self.imported_paths) - 1} more)"
-
-        tooltip_text = "Imported files:\n" + "\n".join(map(str, self.imported_paths))
-        last_imported_file = str(self.imported_paths[-1])
-
-        self.lineEdit_import_results_path.setText(imported_text)
-        self.lineEdit_import_results_path.setToolTip(tooltip_text)
+        failed_files = list()
 
         for imported_path in new_paths:
-            file = FileHandler().read(imported_path)
+            try:
+                file = FileHandler.read(imported_path)
+            except Exception as error_log:
+                failed_files.append(f"{imported_path.name}: {error_log}")
+                continue
 
             if isinstance(file, SpreadsheetData):
+                if not file.sheets:
+                    failed_files.append(f"{imported_path.name}: no numeric data found")
+                    continue
+
                 for sheet in file.sheets:
                     sheet.source_file = file.filename
                     key = self.get_data_index()
                     self.imported_results[key] = sheet
+
+            elif file is None or file.data is None or file.data.size == 0:
+                failed_files.append(f"{imported_path.name}: no numeric data found")
+                continue
+
             else:
                 key = self.get_data_index()
                 self.imported_results[key] = file
 
-        app().config.write_last_folder_path_in_file("imported_data_folder", last_imported_file)
+            self.imported_paths.append(imported_path)
+
+        if self.imported_paths:
+            if len(self.imported_paths) == 1:
+                imported_text = str(self.imported_paths[0])
+            else:
+                imported_text = f"{self.imported_paths[0].name} (+{len(self.imported_paths) - 1} more)"
+
+            tooltip_text = "Imported files:\n" + "\n".join(map(str, self.imported_paths))
+
+            self.lineEdit_import_results_path.setText(imported_text)
+            self.lineEdit_import_results_path.setToolTip(tooltip_text)
+
         self.update_treeWidget_info()
+
+        if failed_files:
+            title = "Error while importing data"
+            message = "The following files could not be imported:\n\n"
+            message += "\n".join(failed_files)
+            PrintMessageInput([error_title, title, message])
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
@@ -135,7 +156,7 @@ class DataImportAssistant(DataImportAssistant_UI):
                     self.ids_to_checkBox[id].setChecked(self.checkButtons_state[id])
 
                 if isinstance(file, SpreadsheetSheet):
-                    _item = QTreeWidgetItem([file.source_file, file.name])
+                    _item = QTreeWidgetItem([file.source_file, file.sheetname])
                     self.treeWidget_import_sheet_files.addTopLevelItem(_item)
                     self.treeWidget_import_sheet_files.setItemWidget(_item, 2, checkbox_container)
 
@@ -167,7 +188,7 @@ class DataImportAssistant(DataImportAssistant_UI):
                 key = (id)
 
                 if isinstance(file, SpreadsheetSheet):
-                    temp_dict = self.generate_temp_dict(file.name, file.data, color)
+                    temp_dict = self.generate_temp_dict(file.sheetname, file.data, color)
                 else:
                     temp_dict = self.generate_temp_dict(file.filename, file.data, color)
 

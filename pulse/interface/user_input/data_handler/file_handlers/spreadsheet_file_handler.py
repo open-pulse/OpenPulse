@@ -11,60 +11,52 @@ from pulse.interface.user_input.data_handler.imported_data import (
 
 
 class SpreadsheetFileHandler(IOHandler):
+    READ_EXTENSIONS = [".xls", ".xlsx"]
+    WRITE_EXTENSIONS = [".xlsx"]
 
-    EXTENSIONS = [".xls", ".xlsx"]
-
-    def __init__(self):
-        super().__init__()
-
-    def read(self, file_path: str | Path) -> SpreadsheetData:
-        from openpyxl import load_workbook
+    @staticmethod
+    def read(file_path: Path) -> SpreadsheetData:
         from polars import read_excel
 
-        wb = load_workbook(file_path)
+        imported_spreadsheet = SpreadsheetData(file_path)
 
-        imported_spreadsheet = SpreadsheetData(file_path.stem,
-                                               file_path.suffix,
-                                               str(file_path),
-                                               )
-        sheets = list()
-        for sheetname in wb.sheetnames:
-            max_cols = wb[sheetname].max_column 
+        sheets_data = read_excel(
+            file_path,
+            sheet_id=0,
+            engine="calamine",
+            has_header=False,
+            raise_if_empty=False
+        )
 
-            for i in range(max_cols, 1, -1):
-                cols = list(range(i))
+        sheets = []
+        for sheetname, df in sheets_data.items():
+            if df.is_empty():
+                continue
 
-                try:
-                    sheet_data = read_excel(
-                        str(file_path),
-                        sheet_name=sheetname,
-                        columns=cols,
-                        engine="openpyxl",
-                        has_header=False,
-                        infer_schema_length=100,
-                    ).to_numpy()
-                    break
-                except Exception:
-                    pass
-
-            sheet_data = self._remove_unnecesary_header_in_data(sheet_data)
+            sheet_data = SpreadsheetFileHandler._remove_unnecesary_header_in_data(df.to_numpy())
             sheets.append(SpreadsheetSheet(sheetname, sheet_data))
 
         imported_spreadsheet.sheets = sheets
 
         return imported_spreadsheet
 
-    def save(self, file_path: str | Path, sheet_name: str, data: PolarsDataFrame, index_rows: bool = False):
+    @staticmethod
+    def save(file_path: str | Path, sheet_name: str, data: PolarsDataFrame, index_rows: bool = False, append: bool = False):
         from pandas import ExcelWriter
 
-        with ExcelWriter(str(file_path)) as writer:
+        mode = "a" if append else "w"
+        kwargs = {"if_sheet_exists": "replace"} if append else {}
+
+        with ExcelWriter(str(file_path), engine="openpyxl", mode=mode, **kwargs) as writer:
             data.to_pandas().to_excel(writer, sheet_name=sheet_name, index=index_rows)
-    
-    def _remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:
-        filtered_data = [row for row in data if self._is_valid_row(row)]
+
+    @staticmethod
+    def _remove_unnecesary_header_in_data(data: np.ndarray) -> np.ndarray:
+        filtered_data = [row for row in data if SpreadsheetFileHandler._is_valid_row(row)]
         return np.array(filtered_data, dtype=float)
 
-    def _is_valid_row(self, row: np.ndarray) -> bool:
+    @staticmethod
+    def _is_valid_row(row: np.ndarray) -> bool:
         try:
             float(row[0])
             return True

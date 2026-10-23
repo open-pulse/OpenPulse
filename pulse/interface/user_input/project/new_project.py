@@ -1,11 +1,11 @@
 import os
-from copy import deepcopy
 from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 
 from pulse import app
+from pulse.extensions import SUPPORTED_GEOMETRY_EXTENSIONS
 from pulse.interface.ui_generated.project.new_project_input_ui import NewProjectInput_UI
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -70,18 +70,14 @@ class NewProjectInput(NewProjectInput_UI):
         self.pushButton_import_geometry.setEnabled(index_type == ImportType.CAD_FILE)
 
     def import_geometry(self):
-
         self.hide()
-        last_folder_path = app().main_window.config.get_last_folder_for("geometry_folder", default=Path().home())
 
-        extensions = ["iges", "igs", "step", "stp"]
-        geometry_path = FileDialogService.open_file(extensions, last_folder=last_folder_path)
+        geometry_path = FileDialogService.open_file(SUPPORTED_GEOMETRY_EXTENSIONS, last_folder="geometry_folder")
 
         if geometry_path is None:
             return
 
         self.lineEdit_geometry_path.setText(str(geometry_path))
-        app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
     def check_project_inputs(self):
 
