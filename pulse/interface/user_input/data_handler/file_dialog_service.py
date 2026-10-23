@@ -91,17 +91,18 @@ class FileDialogService:
         if platform.system() == "Linux":
             kwargs["options"] = QFileDialog.Option.DontUseNativeDialog
 
-        filter_str = FileDialogService._generate_file_extensions_str(file_extensions, open_file)
+        filters = FileDialogService._generate_file_extensions_str(file_extensions, open_file)
+        kwargs["selectedFilter"] = filters[0]
 
-        return filter_str, kwargs
+        return ";;".join(filters), kwargs
 
     @staticmethod
-    def _generate_file_extensions_str(file_extensions: list[str], all_files=True):
+    def _generate_file_extensions_str(file_extensions: list[str], all_files=True) -> list[str]:
         file_extensions = sorted(file_extensions, key=FileDialogService._sort_extensions)
 
         ext_dict = defaultdict(list)
         last_label = FileDialogService._get_file_label(file_extensions[0])
-        extensions_text = ''
+        filters = []
 
         for i, ext in enumerate(file_extensions):
             ext_str = f"*.{ext}"
@@ -111,20 +112,20 @@ class FileDialogService:
             ext_dict[current_label].append(ext_str)
 
             if current_label != last_label:
-                extensions_text += FileDialogService._generate_qt_filter(last_label, ext_dict)
+                filters.append(FileDialogService._generate_qt_filter(last_label, ext_dict))
                 last_label = current_label
 
             if i == len(file_extensions) - 1:
-                extensions_text += FileDialogService._generate_qt_filter(current_label, ext_dict)
+                filters.append(FileDialogService._generate_qt_filter(current_label, ext_dict))
 
         if not all_files or len(file_extensions) == 1:
-            return extensions_text
+            return filters
 
-        return FileDialogService._generate_qt_filter("All files", ext_dict) + extensions_text
+        return [FileDialogService._generate_qt_filter("All files", ext_dict)] + filters
 
     @staticmethod
     def _generate_qt_filter(label: str, extensions_map: dict) -> str:
-        return f"{label} ({' '.join(extensions_map[label])});;"
+        return f"{label} ({' '.join(extensions_map[label])})"
 
     @staticmethod
     def _get_file_label(extension: str) -> str:
